@@ -159,6 +159,101 @@ const normalizeTransactionFromApi = (t: any): Transaction => {
 const normalizeTransactionsFromApi = (data: any): Transaction[] =>
   Array.isArray(data) ? data.map(normalizeTransactionFromApi) : [];
 
+// ============================================================
+// ✅ Normalize Cart items coming from API (ensure UI fields exist)
+// ============================================================
+const normalizeCartItem = (item: any, fallback?: Partial<CartItem>): CartItem => {
+  const toStr = (v: any, def = '') =>
+    v === undefined || v === null || v === '' ? def : String(v);
+
+  const fallbackId = fallback?.id || `temp-${Date.now()}`;
+  const price =
+    Number(
+      item?.price ??
+        item?.amount ??
+        item?.selectedDenomination?.price ??
+        item?.selectedDenomination?.amount ??
+        item?.denominationPrice ??
+        item?.value ??
+        item?.cost ??
+        item?.denomination
+    ) ||
+    Number(fallback?.price ?? 0);
+
+  const selectedRegion =
+    item?.selectedRegion ||
+    item?.region ||
+    item?.regionData ||
+    fallback?.selectedRegion ||
+    (item?.regionId || item?.regionName
+      ? {
+          id: toStr(item?.regionId || 'region-temp'),
+          name: toStr(item?.regionName || (fallback?.selectedRegion as any)?.name || 'عام'),
+          flag: item?.regionFlag || (fallback?.selectedRegion as any)?.flag || '🌍',
+        }
+      : undefined);
+
+  const selectedDenomination =
+    item?.selectedDenomination ||
+    item?.denomination ||
+    fallback?.selectedDenomination ||
+    (item?.denominationId || item?.quantityLabel
+      ? {
+          id: toStr(item?.denominationId || 'denom-temp'),
+          label: toStr(
+            item?.quantityLabel ||
+              (fallback?.selectedDenomination as any)?.label ||
+              'فئة'
+          ),
+          price,
+        }
+      : undefined);
+
+  return {
+    id: toStr(item?.id || item?._id || fallbackId),
+    productId: toStr(
+      item?.productId ||
+        item?.product_id ||
+        item?.product?.id ||
+        fallback?.productId ||
+        ''
+    ),
+    name: toStr(
+      item?.name ||
+        item?.productName ||
+        item?.title ||
+        item?.product?.name ||
+        fallback?.name ||
+        'منتج'
+    ),
+    category:
+      item?.category ??
+      item?.productCategory ??
+      item?.product?.category ??
+      fallback?.category,
+    price,
+    imageUrl:
+      item?.imageUrl ??
+      item?.productImage ??
+      item?.product?.imageUrl ??
+      fallback?.imageUrl,
+    imageColor:
+      item?.imageColor ??
+      item?.product?.imageColor ??
+      fallback?.imageColor ??
+      'from-indigo-500 to-purple-600',
+    selectedRegion,
+    selectedDenomination,
+    quantity: Number(item?.quantity ?? fallback?.quantity ?? 1),
+    apiConfig: item?.apiConfig ?? item?.product?.apiConfig ?? fallback?.apiConfig,
+    customInputValue: item?.customInputValue ?? item?.customInput ?? fallback?.customInputValue,
+    customInputLabel:
+      item?.customInputLabel ?? item?.customInputName ?? fallback?.customInputLabel,
+  };
+};
+
+const normalizeCartItemsFromApi = (data: any[]): CartItem[] =>
+  Array.isArray(data) ? data.map((item) => normalizeCartItem(item)) : [];
 
 const App: React.FC = () => {
   const hasToken = Boolean(localStorage.getItem('token'));
@@ -414,7 +509,7 @@ const App: React.FC = () => {
 
       try {
         const res = await cartService.getMyCart();
-        const items = Array.isArray(res?.data) ? (res.data as CartItem[]) : [];
+        const items = normalizeCartItemsFromApi(res?.data || []);
         setCartItems(items);
       } catch (error) {
         console.warn('Could not load cart from API', error);
@@ -617,7 +712,7 @@ const App: React.FC = () => {
     if (!currentUser) return;
     try {
       const res = await cartService.getMyCart();
-      const items = Array.isArray(res?.data) ? (res.data as CartItem[]) : [];
+      const items = normalizeCartItemsFromApi(res?.data || []);
       setCartItems(items);
     } catch (error) {
       console.warn('Failed to refresh cart from API', error);
@@ -1028,7 +1123,7 @@ const App: React.FC = () => {
         };
 
         const res = await cartService.add(payload);
-        const created = res?.data as CartItem;
+        const created = normalizeCartItem(res?.data, item);
         setCartItems(prev => [created, ...prev]);
       } catch (error) {
         console.error('Add to cart failed', error);
@@ -1435,154 +1530,6 @@ const App: React.FC = () => {
         );
       case View.NOTIFICATIONS:
         return <Notifications setView={handleSetView} formatPrice={formatPrice} announcements={announcements} />;
-      case View.CART:
-        return (
-          <div className="pt-4">
-             {/* Header */}
-             <div className="px-4 mb-4">
-                <h1 className="text-xl font-bold text-white text-right">سلة المشتريات</h1>
-             </div>
-
-             {cartItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center pt-16 text-center px-6 animate-fadeIn">
-                    <div className="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center mb-4 relative shadow-lg shadow-yellow-400/20">
-                        <ShoppingCart size={48} className="text-black" strokeWidth={1.5} />
-                    </div>
-                    <h2 className="text-xl font-bold mb-2 text-white">قائمة مشترياتك فارغة</h2>
-                    <p className="text-gray-400 text-sm mb-8">لم تقم باضافه شيئ الى السلة</p>
-                    <button onClick={() => handleSetView(View.HOME)} className="bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-yellow-500 transition-colors active:scale-95 transform">
-                        تصفح المنتجات
-                    </button>
-                </div>
-             ) : (
-                <div className="px-4 space-y-4 animate-slide-up">
-                    
-                    {/* Summary (Moved to Top) */}
-                    <div className="bg-[#242636] p-4 rounded-2xl border border-gray-700 shadow-lg mb-2">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-400 text-sm">عدد العناصر</span>
-                            <span className="text-white font-bold">{cartItems.length}</span>
-                        </div>
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-gray-400 text-sm">الإجمالي الكلي</span>
-                            <span className="text-yellow-400 font-black text-xl dir-ltr">{formatPrice(cartTotal)}</span>
-                        </div>
-                        {/* Buy All Button */}
-                        <button 
-                            onClick={handleBuyAll}
-                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
-                        >
-                            <CheckCircle size={20} />
-                            شراء الكل ({formatPrice(cartTotal)})
-                        </button>
-                    </div>
-
-                    {/* Cart Items List */}
-                    <div className="space-y-3">
-                        {cartItems.slice(0, cartVisibleCount).map((item) => (
-                            <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
-                                <div className="flex items-start gap-3">
-                                    {/* Image */}
-                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center`}>
-                                        {item.imageUrl ? (
-                                             <img 
-                                               src={item.imageUrl} 
-                                               alt={item.name} 
-                                               className="w-full h-full object-cover opacity-90"
-                                               referrerPolicy="no-referrer"
-                                               onError={(e) => {
-                                                  const target = e.target as HTMLImageElement;
-                                                  target.style.display = 'none';
-                                                  target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
-                                                  const span = document.createElement('span');
-                                                  span.className = 'text-white text-[10px] font-bold';
-                                                  span.innerText = item.name.slice(0, 5);
-                                                  target.parentElement!.appendChild(span);
-                                               }}
-                                             />
-                                        ) : (
-                                             <span className="text-white text-[10px] font-bold">{item.name.slice(0,5)}
-</span>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Info */}
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <h3 className="text-sm font-bold text-white line-clamp-1">{item.name}</h3>
-                                        </div>
-                                        
-                                        <div className="flex flex-wrap gap-2 mb-2">
-                                            {item.selectedRegion && (
-                                                <span className="text-[10px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-700 flex items-center gap-1">
-                                                    {item.selectedRegion.flag} {item.selectedRegion.name}
-                                                </span>
-                                            )}
-                                            {item.selectedDenomination && (
-                                                <span className="text-[10px] bg-yellow-400/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/30">
-                                                    {item.selectedDenomination.label}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {/* Show Custom Input in Cart */}
-                                        {item.customInputValue && (
-                                            <div className="mb-2 text-[10px] bg-[#13141f] border border-gray-700 rounded px-2 py-1 text-gray-400 flex items-center gap-1">
-                                                <User size={10} className="text-gray-500" />
-                                                <span className="font-bold">{item.customInputLabel}:</span>
-                                                <span className="text-white">{item.customInputValue}</span>
-                                            </div>
-                                        )}
-                                        
-                                        <p className="text-lg font-black text-yellow-400 dir-ltr font-mono leading-none mb-3">{formatPrice(item.price)}</p>
-                                    </div>
-                                </div>
-
-                                {/* Actions Row */}
-                                <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700/50">
-                                    <button 
-                                        onClick={() => handleBuyItem(item)}
-                                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-                                    >
-                                        <CheckCircle size={14} />
-                                        شراء الآن
-                                    </button>
-                                    <button 
-                                        onClick={() => removeFromCart(item.id)}
-                                        className="px-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center active:scale-95"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        {cartItems.length > cartVisibleCount && (
-                          <div className="flex justify-center pt-3">
-                            <button
-                              onClick={() => setCartVisibleCount(c => Math.min(c + 10, cartItems.length))}
-                              className="px-4 py-2 rounded-xl bg-[#242636] border border-gray-700 text-gray-200 text-sm font-bold hover:bg-[#2f3245] transition-colors"
-                            >
-                              عرض المزيد
-                            </button>
-                          </div>
-                        )}
-                    </div>
-                </div>
-             )}
-
-             {/* Checkout Modal for Cart */}
-             <CheckoutModal 
-                isOpen={!!activeCheckoutItem || isBulkCheckout}
-                onClose={() => { setActiveCheckoutItem(null); setIsBulkCheckout(false); }}
-                itemName={isBulkCheckout ? `شراء الكل (${cartItems.length} منتجات)` : activeCheckoutItem?.name || ''}
-                price={isBulkCheckout ? cartTotal : activeCheckoutItem?.price || 0}
-                userBalance={balanceUSD}
-                onSuccess={handleCheckoutSuccess}
-                formatPrice={formatPrice}
-                onRequireLogin={() => setShowLoginModal(true)}
-             />
-          </div>
-        );
       case View.ORDERS:
         return (
           <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
