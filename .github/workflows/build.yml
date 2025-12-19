@@ -1,0 +1,53 @@
+name: Build Android App (APK)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # ✅ التعديل هنا — إضافة رابط السيرفر داخل build حتى لا يستخدم localhost
+      - name: Build Web Assets
+        run: VITE_API_URL="https://rrrr-production-f1ca.up.railway.app/api" npm run build
+
+      # إضافة منصة Android داخل CI (لأنك ما رفعتها في GitHub)
+      - name: Initialize Android Platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK with Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ratelozn-App-Debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 5
