@@ -222,6 +222,10 @@ const App: React.FC = () => {
   });
   const [isSecurityBlocked, setIsSecurityBlocked] = useState(false);
   const [securityMessage, setSecurityMessage] = useState('');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() =>
+    hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null
+  ); // Start as null (Guest)
+  const pushInitRef = useRef(false);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
@@ -239,12 +243,13 @@ useEffect(() => {
   const initPushNotifications = async () => {
     try {
       if (Capacitor.getPlatform() !== 'android') return;
+      if (pushInitRef.current) return;
+      pushInitRef.current = true;
 
       const perm = await PushNotifications.requestPermissions();
       if (perm.receive !== 'granted') return;
 
       await PushNotifications.register();
-
       PushNotifications.addListener('registration', async (token) => {
         try {
           const value = String(token?.value || '');
@@ -337,7 +342,6 @@ useEffect(() => {
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
 
   // --- Auth State ---
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => (hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null)); // Start as null (Guest)
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // --- Admin Auth State ---
