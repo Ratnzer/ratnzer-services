@@ -225,6 +225,7 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() =>
     hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null
   ); // Start as null (Guest)
+  const pushInitRef = useRef(false);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
