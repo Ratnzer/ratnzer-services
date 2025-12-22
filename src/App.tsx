@@ -17,7 +17,7 @@ import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
@@ -215,6 +215,40 @@ const normalizeTransactionsFromApi = (data: any): Transaction[] =>
 
 
 const App: React.FC = () => {
+  const showLocalNotification = async (notification: PushNotificationSchema) => {
+    if (typeof window === 'undefined' || typeof Notification === 'undefined') return;
+
+    const title = notification?.title || 'إشعار جديد';
+    const body =
+      notification?.body ||
+      (notification?.data && typeof notification.data === 'object'
+        ? (notification.data as Record<string, any>).message
+        : undefined) ||
+      '';
+
+    const display = () => {
+      try {
+        new Notification(title, { body });
+      } catch (err) {
+        console.warn('Unable to display notification', err);
+      }
+    };
+
+    if (Notification.permission === 'granted') {
+      display();
+      return;
+    }
+
+    if (Notification.permission === 'default') {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') display();
+      } catch (err) {
+        console.warn('Notification permission failed', err);
+      }
+    }
+  };
+
   const hasToken = Boolean(localStorage.getItem('token'));
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [currencyCode, setCurrencyCode] = useState<string>(() => {
