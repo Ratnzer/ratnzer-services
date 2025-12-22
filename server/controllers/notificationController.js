@@ -210,14 +210,6 @@ const notifyAdminOrder = asyncHandler(async (req, res) => {
   );
 
   const tokens = await getTokensForUsers(adminIds);
-  const push = await sendFcmPush(
-    tokens.map((t) => t.token),
-    {
-      title: title || 'طلب جديد',
-      body: message || (orderId ? `تم إنشاء طلب جديد رقم ${orderId}` : 'تم إنشاء طلب جديد'),
-      data: { orderId, type: 'admin-order' },
-    }
-  );
   res.json({
     success: true,
     notified: adminIds.length,

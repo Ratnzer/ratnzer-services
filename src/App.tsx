@@ -276,6 +276,7 @@ useEffect(() => {
 
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
         console.log('Notification received:', notification);
+        void showLocalNotification(notification);
       });
 
       PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
