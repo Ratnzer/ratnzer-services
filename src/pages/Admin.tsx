@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction } from '../types';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
-import { contentService, productService, orderService, inventoryService, userService, settingsService } from '../services/api';
+import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
 
 interface Props {
@@ -433,6 +433,15 @@ const getOrderDate = (o: any) => {
           : o
       ));
 
+      try {
+          await pushService.notifyUserOrderUpdate({
+              orderId: fulfillmentOrder.id,
+              status: 'completed',
+          });
+      } catch (notifyErr) {
+          console.warn('Failed to notify user about completed order', notifyErr);
+      }
+
       setFulfillmentOrder(null);
       setFulfillmentCode('');
       alert('تم تنفيذ الطلب بنجاح وتم إرسال الكود للمستخدم');
@@ -464,6 +473,15 @@ const getOrderDate = (o: any) => {
          ? { ...o, status: 'cancelled', rejectionReason: cancellationReason } 
          : o 
       ));
+
+      try {
+          await pushService.notifyUserOrderUpdate({
+              orderId: cancellationOrder.id,
+              status: 'cancelled',
+          });
+      } catch (notifyErr) {
+          console.warn('Failed to notify user about cancelled order', notifyErr);
+      }
 
       // 3. Best-effort: update user balance in UI (server already refunded)
       setUsers(prev => prev.map(u => {
@@ -1230,6 +1248,15 @@ try {
               setAnnouncements(prev => [localAnn, ...prev]);
               alert('تم إرسال الإشعار للجميع بنجاح');
           }
+      }
+
+      try {
+          await pushService.broadcastAnnouncement({
+              title: payload.title,
+              message: payload.message,
+          });
+      } catch (notifyErr) {
+          console.warn('Failed to broadcast announcement push', notifyErr);
       }
 
       // Close Modal and Reset

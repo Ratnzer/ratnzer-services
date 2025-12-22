@@ -14,11 +14,10 @@ import InvoiceModal from './components/InvoiceModal'; // Import InvoiceModal
 import LoginModal from './components/LoginModal'; // Import LoginModal
 import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
-import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService } from './services/api';
+import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
-import { Clipboard } from '@capacitor/clipboard';
 
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
@@ -226,40 +225,6 @@ const App: React.FC = () => {
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
-  const [showFcmTokenModal, setShowFcmTokenModal] = useState(false);
-  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
-
-  const copyFcmToken = async () => {
-    if (!fcmToken) {
-      setCopyStatus('failed');
-      return;
-    }
-    try {
-      // Prefer modern clipboard API when available
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(fcmToken);
-      } else {
-        // Fallback for some WebView environments
-        const textarea = document.createElement('textarea');
-        textarea.value = fcmToken;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'fixed';
-        textarea.style.top = '-9999px';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-      }
-      setCopyStatus('copied');
-      setTimeout(() => setCopyStatus('idle'), 1200);
-    } catch (e) {
-      console.error('Failed to copy FCM token', e);
-      setCopyStatus('failed');
-      setTimeout(() => setCopyStatus('idle'), 1500);
-    }
-  };
 
   // --- PayTabs Return Handling ---
   const [paytabsProcessing, setPaytabsProcessing] = useState<boolean>(false);
@@ -268,8 +233,7 @@ const App: React.FC = () => {
 
 // ============================================================
 // ✅ Firebase Push Notifications (FCM) - Android only
-// - Saves token into localStorage (fcm_token)
-// - Shows token once via alert (so you can copy it without PC)
+// - Saves token into localStorage (fcm_token) and registers device silently
 // ============================================================
 useEffect(() => {
   const initPushNotifications = async () => {
@@ -281,24 +245,22 @@ useEffect(() => {
 
       await PushNotifications.register();
 
-      PushNotifications.addListener('registration', (token) => {
+      PushNotifications.addListener('registration', async (token) => {
         try {
           const value = String(token?.value || '');
           if (!value) return;
 
-          const prev = localStorage.getItem('fcm_token') || '';
           localStorage.setItem('fcm_token', value);
           setFcmToken(value);
 
-          // Show once when token changes (helps when you only use GitHub on phone)
-          if (value !== prev) {
-            // Best-effort copy
-            if (navigator?.clipboard?.writeText) {
-              navigator.clipboard.writeText(value).catch(() => {});
-            }
-            setFcmToken(value);
-            setCopyStatus('idle');
-            setShowFcmTokenModal(true);
+          try {
+            await pushService.registerDevice({
+              token: value,
+              platform: 'android',
+              userId: currentUser?.id,
+            });
+          } catch (regErr) {
+            console.warn('Failed to register device token', regErr);
           }
         } catch {}
       });
@@ -320,7 +282,25 @@ useEffect(() => {
   };
 
   void initPushNotifications();
-}, []);
+}, [currentUser?.id]);
+
+// Register device when token already available (e.g., after login)
+useEffect(() => {
+  const syncToken = async () => {
+    if (!fcmToken) return;
+    if (Capacitor.getPlatform() !== 'android') return;
+    try {
+      await pushService.registerDevice({
+        token: fcmToken,
+        platform: 'android',
+        userId: currentUser?.id,
+      });
+    } catch (err) {
+      console.warn('Failed to sync device token', err);
+    }
+  };
+  void syncToken();
+}, [fcmToken, currentUser?.id]);
   
   // --- Global App State (Lifted for Admin Control) ---
   const [products, setProducts] = useState<Product[]>(() => loadCache<Product[]>('cache_products_v1', INITIAL_PRODUCTS));
@@ -1226,6 +1206,11 @@ useEffect(() => {
             // Optimistic update first (ensure valid date to prevent crash)
             const newOrder = normalizeOrderFromApi(result.order);
             setOrders(prev => [newOrder, ...prev]);
+            try {
+              await pushService.notifyAdminOrder({ orderId: newOrder.id });
+            } catch (notifyErr) {
+              console.warn('Failed to notify admin about new order', notifyErr);
+            }
         }
 
         await syncAfterOrder();
@@ -1393,6 +1378,13 @@ useEffect(() => {
                   alert(result.message);
                   return;
               }
+              if (result.order) {
+                try {
+                  await pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
+                } catch (notifyErr) {
+                  console.warn('Failed to notify admin about bulk order item', notifyErr);
+                }
+              }
           }
 
           await syncAfterOrder();
@@ -1429,6 +1421,13 @@ useEffect(() => {
               alert(result.message);
               return;
           }
+          if (result.order) {
+            try {
+              await pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
+            } catch (notifyErr) {
+              console.warn('Failed to notify admin about cart order', notifyErr);
+            }
+          }
 
           await syncAfterOrder();
           alert('تمت عملية الشراء بنجاح! تجد الكود في قائمة طلباتي.');
@@ -1450,9 +1449,6 @@ useEffect(() => {
   useEffect(() => {
     if (currentView === View.CART) setCartVisibleCount(10);
   }, [cartItems.length]);
-
-  // Filter orders for current user view
-  const myOrders = currentUser ? orders.filter(o => o.userId === currentUser.id) : [];
 
   const renderView = () => {
     switch (currentView) {
@@ -1580,156 +1576,6 @@ useEffect(() => {
             setTransactions={setTransactions} // Pass setter for logs
             onLogout={handleAdminLogout} // Pass logout handler
           />
-        );
-      case View.NOTIFICATIONS:
-        return <Notifications setView={handleSetView} formatPrice={formatPrice} announcements={announcements} />;
-      case View.CART:
-        return (
-          <div className="pt-4">
-             {/* Header */}
-             <div className="px-4 mb-4">
-                <h1 className="text-xl font-bold text-white text-right">سلة المشتريات</h1>
-             </div>
-
-             {cartItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center pt-16 text-center px-6 animate-fadeIn">
-                    <div className="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center mb-4 relative shadow-lg shadow-yellow-400/20">
-                        <ShoppingCart size={48} className="text-black" strokeWidth={1.5} />
-                    </div>
-                    <h2 className="text-xl font-bold mb-2 text-white">قائمة مشترياتك فارغة</h2>
-                    <p className="text-gray-400 text-sm mb-8">لم تقم باضافه شيئ الى السلة</p>
-                    <button onClick={() => handleSetView(View.HOME)} className="bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-yellow-500 transition-colors active:scale-95 transform">
-                        تصفح المنتجات
-                    </button>
-                </div>
-             ) : (
-                <div className="px-4 space-y-4 animate-slide-up">
-                    
-                    {/* Summary (Moved to Top) */}
-                    <div className="bg-[#242636] p-4 rounded-2xl border border-gray-700 shadow-lg mb-2">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-400 text-sm">عدد العناصر</span>
-                            <span className="text-white font-bold">{cartItems.length}</span>
-                        </div>
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-gray-400 text-sm">الإجمالي الكلي</span>
-                            <span className="text-yellow-400 font-black text-xl dir-ltr">{formatPrice(cartTotal)}</span>
-                        </div>
-                        {/* Buy All Button */}
-                        <button 
-                            onClick={handleBuyAll}
-                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
-                        >
-                            <CheckCircle size={20} />
-                            شراء الكل ({formatPrice(cartTotal)})
-                        </button>
-                    </div>
-
-                    {/* Cart Items List */}
-                    <div className="space-y-3">
-                        {cartItems.slice(0, cartVisibleCount).map((item) => (
-                            <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
-                                <div className="flex items-start gap-3">
-                                    {/* Image */}
-                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center`}>
-                                        {item.imageUrl ? (
-                                             <img 
-                                               src={item.imageUrl} 
-                                               alt={item.name} 
-                                               className="w-full h-full object-cover opacity-90"
-                                               referrerPolicy="no-referrer"
-                                               onError={(e) => {
-                                                  const target = e.target as HTMLImageElement;
-                                                  target.style.display = 'none';
-                                                  target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
-                                                  const span = document.createElement('span');
-                                                  span.className = 'text-white text-[10px] font-bold';
-                                                  span.innerText = item.name.slice(0, 5);
-                                                  target.parentElement!.appendChild(span);
-                                               }}
-                                             />
-                                        ) : (
-                                             <span className="text-white text-[10px] font-bold">{item.name.slice(0,5)}
-</span>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Info */}
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <h3 className="text-sm font-bold text-white line-clamp-1">{item.name}</h3>
-                                        </div>
-                                        
-                                        <div className="flex flex-wrap gap-2 mb-2">
-                                            {item.selectedRegion && (
-                                                <span className="text-[10px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-700 flex items-center gap-1">
-                                                    {item.selectedRegion.flag} {item.selectedRegion.name}
-                                                </span>
-                                            )}
-                                            {item.selectedDenomination && (
-                                                <span className="text-[10px] bg-yellow-400/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/30">
-                                                    {item.selectedDenomination.label}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {/* Show Custom Input in Cart */}
-                                        {item.customInputValue && (
-                                            <div className="mb-2 text-[10px] bg-[#13141f] border border-gray-700 rounded px-2 py-1 text-gray-400 flex items-center gap-1">
-                                                <User size={10} className="text-gray-500" />
-                                                <span className="font-bold">{item.customInputLabel}:</span>
-                                                <span className="text-white">{item.customInputValue}</span>
-                                            </div>
-                                        )}
-                                        
-                                        <p className="text-lg font-black text-yellow-400 dir-ltr font-mono leading-none mb-3">{formatPrice(item.price)}</p>
-                                    </div>
-                                </div>
-
-                                {/* Actions Row */}
-                                <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700/50">
-                                    <button 
-                                        onClick={() => handleBuyItem(item)}
-                                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-                                    >
-                                        <CheckCircle size={14} />
-                                        شراء الآن
-                                    </button>
-                                    <button 
-                                        onClick={() => removeFromCart(item.id)}
-                                        className="px-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center active:scale-95"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        {cartItems.length > cartVisibleCount && (
-                          <div className="flex justify-center pt-3">
-                            <button
-                              onClick={() => setCartVisibleCount(c => Math.min(c + 10, cartItems.length))}
-                              className="px-4 py-2 rounded-xl bg-[#242636] border border-gray-700 text-gray-200 text-sm font-bold hover:bg-[#2f3245] transition-colors"
-                            >
-                              عرض المزيد
-                            </button>
-                          </div>
-                        )}
-                    </div>
-                </div>
-             )}
-
-             {/* Checkout Modal for Cart */}
-             <CheckoutModal 
-                isOpen={!!activeCheckoutItem || isBulkCheckout}
-                onClose={() => { setActiveCheckoutItem(null); setIsBulkCheckout(false); }}
-                itemName={isBulkCheckout ? `شراء الكل (${cartItems.length} منتجات)` : activeCheckoutItem?.name || ''}
-                price={isBulkCheckout ? cartTotal : activeCheckoutItem?.price || 0}
-                userBalance={balanceUSD}
-                onSuccess={handleCheckoutSuccess}
-                formatPrice={formatPrice}
-                onRequireLogin={() => setShowLoginModal(true)}
-             />
-          </div>
         );
       case View.NOTIFICATIONS:
         return <Notifications setView={handleSetView} formatPrice={formatPrice} announcements={announcements} />;
@@ -2151,63 +1997,7 @@ useEffect(() => {
         />
 
         
-        {/* FCM Token Modal */}
-        {showFcmTokenModal && (
-          <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4"
-            onClick={() => setShowFcmTokenModal(false)}
-          >
-            <div
-              className="w-full max-w-md rounded-2xl bg-white p-5 text-black shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-              dir="rtl"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-base font-bold">✅ تم تفعيل الإشعارات</div>
-                <button
-                  className="text-sm text-gray-600"
-                  onClick={() => setShowFcmTokenModal(false)}
-                  type="button"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="mt-3 text-sm text-gray-700">
-                FCM Token:
-              </div>
-
-              <div className="mt-2 rounded-lg bg-gray-100 p-3 text-xs leading-relaxed break-all select-text">
-                {fcmToken}
-              </div>
-
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <div className="text-xs text-gray-600">
-                  {copyStatus === 'copied' ? '✅ تم النسخ' : copyStatus === 'failed' ? '⚠️ تعذر النسخ' : ''}
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="rounded-lg bg-[#13141f] px-4 py-2 text-sm font-semibold text-white"
-                    onClick={copyFcmToken}
-                  >
-                    نسخ
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-800"
-                    onClick={() => setShowFcmTokenModal(false)}
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-<div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
+        <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
       </div>
     </div>
   );

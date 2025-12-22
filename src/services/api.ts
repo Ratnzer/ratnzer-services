@@ -151,4 +151,18 @@ export const contentService = {
     api.put("/content/terms", data),
 };
 
+// ============================================================
+// Push Notification Services
+// ============================================================
+export const pushService = {
+  registerDevice: (data: { token: string; platform?: string; userId?: string | number }) =>
+    api.post("/notifications/register-device", data),
+  notifyAdminOrder: (data: { orderId?: string }) =>
+    api.post("/notifications/notify-admin-order", data),
+  notifyUserOrderUpdate: (data: { orderId?: string; status?: string }) =>
+    api.post("/notifications/notify-user-order", data),
+  broadcastAnnouncement: (data: { title: string; message: string }) =>
+    api.post("/notifications/broadcast", data),
+};
+
 export default api;
