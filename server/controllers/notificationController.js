@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
-const { upsertToken, getTokensForUsers } = require('../utils/tokenStore');
+const { upsertToken, getTokensForUsers, readTokens } = require('../utils/tokenStore');
 
 // ===== FCM HTTP v1 helpers (Service Account) =====
 const FCM_OAUTH_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
@@ -210,11 +210,53 @@ const notifyAdminOrder = asyncHandler(async (req, res) => {
   );
 
   const tokens = await getTokensForUsers(adminIds);
+  const push = await sendFcmPush(
+    tokens.map((t) => t.token),
+    {
+      title: title || 'طلب جديد',
+      body: message || (orderId ? `تم إنشاء طلب جديد رقم ${orderId}` : 'تم إنشاء طلب جديد'),
+      data: { orderId, type: 'admin-order' },
+    }
+  );
   res.json({
     success: true,
     notified: adminIds.length,
     tokens: tokens.map((t) => t.token),
     push,
+  });
+});
+
+// @desc    Broadcast announcement/push to all registered devices
+// @route   POST /api/notifications/broadcast
+// @access  Private (Admin)
+const broadcastAnnouncement = asyncHandler(async (req, res) => {
+  const { title, message } = req.body || {};
+
+  if (!title || !message) {
+    res.status(400);
+    throw new Error('عنوان ورسالة الإشعار مطلوبة');
+  }
+
+  const tokens = await readTokens();
+  const userIdsWithTokens = Array.from(new Set(tokens.map((t) => t.userId).filter(Boolean)));
+
+  await Promise.all(
+    userIdsWithTokens.map((userId) =>
+      sendNotification(userId, title, message, 'info')
+    )
+  );
+
+  const push = await sendFcmPush(
+    tokens.map((t) => t.token),
+    { title, body: message, data: { type: 'broadcast' } }
+  );
+
+  res.json({
+    success: true,
+    attempts: push.attempts,
+    sent: push.sent,
+    errors: push.errors,
+    targetedUsers: userIdsWithTokens.length,
   });
 });
 
@@ -261,4 +303,4 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyUserOrder };
+module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, broadcastAnnouncement, notifyUserOrder };
