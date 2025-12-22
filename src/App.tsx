@@ -222,6 +222,10 @@ const App: React.FC = () => {
   });
   const [isSecurityBlocked, setIsSecurityBlocked] = useState(false);
   const [securityMessage, setSecurityMessage] = useState('');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() =>
+    hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null
+  ); // Start as null (Guest)
+  const pushInitRef = useRef(false);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
@@ -239,11 +243,47 @@ useEffect(() => {
   const initPushNotifications = async () => {
     try {
       if (Capacitor.getPlatform() !== 'android') return;
+      if (pushInitRef.current) return;
+      pushInitRef.current = true;
 
       const perm = await PushNotifications.requestPermissions();
       if (perm.receive !== 'granted') return;
 
       await PushNotifications.register();
+      try {
+        await PushNotifications.createChannel({
+          id: 'default',
+          name: 'إشعارات عامة',
+          description: 'الإشعارات العامة للتطبيق',
+          importance: 5,
+        });
+      } catch (channelErr) {
+        console.warn('Failed to create notification channel', channelErr);
+      }
+
+      const showLocalNotification = async (notification: any) => {
+        const title = notification?.notification?.title || notification?.data?.title || 'إشعار جديد';
+        const body = notification?.notification?.body || notification?.data?.body || notification?.data?.message;
+
+        try {
+          if (typeof Notification !== 'undefined') {
+            if (Notification.permission === 'default') {
+              await Notification.requestPermission();
+            }
+            if (Notification.permission === 'granted') {
+              new Notification(title, { body });
+              return;
+            }
+          }
+        } catch (webNotifErr) {
+          console.warn('Web notification fallback failed', webNotifErr);
+        }
+
+        // As a final fallback, show a simple alert (foreground only)
+        if (title || body) {
+          alert(`${title}${body ? `\n${body}` : ''}`);
+        }
+      };
 
       PushNotifications.addListener('registration', async (token) => {
         try {
@@ -271,6 +311,7 @@ useEffect(() => {
 
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
         console.log('Notification received:', notification);
+        void showLocalNotification(notification);
       });
 
       PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
@@ -337,7 +378,6 @@ useEffect(() => {
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
 
   // --- Auth State ---
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => (hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null)); // Start as null (Guest)
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // --- Admin Auth State ---
