@@ -107,6 +107,7 @@ const normalizeOrderFromApi = (o: any): Order => {
     status: ((o?.status as any) || "pending") as Order['status'],
     fulfillmentType: (o?.fulfillmentType as any) || "manual",
     deliveredCode: o?.deliveredCode ?? null,
+    rejectionReason: toOptionalStr(o?.rejectionReason),
     date,
   } as any) as Order;
 };
@@ -226,9 +227,9 @@ const App: React.FC = () => {
     hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null
   ); // Start as null (Guest)
   const [inAppNotification, setInAppNotification] = useState<{ title: string; body: string } | null>(null);
-  const [cartToast, setCartToast] = useState<string | null>(null);
+  const [actionToast, setActionToast] = useState<{ title: string; message?: string } | null>(null);
   const inAppNotifTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cartToastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const actionToastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pushInitRef = useRef(false);
 
   // --- Firebase FCM Token (for Push Notifications) ---
@@ -1300,8 +1301,9 @@ useEffect(() => {
             }
         }
 
-        await syncAfterOrder();
+        // ✅ Show success immediately, then refresh data in background to avoid user-visible delay
         showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+        void syncAfterOrder();
       })();
   };
 
@@ -2036,8 +2038,8 @@ useEffect(() => {
                 <CheckCircle size={24} />
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="text-[13px] font-extrabold text-emerald-700">تمت الإضافة</span>
-                <span className="text-xs text-emerald-600">{cartToast}</span>
+                <span className="text-[13px] font-extrabold text-emerald-700">{actionToast.title}</span>
+                <span className="text-xs text-emerald-600">{actionToast.message}</span>
               </div>
             </div>
           </div>

@@ -219,7 +219,6 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                     regionObj,
                     denomObj
                 );
-alert('تمت عملية الشراء بنجاح! تجد الكود في قائمة طلباتي.');
                 onClose();
             } else {
                 alert('Error: Purchase function not connected');
@@ -230,11 +229,11 @@ alert('تمت عملية الشراء بنجاح! تجد الكود في قائ�
       } else {
           // ✅ PayTabs flow (redirect handled by parent)
           if (onPurchase) {
-              onPurchase(
-                  product.name,
-                  currentPrice,
-                  product.apiConfig?.type || 'manual',
-                  regionObj?.name,
+                onPurchase(
+                    product.name, 
+                    currentPrice, 
+                    product.apiConfig?.type || 'manual',
+                    regionObj?.name,
                   denomObj?.label,
                   product.category,
                   product.id,
@@ -569,11 +568,10 @@ onClose();
                         product.id,
                         selectedRegion,
                         selectedDenomId,
-                        customInputValue.trim(),
-                        activeCustomInput?.label, // Use active label (Region or Global)
-                        'card' // Method is Card
-                    );
-                    alert('تمت عملية الشراء بنجاح! تجد الكود في قائمة طلباتي.');
+                    customInputValue.trim(),
+                    activeCustomInput?.label, // Use active label (Region or Global)
+                    'card' // Method is Card
+                );
                     onClose();
                 } else {
                     alert('Error: Purchase function not connected');
