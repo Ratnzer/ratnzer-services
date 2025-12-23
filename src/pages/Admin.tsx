@@ -153,26 +153,28 @@ const Admin: React.FC<Props> = ({
   // ============================================================
   useEffect(() => {
   const refreshAdminData = async () => {
-      try {
-        const [p, c, u, i] = await Promise.all([
-          productService.getAll(),
-          contentService.getCategories(),
-          userService.getAll(),
-          inventoryService.getAll(),
-        ]);
-        if (p?.data) setProducts(p.data);
-        if (c?.data) setCategories(c.data);
-        if (u?.data) setUsers(u.data);
-        if (i?.data) setInventory(i.data);
-      } catch (e) {
-        console.warn('Failed to refresh admin data', e);
-      }
+    try {
+      const [p, c, u, i, a] = await Promise.all([
+        productService.getAll(),
+        contentService.getCategories(),
+        userService.getAll(),
+        inventoryService.getAll(),
+        analyticsService.getDashboard(),
+      ]);
+      if (p?.data) setProducts(p.data);
+      if (c?.data) setCategories(c.data);
+      if (u?.data) setUsers(u.data);
+      if (i?.data) setInventory(i.data);
+      if (a?.data) setServerAnalytics(a.data);
+    } catch (e) {
+      console.warn('Failed to refresh admin data', e);
+    }
 
-      await loadAdminOrdersPage('replace');
-    };
-    refreshAdminData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    await loadAdminOrdersPage('replace');
+  };
+  refreshAdminData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
 const getOrderDate = (o: any) => {
