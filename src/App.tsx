@@ -17,7 +17,7 @@ import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
@@ -215,6 +215,65 @@ const normalizeTransactionsFromApi = (data: any): Transaction[] =>
 
 
 const App: React.FC = () => {
+  const [inAppNotification, setInAppNotification] = useState<{ title: string; body: string } | null>(null);
+  const inAppNotifTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showLocalNotification = async (notification: PushNotificationSchema) => {
+    const showInAppBanner = (title: string, body: string) => {
+      if (typeof window === 'undefined') return;
+      if (inAppNotifTimeout.current) {
+        clearTimeout(inAppNotifTimeout.current);
+      }
+      setInAppNotification({ title, body });
+      inAppNotifTimeout.current = setTimeout(() => setInAppNotification(null), 5000);
+    };
+
+    if (typeof window === 'undefined' || typeof Notification === 'undefined') return;
+
+    const title = notification?.title || 'إشعار جديد';
+    const body =
+      notification?.body ||
+      (notification?.data && typeof notification.data === 'object'
+        ? (notification.data as Record<string, any>).message
+        : undefined) ||
+      '';
+
+    const display = () => {
+      try {
+        new Notification(title, { body });
+        return true;
+      } catch (err) {
+        console.warn('Unable to display notification', err);
+        return false;
+      }
+    };
+
+    if (Notification.permission === 'granted') {
+      const ok = display();
+      if (!ok) showInAppBanner(title, body);
+      return;
+    }
+
+    if (Notification.permission === 'default') {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const ok = display();
+          if (!ok) showInAppBanner(title, body);
+        } else {
+          showInAppBanner(title, body);
+        }
+      } catch (err) {
+        console.warn('Notification permission failed', err);
+        showInAppBanner(title, body);
+      }
+      return;
+    }
+
+    // Permission denied or unsupported; fallback to in-app banner
+    showInAppBanner(title, body);
+  };
+
   const hasToken = Boolean(localStorage.getItem('token'));
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [currencyCode, setCurrencyCode] = useState<string>(() => {
@@ -307,6 +366,13 @@ useEffect(() => {
   };
   void syncToken();
 }, [fcmToken, currentUser?.id]);
+
+// Clear in-app notification timeout on unmount
+useEffect(() => {
+  return () => {
+    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+  };
+}, []);
   
   // --- Global App State (Lifted for Admin Control) ---
   const [products, setProducts] = useState<Product[]>(() => loadCache<Product[]>('cache_products_v1', INITIAL_PRODUCTS));
@@ -1940,6 +2006,16 @@ useEffect(() => {
             <div className="bg-[#1f212e] border border-gray-700 rounded-2xl p-6 w-[90%] max-w-xs text-center shadow-2xl">
               <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
               <p className="text-sm text-gray-200">{paytabsProcessingText || 'جاري المعالجة...'}</p>
+            </div>
+          </div>
+        )}
+
+        {/* In-app notification banner (foreground FCM fallback) */}
+        {inAppNotification && (
+          <div className="absolute top-4 inset-x-0 flex justify-center z-[120] px-4">
+            <div className="bg-[#1f212e]/95 border border-emerald-500/60 rounded-2xl shadow-2xl px-4 py-3 w-full max-w-md">
+              <div className="text-sm font-semibold text-emerald-200 truncate">{inAppNotification.title}</div>
+              <div className="text-xs text-gray-200 mt-1 line-clamp-2">{inAppNotification.body}</div>
             </div>
           </div>
         )}

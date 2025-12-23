@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
-const { upsertToken, getTokensForUsers } = require('../utils/tokenStore');
+const { upsertToken, getTokensForUsers, readTokens } = require('../utils/tokenStore');
 
 // ===== FCM HTTP v1 helpers (Service Account) =====
 const FCM_OAUTH_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
@@ -156,6 +156,52 @@ const markAsRead = asyncHandler(async (req, res) => {
   res.json(updated);
 });
 
+const buildOrderPushPayload = (order, overrides = {}) => {
+  if (!order) return overrides;
+
+  const statusLabelMap = {
+    pending: 'قيد المعالجة',
+    completed: 'تم التنفيذ',
+    cancelled: 'تم الإلغاء',
+  };
+
+  const qty =
+    order.quantityLabel ||
+    (order.denominationId ? `الفئة: ${order.denominationId}` : null);
+
+  const title =
+    overrides.title ||
+    (order.status === 'completed'
+      ? `تم تنفيذ طلب ${order.productName}`
+      : order.status === 'cancelled'
+      ? `تم إلغاء طلب ${order.productName}`
+      : `طلب جديد: ${order.productName}`);
+
+  const body =
+    overrides.body ||
+    [
+      statusLabelMap[order.status] || order.status || 'قيد المعالجة',
+      `الكمية: ${qty || '1'}`,
+      `السعر: ${order.amount}`,
+      order.userName ? `العميل: ${order.userName}` : null,
+    ]
+      .filter(Boolean)
+      .join(' | ');
+
+  const data = {
+    orderId: order.id,
+    productName: order.productName,
+    amount: String(order.amount),
+    status: order.status,
+    quantity: qty || '',
+    fulfillmentType: order.fulfillmentType || '',
+    regionName: order.regionName || '',
+    ...overrides.data,
+  };
+
+  return { title, body, data };
+};
+
 // Helper Function: Send Notification (Internal Use)
 const sendNotification = async (userId, title, message, type = 'info') => {
     try {
@@ -185,11 +231,57 @@ const registerDevice = asyncHandler(async (req, res) => {
   res.json({ success: true });
 });
 
+// Helper used by other controllers (e.g., payments) to notify admins about orders
+const notifyAdminsPush = async ({ order, title, message, extraData } = {}) => {
+  const admins = await prisma.user.findMany({ where: { role: 'admin' }, select: { id: true } });
+  const adminIds = admins.map((a) => a.id);
+
+  if (adminIds.length === 0) {
+    return { success: false, reason: 'no-admin-users', adminIds: [] };
+  }
+
+  const pushPayload = buildOrderPushPayload(order || null, {
+    title: title || undefined,
+    body: message || undefined,
+    data: { type: 'admin-order', ...(extraData || {}) },
+  });
+
+  await Promise.all(
+    adminIds.map((adminId) =>
+      sendNotification(
+        adminId,
+        pushPayload.title || 'طلب جديد',
+        pushPayload.body || (order?.id ? `تم إنشاء طلب جديد رقم ${order.id}` : 'تم إنشاء طلب جديد'),
+        'info'
+      )
+    )
+  );
+
+  const tokens = await getTokensForUsers(adminIds);
+  const push = await sendFcmPush(
+    tokens.map((t) => t.token),
+    pushPayload
+  );
+
+  return {
+    success: true,
+    adminIds,
+    tokens: tokens.map((t) => t.token),
+    push,
+  };
+};
+
 // @desc    Notify admins about a new order (stores in DB + exposes tokens for FCM)
 // @route   POST /api/notifications/notify-admin-order
 // @access  Private
 const notifyAdminOrder = asyncHandler(async (req, res) => {
   const { orderId, title, message } = req.body || {};
+
+  const order = orderId
+    ? await prisma.order.findUnique({
+        where: { id: orderId },
+      })
+    : null;
 
   const admins = await prisma.user.findMany({ where: { role: 'admin' }, select: { id: true } });
   const adminIds = admins.map((a) => a.id);
@@ -198,23 +290,50 @@ const notifyAdminOrder = asyncHandler(async (req, res) => {
     return res.status(200).json({ success: false, reason: 'no-admin-users' });
   }
 
-  await Promise.all(
-    adminIds.map((adminId) =>
-      sendNotification(
-        adminId,
-        title || 'طلب جديد',
-        message || (orderId ? `تم إنشاء طلب جديد رقم ${orderId}` : 'تم إنشاء طلب جديد'),
-        'info'
-      )
-    )
-  );
-
-  const tokens = await getTokensForUsers(adminIds);
+  const { push, tokens } = await notifyAdminsPush({
+    order,
+    title,
+    message,
+  });
   res.json({
     success: true,
     notified: adminIds.length,
-    tokens: tokens.map((t) => t.token),
+    tokens,
     push,
+  });
+});
+
+// @desc    Broadcast announcement/push to all registered devices
+// @route   POST /api/notifications/broadcast
+// @access  Private (Admin)
+const broadcastAnnouncement = asyncHandler(async (req, res) => {
+  const { title, message } = req.body || {};
+
+  if (!title || !message) {
+    res.status(400);
+    throw new Error('عنوان ورسالة الإشعار مطلوبة');
+  }
+
+  const tokens = await readTokens();
+  const userIdsWithTokens = Array.from(new Set(tokens.map((t) => t.userId).filter(Boolean)));
+
+  await Promise.all(
+    userIdsWithTokens.map((userId) =>
+      sendNotification(userId, title, message, 'info')
+    )
+  );
+
+  const push = await sendFcmPush(
+    tokens.map((t) => t.token),
+    { title, body: message, data: { type: 'broadcast' } }
+  );
+
+  res.json({
+    success: true,
+    attempts: push.attempts,
+    sent: push.sent,
+    errors: push.errors,
+    targetedUsers: userIdsWithTokens.length,
   });
 });
 
@@ -238,21 +357,32 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
     throw new Error('User not found for notification');
   }
 
+  const order =
+    orderId &&
+    (await prisma.order.findUnique({
+      where: { id: orderId },
+    }));
+
+  const pushPayload = buildOrderPushPayload(
+    order ? { ...order, status: status || order.status } : null,
+    {
+      title: title || undefined,
+      body: message || undefined,
+      data: { orderId, status: status || order?.status || '', type: 'user-order' },
+    }
+  );
+
   await sendNotification(
     targetUserId,
-    title || 'تحديث الطلب',
-    message || (status ? `تم تحديث حالة الطلب إلى ${status}` : 'تم تحديث حالة الطلب'),
+    pushPayload.title || 'تحديث الطلب',
+    pushPayload.body || (status ? `تم تحديث حالة الطلب إلى ${status}` : 'تم تحديث حالة الطلب'),
     'info'
   );
 
   const tokens = await getTokensForUsers([targetUserId]);
   const push = await sendFcmPush(
     tokens.map((t) => t.token),
-    {
-      title: title || 'تحديث الطلب',
-      body: message || (status ? `تم تحديث حالة الطلب إلى ${status}` : 'تم تحديث حالة الطلب'),
-      data: { orderId, status, type: 'user-order' },
-    }
+    pushPayload
   );
   res.json({
     success: true,
@@ -261,4 +391,4 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyUserOrder };
+module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyAdminsPush, broadcastAnnouncement, notifyUserOrder };

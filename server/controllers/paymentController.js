@@ -4,6 +4,7 @@ const {
   createPaytabsPayment,
   queryPaytabsPayment,
 } = require('../utils/paytabs');
+const { notifyAdminsPush } = require('./notificationController');
 
 // ------------------------------------------------------------
 // Helpers
@@ -370,6 +371,22 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
     return { payment: updatedPayment, type: innerType, createdOrders };
   });
+
+  // Fire-and-forget admin push for any created orders (card purchases)
+  if (Array.isArray(result.createdOrders) && result.createdOrders.length > 0) {
+    try {
+      await Promise.all(
+        result.createdOrders.map((order) =>
+          notifyAdminsPush({
+            order,
+            extraData: { source: 'card-payment' },
+          })
+        )
+      );
+    } catch (err) {
+      console.warn('Failed to push admin notification for card order', err);
+    }
+  }
 
   return { ok: true, payment: result.payment, status: 'succeeded', type, createdOrders: result.createdOrders };
 };
