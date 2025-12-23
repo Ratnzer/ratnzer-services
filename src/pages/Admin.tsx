@@ -132,16 +132,6 @@ const AVAILABLE_ICONS = [
 ];
 
 const ADMIN_ORDERS_PAGE_SIZE = 10;
-type AdminAnalytics = {
-  totalRevenue: number;
-  totalOrders: number;
-  totalUsers: number;
-  totalProducts: number;
-  activeUsers: number;
-  salesChart: { day: string; fullDate: string; value: number }[];
-  maxChartValue: number;
-  categoryStats: { id?: string; name: string; icon?: any; count: number; percentage: number }[];
-};
 
 const Admin: React.FC<Props> = ({ 
   setView, 
@@ -176,14 +166,6 @@ const Admin: React.FC<Props> = ({
         if (i?.data) setInventory(i.data);
       } catch (e) {
         console.warn('Failed to refresh admin data', e);
-      }
-
-      try {
-        const res = await analyticsService.getDashboard();
-        if (res?.data) setServerAnalytics(res.data);
-      } catch (e) {
-        console.warn('Failed to load analytics from server', e);
-        setServerAnalytics(null);
       }
 
       await loadAdminOrdersPage('replace');
