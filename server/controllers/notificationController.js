@@ -231,6 +231,46 @@ const registerDevice = asyncHandler(async (req, res) => {
   res.json({ success: true });
 });
 
+// Helper used by other controllers (e.g., payments) to notify admins about orders
+const notifyAdminsPush = async ({ order, title, message, extraData } = {}) => {
+  const admins = await prisma.user.findMany({ where: { role: 'admin' }, select: { id: true } });
+  const adminIds = admins.map((a) => a.id);
+
+  if (adminIds.length === 0) {
+    return { success: false, reason: 'no-admin-users', adminIds: [] };
+  }
+
+  const pushPayload = buildOrderPushPayload(order, {
+    title: title || undefined,
+    body: message || undefined,
+    data: { type: 'admin-order' },
+  });
+
+  await Promise.all(
+    adminIds.map((adminId) =>
+      sendNotification(
+        adminId,
+        pushPayload.title || 'طلب جديد',
+        pushPayload.body || (order?.id ? `تم إنشاء طلب جديد رقم ${order.id}` : 'تم إنشاء طلب جديد'),
+        'info'
+      )
+    )
+  );
+
+  const tokens = await getTokensForUsers(adminIds);
+  const push = await sendFcmPush(
+    tokens.map((t) => t.token),
+    pushPayload
+  );
+
+  return {
+    success: true,
+    adminIds,
+    tokens: tokens.map((t) => t.token),
+    push,
+  };
+};
+
 // @desc    Notify admins about a new order (stores in DB + exposes tokens for FCM)
 // @route   POST /api/notifications/notify-admin-order
 // @access  Private
@@ -250,32 +290,15 @@ const notifyAdminOrder = asyncHandler(async (req, res) => {
     return res.status(200).json({ success: false, reason: 'no-admin-users' });
   }
 
-  const pushPayload = buildOrderPushPayload(order, {
-    title: title || undefined,
-    body: message || undefined,
-    data: { type: 'admin-order' },
+  const { push, tokens } = await notifyAdminsPush({
+    order,
+    title,
+    message,
   });
-
-  await Promise.all(
-    adminIds.map((adminId) =>
-      sendNotification(
-        adminId,
-        pushPayload.title || 'طلب جديد',
-        pushPayload.body || (orderId ? `تم إنشاء طلب جديد رقم ${orderId}` : 'تم إنشاء طلب جديد'),
-        'info'
-      )
-    )
-  );
-
-  const tokens = await getTokensForUsers(adminIds);
-  const push = await sendFcmPush(
-    tokens.map((t) => t.token),
-    pushPayload
-  );
   res.json({
     success: true,
     notified: adminIds.length,
-    tokens: tokens.map((t) => t.token),
+    tokens,
     push,
   });
 });
@@ -368,4 +391,4 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, broadcastAnnouncement, notifyUserOrder };
+module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyAdminsPush, broadcastAnnouncement, notifyUserOrder };
