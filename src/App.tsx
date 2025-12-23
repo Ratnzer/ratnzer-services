@@ -238,6 +238,12 @@ const App: React.FC = () => {
   const [paytabsProcessing, setPaytabsProcessing] = useState<boolean>(false);
   const [paytabsProcessingText, setPaytabsProcessingText] = useState<string>('');
 
+  const showCartToast = (message: string) => {
+    setCartToast(message);
+    if (cartToastTimeout.current) clearTimeout(cartToastTimeout.current);
+    cartToastTimeout.current = setTimeout(() => setCartToast(null), 3000);
+  };
+
   const showInAppBanner = (title: string, body?: string) => {
     setInAppNotification({ title, body: body || '' });
     if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
@@ -373,6 +379,7 @@ useEffect(() => {
 useEffect(() => {
   return () => {
     if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+    if (cartToastTimeout.current) clearTimeout(cartToastTimeout.current);
   };
 }, []);
   
