@@ -431,8 +431,12 @@ const getOrderDate = (o: any) => {
 
   const loadAdminOrdersPage = async (mode: 'replace' | 'append' = 'replace') => {
     const search = orderSearchQuery.trim();
-    const nextSkip = mode === 'append' ? orders.length : 0;
-    if (mode === 'append' && ordersLoadingMore) return;
+    const isSearching = !!search;
+    const nextSkip = isSearching ? 0 : mode === 'append' ? orders.length : 0;
+    const pageSize = isSearching ? 200 : ADMIN_ORDERS_PAGE_SIZE; // larger batch for search results
+
+    // When searching, we always replace results; no pagination append
+    if (mode === 'append' && (ordersLoadingMore || isSearching)) return;
 
     if (mode === 'replace') {
       setOrdersRefreshing(true);
@@ -450,7 +454,8 @@ const getOrderDate = (o: any) => {
         setOrders(prev => [...prev, ...items]);
       }
 
-      setOrdersHasMore(hasMore);
+      // While searching, disable further pagination and rely on server search results only
+      setOrdersHasMore(isSearching ? false : hasMore);
     } catch (error) {
       console.warn('Failed to load admin orders page', error);
       if (mode === 'replace') {
