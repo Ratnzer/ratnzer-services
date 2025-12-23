@@ -25,7 +25,7 @@ import {
   GraduationCap, School, BookOpen, Library,
   LayoutGrid, Check, Settings2, LogOut
 } from 'lucide-react';
-import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction } from '../types';
+import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics } from '../types';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
 import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
@@ -153,26 +153,28 @@ const Admin: React.FC<Props> = ({
   // ============================================================
   useEffect(() => {
   const refreshAdminData = async () => {
-      try {
-        const [p, c, u, i] = await Promise.all([
-          productService.getAll(),
-          contentService.getCategories(),
-          userService.getAll(),
-          inventoryService.getAll(),
-        ]);
-        if (p?.data) setProducts(p.data);
-        if (c?.data) setCategories(c.data);
-        if (u?.data) setUsers(u.data);
-        if (i?.data) setInventory(i.data);
-      } catch (e) {
-        console.warn('Failed to refresh admin data', e);
-      }
+    try {
+      const [p, c, u, i, a] = await Promise.all([
+        productService.getAll(),
+        contentService.getCategories(),
+        userService.getAll(),
+        inventoryService.getAll(),
+        analyticsService.getDashboard(),
+      ]);
+      if (p?.data) setProducts(p.data);
+      if (c?.data) setCategories(c.data);
+      if (u?.data) setUsers(u.data);
+      if (i?.data) setInventory(i.data);
+      if (a?.data) setServerAnalytics(a.data);
+    } catch (e) {
+      console.warn('Failed to refresh admin data', e);
+    }
 
-      await loadAdminOrdersPage('replace');
-    };
-    refreshAdminData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    await loadAdminOrdersPage('replace');
+  };
+  refreshAdminData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
 const getOrderDate = (o: any) => {
@@ -428,39 +430,57 @@ const getOrderDate = (o: any) => {
   });
 
   const loadAdminOrdersPage = async (mode: 'replace' | 'append' = 'replace') => {
-      const nextSkip = mode === 'append' ? orders.length : 0;
-      if (mode === 'append' && ordersLoadingMore) return;
+    const search = orderSearchQuery.trim();
+    const isSearching = !!search;
+    const nextSkip = mode === 'append' ? orders.length : 0;
+    const pageSize = ADMIN_ORDERS_PAGE_SIZE;
+
+    // When searching, always replace results; no pagination append
+    if (mode === 'append' && (ordersLoadingMore || isSearching)) return;
+
+    if (mode === 'replace') {
+      setOrdersRefreshing(true);
+    } else {
+      setOrdersLoadingMore(true);
+    }
+
+    try {
+      let items: Order[] = [];
+      let hasMore = false;
+
+      if (isSearching) {
+        // Use dedicated server-side search endpoint (unbounded) so any order ID returns even if not in first page
+        const res = await orderService.getAll({ q: search });
+        const normalized = extractOrdersFromResponse(res?.data, pageSize);
+        items = normalized.items;
+        hasMore = false;
+      } else {
+        const res = await orderService.getAllPaged(nextSkip, pageSize);
+        const normalized = extractOrdersFromResponse(res?.data, pageSize);
+        items = normalized.items;
+        hasMore = normalized.hasMore;
+      }
 
       if (mode === 'replace') {
-          setOrdersRefreshing(true);
+        setOrders(items);
       } else {
-          setOrdersLoadingMore(true);
+        setOrders(prev => [...prev, ...items]);
       }
 
-      try {
-          const res = await orderService.getAllPaged(nextSkip, ADMIN_ORDERS_PAGE_SIZE);
-          const { items, hasMore } = extractOrdersFromResponse(res?.data, ADMIN_ORDERS_PAGE_SIZE);
-
-          if (mode === 'replace') {
-              setOrders(items);
-          } else {
-              setOrders(prev => [...prev, ...items]);
-          }
-
-          setOrdersHasMore(hasMore);
-      } catch (error) {
-          console.warn('Failed to load admin orders page', error);
-          if (mode === 'replace') {
-              setOrders([]);
-              setOrdersHasMore(false);
-          }
-      } finally {
-          if (mode === 'replace') {
-              setOrdersRefreshing(false);
-          } else {
-              setOrdersLoadingMore(false);
-          }
+      setOrdersHasMore(isSearching ? false : hasMore);
+    } catch (error) {
+      console.warn('Failed to load admin orders page', error);
+      if (mode === 'replace') {
+        setOrders([]);
+        setOrdersHasMore(false);
       }
+    } finally {
+      if (mode === 'replace') {
+        setOrdersRefreshing(false);
+      } else {
+        setOrdersLoadingMore(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -468,6 +488,12 @@ const getOrderDate = (o: any) => {
       setOrdersLoadingMore(false);
     }
   }, [activeTab, orderSearchQuery, orderFilter]);
+
+  // Trigger server-side search whenever the search query changes (or resets)
+  useEffect(() => {
+    loadAdminOrdersPage('replace');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderSearchQuery]);
 
 
   const handleOpenFulfillment = (order: Order) => {
