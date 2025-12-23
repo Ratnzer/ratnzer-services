@@ -174,6 +174,7 @@ const normalizeTransactionsFromApi = (data: any): Transaction[] =>
 
 const App: React.FC = () => {
   const hasToken = Boolean(localStorage.getItem('token'));
+  const persistedAdminAuth = localStorage.getItem('ratelozn_admin_auth') === 'true';
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [currencyCode, setCurrencyCode] = useState<string>(() => {
     return localStorage.getItem('currencyCode') || 'USD';
@@ -356,7 +357,10 @@ useEffect(() => {
   const [users, setUsers] = useState<UserProfile[]>(MOCK_USERS);
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => loadCache<Announcement[]>('cache_announcements_v1', []));
   const [currencies, setCurrencies] = useState<Currency[]>(() => loadCache<Currency[]>('cache_currencies_v1', INITIAL_CURRENCIES));
-  const [orders, setOrders] = useState<Order[]>(() => (hasToken ? loadCache<Order[]>('cache_orders_v1', MOCK_ORDERS) : MOCK_ORDERS));
+  const [orders, setOrders] = useState<Order[]>(() => {
+    if (persistedAdminAuth) return [];
+    return hasToken ? loadCache<Order[]>('cache_orders_v1', MOCK_ORDERS) : MOCK_ORDERS;
+  });
 
   const [myOrdersPage, setMyOrdersPage] = useState<Order[]>([]);
   const [myOrdersSkip, setMyOrdersSkip] = useState<number>(0);
@@ -386,9 +390,7 @@ useEffect(() => {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // --- Admin Auth State ---
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem('ratelozn_admin_auth') === 'true';
-  });
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => persistedAdminAuth);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [adminLoginError, setAdminLoginError] = useState('');
 
@@ -543,8 +545,9 @@ useEffect(() => {
 
   useEffect(() => {
     if (!localStorage.getItem('token')) return;
+    if (isAdminLoggedIn) return; // Admin orders should never be cached locally
     saveCache('cache_orders_v1', orders);
-  }, [orders]);
+  }, [orders, isAdminLoggedIn]);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) return;
@@ -1014,6 +1017,7 @@ useEffect(() => {
           localStorage.setItem('ratelozn_admin_auth', 'true');
           setAdminLoginError('');
           setAdminPasswordInput('');
+          setOrders([]); // Clear any cached/mock orders; admin view should load fresh from server
           
           // Note: Data fetching (orders, users, inventory) is now automatically triggered
           // by the useEffect hook that watches `isAdminLoggedIn`. 

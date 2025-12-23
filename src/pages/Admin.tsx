@@ -25,7 +25,7 @@ import {
   GraduationCap, School, BookOpen, Library,
   LayoutGrid, Check, Settings2, LogOut
 } from 'lucide-react';
-import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction } from '../types';
+import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics } from '../types';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
 import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
@@ -153,26 +153,28 @@ const Admin: React.FC<Props> = ({
   // ============================================================
   useEffect(() => {
   const refreshAdminData = async () => {
-      try {
-        const [p, c, u, i] = await Promise.all([
-          productService.getAll(),
-          contentService.getCategories(),
-          userService.getAll(),
-          inventoryService.getAll(),
-        ]);
-        if (p?.data) setProducts(p.data);
-        if (c?.data) setCategories(c.data);
-        if (u?.data) setUsers(u.data);
-        if (i?.data) setInventory(i.data);
-      } catch (e) {
-        console.warn('Failed to refresh admin data', e);
-      }
+    try {
+      const [p, c, u, i, a] = await Promise.all([
+        productService.getAll(),
+        contentService.getCategories(),
+        userService.getAll(),
+        inventoryService.getAll(),
+        analyticsService.getDashboard(),
+      ]);
+      if (p?.data) setProducts(p.data);
+      if (c?.data) setCategories(c.data);
+      if (u?.data) setUsers(u.data);
+      if (i?.data) setInventory(i.data);
+      if (a?.data) setServerAnalytics(a.data);
+    } catch (e) {
+      console.warn('Failed to refresh admin data', e);
+    }
 
-      await loadAdminOrdersPage('replace');
-    };
-    refreshAdminData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    await loadAdminOrdersPage('replace');
+  };
+  refreshAdminData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
 const getOrderDate = (o: any) => {
@@ -305,9 +307,8 @@ const getOrderDate = (o: any) => {
   const [invSelectedDenom, setInvSelectedDenom] = useState<string>('');
   const [invNewCodes, setInvNewCodes] = useState<string>('');
 
-  // --- REAL-TIME ANALYTICS CALCULATION ---
+  // --- REAL-TIME ANALYTICS CALCULATION (Server-only) ---
   const analytics = useMemo<AdminAnalytics>(() => {
-    // Prefer server-provided analytics for accurate KPIs
     if (serverAnalytics) {
       const kpi = serverAnalytics.kpi || {};
       const salesChartRaw = Array.isArray(serverAnalytics.salesChart) ? serverAnalytics.salesChart : [];
@@ -337,67 +338,29 @@ const getOrderDate = (o: any) => {
         totalOrders: typeof kpi.orders === 'number' ? kpi.orders : Number(kpi.orders ?? 0),
         totalUsers: typeof kpi.users === 'number' ? kpi.users : Number(kpi.users ?? 0),
         totalProducts: typeof kpi.products === 'number' ? kpi.products : Number(kpi.products ?? 0),
-        activeUsers: typeof kpi.activeUsers === 'number' ? kpi.activeUsers : users.filter(u => u.status === 'active').length,
+        activeUsers: typeof kpi.activeUsers === 'number' ? kpi.activeUsers : 0,
         salesChart,
         maxChartValue,
         categoryStats,
       };
     }
 
-    // Fallback to client-side calculation if server analytics is unavailable
-    const totalRevenue = orders
-        .filter(o => o.status === 'completed')
-        .reduce((sum, o) => sum + o.amount, 0);
-
-    const activeUsers = users.filter(u => u.status === 'active').length;
-
-    const last7Days = [...Array(7)].map((_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        return d;
-    }).reverse();
-
-    const salesChart = last7Days.map((date): { day: string; fullDate: string; value: number } => {
-        const dateStr = date.toLocaleDateString('en-US');
-        const dailyOrders = orders.filter(o => {
-            return o.status === 'completed' && getOrderDate(o).startsWith(dateStr);
-        });
-
-        const dailyValue = dailyOrders.reduce((sum, o) => sum + o.amount, 0);
-        
-        return {
-            day: date.toLocaleDateString('ar-EG', { weekday: 'short' }),
-            fullDate: dateStr,
-            value: dailyValue
-        };
-    });
-
-    const maxChartValue = Math.max(...salesChart.map((d: { value: number }) => d.value), 10);
-
-    const categoryStats = categories.map((cat): { id: string; name: string; icon?: any; count: number; percentage: number } => {
-        const count = products.filter(p => cat.id === 'all' ? true : p.category === cat.id).length;
-        const total = products.length;
-        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-        
-        return {
-            ...cat,
-            count,
-            percentage
-        };
-    }).filter(c => c.id !== 'all');
+    // No local fallback: return empty/zeroed analytics
+    const emptyCategoryStats = categories
+      .filter(c => c.id !== 'all')
+      .map(cat => ({ ...cat, count: 0, percentage: 0 }));
 
     return {
-        totalRevenue,
-        totalOrders: orders.length,
-        totalUsers: users.length,
-        totalProducts: products.length,
-        activeUsers,
-        salesChart,
-        maxChartValue,
-        categoryStats
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalUsers: 0,
+      totalProducts: 0,
+      activeUsers: 0,
+      salesChart: [],
+      maxChartValue: 10,
+      categoryStats: emptyCategoryStats,
     };
-
-  }, [serverAnalytics, categories, products, orders, users]);
+  }, [serverAnalytics, categories]);
 
   const recentOrders = orders.slice(0, 5).map(o => ({
       id: o.id,
@@ -428,39 +391,57 @@ const getOrderDate = (o: any) => {
   });
 
   const loadAdminOrdersPage = async (mode: 'replace' | 'append' = 'replace') => {
-      const nextSkip = mode === 'append' ? orders.length : 0;
-      if (mode === 'append' && ordersLoadingMore) return;
+    const search = orderSearchQuery.trim();
+    const isSearching = !!search;
+    const nextSkip = mode === 'append' ? orders.length : 0;
+    const pageSize = ADMIN_ORDERS_PAGE_SIZE;
+
+    // When searching, always replace results; no pagination append
+    if (mode === 'append' && (ordersLoadingMore || isSearching)) return;
+
+    if (mode === 'replace') {
+      setOrdersRefreshing(true);
+    } else {
+      setOrdersLoadingMore(true);
+    }
+
+    try {
+      let items: Order[] = [];
+      let hasMore = false;
+
+      if (isSearching) {
+        // Use dedicated server-side search endpoint (unbounded) so any order ID returns even if not in first page
+        const res = await orderService.getAll({ q: search });
+        const normalized = extractOrdersFromResponse(res?.data, pageSize);
+        items = normalized.items;
+        hasMore = false;
+      } else {
+        const res = await orderService.getAllPaged(nextSkip, pageSize);
+        const normalized = extractOrdersFromResponse(res?.data, pageSize);
+        items = normalized.items;
+        hasMore = normalized.hasMore;
+      }
 
       if (mode === 'replace') {
-          setOrdersRefreshing(true);
+        setOrders(items);
       } else {
-          setOrdersLoadingMore(true);
+        setOrders(prev => [...prev, ...items]);
       }
 
-      try {
-          const res = await orderService.getAllPaged(nextSkip, ADMIN_ORDERS_PAGE_SIZE);
-          const { items, hasMore } = extractOrdersFromResponse(res?.data, ADMIN_ORDERS_PAGE_SIZE);
-
-          if (mode === 'replace') {
-              setOrders(items);
-          } else {
-              setOrders(prev => [...prev, ...items]);
-          }
-
-          setOrdersHasMore(hasMore);
-      } catch (error) {
-          console.warn('Failed to load admin orders page', error);
-          if (mode === 'replace') {
-              setOrders([]);
-              setOrdersHasMore(false);
-          }
-      } finally {
-          if (mode === 'replace') {
-              setOrdersRefreshing(false);
-          } else {
-              setOrdersLoadingMore(false);
-          }
+      setOrdersHasMore(isSearching ? false : hasMore);
+    } catch (error) {
+      console.warn('Failed to load admin orders page', error);
+      if (mode === 'replace') {
+        setOrders([]);
+        setOrdersHasMore(false);
       }
+    } finally {
+      if (mode === 'replace') {
+        setOrdersRefreshing(false);
+      } else {
+        setOrdersLoadingMore(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -468,6 +449,12 @@ const getOrderDate = (o: any) => {
       setOrdersLoadingMore(false);
     }
   }, [activeTab, orderSearchQuery, orderFilter]);
+
+  // Trigger server-side search whenever the search query changes (or resets)
+  useEffect(() => {
+    loadAdminOrdersPage('replace');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderSearchQuery]);
 
 
   const handleOpenFulfillment = (order: Order) => {

@@ -118,6 +118,17 @@ export interface Currency {
   symbol: string;
 }
 
+export interface AdminAnalytics {
+  totalRevenue: number;
+  totalOrders: number;
+  totalUsers: number;
+  totalProducts: number;
+  activeUsers: number;
+  salesChart: { day: string; fullDate: string; value: number }[];
+  maxChartValue: number;
+  categoryStats: { id?: string; name: string; icon?: any; count: number; percentage: number }[];
+}
+
 // Changed from TermSection[] to a single object with full text fields
 export interface AppTerms {
   contentAr: string; 
