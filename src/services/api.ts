@@ -165,4 +165,11 @@ export const pushService = {
     api.post("/notifications/broadcast", data),
 };
 
+// ============================================================
+// Analytics Services
+// ============================================================
+export const analyticsService = {
+  getDashboard: () => api.get("/analytics/dashboard"),
+};
+
 export default api;

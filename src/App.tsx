@@ -18,6 +18,7 @@ import api, { productService, orderService, contentService, userService, walletS
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
+import { extractOrdersFromResponse, normalizeOrderFromApi, normalizeOrdersFromApi } from './utils/orders';
 
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
@@ -70,50 +71,6 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
 };
 
 
-// ============================================================
-// ✅ Normalize Order objects coming from API (Prisma) to match frontend Order type
-// (Fixes black screen when order.date / userName is missing)
-// ============================================================
-const normalizeOrderFromApi = (o: any): Order => {
-  const toStr = (v: any) => (v === undefined || v === null ? "" : String(v));
-  const toNullableStr = (v: any) =>
-    v === undefined || v === null || v === "" ? null : String(v);
-  const toOptionalStr = (v: any): string | undefined => {
-    const s = toNullableStr(v);
-    return s === null ? undefined : s;
-  };
-
-  const date =
-    typeof o?.date === "string" && o.date
-      ? o.date
-      : o?.createdAt
-      ? new Date(o.createdAt).toLocaleString("en-US")
-      : new Date().toLocaleString("en-US");
-
-  return ({
-    id: toStr(o?.id),
-    userId: toStr(o?.userId),
-    userName: toStr(o?.userName),
-    productName: toStr(o?.productName),
-    productId: toStr(o?.productId),
-    productCategory: toStr(o?.productCategory),
-    regionName: toStr(o?.regionName),
-    regionId: toNullableStr(o?.regionId),
-    quantityLabel: toOptionalStr(o?.quantityLabel),
-    denominationId: toNullableStr(o?.denominationId),
-    customInputValue: toOptionalStr(o?.customInputValue),
-    customInputLabel: toOptionalStr(o?.customInputLabel),
-    amount: typeof o?.amount === "number" ? o.amount : Number(o?.amount ?? 0),
-    status: ((o?.status as any) || "pending") as Order['status'],
-    fulfillmentType: (o?.fulfillmentType as any) || "manual",
-    deliveredCode: o?.deliveredCode ?? null,
-    rejectionReason: toOptionalStr(o?.rejectionReason),
-    date,
-  } as any) as Order;
-};
-
-const normalizeOrdersFromApi = (data: any): Order[] =>
-  Array.isArray(data) ? data.map(normalizeOrderFromApi) : [];
 // ============================================================
 // ✅ Error Boundary to prevent "black screen" crashes on fast navigation
 // (shows a friendly fallback UI instead of a blank screen)
@@ -512,12 +469,17 @@ useEffect(() => {
       // Orders (requires auth)
       // FIX: If admin is logged in (persisted in localStorage/state), fetch ALL orders.
       try {
-        const res = isAdminLoggedIn 
-            ? await orderService.getAll() 
-            : await orderService.getMyOrders();
-            
-        if (res && res.data) {
-          setOrders(normalizeOrdersFromApi(res.data));
+        if (isAdminLoggedIn) {
+          const res = await orderService.getAllPaged(0, 10);
+          if (res && res.data) {
+            const { items } = extractOrdersFromResponse(res.data);
+            setOrders(items);
+          }
+        } else {
+          const res = await orderService.getMyOrders();
+          if (res && res.data) {
+            setOrders(normalizeOrdersFromApi(res.data));
+          }
         }
       } catch (error) {
         console.warn('Could not load orders from API (maybe user not logged in)', error);
@@ -690,9 +652,17 @@ useEffect(() => {
 
   const refreshOrdersFromServer = async () => {
     try {
-      const res = isAdminLoggedIn ? await orderService.getAll() : await orderService.getMyOrders();
-      if (res && res.data) {
-        setOrders(normalizeOrdersFromApi(res.data));
+      if (isAdminLoggedIn) {
+        const res = await orderService.getAllPaged(0, 10);
+        if (res && res.data) {
+          const { items } = extractOrdersFromResponse(res.data);
+          setOrders(items);
+        }
+      } else {
+        const res = await orderService.getMyOrders();
+        if (res && res.data) {
+          setOrders(normalizeOrdersFromApi(res.data));
+        }
       }
     } catch (error) {
       console.warn('Failed to refresh orders from API', error);
@@ -1125,10 +1095,17 @@ useEffect(() => {
       // FIX: If admin, fetch ALL orders to keep the admin view updated. 
       // Otherwise fetch MY orders.
       const ordersRes = isAdminLoggedIn 
-        ? await orderService.getAll() 
+        ? await orderService.getAllPaged(0, 10) 
         : await orderService.getMyOrders();
 
-      if (ordersRes && ordersRes.data) setOrders(normalizeOrdersFromApi(ordersRes.data));
+      if (ordersRes && ordersRes.data) {
+        if (isAdminLoggedIn) {
+          const { items } = extractOrdersFromResponse(ordersRes.data);
+          setOrders(items);
+        } else {
+          setOrders(normalizeOrdersFromApi(ordersRes.data));
+        }
+      }
     } catch (e) {}
   };
 

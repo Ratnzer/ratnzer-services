@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ArrowLeft, Plus, Trash2, Edit2, Save, X, 
   Package, Layers, FileText, ShoppingBag,
@@ -27,8 +27,9 @@ import {
 } from 'lucide-react';
 import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction } from '../types';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
-import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService } from '../services/api';
+import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
+import { extractOrdersFromResponse } from '../utils/orders';
 
 interface Props {
   setView: (view: View) => void;
@@ -130,6 +131,18 @@ const AVAILABLE_ICONS = [
   { id: 'palette', icon: Palette, label: 'ألوان' },
 ];
 
+const ADMIN_ORDERS_PAGE_SIZE = 10;
+type AdminAnalytics = {
+  totalRevenue: number;
+  totalOrders: number;
+  totalUsers: number;
+  totalProducts: number;
+  activeUsers: number;
+  salesChart: { day: string; fullDate: string; value: number }[];
+  maxChartValue: number;
+  categoryStats: { id?: string; name: string; icon?: any; count: number; percentage: number }[];
+};
+
 const Admin: React.FC<Props> = ({ 
   setView, 
   products, setProducts, 
@@ -149,23 +162,31 @@ const Admin: React.FC<Props> = ({
   // ✅ Auto refresh admin data when opening Admin panel
   // ============================================================
   useEffect(() => {
-    const refreshAdminData = async () => {
+  const refreshAdminData = async () => {
       try {
-        const [p, c, o, u, i] = await Promise.all([
+        const [p, c, u, i] = await Promise.all([
           productService.getAll(),
           contentService.getCategories(),
-          orderService.getAll(),
           userService.getAll(),
           inventoryService.getAll(),
         ]);
         if (p?.data) setProducts(p.data);
         if (c?.data) setCategories(c.data);
-        if (o?.data) setOrders(o.data);
         if (u?.data) setUsers(u.data);
         if (i?.data) setInventory(i.data);
       } catch (e) {
         console.warn('Failed to refresh admin data', e);
       }
+
+      try {
+        const res = await analyticsService.getDashboard();
+        if (res?.data) setServerAnalytics(res.data);
+      } catch (e) {
+        console.warn('Failed to load analytics from server', e);
+        setServerAnalytics(null);
+      }
+
+      await loadAdminOrdersPage('replace');
     };
     refreshAdminData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,9 +208,10 @@ const getOrderDate = (o: any) => {
   // Orders State
   const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [ordersVisibleCount, setOrdersVisibleCount] = useState<number>(10);
-  const ordersSentinelRef = useRef<HTMLDivElement | null>(null);
+  const [ordersHasMore, setOrdersHasMore] = useState(false);
+  const [ordersRefreshing, setOrdersRefreshing] = useState(false);
   const [ordersLoadingMore, setOrdersLoadingMore] = useState(false);
+  const [serverAnalytics, setServerAnalytics] = useState<any | null>(null);
   const [fulfillmentOrder, setFulfillmentOrder] = useState<Order | null>(null);
   const [fulfillmentCode, setFulfillmentCode] = useState('');
   
@@ -302,28 +324,59 @@ const getOrderDate = (o: any) => {
   const [invNewCodes, setInvNewCodes] = useState<string>('');
 
   // --- REAL-TIME ANALYTICS CALCULATION ---
-  const analytics = useMemo(() => {
-    // 1. Total Revenue (Completed Orders only)
+  const analytics = useMemo<AdminAnalytics>(() => {
+    // Prefer server-provided analytics for accurate KPIs
+    if (serverAnalytics) {
+      const kpi = serverAnalytics.kpi || {};
+      const salesChartRaw = Array.isArray(serverAnalytics.salesChart) ? serverAnalytics.salesChart : [];
+      const categoryDistRaw = Array.isArray(serverAnalytics.categoryDist) ? serverAnalytics.categoryDist : [];
+
+      const salesChart = salesChartRaw.map((entry: any): { day: string; fullDate: string; value: number } => ({
+        day: entry?.day || '',
+        fullDate: entry?.date || entry?.day || '',
+        value: typeof entry?.value === 'number' ? entry.value : Number(entry?.value ?? 0),
+      }));
+      const maxChartValue = Math.max(...salesChart.map((d: { value: number }) => d.value), 10);
+
+      const categoryStats = categoryDistRaw.map((cat: any): { id?: string; name: string; icon?: any; count: number; percentage: number } => {
+        const match = categories.find(c => c.id === cat.id);
+        return {
+          ...match,
+          id: cat.id,
+          name: match?.name || cat.label || cat.id || 'غير محدد',
+          icon: match?.icon || Tags,
+          count: typeof cat.count === 'number' ? cat.count : Number(cat.count ?? 0),
+          percentage: typeof cat.percentage === 'number' ? cat.percentage : Number(cat.percentage ?? 0),
+        };
+      });
+
+      return {
+        totalRevenue: typeof kpi.revenue === 'number' ? kpi.revenue : Number(kpi.revenue ?? 0),
+        totalOrders: typeof kpi.orders === 'number' ? kpi.orders : Number(kpi.orders ?? 0),
+        totalUsers: typeof kpi.users === 'number' ? kpi.users : Number(kpi.users ?? 0),
+        totalProducts: typeof kpi.products === 'number' ? kpi.products : Number(kpi.products ?? 0),
+        activeUsers: typeof kpi.activeUsers === 'number' ? kpi.activeUsers : users.filter(u => u.status === 'active').length,
+        salesChart,
+        maxChartValue,
+        categoryStats,
+      };
+    }
+
+    // Fallback to client-side calculation if server analytics is unavailable
     const totalRevenue = orders
         .filter(o => o.status === 'completed')
         .reduce((sum, o) => sum + o.amount, 0);
 
-    // 2. Active Users Count
     const activeUsers = users.filter(u => u.status === 'active').length;
 
-    // 3. Sales Chart Data (Last 7 Days)
     const last7Days = [...Array(7)].map((_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - i);
         return d;
     }).reverse();
 
-    const salesChart = last7Days.map(date => {
-        // Create search string matching App.tsx date format (MM/DD/YYYY part)
-        // Note: App.tsx uses new Date().toLocaleString('en-US') which creates "M/D/YYYY, H:MM:SS PM"
-        const dateStr = date.toLocaleDateString('en-US'); // e.g. "10/24/2023"
-        
-        // Find orders that match this date string
+    const salesChart = last7Days.map((date): { day: string; fullDate: string; value: number } => {
+        const dateStr = date.toLocaleDateString('en-US');
         const dailyOrders = orders.filter(o => {
             return o.status === 'completed' && getOrderDate(o).startsWith(dateStr);
         });
@@ -331,20 +384,16 @@ const getOrderDate = (o: any) => {
         const dailyValue = dailyOrders.reduce((sum, o) => sum + o.amount, 0);
         
         return {
-            day: date.toLocaleDateString('ar-EG', { weekday: 'short' }), // Arabic day name (Sat, Sun..)
+            day: date.toLocaleDateString('ar-EG', { weekday: 'short' }),
             fullDate: dateStr,
             value: dailyValue
         };
     });
 
-    // Find max value for chart scaling
-    const maxChartValue = Math.max(...salesChart.map(d => d.value), 10); // Minimum 10 to avoid division by zero or weird scales
+    const maxChartValue = Math.max(...salesChart.map((d: { value: number }) => d.value), 10);
 
-    // 4. Category Distribution
-    const categoryStats = categories.map(cat => {
-        // Count products in this category
+    const categoryStats = categories.map((cat): { id: string; name: string; icon?: any; count: number; percentage: number } => {
         const count = products.filter(p => cat.id === 'all' ? true : p.category === cat.id).length;
-        // Total products count for percentage (exclude 'all' if we want strictly parts, but for 'all' tab logic we use total)
         const total = products.length;
         const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
         
@@ -353,7 +402,7 @@ const getOrderDate = (o: any) => {
             count,
             percentage
         };
-    }).filter(c => c.id !== 'all'); // Exclude 'All' from pie chart distribution
+    }).filter(c => c.id !== 'all');
 
     return {
         totalRevenue,
@@ -366,7 +415,7 @@ const getOrderDate = (o: any) => {
         categoryStats
     };
 
-  }, [orders, users, products, categories]);
+  }, [serverAnalytics, categories, products, orders, users]);
 
   const recentOrders = orders.slice(0, 5).map(o => ({
       id: o.id,
@@ -396,9 +445,44 @@ const getOrderDate = (o: any) => {
       return matchesStatus && matchesSearch;
   });
 
+  const loadAdminOrdersPage = async (mode: 'replace' | 'append' = 'replace') => {
+      const nextSkip = mode === 'append' ? orders.length : 0;
+      if (mode === 'append' && ordersLoadingMore) return;
+
+      if (mode === 'replace') {
+          setOrdersRefreshing(true);
+      } else {
+          setOrdersLoadingMore(true);
+      }
+
+      try {
+          const res = await orderService.getAllPaged(nextSkip, ADMIN_ORDERS_PAGE_SIZE);
+          const { items, hasMore } = extractOrdersFromResponse(res?.data, ADMIN_ORDERS_PAGE_SIZE);
+
+          if (mode === 'replace') {
+              setOrders(items);
+          } else {
+              setOrders(prev => [...prev, ...items]);
+          }
+
+          setOrdersHasMore(hasMore);
+      } catch (error) {
+          console.warn('Failed to load admin orders page', error);
+          if (mode === 'replace') {
+              setOrders([]);
+              setOrdersHasMore(false);
+          }
+      } finally {
+          if (mode === 'replace') {
+              setOrdersRefreshing(false);
+          } else {
+              setOrdersLoadingMore(false);
+          }
+      }
+  };
+
   useEffect(() => {
     if (activeTab === 'orders') {
-      setOrdersVisibleCount(10);
       setOrdersLoadingMore(false);
     }
   }, [activeTab, orderSearchQuery, orderFilter]);
@@ -1486,7 +1570,7 @@ try {
                             </div>
                         </div>
                         <div className="flex items-end justify-between h-32 gap-3 pb-2 border-b border-gray-700/50">
-                            {analytics.salesChart.map((data, idx) => {
+                            {analytics.salesChart.map((data: { day: string; fullDate: string; value: number }, idx: number) => {
                                 // Calculate height percentage relative to max value
                                 const heightPercent = (data.value / analytics.maxChartValue) * 100;
                                 // Minimum height 5% for visibility even if 0
@@ -1521,7 +1605,7 @@ try {
                             {analytics.categoryStats.length === 0 ? (
                                 <p className="text-center text-gray-500 text-xs py-4">لا توجد منتجات مضافة بعد</p>
                             ) : (
-                                analytics.categoryStats.map((cat, idx) => (
+                                analytics.categoryStats.map((cat: { icon?: any; name: string; count: number; percentage: number }, idx: number) => (
                                     <div key={idx} className="space-y-1">
                                         <div className="flex justify-between text-xs font-bold">
                                             <span className="text-gray-300 flex items-center gap-2">
@@ -1848,12 +1932,16 @@ try {
               </div>
 
               <div className="space-y-3">
-                  {filteredOrders.length === 0 ? (
+                  {ordersRefreshing ? (
+                      <div className="text-center py-12 text-gray-500">
+                          جاري تحميل الطلبات...
+                      </div>
+                  ) : filteredOrders.length === 0 ? (
                       <div className="text-center py-12 text-gray-500">
                           {orderSearchQuery ? 'لا توجد طلبات تطابق بحثك' : 'لا توجد طلبات'}
                       </div>
                   ) : (
-                      filteredOrders.slice(0, ordersVisibleCount).map(order => (
+                      filteredOrders.map(order => (
                           <div key={order.id} className="bg-[#242636] p-4 rounded-xl border border-gray-700 shadow-sm flex flex-col gap-3">
                               <div className="flex justify-between items-start">
                                   <div className="flex items-center gap-3">
@@ -1963,19 +2051,20 @@ try {
                                       </span>
                                       <p className="text-red-100 text-xs">{order.rejectionReason}</p>
                                   </div>
-                              )}
+                              )} 
                           </div>
                       ))
                   )}
               </div>
 
-              {filteredOrders.length > ordersVisibleCount && (
+              {ordersHasMore && (
                   <div className="flex justify-center pt-3">
                       <button
-                          onClick={() => setOrdersVisibleCount(prev => prev + 10)}
-                          className="bg-yellow-400 text-black px-6 py-2 rounded-xl font-black hover:opacity-90 transition"
+                          onClick={() => loadAdminOrdersPage('append')}
+                          className="bg-yellow-400 text-black px-6 py-2 rounded-xl font-black hover:opacity-90 transition disabled:opacity-50"
+                          disabled={ordersLoadingMore}
                       >
-                          عرض المزيد
+                          {ordersLoadingMore ? 'جاري التحميل...' : 'عرض المزيد'}
                       </button>
                   </div>
               )}
@@ -2021,16 +2110,6 @@ try {
                     </div>
                  </div>
                ))}
-              {filteredOrders.length > ordersVisibleCount && (
-                <div className="flex justify-center pt-3">
-                  <button
-                    onClick={() => setOrdersVisibleCount(c => Math.min(c + 10, filteredOrders.length))}
-                    className="px-4 py-2 rounded-xl bg-[#242636] border border-gray-700 text-gray-200 text-sm font-bold hover:bg-[#2f3245] transition-colors"
-                  >
-                    عرض المزيد
-                  </button>
-                </div>
-              )}
              </div>
           </div>
         )}
