@@ -215,8 +215,35 @@ const normalizeTransactionsFromApi = (data: any): Transaction[] =>
 
 
 const App: React.FC = () => {
+  const hasToken = Boolean(localStorage.getItem('token'));
+  const [currentView, setCurrentView] = useState<View>(View.HOME);
+  const [currencyCode, setCurrencyCode] = useState<string>(() => {
+    return localStorage.getItem('currencyCode') || 'USD';
+  });
+  const [isSecurityBlocked, setIsSecurityBlocked] = useState(false);
+  const [securityMessage, setSecurityMessage] = useState('');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() =>
+    hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null
+  ); // Start as null (Guest)
+  const [inAppNotification, setInAppNotification] = useState<{ title: string; body: string } | null>(null);
+  const inAppNotifTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pushInitRef = useRef(false);
+
+  // --- Firebase FCM Token (for Push Notifications) ---
+  const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
+
+  // --- PayTabs Return Handling ---
+  const [paytabsProcessing, setPaytabsProcessing] = useState<boolean>(false);
+  const [paytabsProcessingText, setPaytabsProcessingText] = useState<string>('');
+
+  const showInAppBanner = (title: string, body?: string) => {
+    setInAppNotification({ title, body: body || '' });
+    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+    inAppNotifTimeout.current = setTimeout(() => setInAppNotification(null), 4000);
+  };
+
   const showLocalNotification = async (notification: PushNotificationSchema) => {
-    if (typeof window === 'undefined' || typeof Notification === 'undefined') return;
+    if (typeof window === 'undefined') return;
 
     const title = notification?.title || 'إشعار جديد';
     const body =
@@ -229,45 +256,42 @@ const App: React.FC = () => {
     const display = () => {
       try {
         new Notification(title, { body });
+        return true;
       } catch (err) {
         console.warn('Unable to display notification', err);
+        return false;
       }
     };
 
+    if (typeof Notification === 'undefined') {
+      showInAppBanner(title, body);
+      return;
+    }
+
     if (Notification.permission === 'granted') {
-      const ok = display();
-      if (!ok) showInAppBanner(title, body);
+      const displayed = display();
+      if (!displayed) showInAppBanner(title, body);
       return;
     }
 
     if (Notification.permission === 'default') {
       try {
         const permission = await Notification.requestPermission();
-        if (permission === 'granted') display();
+        if (permission === 'granted') {
+          const displayed = display();
+          if (!displayed) showInAppBanner(title, body);
+        } else {
+          showInAppBanner(title, body);
+        }
       } catch (err) {
         console.warn('Notification permission failed', err);
+        showInAppBanner(title, body);
       }
+      return;
     }
+
+    showInAppBanner(title, body);
   };
-
-  const hasToken = Boolean(localStorage.getItem('token'));
-  const [currentView, setCurrentView] = useState<View>(View.HOME);
-  const [currencyCode, setCurrencyCode] = useState<string>(() => {
-    return localStorage.getItem('currencyCode') || 'USD';
-  });
-  const [isSecurityBlocked, setIsSecurityBlocked] = useState(false);
-  const [securityMessage, setSecurityMessage] = useState('');
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() =>
-    hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null
-  ); // Start as null (Guest)
-  const pushInitRef = useRef(false);
-
-  // --- Firebase FCM Token (for Push Notifications) ---
-  const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
-
-  // --- PayTabs Return Handling ---
-  const [paytabsProcessing, setPaytabsProcessing] = useState<boolean>(false);
-  const [paytabsProcessingText, setPaytabsProcessingText] = useState<string>('');
 
 
 // ============================================================
