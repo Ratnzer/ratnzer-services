@@ -60,8 +60,9 @@ export const productService = {
 // Order Services
 // ============================================================
 export const orderService = {
-  getAll: () => api.get("/orders"),
-  getAllPaged: (skip = 0, limit = 10) => api.get(`/orders?skip=${skip}&limit=${limit}`),
+  getAll: (params?: { q?: string }) => api.get("/orders", { params }),
+  getAllPaged: (skip = 0, limit = 10, q?: string) =>
+    api.get(`/orders?skip=${skip}&limit=${limit}${q ? `&q=${encodeURIComponent(q)}` : ""}`),
   getMyOrders: () => api.get("/orders/myorders"),
   getMyOrdersPaged: (skip = 0, limit = 10) => api.get(`/orders/myorders?skip=${skip}&limit=${limit}`),
   create: (data: any) => api.post("/orders", data),
