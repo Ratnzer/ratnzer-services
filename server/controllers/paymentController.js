@@ -374,18 +374,19 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
   // Fire-and-forget admin push for any created orders (card purchases)
   if (Array.isArray(result.createdOrders) && result.createdOrders.length > 0) {
-    try {
-      await Promise.all(
+    // Fire notifications in the background so payment confirmation is immediate
+    setImmediate(() => {
+      Promise.all(
         result.createdOrders.map((order) =>
           notifyAdminsPush({
             order,
             extraData: { source: 'card-payment' },
           })
         )
-      );
-    } catch (err) {
-      console.warn('Failed to push admin notification for card order', err);
-    }
+      ).catch((err) => {
+        console.warn('Failed to push admin notification for card order', err);
+      });
+    });
   }
 
   return { ok: true, payment: result.payment, status: 'succeeded', type, createdOrders: result.createdOrders };
