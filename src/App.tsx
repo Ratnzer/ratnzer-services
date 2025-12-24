@@ -1275,11 +1275,9 @@ useEffect(() => {
             // Optimistic update first (ensure valid date to prevent crash)
             const newOrder = normalizeOrderFromApi(result.order);
             setOrders(prev => [newOrder, ...prev]);
-            try {
-              await pushService.notifyAdminOrder({ orderId: newOrder.id });
-            } catch (notifyErr) {
-              console.warn('Failed to notify admin about new order', notifyErr);
-            }
+            void pushService
+              .notifyAdminOrder({ orderId: newOrder.id })
+              .catch(notifyErr => console.warn('Failed to notify admin about new order', notifyErr));
         }
 
         // ✅ Show success immediately, then refresh data in background to avoid user-visible delay
@@ -1428,6 +1426,7 @@ useEffect(() => {
 
       if (isBulkCheckout) {
           // Process all items in cart (sequential to stop on first failure)
+          const notifyPromises: Promise<unknown>[] = [];
           for (const item of cartItems) {
               const payload = {
                 productId: item.productId,
@@ -1451,22 +1450,26 @@ useEffect(() => {
                   return;
               }
               if (result.order) {
-                try {
-                  await pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
-                } catch (notifyErr) {
-                  console.warn('Failed to notify admin about bulk order item', notifyErr);
-                }
+                notifyPromises.push(
+                  pushService
+                    .notifyAdminOrder({ orderId: String(result.order.id || '') })
+                    .catch(notifyErr => console.warn('Failed to notify admin about bulk order item', notifyErr))
+                );
               }
           }
 
-          await syncAfterOrder();
+          // Fire admin notifications in background without blocking the user
+          void Promise.allSettled(notifyPromises);
 
-          // Clear cart on server
-          try {
-            await cartService.clear();
-          } catch (e) {
-            console.warn('Failed to clear cart on server', e);
-          }
+          // Refresh data and clear cart without blocking success message
+          void (async () => {
+            await syncAfterOrder();
+            try {
+              await cartService.clear();
+            } catch (e) {
+              console.warn('Failed to clear cart on server', e);
+            }
+          })();
 
           showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
           setCartItems([]);
@@ -1494,14 +1497,12 @@ useEffect(() => {
               return;
           }
           if (result.order) {
-            try {
-              await pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
-            } catch (notifyErr) {
-              console.warn('Failed to notify admin about cart order', notifyErr);
-            }
+            void pushService
+              .notifyAdminOrder({ orderId: String(result.order.id || '') })
+              .catch(notifyErr => console.warn('Failed to notify admin about cart order', notifyErr));
           }
 
-          await syncAfterOrder();
+          void syncAfterOrder();
           showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
           // Remove from cart (which triggers server delete)
           removeFromCart(activeCheckoutItem.id);
