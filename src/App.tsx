@@ -1275,11 +1275,9 @@ useEffect(() => {
             // Optimistic update first (ensure valid date to prevent crash)
             const newOrder = normalizeOrderFromApi(result.order);
             setOrders(prev => [newOrder, ...prev]);
-            try {
-              await pushService.notifyAdminOrder({ orderId: newOrder.id });
-            } catch (notifyErr) {
-              console.warn('Failed to notify admin about new order', notifyErr);
-            }
+            void pushService
+              .notifyAdminOrder({ orderId: newOrder.id })
+              .catch(notifyErr => console.warn('Failed to notify admin about new order', notifyErr));
         }
 
         // ✅ Show success immediately, then refresh data in background to avoid user-visible delay
@@ -1427,50 +1425,60 @@ useEffect(() => {
       }
 
       if (isBulkCheckout) {
-          // Process all items in cart (sequential to stop on first failure)
-          for (const item of cartItems) {
-              const payload = {
-                productId: item.productId,
-                productName: item.name,
-                productCategory: item.category,
-                amount: item.price,
-                price: item.price,
-                fulfillmentType: item.apiConfig?.type || 'manual',
-                regionName: item.selectedRegion?.name,
-                regionId: item.selectedRegion?.id,
-                denominationId: item.selectedDenomination?.id,
-                quantityLabel: item.selectedDenomination?.label,
-                customInputValue: item.customInputValue,
-                customInputLabel: item.customInputLabel,
-                paymentMethod: method,
-              };
+          const payloads = cartItems.map(item => ({
+            productId: item.productId,
+            productName: item.name,
+            productCategory: item.category,
+            amount: item.price,
+            price: item.price,
+            fulfillmentType: item.apiConfig?.type || 'manual',
+            regionName: item.selectedRegion?.name,
+            regionId: item.selectedRegion?.id,
+            denominationId: item.selectedDenomination?.id,
+            quantityLabel: item.selectedDenomination?.label,
+            customInputValue: item.customInputValue,
+            customInputLabel: item.customInputLabel,
+            paymentMethod: method,
+          }));
 
-              const result = await createOrderOnServer(payload);
-              if (!result.ok) {
-                  alert(result.message);
-                  return;
-              }
-              if (result.order) {
-                try {
-                  await pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
-                } catch (notifyErr) {
-                  console.warn('Failed to notify admin about bulk order item', notifyErr);
-                }
-              }
-          }
-
-          await syncAfterOrder();
-
-          // Clear cart on server
-          try {
-            await cartService.clear();
-          } catch (e) {
-            console.warn('Failed to clear cart on server', e);
-          }
-
-          showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+          const snapshot = [...cartItems];
           setCartItems([]);
           setIsBulkCheckout(false);
+          showActionToast('تم استلام طلبك', 'يتم تنفيذ جميع العناصر في الخلفية الآن');
+
+          void (async () => {
+            const notifyPromises: Promise<unknown>[] = [];
+            const results = await Promise.all(payloads.map(payload => createOrderOnServer(payload)));
+
+            const failedItems: CartItem[] = [];
+            results.forEach((result, idx) => {
+              if (result.ok && result.order) {
+                notifyPromises.push(
+                  pushService
+                    .notifyAdminOrder({ orderId: String(result.order.id || '') })
+                    .catch(notifyErr => console.warn('Failed to notify admin about bulk order item', notifyErr))
+                );
+              } else {
+                failedItems.push(snapshot[idx]);
+              }
+            });
+
+            if (notifyPromises.length) void Promise.allSettled(notifyPromises);
+
+            await syncAfterOrder();
+            try {
+              await cartService.clear();
+            } catch (e) {
+              console.warn('Failed to clear cart on server', e);
+            }
+
+            if (failedItems.length) {
+              setCartItems(failedItems);
+              alert('لم يتم تنفيذ بعض المنتجات وتمت إعادتها للسلة. حاول مرة أخرى لاحقاً.');
+            } else {
+              showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+            }
+          })();
       } else if (activeCheckoutItem) {
           const payload = {
             productId: activeCheckoutItem.productId,
@@ -1488,24 +1496,30 @@ useEffect(() => {
             paymentMethod: method,
           };
 
-          const result = await createOrderOnServer(payload);
-          if (!result.ok) {
-              alert(result.message);
-              return;
-          }
-          if (result.order) {
-            try {
-              await pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
-            } catch (notifyErr) {
-              console.warn('Failed to notify admin about cart order', notifyErr);
-            }
-          }
-
-          await syncAfterOrder();
-          showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
-          // Remove from cart (which triggers server delete)
-          removeFromCart(activeCheckoutItem.id);
+          const itemSnapshot = activeCheckoutItem;
           setActiveCheckoutItem(null);
+          showActionToast('تم استلام طلبك', 'يتم تأكيد الشراء خلال ثوانٍ دون انتظار');
+
+          // Optimistically remove from cart immediately
+          removeFromCart(itemSnapshot.id);
+
+          void (async () => {
+            const result = await createOrderOnServer(payload);
+            if (!result.ok) {
+              alert(result.message);
+              setCartItems(items => [itemSnapshot, ...items]);
+              return;
+            }
+
+            if (result.order) {
+              void pushService
+                .notifyAdminOrder({ orderId: String(result.order.id || '') })
+                .catch(notifyErr => console.warn('Failed to notify admin about cart order', notifyErr));
+            }
+
+            await syncAfterOrder();
+            showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+          })();
       }
   };
 
