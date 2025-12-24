@@ -1214,14 +1214,14 @@ useEffect(() => {
   }, [currentUser?.id]);
 
   const handlePurchase = (
-      itemName: string, 
-      price: number, 
+      itemName: string,
+      price: number,
       fulfillmentType: 'manual' | 'api' = 'manual',
       regionName?: string,
       quantityLabel?: string,
       category?: string,
-      productId?: string, 
-      regionId?: string, 
+      productId?: string,
+      regionId?: string,
       denominationId?: string,
       customInputValue?: string,
       customInputLabel?: string,
@@ -1264,25 +1264,49 @@ useEffect(() => {
           return;
         }
 
-        const result = await createOrderOnServer(payload);
+        // 🔥 Instant UX: show success and stage a temporary order before network calls
+        const optimisticOrderId = `temp-${Date.now()}`;
+        const optimisticOrder: Order = {
+          id: optimisticOrderId,
+          userId: currentUser.id,
+          userName: currentUser.name,
+          productName: itemName,
+          productCategory: category,
+          amount: price,
+          date: new Date().toISOString(),
+          status: 'pending',
+          fulfillmentType: fulfillmentType || 'manual',
+          regionName,
+          quantityLabel,
+          customInputValue,
+          customInputLabel,
+        };
 
-        if (!result.ok) {
-          alert(result.message);
-          return;
-        }
+        setOrders(prev => [optimisticOrder, ...prev]);
+        showActionToast('تم استلام طلبك', 'تم تأكيد العملية فوراً وسيتم تنفيذها في الخلفية');
 
-        if (result.order) {
-            // Optimistic update first (ensure valid date to prevent crash)
+        void (async () => {
+          const result = await createOrderOnServer(payload);
+
+          if (!result.ok) {
+            setOrders(prev => prev.filter(o => o.id !== optimisticOrderId));
+            alert(result.message);
+            return;
+          }
+
+          if (result.order) {
             const newOrder = normalizeOrderFromApi(result.order);
-            setOrders(prev => [newOrder, ...prev]);
+            setOrders(prev =>
+              prev.map(o => (o.id === optimisticOrderId ? newOrder : o))
+            );
+
             void pushService
               .notifyAdminOrder({ orderId: newOrder.id })
               .catch(notifyErr => console.warn('Failed to notify admin about new order', notifyErr));
-        }
+          }
 
-        // ✅ Show success immediately, then refresh data in background to avoid user-visible delay
-        showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
-        void syncAfterOrder();
+          void syncAfterOrder();
+        })();
       })();
   };
 
