@@ -1472,10 +1472,16 @@ useEffect(() => {
 
           void (async () => {
             const notifyPromises: Promise<unknown>[] = [];
-            const results = await Promise.all(payloads.map(payload => createOrderOnServer(payload)));
-
+            const results: Awaited<ReturnType<typeof createOrderOnServer>>[] = [];
             const failedItems: CartItem[] = [];
-            results.forEach((result, idx) => {
+
+            // ⚠️ مهم: ننشئ الطلبات بشكل متسلسل لتجنب تكرار نفس كود المخزون
+            // عند تنفيذ عدة طلبات لنفس المنتج في نفس اللحظة.
+            for (let idx = 0; idx < payloads.length; idx++) {
+              const payload = payloads[idx];
+              const result = await createOrderOnServer(payload);
+              results.push(result);
+
               if (result.ok && result.order) {
                 notifyPromises.push(
                   pushService
@@ -1483,9 +1489,10 @@ useEffect(() => {
                     .catch(notifyErr => console.warn('Failed to notify admin about bulk order item', notifyErr))
                 );
               } else {
-                failedItems.push(snapshot[idx]);
+                // إذا فشل الطلب نضيف المنتج مباشرة لقائمة الفشل بنفس الترتيب
+                snapshot[idx] && failedItems.push(snapshot[idx]);
               }
-            });
+            }
 
             if (notifyPromises.length) void Promise.allSettled(notifyPromises);
 
