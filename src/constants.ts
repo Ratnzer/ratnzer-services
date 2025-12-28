@@ -33,13 +33,6 @@ export const INITIAL_CURRENCIES: Currency[] = [
     symbol: '$',
     rate: 1,
   },
-  {
-    code: 'IQD',
-    name: 'الدينار العراقي',
-    symbol: 'ع.د',
-    // هذا رقم تقريبي لتحويل الدولار إلى دينار، يمكنك تعديله لاحقاً
-    rate: 1300,
-  },
 ] as Currency[];
 
 // البانرات – تترك فاضية، ويتم جلبها من /api/content/banners مثلاً

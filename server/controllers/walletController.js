@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 
 // @desc    Get current user transaction history
 // @route   GET /api/wallet/transactions
@@ -72,6 +73,7 @@ const depositFunds = asyncHandler(async (req, res) => {
 
     const transaction = await tx.transaction.create({
       data: {
+        id: generateShortId(),
         userId,
         title: 'شحن رصيد',
         amount: numAmount,
