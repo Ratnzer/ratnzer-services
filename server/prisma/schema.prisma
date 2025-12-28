@@ -1,0 +1,244 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- المستخدمين ---
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?   @unique
+  password      String
+  phone         String?   @unique
+  preferredCurrency String @default("USD")
+  balance       Float     @default(0.0)
+  role          String    @default("user") // "user" or "admin"
+  status        String    @default("active") // "active" or "banned"
+  ip            String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders        Order[]
+  transactions  Transaction[]
+  notifications Notification[]
+  payments      Payment[]
+
+  // ✅ Cart relation (added)
+  cartItems     CartItem[]
+}
+
+// --- المنتجات ---
+model Product {
+  id               String   @id @default(uuid())
+  name             String
+  category         String
+  price            Float?
+  imageColor       String   @default("from-gray-700 to-gray-900")
+  imageUrl         String?
+  tag              String?
+  description      String?
+
+  // تخزين البيانات المعقدة كـ JSON لمرونة أكبر (PostgreSQL يدعم JSONB)
+  regions          Json?    // Array of Region objects [{id, name, flag, customInput}]
+  denominations    Json?    // Array of Denomination objects [{id, label, price}]
+  apiConfig        Json?    // {type: "manual" | "api", ...}
+  customInput      Json?    // {enabled, label, placeholder, required}
+
+  autoDeliverStock Boolean  @default(false)
+  isAvailable      Boolean  @default(true)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  inventory        Inventory[]
+  orders           Order[]
+
+  // ✅ Cart relation (added)
+  cartItems        CartItem[]
+}
+
+// --- المخزون (الأكواد) ---
+model Inventory {
+  id             String    @id @default(uuid())
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  regionId       String?   // اختياري: لربط الكود بمنطقة محددة
+  denominationId String?   // اختياري: لربط الكود بفئة سعرية محددة
+  code           String    // الكود الرقمي
+
+  isUsed         Boolean   @default(false)
+  usedByOrderId  String?
+  dateUsed       DateTime?
+
+  createdAt      DateTime  @default(now())
+}
+
+// --- الطلبات ---
+model Order {
+  id               String   @id // يتم توليده في الكود (مثل #95021)
+
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+
+  productId        String?
+  product          Product? @relation(fields: [productId], references: [id])
+
+  // نقوم بحفظ نسخة من بيانات المنتج والطلب للتاريخ (حتى لو تغير المنتج لاحقاً)
+  userName         String
+  productName      String
+  productCategory  String?
+
+  amount           Float
+  status           String   @default("pending") // pending, completed, cancelled
+  fulfillmentType  String   @default("manual") // manual, api, stock
+
+  deliveredCode    String?  // الكود الذي تم تسليمه للمستخدم
+  rejectionReason  String?  // سبب الإلغاء
+
+  // تفاصيل الاختيارات
+  regionName       String?
+  regionId         String?
+  quantityLabel    String?
+  denominationId   String?
+
+  // مدخلات المستخدم المخصصة (مثل ID اللاعب)
+  customInputValue String?
+  customInputLabel String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// --- المعاملات المالية (السجل) ---
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  title       String   // عنوان العملية (شراء، شحن رصيد)
+  amount      Float
+  type        String   // credit (إضافة), debit (خصم)
+  status      String   @default("completed")
+  description String?
+  paymentId   String?  // لربط العملية بجدول المدفوعات إذا وجد
+
+  createdAt   DateTime @default(now())
+}
+
+// --- عمليات الدفع (البوابة) ---
+model Payment {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  amount        Float
+  method        String   // visa, mastercard, etc.
+  provider      String   // اسم البوابة (stripe, paypal, mock)
+  transactionId String?  // ID العملية من البوابة
+  status        String   // succeeded, failed
+  cardLast4     String?
+
+  createdAt     DateTime @default(now())
+}
+
+// --- البانرات الإعلانية ---
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  subtitle  String?
+  desc      String?
+  bg        String?
+  pattern   String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+}
+
+// --- الإشعارات العامة (شريط الأخبار) ---
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   // offer, alert, info, ad
+  isActive  Boolean  @default(true)
+  showOnHome Boolean @default(true) // هل يظهر في الواجهة الرئيسية؟
+  showInNotifications Boolean @default(true) // هل يظهر في صفحة الإشعارات؟
+  date      String?  // نص التاريخ للعرض
+  createdAt DateTime @default(now())
+}
+
+// --- الفئات (Categories) ---
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String   // اسم الأيقونة كنص (يتم تحويلها في الفرونت إند)
+  createdAt DateTime @default(now())
+}
+
+// --- إشعارات المستخدم ---
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  title     String
+  message   String
+  type      String   @default("info")
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+// --- الإعدادات العامة ---
+model Setting {
+  key       String   @id
+  value     Json     // قيمة الإعداد (يمكن أن تكون أي شيء)
+  updatedAt DateTime @updatedAt
+}
+
+// --- الشروط والأحكام (Singleton) ---
+model AppTerms {
+  id        String   @id @default("singleton")
+  contentAr String   @db.Text
+  contentEn String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- السلة (Cart) ---
+// جدول واحد لعناصر السلة مرتبط بالمستخدم لتبسيط التخزين والـ API
+model CartItem {
+  id                   String   @id @default(uuid())
+
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId            String
+  product              Product  @relation(fields: [productId], references: [id])
+
+  // نسخة من بيانات المنتج/الاختيارات وقت الإضافة للسلة
+  name                 String
+  category             String?
+  price                Float?
+  imageUrl             String?
+  imageColor           String   @default("from-gray-700 to-gray-900")
+  quantity             Int      @default(1)
+
+  apiConfig            Json?
+  selectedRegion       Json?
+  selectedDenomination Json?
+  customInputValue     String?
+  customInputLabel     String?
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([userId])
+}
