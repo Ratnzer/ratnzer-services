@@ -11,7 +11,7 @@ datasource db {
 
 // --- المستخدمين ---
 model User {
-  id            String    @id @default(uuid())
+  id            String    @id @db.VarChar(8)
   name          String
   email         String?   @unique
   password      String
@@ -36,7 +36,7 @@ model User {
 
 // --- المنتجات ---
 model Product {
-  id               String   @id @default(uuid())
+  id               String   @id @db.VarChar(8)
   name             String
   category         String
   price            Float?
@@ -66,8 +66,8 @@ model Product {
 
 // --- المخزون (الأكواد) ---
 model Inventory {
-  id             String    @id @default(uuid())
-  productId      String
+  id             String    @id @db.VarChar(8)
+  productId      String    @db.VarChar(8)
   product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   regionId       String?   // اختياري: لربط الكود بمنطقة محددة
@@ -75,7 +75,7 @@ model Inventory {
   code           String    // الكود الرقمي
 
   isUsed         Boolean   @default(false)
-  usedByOrderId  String?
+  usedByOrderId  String?   @db.VarChar(8)
   dateUsed       DateTime?
 
   createdAt      DateTime  @default(now())
@@ -83,12 +83,12 @@ model Inventory {
 
 // --- الطلبات ---
 model Order {
-  id               String   @id // يتم توليده في الكود (مثل #95021)
+  id               String   @id @db.VarChar(8) // يتم توليده في الكود (مثل #95021)
 
-  userId           String
+  userId           String    @db.VarChar(8)
   user             User     @relation(fields: [userId], references: [id])
 
-  productId        String?
+  productId        String?   @db.VarChar(8)
   product          Product? @relation(fields: [productId], references: [id])
 
   // نقوم بحفظ نسخة من بيانات المنتج والطلب للتاريخ (حتى لو تغير المنتج لاحقاً)
@@ -119,8 +119,8 @@ model Order {
 
 // --- المعاملات المالية (السجل) ---
 model Transaction {
-  id          String   @id @default(uuid())
-  userId      String
+  id          String   @id @db.VarChar(8)
+  userId      String    @db.VarChar(8)
   user        User     @relation(fields: [userId], references: [id])
 
   title       String   // عنوان العملية (شراء، شحن رصيد)
@@ -135,8 +135,8 @@ model Transaction {
 
 // --- عمليات الدفع (البوابة) ---
 model Payment {
-  id            String   @id @default(uuid())
-  userId        String
+  id            String   @id @db.VarChar(8)
+  userId        String    @db.VarChar(8)
   user          User     @relation(fields: [userId], references: [id])
 
   amount        Float
@@ -163,7 +163,7 @@ model Banner {
 
 // --- الإشعارات العامة (شريط الأخبار) ---
 model Announcement {
-  id        String   @id @default(uuid())
+  id        String   @id @db.VarChar(8)
   title     String
   message   String
   type      String   // offer, alert, info, ad
@@ -176,7 +176,7 @@ model Announcement {
 
 // --- الفئات (Categories) ---
 model Category {
-  id        String   @id @default(uuid())
+  id        String   @id @db.VarChar(8)
   name      String
   icon      String   // اسم الأيقونة كنص (يتم تحويلها في الفرونت إند)
   createdAt DateTime @default(now())
@@ -184,8 +184,8 @@ model Category {
 
 // --- إشعارات المستخدم ---
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @db.VarChar(8)
+  userId    String    @db.VarChar(8)
   user      User     @relation(fields: [userId], references: [id])
 
   title     String
@@ -215,12 +215,12 @@ model AppTerms {
 // --- السلة (Cart) ---
 // جدول واحد لعناصر السلة مرتبط بالمستخدم لتبسيط التخزين والـ API
 model CartItem {
-  id                   String   @id @default(uuid())
+  id                   String   @id @db.VarChar(8)
 
-  userId               String
+  userId               String    @db.VarChar(8)
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  productId            String
+  productId            String    @db.VarChar(8)
   product              Product  @relation(fields: [productId], references: [id])
 
   // نسخة من بيانات المنتج/الاختيارات وقت الإضافة للسلة

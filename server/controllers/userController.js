@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -72,6 +73,7 @@ const updateUserBalance = asyncHandler(async (req, res) => {
     // Log into wallet transactions so it appears in the user's Wallet history
     await tx.transaction.create({
       data: {
+        id: generateShortId(),
         userId: id,
         title: isAdd ? 'إضافة رصيد من الإدارة' : 'خصم رصيد من الإدارة',
         amount: Number(actualAmount),

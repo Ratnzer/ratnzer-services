@@ -5,6 +5,7 @@ const prisma = require('../config/db');
 const generateToken = require('../utils/generateToken');
 const bcrypt = require('bcryptjs');
 const { protect } = require('../middleware/authMiddleware');
+const { generateShortId } = require('../utils/id');
 
 // ============================================================
 // Admin Setup (Server-side promotion) - Protected by secret key
@@ -139,8 +140,17 @@ router.post('/register', asyncHandler(async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  // Generate an 8-digit user id that doesn't collide with existing users
+  let userId = generateShortId();
+  for (let i = 0; i < 5; i++) {
+    const exists = await prisma.user.findUnique({ where: { id: userId } });
+    if (!exists) break;
+    userId = generateShortId();
+  }
+
   const user = await prisma.user.create({
     data: {
+      id: userId,
       name: String(name).trim(),
       email: cleanEmail,
       phone: cleanPhone,

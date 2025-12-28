@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 
 // Helper: compute trusted price from product + denomination
 const computePrice = (product, denominationId, denominationObj) => {
@@ -127,6 +128,7 @@ const addToCart = asyncHandler(async (req, res) => {
 
   const created = await prisma.cartItem.create({
     data: {
+      id: generateShortId(),
       userId,
       productId: product.id,
       name: product.name,

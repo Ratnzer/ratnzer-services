@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 
 // Helper: Accept booleans passed as boolean/string/number
 const coerceBool = (value, defaultValue = true) => {
@@ -93,6 +94,7 @@ const createAnnouncement = asyncHandler(async (req, res) => {
 
   const announcement = await prisma.announcement.create({
     data: {
+      id: generateShortId(),
       title,
       message,
       type,
@@ -135,6 +137,7 @@ const createCategory = asyncHandler(async (req, res) => {
 
   const category = await prisma.category.create({
     data: {
+      id: generateShortId(),
       name,
       icon: icon || null,
     },
