@@ -235,6 +235,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
       await tx.transaction.create({
         data: {
+          id: generateShortId(),
           userId,
           title: 'شحن رصيد',
           amount: amountNumber,
@@ -327,7 +328,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         order = await tx.order.create({ data: { id: orderRef, ...baseOrderData } });
       } catch (err) {
         const msg = String(err?.message || '');
-        const idTypeProblem =
+      const idTypeProblem =
           msg.includes('Argument `id`') ||
           msg.includes('Argument id') ||
           msg.includes('Invalid value') ||
@@ -339,7 +340,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
         if (!idTypeProblem) throw err;
 
-        order = await tx.order.create({ data: { id: Number(orderRef), ...baseOrderData } });
+        order = await tx.order.create({ data: { id: String(orderRef), ...baseOrderData } });
       }
 
       if (stockItemToUpdate) {
@@ -351,7 +352,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
               usedByOrderId:
                 typeof order.id === 'string' || typeof order.id === 'number'
                   ? order.id
-                  : Number(orderRef),
+                  : String(orderRef),
               dateUsed: new Date(),
             },
           });
@@ -365,6 +366,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
       await tx.transaction.create({
         data: {
+          id: generateShortId(),
           userId,
           title: `شراء: ${baseOrderData.productName}`,
           amount: priceNumber,
@@ -538,6 +540,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
   // Create local payment record first
   const payment = await prisma.payment.create({
     data: {
+      id: generateShortId(),
       userId,
       amount: Number(cartAmount),
       method: 'card',
@@ -778,6 +781,7 @@ module.exports = {
     // This endpoint is deprecated in the app UI, but we keep it working.
     const payment = await prisma.payment.create({
       data: {
+        id: generateShortId(),
         userId,
         amount: num,
         method: 'card',
@@ -791,6 +795,7 @@ module.exports = {
       await tx.user.update({ where: { id: userId }, data: { balance: { increment: num } } });
       await tx.transaction.create({
         data: {
+          id: generateShortId(),
           userId,
           title: 'شحن رصيد',
           amount: num,

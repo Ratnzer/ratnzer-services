@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 
 // @desc    Get all inventory items
 // @route   GET /api/inventory
@@ -35,9 +36,15 @@ const addInventory = asyncHandler(async (req, res) => {
     throw new Error('Each item must have productId and code');
   }
 
+  const payload = items.map((item) => ({
+    ...item,
+    id: item?.id && /^\d{8}$/.test(String(item.id)) ? String(item.id) : generateShortId(),
+    productId: String(item.productId),
+  }));
+
   // Use createMany for bulk insertion (Performance)
   const result = await prisma.inventory.createMany({
-    data: items,
+    data: payload,
     skipDuplicates: true // Skip if code collision occurs (though ID is unique)
   });
 

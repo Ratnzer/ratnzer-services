@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { validationResult } = require('express-validator');
+const { generateShortId } = require('../utils/id');
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -27,6 +28,10 @@ const createProduct = asyncHandler(async (req, res) => {
   // السعر صار اختياري: إذا لم يُرسل من الفرونت نضعه 0 حتى لا يفشل Prisma (schema يتطلب price)
   const safeBody = {
     ...req.body,
+    id:
+      req.body?.id && /^\d{8}$/.test(String(req.body.id))
+        ? String(req.body.id)
+        : generateShortId(),
     price: (req.body && req.body.price !== undefined && req.body.price !== null && req.body.price !== '')
       ? Number(req.body.price)
       : 0,

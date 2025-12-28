@@ -149,7 +149,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
       // Fallback to numeric short id to avoid auto-generated long IDs
       order = await tx.order.create({
-        data: { id: Number(orderRef), ...baseOrderData },
+        data: { id: String(orderRef), ...baseOrderData },
       });
     }
 
@@ -158,7 +158,7 @@ const createOrder = asyncHandler(async (req, res) => {
       const usedByOrderIdValue =
         typeof order.id === 'string' || typeof order.id === 'number'
           ? order.id
-          : Number(orderRef);
+          : String(orderRef);
 
       try {
         await tx.inventory.update({
@@ -193,6 +193,7 @@ const createOrder = asyncHandler(async (req, res) => {
     // Log Transaction
     await tx.transaction.create({
       data: {
+        id: generateShortId(),
         userId,
         title: `شراء: ${productName}`,
         amount: priceNumber,
@@ -312,6 +313,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 
         await tx.transaction.create({
           data: {
+            id: generateShortId(),
             userId: order.userId,
             title: `استرداد: ${order.productName}`,
             amount: Number(order.amount),

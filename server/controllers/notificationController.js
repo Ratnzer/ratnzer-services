@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { upsertToken, getTokensForUsers, readTokens } = require('../utils/tokenStore');
+const { generateShortId } = require('../utils/id');
 
 // ===== FCM HTTP v1 helpers (Service Account) =====
 const FCM_OAUTH_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
@@ -206,7 +207,7 @@ const buildOrderPushPayload = (order, overrides = {}) => {
 const sendNotification = async (userId, title, message, type = 'info') => {
     try {
         await prisma.notification.create({
-            data: { userId, title, message, type }
+            data: { id: generateShortId(), userId, title, message, type }
         });
         // Future: Trigger Push Notification (FCM/OneSignal) here
         return true;
