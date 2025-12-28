@@ -30,6 +30,7 @@ import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
 import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
 import { extractOrdersFromResponse } from '../utils/orders';
+import { generateShortId } from '../utils/id';
 
 interface Props {
   setView: (view: View) => void;
@@ -546,7 +547,7 @@ const getOrderDate = (o: any) => {
 
       // 4. Log Refund Transaction (UI-only)
       const refundTx: Transaction = {
-          id: `ref-${Date.now()}`,
+          id: generateShortId(),
           title: `استرداد: ${cancellationOrder.productName}`,
           date: new Date().toLocaleString('en-US'),
           amount: cancellationOrder.amount,
@@ -618,7 +619,7 @@ const getOrderDate = (o: any) => {
     const productToSave: Product = editingProduct 
       ? ({ ...editingProduct, ...prodForm, price: hasValidFormPrice ? formPrice : resolvedBasePrice } as Product)
       : {
-        id: Math.random().toString(36).substr(2, 9),
+        id: generateShortId(),
         name: prodForm.name!,
         category: prodForm.category || 'games',
         price: resolvedBasePrice,
@@ -736,7 +737,7 @@ try {
   const addCustomRegion = () => {
     if (!tempRegionName) return;
     const newRegion: Region = {
-      id: `custom-${Date.now()}`,
+      id: generateShortId(),
       name: tempRegionName,
       flag: tempRegionFlag || '🌐' // Default icon
     };
@@ -767,7 +768,7 @@ try {
       if (!Number.isFinite(p) || p < 0) return;
 
       const newDenom: Denomination = {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
+          id: generateShortId(),
           label: tempRegionDenomLabel,
           price: p
       };
@@ -824,7 +825,7 @@ try {
   const addDenomination = () => {
       if (!tempDenomLabel || !tempDenomPrice) return;
       const newDenom: Denomination = {
-          id: Date.now().toString(),
+          id: generateShortId(),
           label: tempDenomLabel,
           price: parseFloat(tempDenomPrice)
       };
@@ -846,7 +847,7 @@ try {
 
       const codesArray = invNewCodes.split('\n').filter(code => code.trim() !== '');
       const newEntries: InventoryCode[] = codesArray.map(code => ({
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+          id: generateShortId(),
           productId: invSelectedProduct,
           regionId: invSelectedRegion || undefined,
           denominationId: invSelectedDenom || undefined,
@@ -975,7 +976,7 @@ try {
         } else {
           // Fallback to old local behavior if API returned nothing
           const newCat: Category = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: generateShortId(),
             name: catForm.name,
             icon: catForm.icon
           };
@@ -985,7 +986,7 @@ try {
         console.error('Create category failed:', err);
         // Fallback to old local behavior if API failed
         const newCat: Category = {
-          id: Math.random().toString(36).substr(2, 9),
+          id: generateShortId(),
           name: catForm.name,
           icon: catForm.icon
         };
@@ -1053,7 +1054,7 @@ try {
         } else {
             // Fallback to local behavior if API returned nothing
             const fallback: Banner = {
-                id: Date.now(),
+                id: Number(generateShortId()),
                 title: payload.title,
                 subtitle: payload.subtitle,
                 desc: payload.desc,
@@ -1079,7 +1080,7 @@ try {
             setBanners(prev => [updatedBanner, ...prev.filter(b => b.id !== editingBanner.id)]);
         } else {
             const newBanner: Banner = {
-                id: Date.now(),
+                id: Number(generateShortId()),
                 title: payload.title,
                 subtitle: payload.subtitle,
                 desc: payload.desc,
@@ -1266,7 +1267,7 @@ try {
                   alert('تم تعديل الإشعار بنجاح');
               } else {
                   const localAnn: Announcement = {
-                      id: Date.now().toString(),
+                      id: generateShortId(),
                       title: payload.title,
                       message: payload.message,
                       type: payload.type,
@@ -1291,7 +1292,7 @@ try {
               alert('تم تعديل الإشعار بنجاح');
           } else {
               const localAnn: Announcement = {
-                  id: Date.now().toString(),
+                  id: generateShortId(),
                   title: payload.title,
                   message: payload.message,
                   type: payload.type,

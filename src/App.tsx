@@ -19,6 +19,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 import { extractOrdersFromResponse, normalizeOrderFromApi, normalizeOrdersFromApi } from './utils/orders';
+import { generateShortId } from './utils/id';
 
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
@@ -1265,7 +1266,7 @@ useEffect(() => {
         }
 
         // 🔥 Instant UX: show success and stage a temporary order before network calls
-        const optimisticOrderId = `temp-${Date.now()}`;
+        const optimisticOrderId = generateShortId();
         const optimisticOrder: Order = {
           id: optimisticOrderId,
           userId: currentUser.id,
