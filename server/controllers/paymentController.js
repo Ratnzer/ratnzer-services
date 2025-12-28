@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 const {
   createPaytabsPayment,
   queryPaytabsPayment,
@@ -302,7 +303,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         }
       }
 
-      const orderRef = `#${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`;
+      const orderRef = generateShortId();
       const baseOrderData = {
         userId,
         userName: user.name,
@@ -325,8 +326,20 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
       try {
         order = await tx.order.create({ data: { id: orderRef, ...baseOrderData } });
       } catch (err) {
-        // fallback to schema default id
-        order = await tx.order.create({ data: { ...baseOrderData } });
+        const msg = String(err?.message || '');
+        const idTypeProblem =
+          msg.includes('Argument `id`') ||
+          msg.includes('Argument id') ||
+          msg.includes('Invalid value') ||
+          msg.includes('Expected') ||
+          msg.includes('Int') ||
+          msg.includes('UUID') ||
+          msg.includes('cuid') ||
+          msg.includes('uuid');
+
+        if (!idTypeProblem) throw err;
+
+        order = await tx.order.create({ data: { id: Number(orderRef), ...baseOrderData } });
       }
 
       if (stockItemToUpdate) {
@@ -335,7 +348,10 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
             where: { id: stockItemToUpdate },
             data: {
               isUsed: true,
-              usedByOrderId: typeof order.id === 'string' ? order.id : orderRef,
+              usedByOrderId:
+                typeof order.id === 'string' || typeof order.id === 'number'
+                  ? order.id
+                  : Number(orderRef),
               dateUsed: new Date(),
             },
           });

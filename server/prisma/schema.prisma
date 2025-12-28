@@ -11,7 +11,7 @@ datasource db {
 
 // --- المستخدمين ---
 model User {
-  id            String    @id @default(uuid())
+  id            String    @id @db.VarChar(8)
   name          String
   email         String?   @unique
   password      String
@@ -85,7 +85,7 @@ model Inventory {
 model Order {
   id               String   @id // يتم توليده في الكود (مثل #95021)
 
-  userId           String
+  userId           String    @db.VarChar(8)
   user             User     @relation(fields: [userId], references: [id])
 
   productId        String?
@@ -120,7 +120,7 @@ model Order {
 // --- المعاملات المالية (السجل) ---
 model Transaction {
   id          String   @id @default(uuid())
-  userId      String
+  userId      String    @db.VarChar(8)
   user        User     @relation(fields: [userId], references: [id])
 
   title       String   // عنوان العملية (شراء، شحن رصيد)
@@ -136,7 +136,7 @@ model Transaction {
 // --- عمليات الدفع (البوابة) ---
 model Payment {
   id            String   @id @default(uuid())
-  userId        String
+  userId        String    @db.VarChar(8)
   user          User     @relation(fields: [userId], references: [id])
 
   amount        Float
@@ -185,7 +185,7 @@ model Category {
 // --- إشعارات المستخدم ---
 model Notification {
   id        String   @id @default(uuid())
-  userId    String
+  userId    String    @db.VarChar(8)
   user      User     @relation(fields: [userId], references: [id])
 
   title     String
@@ -217,7 +217,7 @@ model AppTerms {
 model CartItem {
   id                   String   @id @default(uuid())
 
-  userId               String
+  userId               String    @db.VarChar(8)
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   productId            String

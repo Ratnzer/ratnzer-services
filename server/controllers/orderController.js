@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
+const { generateShortId } = require('../utils/id');
 
 // Helper: normalize IDs to String or null (schema expects String/Nullable)
 const normalizeId = (val) => {
@@ -106,7 +107,7 @@ const createOrder = asyncHandler(async (req, res) => {
     });
 
     // Create Order
-    const orderRef = `#${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`;
+    const orderRef = generateShortId();
 
     const baseOrderData = {
       userId: userId,
@@ -146,15 +147,18 @@ const createOrder = asyncHandler(async (req, res) => {
 
       if (!idTypeProblem) throw err;
 
-      // Fallback to schema default id
+      // Fallback to numeric short id to avoid auto-generated long IDs
       order = await tx.order.create({
-        data: { ...baseOrderData },
+        data: { id: Number(orderRef), ...baseOrderData },
       });
     }
 
     // Update Inventory (if auto-delivered)
     if (stockItemToUpdate) {
-      const usedByOrderIdValue = typeof order.id === 'string' ? order.id : orderRef;
+      const usedByOrderIdValue =
+        typeof order.id === 'string' || typeof order.id === 'number'
+          ? order.id
+          : Number(orderRef);
 
       try {
         await tx.inventory.update({
