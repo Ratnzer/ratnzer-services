@@ -119,7 +119,7 @@ model Order {
 
 // --- المعاملات المالية (السجل) ---
 model Transaction {
-  id          String   @id @default(uuid())
+  id          String   @id @db.VarChar(8)
   userId      String    @db.VarChar(8)
   user        User     @relation(fields: [userId], references: [id])
 
