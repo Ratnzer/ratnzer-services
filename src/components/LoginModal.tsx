@@ -20,13 +20,12 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
-  const sanitizeEmailInput = (value: string) => value.replace(/[^A-Za-z0-9@._+-]/g, '').toLowerCase();
+  const sanitizeEmailInput = (value: string) => value.replace(/[^A-Za-z0-9@._+-]/g, '');
   const sanitizePhoneInput = (value: string) => value.replace(/\D/g, '');
 
   const isValidEnglishEmail = (value: string) => {
-    const normalized = value.toLowerCase();
-    const emailPattern = /^[a-z][a-z0-9._%+-]*@(gmail\.com|hotmail\.com)$/;
-    return emailPattern.test(normalized);
+    const emailPattern = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$/;
+    return emailPattern.test(value);
   };
   
   // UI State
@@ -51,7 +50,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
             return;
         }
         if (!isValidEnglishEmail(cleanedEmail)) {
-            alert('يرجى إدخال بريد إلكتروني صالح بالأحرف الإنجليزية فقط من Gmail أو Hotmail');
+            alert('يرجى إدخال بريد إلكتروني صالح بالأحرف الإنجليزية فقط');
             return;
         }
     }
@@ -202,7 +201,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                                     <input
                                         type="email"
                                         inputMode="email"
-                                        pattern="[a-z][a-z0-9._%+-]*@(gmail\\.com|hotmail\\.com)"
+                                        pattern="[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
                                         value={email}
                                         onChange={(e) => setEmail(sanitizeEmailInput(e.target.value))}
                                         className="w-full bg-[#242636] border border-gray-700 rounded-xl py-4 pr-11 pl-4 text-white text-right focus:border-yellow-400 focus:bg-[#2a2d3e] focus:outline-none transition-all text-sm shadow-inner placeholder-gray-600"
