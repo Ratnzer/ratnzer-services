@@ -72,7 +72,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
             return;
         }
         if (!isValidEnglishEmail(cleanedEmail)) {
-            alert('يرجى إدخال بريد إلكتروني صالح بالأحرف الإنجليزية فقط');
+            alert('يرجى إدخال بريد إلكتروني صالح بالأحرف الإنجليزية فقط من Gmail أو Hotmail');
             return;
         }
     }

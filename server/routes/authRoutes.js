@@ -65,8 +65,7 @@ router.post('/admin/activate', protect, asyncHandler(async (req, res) => {
 
   const secret =
     process.env.ADMIN_PANEL_PASSWORD ||
-    process.env.ADMIN_SETUP_KEY ||
-    process.env.ADMIN_SETUP_SECRET;
+    process.env.ADMIN_SETUP_KEY;
 
   if (!secret) {
     return res.status(500).json({ message: "Admin password is not configured on server" });
