@@ -437,7 +437,8 @@ const createPaytabs = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
-  const paytabsCurrency = process.env.PAYTABS_CURRENCY || 'USD';
+  const paytabsCurrency = process.env.PAYTABS_CURRENCY || 'IQD';
+  const usdToIqdRate = Number(process.env.PAYTABS_USD_TO_IQD_RATE || 1320);
   const profileId = String(process.env.PAYTABS_PROFILE_ID || '').trim();
   if (!profileId) {
     res.status(500);
@@ -566,6 +567,18 @@ const createPaytabs = asyncHandler(async (req, res) => {
     throw new Error('APP_BASE_URL / APP_CALLBACK_URL / APP_RETURN_URL is missing');
   }
 
+  const cartAmountNumber = Number(cartAmount);
+  const paytabsAmountRaw =
+    (paytabsCurrency || '').toUpperCase() === 'IQD'
+      ? cartAmountNumber * usdToIqdRate
+      : cartAmountNumber;
+  const paytabsCartAmount = Number(paytabsAmountRaw.toFixed(2));
+
+  if (!Number.isFinite(paytabsCartAmount) || paytabsCartAmount <= 0) {
+    res.status(400);
+    throw new Error('Invalid PayTabs amount');
+  }
+
   const paytabsPayload = {
     profile_id: profileId,
     tran_type: 'sale',
@@ -573,7 +586,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
     cart_id: payment.id,
     cart_description: String(type || 'payment'),
     cart_currency: paytabsCurrency,
-    cart_amount: Number(cartAmount),
+    cart_amount: paytabsCartAmount,
     callback: callback,
     return: ret,
     customer_details: customer,
