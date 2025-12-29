@@ -99,6 +99,8 @@ model Order {
   amount           Float
   status           String   @default("pending") // pending, completed, cancelled
   fulfillmentType  String   @default("manual") // manual, api, stock
+  providerName     String?
+  providerOrderId  String?
 
   deliveredCode    String?  // الكود الذي تم تسليمه للمستخدم
   rejectionReason  String?  // سبب الإلغاء

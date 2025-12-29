@@ -1461,6 +1461,7 @@ useEffect(() => {
             regionId: item.selectedRegion?.id,
             denominationId: item.selectedDenomination?.id,
             quantityLabel: item.selectedDenomination?.label,
+            quantity: item.quantity || item.selectedDenomination?.amount || 1,
             customInputValue: item.customInputValue,
             customInputLabel: item.customInputLabel,
             paymentMethod: method,
@@ -1512,14 +1513,18 @@ useEffect(() => {
             amount: activeCheckoutItem.price,
             price: activeCheckoutItem.price,
             fulfillmentType: activeCheckoutItem.apiConfig?.type || 'manual',
-            regionName: activeCheckoutItem.selectedRegion?.name,
-            regionId: activeCheckoutItem.selectedRegion?.id,
-            denominationId: activeCheckoutItem.selectedDenomination?.id,
-            quantityLabel: activeCheckoutItem.selectedDenomination?.label,
-            customInputValue: activeCheckoutItem.customInputValue,
-            customInputLabel: activeCheckoutItem.customInputLabel,
-            paymentMethod: method,
-          };
+          regionName: activeCheckoutItem.selectedRegion?.name,
+          regionId: activeCheckoutItem.selectedRegion?.id,
+          denominationId: activeCheckoutItem.selectedDenomination?.id,
+          quantityLabel: activeCheckoutItem.selectedDenomination?.label,
+          quantity:
+            activeCheckoutItem.quantity ||
+            activeCheckoutItem.selectedDenomination?.amount ||
+            1,
+          customInputValue: activeCheckoutItem.customInputValue,
+          customInputLabel: activeCheckoutItem.customInputLabel,
+          paymentMethod: method,
+        };
 
           const itemSnapshot = activeCheckoutItem;
           setActiveCheckoutItem(null);

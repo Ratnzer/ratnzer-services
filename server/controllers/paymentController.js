@@ -6,6 +6,7 @@ const {
   queryPaytabsPayment,
 } = require('../utils/paytabs');
 const { notifyAdminsPush } = require('./notificationController');
+const { placeOrder: placeKd1sOrder, parseQuantity } = require('../utils/kd1sClient');
 
 // ------------------------------------------------------------
 // Helpers
@@ -17,6 +18,17 @@ const safeJsonParse = (raw, fallback) => {
     return JSON.parse(String(raw));
   } catch {
     return fallback;
+  }
+};
+
+const parseApiConfig = (raw) => {
+  try {
+    if (!raw) return null;
+    if (typeof raw === 'object') return raw;
+    return JSON.parse(String(raw));
+  } catch (err) {
+    console.warn('Failed to parse product apiConfig', err?.message || err);
+    return null;
   }
 };
 
@@ -200,6 +212,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
   const amountNumber = Number(payment.amount || 0);
   const userId = payment.userId;
+  const apiDispatchQueue = [];
 
   const result = await prisma.$transaction(async (tx) => {
     // Re-fetch with lock-ish behavior inside transaction
@@ -272,12 +285,11 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
       let status = 'pending';
       let fulfillmentType = 'manual';
 
+      const apiConfig = parseApiConfig(product?.apiConfig);
+
       // infer fulfillment type if possible
-      if (product && product.apiConfig) {
-        try {
-          const cfg = typeof product.apiConfig === 'string' ? JSON.parse(product.apiConfig) : product.apiConfig;
-          if (cfg?.type) fulfillmentType = cfg.type;
-        } catch {}
+      if (apiConfig?.type) {
+        fulfillmentType = apiConfig.type;
       }
 
       let stockItemToUpdate = null;
@@ -321,6 +333,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         status,
         fulfillmentType,
         deliveredCode,
+        providerName: apiConfig?.providerName,
       };
 
       let order;
@@ -376,6 +389,19 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         },
       });
 
+      if (apiConfig?.type === 'api' && apiConfig?.serviceId && !deliveredCode) {
+        const quantity = parseQuantity(
+          it?.quantity ?? it?.selectedDenomination?.amount ?? it?.quantityLabel ?? 1
+        );
+        apiDispatchQueue.push({
+          orderId: order.id,
+          serviceId: apiConfig.serviceId,
+          providerName: apiConfig.providerName || 'KD1S',
+          link: it?.customInputValue || it?.regionName || baseOrderData.productName,
+          quantity,
+        });
+      }
+
       createdOrders.push(order);
     }
 
@@ -389,6 +415,35 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
     return { payment: updatedPayment, type: innerType, createdOrders };
   });
+
+  // Dispatch provider orders (KD1S) after payment success
+  for (const job of apiDispatchQueue) {
+    try {
+      const providerOrder = await placeKd1sOrder({
+        serviceId: job.serviceId,
+        link: job.link,
+        quantity: job.quantity,
+      });
+
+      await prisma.order.update({
+        where: { id: job.orderId },
+        data: {
+          providerOrderId: providerOrder.orderId,
+          providerName: job.providerName,
+          fulfillmentType: 'api',
+          status: 'pending',
+        },
+      });
+    } catch (err) {
+      await prisma.order.update({
+        where: { id: job.orderId },
+        data: {
+          status: 'cancelled',
+          rejectionReason: `KD1S: ${err?.message || err}`,
+        },
+      });
+    }
+  }
 
   // Fire-and-forget admin push for any created orders (card purchases)
   if (Array.isArray(result.createdOrders) && result.createdOrders.length > 0) {
@@ -521,6 +576,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
       regionId: i.selectedRegion?.id,
       denominationId: i.selectedDenomination?.id,
       quantityLabel: i.selectedDenomination?.label,
+      quantity: Number(i.quantity) || null,
       customInputValue: i.customInputValue,
       customInputLabel: i.customInputLabel,
     }));
