@@ -91,6 +91,8 @@ export interface Order {
   quantityLabel?: string;
   customInputValue?: string; // NEW: User provided info (ID, Link, etc.)
   customInputLabel?: string; // NEW: What was requested
+  providerName?: string;
+  providerOrderId?: string;
 }
 
 export interface Category {

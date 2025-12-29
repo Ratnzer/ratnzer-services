@@ -6,6 +6,7 @@ const {
   queryPaytabsPayment,
 } = require('../utils/paytabs');
 const { notifyAdminsPush } = require('./notificationController');
+const { placeOrder: placeKd1sOrder, parseQuantity } = require('../utils/kd1sClient');
 
 // ------------------------------------------------------------
 // Helpers
@@ -18,6 +19,39 @@ const safeJsonParse = (raw, fallback) => {
   } catch {
     return fallback;
   }
+};
+
+const parseApiConfig = (raw) => {
+  try {
+    if (!raw) return null;
+    if (typeof raw === 'object') return raw;
+    return JSON.parse(String(raw));
+  } catch (err) {
+    console.warn('Failed to parse product apiConfig', err?.message || err);
+    return null;
+  }
+};
+
+const parseJsonField = (raw, fallback = null) => {
+  try {
+    if (raw === undefined || raw === null) return fallback;
+    if (typeof raw === 'object') return raw;
+    return JSON.parse(String(raw));
+  } catch {
+    return fallback;
+  }
+};
+
+const resolveCustomInputConfig = (product, regionId) => {
+  const regions = parseJsonField(product?.regions, null);
+  const region = Array.isArray(regions)
+    ? regions.find((r) => String(r?.id || '') === String(regionId || ''))
+    : null;
+
+  if (region?.customInput) return region.customInput;
+
+  const productCustomInput = parseJsonField(product?.customInput, null);
+  return productCustomInput || null;
 };
 
 const normalizeId = (val) => {
@@ -200,6 +234,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
   const amountNumber = Number(payment.amount || 0);
   const userId = payment.userId;
+  const apiDispatchQueue = [];
 
   const result = await prisma.$transaction(async (tx) => {
     // Re-fetch with lock-ish behavior inside transaction
@@ -272,12 +307,27 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
       let status = 'pending';
       let fulfillmentType = 'manual';
 
+      const apiConfig = parseApiConfig(product?.apiConfig);
+
+      const activeCustomInput = resolveCustomInputConfig(product, normalizeId(it?.regionId));
+      const trimmedCustomInputValue =
+        it?.customInputValue && typeof it.customInputValue === 'string'
+          ? it.customInputValue.trim()
+          : it?.customInputValue;
+
+      if (activeCustomInput?.enabled && activeCustomInput?.required) {
+        if (!trimmedCustomInputValue) {
+          throw new Error('الرجاء إدخال المعلومات المطلوبة لهذا المنتج');
+        }
+      }
+
+      const normalizedQuantity = parseQuantity(
+        it?.quantity ?? it?.selectedDenomination?.amount ?? it?.quantityLabel ?? 1
+      );
+
       // infer fulfillment type if possible
-      if (product && product.apiConfig) {
-        try {
-          const cfg = typeof product.apiConfig === 'string' ? JSON.parse(product.apiConfig) : product.apiConfig;
-          if (cfg?.type) fulfillmentType = cfg.type;
-        } catch {}
+      if (apiConfig?.type) {
+        fulfillmentType = apiConfig.type;
       }
 
       let stockItemToUpdate = null;
@@ -313,14 +363,16 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         productCategory: it?.productCategory || product?.category || undefined,
         regionName: it?.regionName || undefined,
         regionId: normalizeId(it?.regionId),
-        quantityLabel: it?.quantityLabel || undefined,
+        quantityLabel:
+          it?.quantityLabel || (it?.quantity ? String(normalizedQuantity) : undefined),
         denominationId: normalizeId(it?.denominationId),
-        customInputValue: it?.customInputValue || undefined,
-        customInputLabel: it?.customInputLabel || undefined,
+        customInputValue: trimmedCustomInputValue || undefined,
+        customInputLabel: it?.customInputLabel || activeCustomInput?.label || undefined,
         amount: priceNumber,
         status,
         fulfillmentType,
         deliveredCode,
+        providerName: apiConfig?.providerName,
       };
 
       let order;
@@ -376,6 +428,16 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         },
       });
 
+      if (apiConfig?.type === 'api' && apiConfig?.serviceId && !deliveredCode) {
+        apiDispatchQueue.push({
+          orderId: order.id,
+          serviceId: apiConfig.serviceId,
+          providerName: apiConfig.providerName || 'KD1S',
+          link: it?.customInputValue || it?.regionName || baseOrderData.productName,
+          quantity: normalizedQuantity,
+        });
+      }
+
       createdOrders.push(order);
     }
 
@@ -389,6 +451,35 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 
     return { payment: updatedPayment, type: innerType, createdOrders };
   });
+
+  // Dispatch provider orders (KD1S) after payment success
+  for (const job of apiDispatchQueue) {
+    try {
+      const providerOrder = await placeKd1sOrder({
+        serviceId: job.serviceId,
+        link: job.link,
+        quantity: job.quantity,
+      });
+
+      await prisma.order.update({
+        where: { id: job.orderId },
+        data: {
+          providerOrderId: providerOrder.orderId,
+          providerName: job.providerName,
+          fulfillmentType: 'api',
+          status: 'pending',
+        },
+      });
+    } catch (err) {
+      await prisma.order.update({
+        where: { id: job.orderId },
+        data: {
+          status: 'cancelled',
+          rejectionReason: `KD1S: ${err?.message || err}`,
+        },
+      });
+    }
+  }
 
   // Fire-and-forget admin push for any created orders (card purchases)
   if (Array.isArray(result.createdOrders) && result.createdOrders.length > 0) {
@@ -470,6 +561,20 @@ const createPaytabs = asyncHandler(async (req, res) => {
       throw new Error('Product not found');
     }
 
+    const regionId = normalizeId(p.regionId || p?.selectedRegion?.id);
+    const activeCustomInput = resolveCustomInputConfig(product, regionId);
+    const trimmedCustomInputValue =
+      p?.customInputValue && typeof p.customInputValue === 'string'
+        ? p.customInputValue.trim()
+        : p?.customInputValue;
+
+    if (activeCustomInput?.enabled && activeCustomInput?.required) {
+      if (!trimmedCustomInputValue) {
+        res.status(400);
+        throw new Error('الرجاء إدخال المعلومات المطلوبة لهذا المنتج');
+      }
+    }
+
     const denomKey = p.denominationId != null ? String(p.denominationId) : null;
     const trusted = computePrice(product, denomKey, p?.selectedDenomination, p?.amount ?? p?.price);
     const price = Number(trusted);
@@ -478,6 +583,10 @@ const createPaytabs = asyncHandler(async (req, res) => {
       throw new Error('Invalid product price');
     }
 
+    const normalizedQuantity = parseQuantity(
+      p?.quantity ?? p?.selectedDenomination?.amount ?? p?.quantityLabel ?? 1
+    );
+
     cartAmount = price;
     meta.orderPayload = {
       ...p,
@@ -485,6 +594,10 @@ const createPaytabs = asyncHandler(async (req, res) => {
       productName: p.productName || product.name,
       productCategory: p.productCategory || product.category,
       amount: price,
+      quantity: p?.quantity ?? normalizedQuantity,
+      quantityLabel: p?.quantityLabel || (p?.quantity ? String(normalizedQuantity) : undefined),
+      customInputValue: trimmedCustomInputValue,
+      customInputLabel: p?.customInputLabel || activeCustomInput?.label,
     };
   } else if (type === 'cart') {
     let items = [];
@@ -510,20 +623,32 @@ const createPaytabs = asyncHandler(async (req, res) => {
       }
     }
 
-    const mapped = items.map((i) => ({
-      productId: i.productId,
-      productName: i.name,
-      productCategory: i.category,
-      amount: Number(i.price || 0),
-      price: Number(i.price || 0),
-      fulfillmentType: i.apiConfig?.type || 'manual',
-      regionName: i.selectedRegion?.name,
-      regionId: i.selectedRegion?.id,
-      denominationId: i.selectedDenomination?.id,
-      quantityLabel: i.selectedDenomination?.label,
-      customInputValue: i.customInputValue,
-      customInputLabel: i.customInputLabel,
-    }));
+    const mapped = items.map((i) => {
+      const normalizedQuantity = parseQuantity(
+        i?.quantity ?? i?.selectedDenomination?.amount ?? i?.quantityLabel ?? 1
+      );
+
+      const trimmedCustomInputValue =
+        i?.customInputValue && typeof i.customInputValue === 'string'
+          ? i.customInputValue.trim()
+          : i?.customInputValue;
+
+      return {
+        productId: i.productId,
+        productName: i.name,
+        productCategory: i.category,
+        amount: Number(i.price || 0),
+        price: Number(i.price || 0),
+        fulfillmentType: i.apiConfig?.type || 'manual',
+        regionName: i.selectedRegion?.name,
+        regionId: i.selectedRegion?.id,
+        denominationId: i.selectedDenomination?.id,
+        quantityLabel: i.selectedDenomination?.label || (i?.quantity ? String(normalizedQuantity) : undefined),
+        quantity: Number.isFinite(Number(i.quantity)) && Number(i.quantity) > 0 ? Number(i.quantity) : normalizedQuantity,
+        customInputValue: trimmedCustomInputValue,
+        customInputLabel: i.customInputLabel,
+      };
+    });
 
     cartAmount = mapped.reduce((s, x) => s + (Number(x.amount) || 0), 0);
     if (!Number.isFinite(cartAmount) || cartAmount <= 0) {
