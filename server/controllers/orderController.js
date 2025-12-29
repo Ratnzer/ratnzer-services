@@ -220,12 +220,12 @@ const createOrder = asyncHandler(async (req, res) => {
     apiConfig?.type === 'api' && apiConfig?.serviceId && result.status !== 'completed';
 
   if (shouldUseProvider) {
-      try {
-        const providerOrder = await placeKd1sOrder({
-          serviceId: apiConfig.serviceId,
-          link: customInputValue || regionName || productName,
-          quantity: parseQuantity(quantity ?? quantityLabel ?? 1),
-        });
+    try {
+      const providerOrder = await placeKd1sOrder({
+        serviceId: apiConfig.serviceId,
+        link: customInputValue || regionName || productName,
+        quantity: parseQuantity(quantityLabel || 1),
+      });
 
       result = await prisma.order.update({
         where: { id: result.id },
