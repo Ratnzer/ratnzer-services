@@ -390,12 +390,15 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
       });
 
       if (apiConfig?.type === 'api' && apiConfig?.serviceId && !deliveredCode) {
+        const quantity = parseQuantity(
+          it?.quantity ?? it?.selectedDenomination?.amount ?? it?.quantityLabel ?? 1
+        );
         apiDispatchQueue.push({
           orderId: order.id,
           serviceId: apiConfig.serviceId,
           providerName: apiConfig.providerName || 'KD1S',
           link: it?.customInputValue || it?.regionName || baseOrderData.productName,
-          quantity: parseQuantity(it?.quantityLabel || it?.selectedDenomination?.amount || 1),
+          quantity,
         });
       }
 
@@ -573,6 +576,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
       regionId: i.selectedRegion?.id,
       denominationId: i.selectedDenomination?.id,
       quantityLabel: i.selectedDenomination?.label,
+      quantity: Number(i.quantity) || null,
       customInputValue: i.customInputValue,
       customInputLabel: i.customInputLabel,
     }));

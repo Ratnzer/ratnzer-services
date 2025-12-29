@@ -33,6 +33,7 @@ const createOrder = asyncHandler(async (req, res) => {
     // ✅ accept both "price" (old) and "amount" (new from frontend)
     price,
     amount,
+    quantity,
     regionId,
     regionName,
     denominationId,
@@ -108,7 +109,7 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 
   // 4. Transaction
-  const result = await prisma.$transaction(async (tx) => {
+  let result = await prisma.$transaction(async (tx) => {
     // Deduct Balance
     await tx.user.update({
       where: { id: userId },
