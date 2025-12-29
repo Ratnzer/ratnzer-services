@@ -11,6 +11,7 @@ dotenv.config();
 // تأكد من أن هذا المسار صحيح
 const prisma = require('./config/db'); 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const { startKd1sStatusSync } = require('./services/kd1sSync');
 
 const app = express();
 
@@ -90,6 +91,9 @@ async function startServer() {
       console.log(`Server running in ${process.env.NODE_ENV} mode on ${HOST}:${PORT}`);
       console.log('Ratelozn Backend (Prisma/Postgres) is Ready! 🚀');
     });
+
+    // Kick off periodic KD1S order status sync so provider updates flow to users automatically
+    startKd1sStatusSync();
 
   } catch (error) {
     // 3. في حالة فشل الاتصال بقاعدة البيانات، قم بتسجيل الخطأ والخروج من العملية

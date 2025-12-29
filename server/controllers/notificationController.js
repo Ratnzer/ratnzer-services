@@ -338,12 +338,7 @@ const broadcastAnnouncement = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Notify a user about order status update (stores in DB + exposes tokens for FCM)
-// @route   POST /api/notifications/notify-user-order
-// @access  Private
-const notifyUserOrder = asyncHandler(async (req, res) => {
-  const { orderId, status, userId, title, message } = req.body || {};
-
+const sendUserOrderNotification = async ({ orderId, status, userId, title, message }) => {
   let targetUserId = userId || null;
   if (!targetUserId && orderId) {
     const order = await prisma.order.findUnique({
@@ -354,7 +349,6 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
   }
 
   if (!targetUserId) {
-    res.status(400);
     throw new Error('User not found for notification');
   }
 
@@ -385,11 +379,22 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
     tokens.map((t) => t.token),
     pushPayload
   );
+
+  return { tokens: tokens.map((t) => t.token), push };
+};
+
+// @desc    Notify a user about order status update (stores in DB + exposes tokens for FCM)
+// @route   POST /api/notifications/notify-user-order
+// @access  Private
+const notifyUserOrder = asyncHandler(async (req, res) => {
+  const { orderId, status, userId, title, message } = req.body || {};
+
+  const result = await sendUserOrderNotification({ orderId, status, userId, title, message });
+
   res.json({
     success: true,
-    tokens: tokens.map((t) => t.token),
-    push,
+    ...result,
   });
 });
 
-module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyAdminsPush, broadcastAnnouncement, notifyUserOrder };
+module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyAdminsPush, broadcastAnnouncement, notifyUserOrder, sendUserOrderNotification };

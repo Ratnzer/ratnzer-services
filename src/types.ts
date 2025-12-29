@@ -13,6 +13,8 @@ export interface Denomination {
   id: string;
   label: string;
   price: number;
+  // Some endpoints return quantity/price under `amount`, so keep it for compatibility
+  amount?: number;
   isAvailable?: boolean; // NEW: Availability status for this denomination
 }
 
