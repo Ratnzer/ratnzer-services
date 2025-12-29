@@ -13,12 +13,20 @@ interface Props {
 const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
   const [mode, setMode] = useState<'login' | 'register'>('register'); // Changed default to 'register'
   const [method, setMethod] = useState<'email' | 'phone'>('email');
-  
+
   // Form State
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
+  const sanitizeEmailInput = (value: string) => value.replace(/[^A-Za-z0-9@._+-]/g, '');
+  const sanitizePhoneInput = (value: string) => value.replace(/\D/g, '');
+
+  const isValidEnglishEmail = (value: string) => {
+    const emailPattern = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$/;
+    return emailPattern.test(value);
+  };
   
   // UI State
   const [showPassword, setShowPassword] = useState(false);
@@ -33,14 +41,25 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
         return;
     }
     
-    if (method === 'email' && !email.trim()) {
-        alert('يرجى إدخال البريد الإلكتروني');
-        return;
+    const cleanedEmail = sanitizeEmailInput(email.trim());
+    const cleanedPhone = sanitizePhoneInput(phone.trim());
+
+    if (method === 'email') {
+        if (!cleanedEmail) {
+            alert('يرجى إدخال البريد الإلكتروني');
+            return;
+        }
+        if (!isValidEnglishEmail(cleanedEmail)) {
+            alert('يرجى إدخال بريد إلكتروني صالح بالأحرف الإنجليزية فقط');
+            return;
+        }
     }
-    
-    if (method === 'phone' && !phone.trim()) {
-        alert('يرجى إدخال رقم الهاتف');
-        return;
+
+    if (method === 'phone') {
+        if (!cleanedPhone) {
+            alert('يرجى إدخال رقم الهاتف');
+            return;
+        }
     }
 
     if (!password) {
@@ -58,8 +77,8 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
     const payload = {
       isRegister: mode === 'register',
       name: mode === 'register' ? name : undefined,
-      email: method === 'email' ? email : undefined,
-      phone: method === 'phone' ? phone : undefined,
+      email: method === 'email' ? cleanedEmail : undefined,
+      phone: method === 'phone' ? cleanedPhone : undefined,
       password: password
     };
 
@@ -179,10 +198,12 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                             <div className="space-y-1.5 animate-fadeIn">
                                 <label className="text-xs font-bold text-gray-300 mr-1">البريد الإلكتروني</label>
                                 <div className="relative group">
-                                    <input 
-                                        type="email" 
+                                    <input
+                                        type="email"
+                                        inputMode="email"
+                                        pattern="[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9._-]+\\.[A-Za-z]{2,}"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => setEmail(sanitizeEmailInput(e.target.value))}
                                         className="w-full bg-[#242636] border border-gray-700 rounded-xl py-4 pr-11 pl-4 text-white text-right focus:border-yellow-400 focus:bg-[#2a2d3e] focus:outline-none transition-all text-sm shadow-inner placeholder-gray-600"
                                         placeholder="name@example.com"
                                     />
@@ -195,10 +216,13 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                             <div className="space-y-1.5 animate-fadeIn">
                                 <label className="text-xs font-bold text-gray-300 mr-1">رقم الهاتف</label>
                                 <div className="relative group">
-                                    <input 
-                                        type="tel" 
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        autoComplete="tel"
                                         value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
+                                        onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
                                         className="w-full bg-[#242636] border border-gray-700 rounded-xl py-4 pr-11 pl-4 text-white text-right focus:border-yellow-400 focus:bg-[#2a2d3e] focus:outline-none transition-all text-sm shadow-inner placeholder-gray-600 dir-rtl"
                                         placeholder="0770 000 0000"
                                     />
