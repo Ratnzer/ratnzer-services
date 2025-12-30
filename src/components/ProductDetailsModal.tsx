@@ -148,6 +148,15 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         return;
     }
 
+    const normalizedQuantity = (() => {
+      const raw = denomObj?.amount;
+      const num = raw != null ? Number(raw) : null;
+      if (num && Number.isFinite(num) && num > 0) {
+        return Math.max(1, Math.round(num));
+      }
+      return 1;
+    })();
+
     const newItem: CartItem = {
         id: generateShortId(),
         productId: product.id,
@@ -158,7 +167,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageColor: product.imageColor,
         selectedRegion: regionObj,
         selectedDenomination: denomObj,
-        quantity: 1,
+        quantity: normalizedQuantity,
         apiConfig: product.apiConfig,
         customInputValue: customInputValue.trim(),
         customInputLabel: activeCustomInput?.label

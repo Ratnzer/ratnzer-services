@@ -1362,6 +1362,13 @@ useEffect(() => {
   };
 
   // --- Cart Logic ---
+  const resolveCartQuantity = (item: CartItem): number => {
+    const raw = item.selectedDenomination?.amount ?? item.quantity;
+    const num = Number(raw);
+    if (!Number.isFinite(num) || num <= 0) return 1;
+    return Math.max(1, Math.round(num));
+  };
+
   const addToCart = async (item: CartItem): Promise<boolean> => {
     if (!currentUser) {
         setShowLoginModal(true);
@@ -1371,7 +1378,7 @@ useEffect(() => {
     try {
       const payload = {
         productId: item.productId,
-        quantity: item.quantity || 1,
+        quantity: resolveCartQuantity(item),
         // snapshots/options
         apiConfig: item.apiConfig,
         selectedRegion: item.selectedRegion,
@@ -1461,7 +1468,7 @@ useEffect(() => {
             regionId: item.selectedRegion?.id,
             denominationId: item.selectedDenomination?.id,
             quantityLabel: item.selectedDenomination?.label,
-            quantity: item.quantity || item.selectedDenomination?.amount || 1,
+            quantity: resolveCartQuantity(item),
             customInputValue: item.customInputValue,
             customInputLabel: item.customInputLabel,
             paymentMethod: method,
@@ -1513,18 +1520,15 @@ useEffect(() => {
             amount: activeCheckoutItem.price,
             price: activeCheckoutItem.price,
             fulfillmentType: activeCheckoutItem.apiConfig?.type || 'manual',
-          regionName: activeCheckoutItem.selectedRegion?.name,
-          regionId: activeCheckoutItem.selectedRegion?.id,
-          denominationId: activeCheckoutItem.selectedDenomination?.id,
-          quantityLabel: activeCheckoutItem.selectedDenomination?.label,
-          quantity:
-            activeCheckoutItem.quantity ||
-            activeCheckoutItem.selectedDenomination?.amount ||
-            1,
-          customInputValue: activeCheckoutItem.customInputValue,
-          customInputLabel: activeCheckoutItem.customInputLabel,
-          paymentMethod: method,
-        };
+            regionName: activeCheckoutItem.selectedRegion?.name,
+            regionId: activeCheckoutItem.selectedRegion?.id,
+            denominationId: activeCheckoutItem.selectedDenomination?.id,
+            quantityLabel: activeCheckoutItem.selectedDenomination?.label,
+            quantity: resolveCartQuantity(activeCheckoutItem),
+            customInputValue: activeCheckoutItem.customInputValue,
+            customInputLabel: activeCheckoutItem.customInputLabel,
+            paymentMethod: method,
+          };
 
           const itemSnapshot = activeCheckoutItem;
           setActiveCheckoutItem(null);
