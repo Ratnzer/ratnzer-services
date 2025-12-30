@@ -49,6 +49,7 @@ interface Props {
     productId?: string,
     regionId?: string,
     denominationId?: string,
+    quantity?: number,
     customInputValue?: string,
     customInputLabel?: string,
     paymentMethod?: 'wallet' | 'card',
