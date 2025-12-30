@@ -12,17 +12,18 @@ interface Props {
   addToCart: (item: CartItem) => Promise<boolean>;
   userBalance?: number;
   onPurchase: (
-    itemName: string, 
-    price: number, 
-    fulfillmentType?: 'manual' | 'api', 
-    regionName?: string, 
-    quantityLabel?: string, 
-    category?: string, 
-    productId?: string, 
-    regionId?: string, 
+    itemName: string,
+    price: number,
+    fulfillmentType?: 'manual' | 'api',
+    regionName?: string,
+    quantityLabel?: string,
+    category?: string,
+    productId?: string,
+    regionId?: string,
     denominationId?: string,
     customInputValue?: string,
     customInputLabel?: string,
+    quantity?: number,
     paymentMethod?: 'wallet' | 'card',
     selectedRegionObj?: any,
     selectedDenominationObj?: any

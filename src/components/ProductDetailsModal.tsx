@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
+import { resolveQuantity } from '../utils/quantity';
 
 interface Props {
   product: Product;
@@ -22,6 +23,7 @@ interface Props {
     denominationId?: string,
     customInputValue?: string,
     customInputLabel?: string,
+    quantity?: number,
     paymentMethod?: 'wallet' | 'card',
     selectedRegionObj?: any,
     selectedDenominationObj?: any
@@ -124,6 +126,8 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     ? currentPriceRaw
     : Number(product.price);
 
+  const selectedQuantity = resolveQuantity(denomObj);
+
   const handleAddToCart = async () => {
     // Availability Check
     if (!isAvailableGlobally) {
@@ -158,7 +162,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageColor: product.imageColor,
         selectedRegion: regionObj,
         selectedDenomination: denomObj,
-        quantity: 1,
+        quantity: selectedQuantity,
         apiConfig: product.apiConfig,
         customInputValue: customInputValue.trim(),
         customInputLabel: activeCustomInput?.label
@@ -216,6 +220,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                     selectedDenomId,
                     customInputValue.trim(),
                     activeCustomInput?.label, // Use active label
+                    selectedQuantity,
                     'wallet',
                     regionObj,
                     denomObj
@@ -242,6 +247,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                   selectedDenomId,
                   customInputValue.trim(),
                   activeCustomInput?.label,
+                  selectedQuantity,
                   'card',
                     regionObj,
                     denomObj
@@ -571,6 +577,7 @@ onClose();
                         selectedDenomId,
                     customInputValue.trim(),
                     activeCustomInput?.label, // Use active label (Region or Global)
+                    denomObj?.amount || 1,
                     'card' // Method is Card
                 );
                     onClose();

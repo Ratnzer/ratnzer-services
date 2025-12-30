@@ -19,6 +19,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 import { extractOrdersFromResponse, normalizeOrderFromApi, normalizeOrdersFromApi } from './utils/orders';
+import { resolveQuantity } from './utils/quantity';
 import { generateShortId } from './utils/id';
 
 // ============================================================
@@ -602,7 +603,11 @@ useEffect(() => {
       try {
         const res = await cartService.getMyCart();
         const items = Array.isArray(res?.data) ? (res.data as CartItem[]) : [];
-        setCartItems(items);
+        const normalizedItems = items.map(item => ({
+          ...item,
+          quantity: resolveQuantity(item.selectedDenomination, item.quantity),
+        }));
+        setCartItems(normalizedItems);
       } catch (error) {
         console.warn('Could not load cart from API', error);
         setCartItems([]);
@@ -813,7 +818,10 @@ useEffect(() => {
     try {
       const res = await cartService.getMyCart();
       const items = Array.isArray(res?.data) ? (res.data as CartItem[]) : [];
-      setCartItems(items);
+      setCartItems(items.map(item => ({
+        ...item,
+        quantity: resolveQuantity(item.selectedDenomination, item.quantity),
+      })));
     } catch (error) {
       console.warn('Failed to refresh cart from API', error);
     }
@@ -1226,6 +1234,7 @@ useEffect(() => {
       denominationId?: string,
       customInputValue?: string,
       customInputLabel?: string,
+      quantity?: number,
       paymentMethod: 'wallet' | 'card' = 'wallet',
       selectedRegionObj?: any,
       selectedDenominationObj?: any
@@ -1250,6 +1259,7 @@ useEffect(() => {
           selectedRegion: selectedRegionObj,
           selectedDenomination: selectedDenominationObj,
           quantityLabel,
+          quantity: resolveQuantity(selectedDenominationObj, quantity),
           customInputValue,
           customInputLabel,
           paymentMethod,
@@ -1369,9 +1379,11 @@ useEffect(() => {
     }
 
     try {
+      const resolvedQuantity = resolveQuantity(item.selectedDenomination, item.quantity);
+
       const payload = {
         productId: item.productId,
-        quantity: item.quantity || 1,
+        quantity: resolvedQuantity,
         // snapshots/options
         apiConfig: item.apiConfig,
         selectedRegion: item.selectedRegion,
@@ -1383,7 +1395,10 @@ useEffect(() => {
       };
 
       const res = await cartService.add(payload);
-      const created = res?.data as CartItem;
+      const created = {
+        ...(res?.data as CartItem),
+        quantity: resolvedQuantity,
+      };
       setCartItems(prev => [created, ...prev]);
       showActionToast('تمت الإضافة', 'تمت الإضافة إلى السلة بنجاح');
       return true;
@@ -1428,12 +1443,28 @@ useEffect(() => {
           return;
       }
 
+      const mapCartItemsForPaytabs = (items: CartItem[]) =>
+        items.map(item => ({
+          id: item.id,
+          productId: item.productId,
+          quantity: resolveQuantity(item.selectedDenomination, item.quantity),
+          price: item.price,
+          denominationId: item.selectedDenomination?.id,
+          denomination: item.selectedDenomination,
+          quantityLabel: item.selectedDenomination?.label,
+          regionId: item.selectedRegion?.id,
+          region: item.selectedRegion,
+          customInputValue: item.customInputValue,
+          customInputLabel: item.customInputLabel,
+        }));
+
       // ✅ Card payment via PayTabs (one payment for cart)
       if (method === 'card') {
           if (isBulkCheckout) {
               await startPaytabsRedirect({
                 type: 'cart',
                 cartMode: 'bulk',
+                cartItems: mapCartItemsForPaytabs(cartItems),
                 returnView: View.CART,
               });
               return;
@@ -1443,6 +1474,7 @@ useEffect(() => {
                 type: 'cart',
                 cartMode: 'single',
                 cartItemId: activeCheckoutItem.id,
+                cartItems: mapCartItemsForPaytabs([activeCheckoutItem]),
                 returnView: View.CART,
               });
               return;
@@ -1461,7 +1493,7 @@ useEffect(() => {
             regionId: item.selectedRegion?.id,
             denominationId: item.selectedDenomination?.id,
             quantityLabel: item.selectedDenomination?.label,
-            quantity: item.quantity || item.selectedDenomination?.amount || 1,
+            quantity: resolveQuantity(item.selectedDenomination, item.quantity),
             customInputValue: item.customInputValue,
             customInputLabel: item.customInputLabel,
             paymentMethod: method,
@@ -1517,10 +1549,10 @@ useEffect(() => {
           regionId: activeCheckoutItem.selectedRegion?.id,
           denominationId: activeCheckoutItem.selectedDenomination?.id,
           quantityLabel: activeCheckoutItem.selectedDenomination?.label,
-          quantity:
-            activeCheckoutItem.quantity ||
-            activeCheckoutItem.selectedDenomination?.amount ||
-            1,
+          quantity: resolveQuantity(
+            activeCheckoutItem.selectedDenomination,
+            activeCheckoutItem.quantity
+          ),
           customInputValue: activeCheckoutItem.customInputValue,
           customInputLabel: activeCheckoutItem.customInputLabel,
           paymentMethod: method,
