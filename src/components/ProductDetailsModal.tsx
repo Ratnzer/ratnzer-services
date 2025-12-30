@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
+import { resolveQuantity } from '../utils/quantity';
 
 interface Props {
   product: Product;
@@ -125,6 +126,8 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     ? currentPriceRaw
     : Number(product.price);
 
+  const selectedQuantity = resolveQuantity(denomObj);
+
   const handleAddToCart = async () => {
     // Availability Check
     if (!isAvailableGlobally) {
@@ -159,7 +162,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageColor: product.imageColor,
         selectedRegion: regionObj,
         selectedDenomination: denomObj,
-        quantity: denomObj?.amount || 1,
+        quantity: selectedQuantity,
         apiConfig: product.apiConfig,
         customInputValue: customInputValue.trim(),
         customInputLabel: activeCustomInput?.label
@@ -217,7 +220,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                     selectedDenomId,
                     customInputValue.trim(),
                     activeCustomInput?.label, // Use active label
-                    denomObj?.amount || 1,
+                    selectedQuantity,
                     'wallet',
                     regionObj,
                     denomObj
@@ -244,7 +247,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                   selectedDenomId,
                   customInputValue.trim(),
                   activeCustomInput?.label,
-                  denomObj?.amount || 1,
+                  selectedQuantity,
                   'card',
                     regionObj,
                     denomObj
