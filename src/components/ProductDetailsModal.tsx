@@ -22,6 +22,7 @@ interface Props {
     denominationId?: string,
     customInputValue?: string,
     customInputLabel?: string,
+    quantity?: number,
     paymentMethod?: 'wallet' | 'card',
     selectedRegionObj?: any,
     selectedDenominationObj?: any
@@ -158,7 +159,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageColor: product.imageColor,
         selectedRegion: regionObj,
         selectedDenomination: denomObj,
-        quantity: 1,
+        quantity: denomObj?.amount || 1,
         apiConfig: product.apiConfig,
         customInputValue: customInputValue.trim(),
         customInputLabel: activeCustomInput?.label
@@ -216,6 +217,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                     selectedDenomId,
                     customInputValue.trim(),
                     activeCustomInput?.label, // Use active label
+                    denomObj?.amount || 1,
                     'wallet',
                     regionObj,
                     denomObj
@@ -242,6 +244,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                   selectedDenomId,
                   customInputValue.trim(),
                   activeCustomInput?.label,
+                  denomObj?.amount || 1,
                   'card',
                     regionObj,
                     denomObj
@@ -571,6 +574,7 @@ onClose();
                         selectedDenomId,
                     customInputValue.trim(),
                     activeCustomInput?.label, // Use active label (Region or Global)
+                    denomObj?.amount || 1,
                     'card' // Method is Card
                 );
                     onClose();

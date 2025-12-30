@@ -1226,6 +1226,7 @@ useEffect(() => {
       denominationId?: string,
       customInputValue?: string,
       customInputLabel?: string,
+      quantity?: number,
       paymentMethod: 'wallet' | 'card' = 'wallet',
       selectedRegionObj?: any,
       selectedDenominationObj?: any
@@ -1250,6 +1251,7 @@ useEffect(() => {
           selectedRegion: selectedRegionObj,
           selectedDenomination: selectedDenominationObj,
           quantityLabel,
+          quantity: quantity ?? selectedDenominationObj?.amount ?? 1,
           customInputValue,
           customInputLabel,
           paymentMethod,
