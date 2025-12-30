@@ -51,6 +51,7 @@ interface Props {
     denominationId?: string,
     customInputValue?: string,
     customInputLabel?: string,
+    quantity?: number,
     paymentMethod?: 'wallet' | 'card',
     selectedRegionObj?: any,
     selectedDenominationObj?: any
