@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle } from 'lucide-react';
 import { Product, CartItem } from '../types';
+import { getQuantityFromDenomination } from '../utils/quantity';
 import { generateShortId } from '../utils/id';
 
 interface Props {
@@ -158,7 +159,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageColor: product.imageColor,
         selectedRegion: regionObj,
         selectedDenomination: denomObj,
-        quantity: 1,
+        quantity: getQuantityFromDenomination(denomObj) ?? denomObj?.amount ?? 1,
         apiConfig: product.apiConfig,
         customInputValue: customInputValue.trim(),
         customInputLabel: activeCustomInput?.label

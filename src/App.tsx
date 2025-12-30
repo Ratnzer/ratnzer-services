@@ -19,6 +19,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 import { extractOrdersFromResponse, normalizeOrderFromApi, normalizeOrdersFromApi } from './utils/orders';
+import { getQuantityFromDenomination } from './utils/quantity';
 import { generateShortId } from './utils/id';
 
 // ============================================================
@@ -1371,7 +1372,11 @@ useEffect(() => {
     try {
       const payload = {
         productId: item.productId,
-        quantity: item.quantity || 1,
+        quantity:
+          item.quantity ||
+          getQuantityFromDenomination(item.selectedDenomination) ||
+          item.selectedDenomination?.amount ||
+          1,
         // snapshots/options
         apiConfig: item.apiConfig,
         selectedRegion: item.selectedRegion,
@@ -1461,7 +1466,11 @@ useEffect(() => {
             regionId: item.selectedRegion?.id,
             denominationId: item.selectedDenomination?.id,
             quantityLabel: item.selectedDenomination?.label,
-            quantity: item.quantity || item.selectedDenomination?.amount || 1,
+            quantity:
+              item.quantity ||
+              getQuantityFromDenomination(item.selectedDenomination) ||
+              item.selectedDenomination?.amount ||
+              1,
             customInputValue: item.customInputValue,
             customInputLabel: item.customInputLabel,
             paymentMethod: method,
@@ -1519,6 +1528,7 @@ useEffect(() => {
           quantityLabel: activeCheckoutItem.selectedDenomination?.label,
           quantity:
             activeCheckoutItem.quantity ||
+            getQuantityFromDenomination(activeCheckoutItem.selectedDenomination) ||
             activeCheckoutItem.selectedDenomination?.amount ||
             1,
           customInputValue: activeCheckoutItem.customInputValue,
