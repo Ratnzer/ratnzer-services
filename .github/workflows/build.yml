@@ -13,6 +13,29 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # جلب جميع التاريخ والـ tags
+
+      - name: الحصول على أحدث رقم إصدار من GitHub Releases
+        id: get_version
+        run: |
+          # محاولة الحصول على أحدث release
+          LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+          
+          if [ -n "$LATEST_RELEASE" ]; then
+            # إزالة حرف v من البداية إن وُجد
+            VERSION=${LATEST_RELEASE#v}
+            echo "✅ تم العثور على Release: $VERSION"
+          else
+            # إذا لم يوجد release، استخدم الإصدار من package.json
+            VERSION=$(node -p "require('./package.json').version")
+            echo "⚠️ لم يتم العثور على Releases، استخدام الإصدار من package.json: $VERSION"
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,6 +51,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: تحديث رقم الإصدار
+        run: |
+          echo "📦 تحديث الإصدار إلى: $APP_VERSION"
+          npm run update-version
+
       # ✅ التعديل هنا — إضافة رابط السيرفر داخل build حتى لا يستخدم localhost
       - name: Build Web Assets
         run: VITE_API_URL="https://rrrr-production-f1ca.up.railway.app/api" npm run build
@@ -35,6 +63,9 @@ jobs:
       # إضافة منصة Android داخل CI (لأنك ما رفعتها في GitHub)
       - name: Initialize Android Platform
         run: npx cap add android
+
+      - name: تحديث رقم إصدار Android
+        run: npm run update-android-version
 
       # ✅ إضافة ملف Firebase أثناء البناء من GitHub Secret (Base64)
       - name: Add google-services.json (base64)
@@ -61,6 +92,6 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Ratelozn-App-Debug
+          name: Ratelozn-App-Debug-v${{ steps.get_version.outputs.version }}
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 5

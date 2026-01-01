@@ -10,7 +10,9 @@
     "android:init": "cap add android",
     "android:build": "npm run build && cap sync android",
     "android:open": "cap open android",
-    "clean-project": "node cleanup_project.js"
+    "clean-project": "node cleanup_project.js",
+    "update-version": "node update-version.cjs",
+    "update-android-version": "node update-android-version.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
