@@ -114,16 +114,27 @@ jobs:
             ./gradlew assembleDebug
           fi
 
+      - name: توقيع APK (Sign APK)
+        if: steps.vars.outputs.is_release == 'true'
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
       - name: إنشاء Release ورفع الملف (فقط للإصدارات الرسمية)
         if: steps.vars.outputs.is_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.vars.outputs.version }}
           name: الإصدار ${{ steps.vars.outputs.version }}
-          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          files: ${{ steps.sign_app.outputs.signedReleaseFile }}
           body: |
             ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء هذا الإصدار تلقائياً.
+            تم بناء وتوقيع هذا الإصدار تلقائياً. أصبح الآن قابلاً للتثبيت على جميع الأجهزة.
             
             ### التحميل
             يمكنك تحميل ملف APK المرفق بالأسفل.
@@ -136,5 +147,5 @@ jobs:
           name: Ratelozn-App-${{ steps.vars.outputs.is_release == 'true' && 'Release' || 'Debug' }}-v${{ steps.vars.outputs.version }}
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
-            android/app/build/outputs/apk/release/app-release-unsigned.apk
+            ${{ steps.sign_app.outputs.signedReleaseFile }}
           retention-days: 14
