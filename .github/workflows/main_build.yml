@@ -8,8 +8,8 @@ on:
   push:
     branches: [ "main" ]
     tags:
-      - '*'
       - '*.*.*'
+      - '*'
   workflow_dispatch:
     inputs:
       version:
@@ -28,23 +28,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: تحديد نوع العملية ورقم الإصدار
+      - name: تحديد رقم الإصدار ونوع العملية
         id: vars
         run: |
-          # تحديد ما إذا كان هذا إصداراً رسمياً (Release)
-          IS_RELEASE=false
-          if [[ "${{ github.ref }}" == refs/tags/v* ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
-            IS_RELEASE=true
+          # تحديد ما إذا كان هذا حدث Release رسمي (عبر Tag أو Dispatch)
+          IS_TAG_EVENT=false
+          if [[ "${{ github.ref }}" == refs/tags/* ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            IS_TAG_EVENT=true
           fi
-          echo "is_release=$IS_RELEASE" >> $GITHUB_OUTPUT
+          echo "is_tag_event=$IS_TAG_EVENT" >> $GITHUB_OUTPUT
           
           # تحديد رقم الإصدار
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
             VERSION="${{ github.event.inputs.version }}"
-          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # إزالة حرف v من البداية إن وُجد
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            VERSION=${TAG_NAME#v}
           else
-            # محاولة جلب أحدث Release من GitHub
+            # جلب أحدث Release من GitHub لاستخدامه كمرجع
             LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
             if [ -n "$LATEST_RELEASE" ]; then
               VERSION=${LATEST_RELEASE#v}
@@ -54,7 +56,6 @@ jobs:
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 الإصدار المعتمد: $VERSION"
-          echo "🚀 هل هو Release رسمي؟ $IS_RELEASE"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -103,20 +104,14 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Build APK (Always Release)
         run: |
           cd android
           chmod +x gradlew
-          if [ "${{ steps.vars.outputs.is_release }}" = "true" ]; then
-            echo "🏗️ بناء نسخة الإنتاج (Release)..."
-            ./gradlew assembleRelease
-          else
-            echo "🏗️ بناء نسخة التجربة (Debug)..."
-            ./gradlew assembleDebug
-          fi
+          echo "🏗️ بناء نسخة الإنتاج الرسمية (Release APK)..."
+          ./gradlew assembleRelease
 
-      - name: توقيع APK (Sign APK)
-        if: steps.vars.outputs.is_release == 'true'
+      - name: توقيع APK تلقائياً (Sign APK)
         uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
@@ -126,8 +121,8 @@ jobs:
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
-      - name: إنشاء Release ورفع الملف (فقط للإصدارات الرسمية)
-        if: steps.vars.outputs.is_release == 'true'
+      - name: إنشاء Release ورفع الملف (فقط عند وجود Tag أو طلب يدوي)
+        if: steps.vars.outputs.is_tag_event == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.vars.outputs.version }}
@@ -135,18 +130,13 @@ jobs:
           files: ${{ steps.sign_app.outputs.signedReleaseFile }}
           body: |
             ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء وتوقيع هذا الإصدار تلقائياً. أصبح الآن قابلاً للتثبيت على جميع الأجهزة.
-            
-            ### التحميل
-            يمكنك تحميل ملف APK المرفق بالأسفل.
+            تم بناء وتوقيع هذا الإصدار تلقائياً.
           draft: false
           prerelease: false
 
-      - name: رفع الملف كـ Artifact (لجميع العمليات)
+      - name: رفع الملف كـ Artifact (متاح دائماً للتحميل)
         uses: actions/upload-artifact@v4
         with:
-          name: Ratelozn-App-${{ steps.vars.outputs.is_release == 'true' && 'Release' || 'Debug' }}-v${{ steps.vars.outputs.version }}
-          path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            ${{ steps.sign_app.outputs.signedReleaseFile }}
+          name: Ratelozn-App-v${{ steps.vars.outputs.version }}
+          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
           retention-days: 14
