@@ -1,0 +1,140 @@
+name: Unified App Build & Release
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'رقم الإصدار اليدوي (اختياري)'
+        required: false
+        type: string
+
+jobs:
+  build-and-release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: تحديد نوع العملية ورقم الإصدار
+        id: vars
+        run: |
+          # تحديد ما إذا كان هذا إصداراً رسمياً (Release)
+          IS_RELEASE=false
+          if [[ "${{ github.ref }}" == refs/tags/v* ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            IS_RELEASE=true
+          fi
+          echo "is_release=$IS_RELEASE" >> $GITHUB_OUTPUT
+          
+          # تحديد رقم الإصدار
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            # محاولة جلب أحدث Release من GitHub
+            LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+            if [ -n "$LATEST_RELEASE" ]; then
+              VERSION=${LATEST_RELEASE#v}
+            else
+              VERSION=$(node -p "require('./package.json').version")
+            fi
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 الإصدار المعتمد: $VERSION"
+          echo "🚀 هل هو Release رسمي؟ $IS_RELEASE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: تحديث رقم الإصدار في الملفات
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.version }}
+        run: npm run update-version
+
+      - name: Build Web Assets
+        run: VITE_API_URL="https://rrrr-production-f1ca.up.railway.app/api" npm run build
+
+      - name: Initialize Android Platform
+        run: npx cap add android
+
+      - name: تحديث رقم إصدار Android
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.version }}
+        run: npm run update-android-version
+
+      - name: Add google-services.json (base64)
+        run: |
+          mkdir -p android/app
+          printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
+          test -s android/app/google-services.json
+
+      - name: Install Capacitor Assets Tool
+        run: npm i -D @capacitor/assets
+
+      - name: Generate Android assets from resources
+        run: npx @capacitor/assets generate --android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          if [ "${{ steps.vars.outputs.is_release }}" = "true" ]; then
+            echo "🏗️ بناء نسخة الإنتاج (Release)..."
+            ./gradlew assembleRelease
+          else
+            echo "🏗️ بناء نسخة التجربة (Debug)..."
+            ./gradlew assembleDebug
+          fi
+
+      - name: إنشاء Release ورفع الملف (فقط للإصدارات الرسمية)
+        if: steps.vars.outputs.is_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.vars.outputs.version }}
+          name: الإصدار ${{ steps.vars.outputs.version }}
+          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          body: |
+            ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
+            تم بناء هذا الإصدار تلقائياً.
+            
+            ### التحميل
+            يمكنك تحميل ملف APK المرفق بالأسفل.
+          draft: false
+          prerelease: false
+
+      - name: رفع الملف كـ Artifact (لجميع العمليات)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ratelozn-App-${{ steps.vars.outputs.is_release == 'true' && 'Release' || 'Debug' }}-v${{ steps.vars.outputs.version }}
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 14
