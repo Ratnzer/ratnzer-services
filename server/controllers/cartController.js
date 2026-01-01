@@ -52,7 +52,7 @@ const getMyCart = asyncHandler(async (req, res) => {
 
   // Pagination params
   const skip = parseInt(req.query.skip, 10) || 0;
-  const limit = parseInt(req.query.limit, 10) || 100;
+  const limit = parseInt(req.query.limit, 10) || 10;
 
   // Get total count and total price for the user's entire cart
   const [totalItems, cartStats] = await Promise.all([

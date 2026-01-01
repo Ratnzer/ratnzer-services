@@ -394,7 +394,7 @@ const getMyOrders = asyncHandler(async (req, res) => {
     return res.json(orders);
   }
 
-  const limit = Math.min(parseInt(String(limitRaw ?? '100'), 10) || 100, 200);
+  const limit = Math.min(parseInt(String(limitRaw ?? '10'), 10) || 10, 50);
   const skip = Math.max(parseInt(String(skipRaw ?? '0'), 10) || 0, 0);
 
   const [items, total] = await Promise.all([
@@ -423,7 +423,7 @@ const getOrders = asyncHandler(async (req, res) => {
     return res.json(orders);
   }
 
-  const limit = Math.min(parseInt(String(limitRaw ?? '100'), 10) || 100, 200);
+  const limit = Math.min(parseInt(String(limitRaw ?? '10'), 10) || 10, 50);
   const skip = Math.max(parseInt(String(skipRaw ?? '0'), 10) || 0, 0);
 
   const [items, total] = await Promise.all([

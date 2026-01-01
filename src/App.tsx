@@ -641,7 +641,7 @@ useEffect(() => {
     if (!hasToken) return;
 
     const nextSkip = mode === 'append' ? transactions.length : 0;
-    const pageSize = 100;
+    const pageSize = 10;
 
     if (mode === 'append' && (transactionsLoadingMore || !transactionsHasMore)) return;
 
@@ -836,7 +836,7 @@ useEffect(() => {
     if (!hasToken) return;
     
     const nextSkip = mode === 'append' ? cartItems.length : 0;
-    const pageSize = 100;
+    const pageSize = 10;
 
     console.log('🛍️ Cart Pagination:', { mode, nextSkip, pageSize, currentItems: cartItems.length, hasMore: cartHasMore });
 
@@ -865,7 +865,7 @@ useEffect(() => {
       }
 
       // If we got exactly 10 items, assume there might be more on the server
-      const hasMore = res.data?.hasMore ?? (items.length === 100);
+      const hasMore = res.data?.hasMore ?? (items.length === 10);
       console.log('✅ Processed:', { items: items.length, hasMore, totalAfter: mode === 'replace' ? items.length : cartItems.length + items.length });
 
       if (mode === 'replace') {
@@ -911,7 +911,7 @@ useEffect(() => {
 
   const refreshAnnouncementsFromServer = async (mode: 'replace' | 'append' = 'replace') => {
     const nextSkip = mode === 'append' ? announcements.length : 0;
-    const pageSize = 100;
+    const pageSize = 10;
 
     if (mode === 'append' && (announcementsLoadingMore || !announcementsHasMore)) return;
     if (mode === 'append') setAnnouncementsLoadingMore(true);
@@ -1573,29 +1573,42 @@ useEffect(() => {
       }
 
       if (isBulkCheckout) {
-          const payloads = cartItems.map(item => ({
-            productId: item.productId,
-            productName: item.name,
-            productCategory: item.category,
-            amount: item.price,
-            price: item.price,
-            fulfillmentType: item.apiConfig?.type || 'manual',
-            regionName: item.selectedRegion?.name,
-            regionId: item.selectedRegion?.id,
-            denominationId: item.selectedDenomination?.id,
-            quantityLabel: item.selectedDenomination?.label,
-            // quantity removed to match direct purchase behavior (rely on quantityLabel)
-            customInputValue: item.customInputValue,
-            customInputLabel: item.customInputLabel,
-            paymentMethod: method,
-          }));
-
-          const snapshot = [...cartItems];
-          setCartItems([]);
-          setIsBulkCheckout(false);
-          showActionToast('تم استلام طلبك', 'يتم تنفيذ جميع العناصر في الخلفية الآن');
-
           void (async () => {
+            setIsBulkCheckout(false);
+            showActionToast('جاري التحضير', 'يتم جلب جميع عناصر السلة لتنفيذ الطلب...');
+
+            let allItems: CartItem[] = [];
+            try {
+              // Fetch all items from server (up to 100) to ensure we don't miss anything not shown in UI
+              const res = await cartService.getMyCartPaged(0, 100);
+              allItems = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+            } catch (e) {
+              console.warn('Failed to fetch full cart for checkout, falling back to UI items', e);
+              allItems = [...cartItems];
+            }
+
+            if (allItems.length === 0) return;
+
+            const payloads = allItems.map(item => ({
+              productId: item.productId,
+              productName: item.name,
+              productCategory: item.category,
+              amount: item.price,
+              price: item.price,
+              fulfillmentType: item.apiConfig?.type || 'manual',
+              regionName: item.selectedRegion?.name,
+              regionId: item.selectedRegion?.id,
+              denominationId: item.selectedDenomination?.id,
+              quantityLabel: item.selectedDenomination?.label,
+              customInputValue: item.customInputValue,
+              customInputLabel: item.customInputLabel,
+              paymentMethod: method,
+            }));
+
+            const snapshot = [...allItems];
+            setCartItems([]);
+            showActionToast('تم استلام طلبك', 'يتم تنفيذ جميع العناصر في الخلفية الآن');
+
             const notifyPromises: Promise<unknown>[] = [];
             const results: { ok: boolean; order?: any; message?: string }[] = [];
             const failedItems: CartItem[] = [];
