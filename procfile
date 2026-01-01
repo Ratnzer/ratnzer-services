@@ -1,0 +1,1 @@
+web: npx prisma db push && node index.js

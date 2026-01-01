@@ -1,0 +1,61 @@
+  const handleConfirmCancel = async () => {
+      if (!cancellationOrder || isCancelling) return;
+
+      setIsCancelling(true);
+
+      // 1. Update Order Status on Server (handles refund + transaction log)
+      try {
+          await orderService.updateStatus(cancellationOrder.id, {
+              status: 'cancelled',
+              rejectionReason: cancellationReason
+          });
+      } catch (err: any) {
+          console.error('Cancel order failed:', err);
+          const errorMsg = err?.response?.data?.message || 'فشل إلغاء الطلب على السيرفر، حاول مرة أخرى';
+          alert(errorMsg);
+          setIsCancelling(false);
+          return;
+      }
+
+      // 2. Update Local UI State
+      setOrders(prev => prev.map(o => 
+         o.id === cancellationOrder.id 
+         ? { ...o, status: 'cancelled', rejectionReason: cancellationReason } 
+         : o 
+      ));
+
+      try {
+          await pushService.notifyUserOrderUpdate({
+              orderId: cancellationOrder.id,
+              status: 'cancelled',
+          });
+      } catch (notifyErr) {
+          console.warn('Failed to notify user about cancelled order', notifyErr);
+      }
+
+      // 3. Best-effort: update user balance in UI (server already refunded)
+      setUsers(prev => prev.map(u => {
+          if (u.id === cancellationOrder.userId) {
+              return { ...u, balance: u.balance + cancellationOrder.amount };
+          }
+          return u;
+      }));
+
+      // 4. Log Refund Transaction (UI-only)
+      const refundTx: Transaction = {
+          id: generateShortId(),
+          title: `استرداد: ${cancellationOrder.productName}`,
+          date: new Date().toLocaleString('en-US'),
+          amount: cancellationOrder.amount,
+          type: 'credit',
+          status: 'completed',
+          icon: RefreshCw
+      };
+      setTransactions(prev => [refundTx, ...prev]);
+
+      // 5. Cleanup and Notify
+      setIsCancelling(false);
+      setCancellationOrder(null);
+      setCancellationReason('');
+      alert('تم إلغاء الطلب واسترداد المبلغ للمستخدم بنجاح');
+  };
