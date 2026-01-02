@@ -296,9 +296,11 @@ onClose();
                 {/* Text Info */}
                 <div className="flex-1 py-2">
                     <h2 className="text-xl font-bold text-white mb-2 leading-snug">{product.name}</h2>
-                    <p className="text-gray-400 text-xs mb-4 leading-relaxed whitespace-pre-line">
-                        {product.description || 'تسليم إلكتروني فوري مباشر\nكود رقمي يصلك فوراً'}
-                    </p>
+                    {product.description && (
+                        <p className="text-gray-400 text-xs mb-4 leading-relaxed whitespace-pre-line">
+                            {product.description}
+                        </p>
+                    )}
                     
                     <div className="flex items-center gap-1 bg-[#242636] w-fit px-3 py-1.5 rounded-lg border border-gray-700 shadow-sm">
                         <Star size={14} className="text-yellow-400 fill-yellow-400" />
