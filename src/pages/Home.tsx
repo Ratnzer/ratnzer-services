@@ -97,9 +97,9 @@ const Home: React.FC<Props> = ({
   const [cachedAnnouncements, setCachedAnnouncements] = useState<Announcement[]>(() => readCache<Announcement[]>(HOME_CACHE_ANNOUNCEMENTS_KEY, []));
 
   // Prefer live props; fallback to cached values if props are empty
-  const viewProducts = products && products.length > 0 ? products : cachedProducts;
-  const viewCategories = categories && categories.length > 0 ? categories : cachedCategories;
-  const viewBanners = banners && banners.length > 0 ? banners : cachedBanners;
+  const viewProducts = Array.isArray(products) ? products : cachedProducts;
+  const viewCategories = Array.isArray(categories) ? categories : cachedCategories;
+  const viewBanners = Array.isArray(banners) ? banners : cachedBanners;
 
   // ✅ IMPORTANT FIX:
   // - If server returns [] announcements (after delete), do NOT fallback to cachedAnnouncements.
@@ -115,21 +115,21 @@ const Home: React.FC<Props> = ({
 
   // Keep cache updated when fresh data arrives
   useEffect(() => {
-    if (products && products.length > 0) {
+    if (Array.isArray(products)) {
       setCachedProducts(products);
       writeCache(HOME_CACHE_PRODUCTS_KEY, products);
     }
   }, [products]);
 
   useEffect(() => {
-    if (categories && categories.length > 0) {
+    if (Array.isArray(categories)) {
       setCachedCategories(categories);
       writeCache(HOME_CACHE_CATEGORIES_KEY, categories);
     }
   }, [categories]);
 
   useEffect(() => {
-    if (banners && banners.length > 0) {
+    if (Array.isArray(banners)) {
       setCachedBanners(banners);
       writeCache(HOME_CACHE_BANNERS_KEY, banners);
     }

@@ -72,7 +72,16 @@ const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   try {
-    await prisma.product.delete({ where: { id } });
+    const existing = await prisma.product.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+
+    await prisma.$transaction([
+      prisma.cartItem.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id } }),
+    ]);
     res.json({ message: 'Product removed' });
   } catch (error) {
     if (error.code === 'P2025') {

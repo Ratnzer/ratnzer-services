@@ -44,6 +44,16 @@ const saveCache = (key: string, value: any) => {
   }
 };
 
+// Ensure we don't keep stale cache entries if data resets to null/undefined
+const saveArrayCache = (key: string, value: any) => {
+  if (!Array.isArray(value)) {
+    removeCache(key);
+    return;
+  }
+
+  saveCache(key, value);
+};
+
 const removeCache = (key: string) => {
   try {
     localStorage.removeItem(key);
@@ -532,12 +542,12 @@ useEffect(() => {
   // ============================================================
   // ✅ Persist caches (so app opens instantly next time)
   // ============================================================
-  useEffect(() => { saveCache('cache_products_v1', products); }, [products]);
-  useEffect(() => { saveCache('cache_categories_v1', categories); }, [categories]);
-  useEffect(() => { saveCache('cache_banners_v1', banners); }, [banners]);
-  useEffect(() => { saveCache('cache_announcements_v1', announcements); }, [announcements]);
+  useEffect(() => { saveArrayCache('cache_products_v1', products); }, [products]);
+  useEffect(() => { saveArrayCache('cache_categories_v1', categories); }, [categories]);
+  useEffect(() => { saveArrayCache('cache_banners_v1', banners); }, [banners]);
+  useEffect(() => { saveArrayCache('cache_announcements_v1', announcements); }, [announcements]);
   useEffect(() => { saveCache('cache_terms_v1', terms); }, [terms]);
-  useEffect(() => { saveCache('cache_currencies_v1', currencies); }, [currencies]);
+  useEffect(() => { saveArrayCache('cache_currencies_v1', currencies); }, [currencies]);
 
   // User-related caches (only meaningful when token exists)
   useEffect(() => {
@@ -554,18 +564,18 @@ useEffect(() => {
 
   useEffect(() => {
     if (!localStorage.getItem('token')) return;
-    saveCache('cache_cart_v1', cartItems);
+    saveArrayCache('cache_cart_v1', cartItems);
   }, [cartItems]);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) return;
     if (isAdminLoggedIn) return; // Admin orders should never be cached locally
-    saveCache('cache_orders_v1', orders);
+    saveArrayCache('cache_orders_v1', orders);
   }, [orders, isAdminLoggedIn]);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) return;
-    saveCache('cache_transactions_v1', transactions);
+    saveArrayCache('cache_transactions_v1', transactions);
   }, [transactions]);
 
   // --- Load Profile if token exists on first mount ---
@@ -1819,6 +1829,9 @@ useEffect(() => {
             setUsers={setUsers}
             announcements={announcements}
             setAnnouncements={setAnnouncements}
+            announcementsHasMore={announcementsHasMore}
+            announcementsLoadingMore={announcementsLoadingMore}
+            onLoadMoreAnnouncements={() => refreshAnnouncementsFromServer('append')}
             currencies={currencies}
             setCurrencies={setCurrencies}
             orders={orders}
