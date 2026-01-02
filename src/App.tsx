@@ -1829,6 +1829,9 @@ useEffect(() => {
             setUsers={setUsers}
             announcements={announcements}
             setAnnouncements={setAnnouncements}
+            announcementsHasMore={announcementsHasMore}
+            announcementsLoadingMore={announcementsLoadingMore}
+            onLoadMoreAnnouncements={() => refreshAnnouncementsFromServer('append')}
             currencies={currencies}
             setCurrencies={setCurrencies}
             orders={orders}

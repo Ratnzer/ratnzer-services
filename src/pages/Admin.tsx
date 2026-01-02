@@ -46,6 +46,9 @@ interface Props {
   setUsers: React.Dispatch<React.SetStateAction<UserProfile[]>>;
   announcements: Announcement[];
   setAnnouncements: React.Dispatch<React.SetStateAction<Announcement[]>>;
+  announcementsHasMore: boolean;
+  announcementsLoadingMore: boolean;
+  onLoadMoreAnnouncements: () => void;
   currencies: Currency[];
   setCurrencies: React.Dispatch<React.SetStateAction<Currency[]>>;
   orders: Order[];
@@ -142,6 +145,7 @@ const Admin: React.FC<Props> = ({
   banners, setBanners,
   users, setUsers,
   announcements, setAnnouncements,
+  announcementsHasMore, announcementsLoadingMore, onLoadMoreAnnouncements,
   currencies, setCurrencies,
   orders, setOrders,
   inventory, setInventory,
@@ -2402,6 +2406,18 @@ try {
                                 </div>
                             </div>
                         ))
+                    )}
+                    {announcementsHasMore && (
+                        <div className="flex justify-center pt-2">
+                            <button
+                              type="button"
+                              onClick={onLoadMoreAnnouncements}
+                              disabled={announcementsLoadingMore}
+                              className="px-4 py-2 text-sm font-bold rounded-lg border border-gray-700 bg-[#1a1c2b] hover:border-yellow-400 hover:text-yellow-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                            >
+                              {announcementsLoadingMore ? '...جاري التحميل' : 'عرض المزيد من الإشعارات'}
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
