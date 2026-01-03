@@ -2282,10 +2282,36 @@ useEffect(() => {
               <ShieldAlert size={48} className="text-red-500" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">تم حظر حسابك</h1>
-            <p className="text-gray-400 mb-8 leading-relaxed">
+            <p className="text-gray-400 mb-6 leading-relaxed">
               عذراً، لقد تم حظر حسابك من قبل الإدارة بسبب مخالفة شروط الاستخدام. 
               إذا كنت تعتقد أن هذا خطأ، يرجى التواصل مع الدعم الفني.
             </p>
+
+            {/* User Info for Support */}
+            <div className="w-full bg-[#242636] rounded-2xl p-4 mb-8 border border-gray-700/50 space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">معرف المستخدم:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-mono select-all">{currentUser?.id}</span>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(currentUser?.id || '');
+                      showActionToast('تم نسخ المعرف');
+                    }}
+                    className="p-1.5 bg-[#13141f] rounded-lg text-gray-400 active:text-white"
+                  >
+                    <Copy size={14} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-sm border-t border-gray-700/30 pt-3">
+                <span className="text-gray-500">تاريخ الإجراء:</span>
+                <span className="text-gray-300">
+                  {new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+              </div>
+            </div>
+
             <div className="w-full space-y-3">
               <button 
                 onClick={() => {
