@@ -412,4 +412,4 @@ const notifyUserOrder = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyAdminsPush, broadcastAnnouncement, notifyUserOrder, sendUserOrderNotification };
+module.exports = { getMyNotifications, markAsRead, sendNotification, registerDevice, notifyAdminOrder, notifyAdminsPush, broadcastAnnouncement, notifyUserOrder, sendUserOrderNotification, sendFcmPush };

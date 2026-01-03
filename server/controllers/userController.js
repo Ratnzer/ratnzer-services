@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { generateShortId } = require('../utils/id');
+const { sendNotification, sendFcmPush } = require('./notificationController');
+const { getTokensForUsers } = require('../utils/tokenStore');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -92,6 +94,23 @@ const updateUserBalance = asyncHandler(async (req, res) => {
     return updated;
   });
 
+  // Send Notification & FCM Push
+  const title = isAdd ? 'تم إضافة رصيد لمحفظتك' : 'تم خصم رصيد من محفظتك';
+  const message = isAdd 
+    ? `تم إضافة ${numAmount} رصيد إلى حسابك بنجاح.` 
+    : `تم خصم ${numAmount} رصيد من حسابك.`;
+  
+  await sendNotification(id, title, message, 'info');
+  
+  const tokens = await getTokensForUsers([id]);
+  if (tokens.length > 0) {
+    await sendFcmPush(tokens.map(t => t.token), {
+      title,
+      body: message,
+      data: { type: 'wallet_update', amount: String(numAmount), action: type }
+    });
+  }
+
   res.json(result);
 });
 
@@ -114,6 +133,24 @@ const updateUserStatus = asyncHandler(async (req, res) => {
     data: { status: newStatus },
     select: { id: true, status: true, name: true },
   });
+
+  // Send Notification & FCM Push
+  const isBanned = newStatus === 'banned';
+  const title = isBanned ? 'تم حظر حسابك' : 'تم إلغاء حظر حسابك';
+  const message = isBanned 
+    ? 'عذراً، لقد تم حظر حسابك من قبل الإدارة. يرجى التواصل مع الدعم الفني للمزيد من التفاصيل.' 
+    : 'تم إلغاء حظر حسابك بنجاح، يمكنك الآن استخدام التطبيق بشكل طبيعي.';
+  
+  await sendNotification(id, title, message, isBanned ? 'error' : 'info');
+  
+  const tokens = await getTokensForUsers([id]);
+  if (tokens.length > 0) {
+    await sendFcmPush(tokens.map(t => t.token), {
+      title,
+      body: message,
+      data: { type: 'account_status', status: newStatus }
+    });
+  }
 
   res.json(updatedUser);
 });
