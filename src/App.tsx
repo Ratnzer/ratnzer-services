@@ -17,6 +17,7 @@ import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
+// @ts-ignore
 import { App as CapApp } from '@capacitor/app';
 import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 import { extractOrdersFromResponse, normalizeOrderFromApi, normalizeOrdersFromApi } from './utils/orders';
@@ -225,7 +226,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Handle Hardware Back Button for Android
-    const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }) => {
+    const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
       if (currentView !== View.HOME) {
         // If not on Home, go back to previous view or Home
         if (navigationHistory.current.length > 0) {
@@ -244,7 +245,7 @@ const App: React.FC = () => {
     });
 
     return () => {
-      backButtonListener.then(l => l.remove());
+      backButtonListener.then((l: any) => l.remove());
       if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
       if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
     };
