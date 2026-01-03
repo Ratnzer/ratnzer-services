@@ -386,13 +386,16 @@ useEffect(() => {
   void syncToken();
 }, [fcmToken, currentUser?.id]);
 
-// Clear in-app notification timeout on unmount
-useEffect(() => {
-  return () => {
-    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
-    if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
-  };
-}, []);
+  // Clear in-app notification timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+      if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
+    };
+  }, []);
+
+  // Check for ban status on every user update
+  const isUserBanned = currentUser?.status === 'banned' && currentUser?.role !== 'admin';
   
   // --- Global App State (Lifted for Admin Control) ---
   const [products, setProducts] = useState<Product[]>(() => loadCache<Product[]>('cache_products_v1', INITIAL_PRODUCTS));
@@ -2248,7 +2251,7 @@ useEffect(() => {
         )}
         
         {/* Persistent Top Header (Hidden in Admin View) */}
-        {currentView !== View.ADMIN && (
+        {currentView !== View.ADMIN && !isUserBanned && (
           <TopHeader 
             setView={handleSetView} 
             formattedBalance={formatPrice(balanceUSD)} 
@@ -2267,9 +2270,50 @@ useEffect(() => {
           <ErrorBoundary onReset={() => setCurrentView(View.HOME)}>{renderView()}</ErrorBoundary>
         </div>
 
-        {/* Persistent Bottom Nav (Hidden in Admin View) */}
-        {currentView !== View.ADMIN && (
+        {/* Persistent Bottom Nav (Hidden in Admin View or if Banned) */}
+        {currentView !== View.ADMIN && !isUserBanned && (
           <BottomNav currentView={currentView} setView={handleSetView} />
+        )}
+
+        {/* Global Ban Overlay */}
+        {isUserBanned && (
+          <div className="fixed inset-0 z-[100] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
+            <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
+              <ShieldAlert size={48} className="text-red-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-4">تم حظر حسابك</h1>
+            <p className="text-gray-400 mb-8 leading-relaxed">
+              عذراً، لقد تم حظر حسابك من قبل الإدارة بسبب مخالفة شروط الاستخدام. 
+              إذا كنت تعتقد أن هذا خطأ، يرجى التواصل مع الدعم الفني.
+            </p>
+            <div className="w-full space-y-3">
+              <button 
+                onClick={() => {
+                  // Open support link or whatsapp if available in terms
+                  const whatsapp = terms.contactWhatsapp || '';
+                  if (whatsapp) {
+                    window.open(`https://wa.me/${whatsapp}`, '_blank');
+                  } else {
+                    showActionToast('يرجى التواصل مع الإدارة');
+                  }
+                }}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <MessageCircle size={20} />
+                تواصل مع الدعم الفني
+              </button>
+              <button 
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('cache_user_v1');
+                  window.location.reload();
+                }}
+                className="w-full bg-[#242636] text-gray-300 font-bold py-4 rounded-2xl transition-all active:scale-95"
+              >
+                تسجيل الخروج
+              </button>
+            </div>
+          </div>
         )}
         
         {/* Global Product Details Modal - Rendered here to cover entire screen including header/footer */}

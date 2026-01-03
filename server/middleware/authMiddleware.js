@@ -24,6 +24,12 @@ const protect = asyncHandler(async (req, res, next) => {
       // Remove password from object (optional in raw object, but good practice)
       if(req.user) delete req.user.password;
 
+      // Check if user is banned
+      if (req.user && req.user.status === 'banned' && req.user.role !== 'admin') {
+        res.status(403);
+        throw new Error('تم حظر حسابك من قبل الإدارة. يرجى التواصل مع الدعم الفني.');
+      }
+
       next();
     } catch (error) {
       console.error(error);
