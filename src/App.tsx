@@ -2352,14 +2352,14 @@ useEffect(() => {
             </div>
 
             <div className="w-full space-y-3">
-              <button 
+              <button
                 onClick={() => setIsSupportModalOpen(true)}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <MessageCircle size={20} />
                 تواصل مع الدعم الفني
               </button>
-              <button 
+              <button
                 onClick={() => {
                   localStorage.removeItem('token');
                   localStorage.removeItem('cache_user_v1');
@@ -2369,6 +2369,14 @@ useEffect(() => {
               >
                 تسجيل الخروج
               </button>
+
+              {/* Support options sheet (same as profile support button) */}
+              <SupportModal
+                isOpen={isSupportModalOpen}
+                onClose={() => setIsSupportModalOpen(false)}
+                whatsappNumber={terms.contactWhatsapp}
+                telegramUsername={terms.contactTelegram}
+              />
             </div>
           </div>
         )}
@@ -2413,15 +2421,6 @@ useEffect(() => {
           onConfirm={() => CapApp.exitApp()}
         />
 
-        {/* Support Modal */}
-        <SupportModal 
-          isOpen={isSupportModalOpen} 
-          onClose={() => setIsSupportModalOpen(false)}
-          whatsappNumber={terms.contactWhatsapp}
-          telegramUsername={terms.contactTelegram}
-        />
-
-        
         <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
       </div>
     </div>
