@@ -12,6 +12,7 @@ import CheckoutModal from './components/CheckoutModal';
 import ProductDetailsModal from './components/ProductDetailsModal'; // Imported here
 import InvoiceModal from './components/InvoiceModal'; // Import InvoiceModal
 import LoginModal from './components/LoginModal'; // Import LoginModal
+import ExitConfirmModal from './components/ExitConfirmModal'; // Import ExitConfirmModal
 import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
@@ -211,6 +212,7 @@ const App: React.FC = () => {
   const [paytabsProcessing, setPaytabsProcessing] = useState<boolean>(false);
   const [paytabsProcessingText, setPaytabsProcessingText] = useState<string>('');
   const [isPurchaseProcessing, setIsPurchaseProcessing] = useState<boolean>(false);
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
   const showInAppBanner = (title: string, body?: string) => {
     setInAppNotification({ title, body: body || '' });
@@ -237,10 +239,7 @@ const App: React.FC = () => {
         }
       } else {
         // If on Home, show confirmation alert before exit
-        const confirmExit = window.confirm("هل تريد الخروج من التطبيق؟");
-        if (confirmExit) {
-          CapApp.exitApp();
-        }
+        setIsExitModalOpen(true);
       }
     });
 
@@ -2351,13 +2350,20 @@ useEffect(() => {
             />
         )}
 
-        {/* Login Modal */}
-        <LoginModal 
-            isOpen={showLoginModal} 
-            onClose={() => setShowLoginModal(false)}
-            onLogin={handleLogin}
-            terms={terms}
-        />
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)}
+        onLogin={handleLogin}
+        terms={terms}
+      />
+
+      {/* Exit Confirmation Modal */}
+      <ExitConfirmModal
+        isOpen={isExitModalOpen}
+        onClose={() => setIsExitModalOpen(false)}
+        onConfirm={() => CapApp.exitApp()}
+      />
 
         
         <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
