@@ -218,8 +218,6 @@ const App: React.FC = () => {
 
   const showInAppBanner = (title: string, body?: string) => {
     setInAppNotification({ title, body: body || '' });
-    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
-    inAppNotifTimeout.current = setTimeout(() => setInAppNotification(null), 4000);
   };
 
   const showActionToast = (title: string, message?: string, duration = 2000) => {
@@ -227,6 +225,23 @@ const App: React.FC = () => {
     if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
     actionToastTimeout.current = setTimeout(() => setActionToast(null), duration);
   };
+
+  useEffect(() => {
+    if (inAppNotification) {
+      if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+      inAppNotifTimeout.current = setTimeout(() => setInAppNotification(null), 4000);
+    } else if (inAppNotifTimeout.current) {
+      clearTimeout(inAppNotifTimeout.current);
+      inAppNotifTimeout.current = null;
+    }
+
+    return () => {
+      if (inAppNotifTimeout.current) {
+        clearTimeout(inAppNotifTimeout.current);
+        inAppNotifTimeout.current = null;
+      }
+    };
+  }, [inAppNotification]);
 
   useEffect(() => {
     // Handle Hardware Back Button for Android
@@ -247,10 +262,13 @@ const App: React.FC = () => {
 
     return () => {
       backButtonListener.then((l: any) => l.remove());
-      if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
-      if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
     };
   }, [currentView]);
+
+  useEffect(() => () => {
+    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+    if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
+  }, []);
 
   // Track navigation history
   useEffect(() => {
