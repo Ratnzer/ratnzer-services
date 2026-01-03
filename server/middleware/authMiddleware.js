@@ -24,17 +24,21 @@ const protect = asyncHandler(async (req, res, next) => {
       // Remove password from object (optional in raw object, but good practice)
       if(req.user) delete req.user.password;
 
-      // Check if user is banned
-      if (req.user && req.user.status === 'banned' && req.user.role !== 'admin') {
-        res.status(403);
-        throw new Error('تم حظر حسابك من قبل الإدارة. يرجى التواصل مع الدعم الفني.');
-      }
-
+      // We no longer block requests with 403 here, because we want the user 
+      // to stay logged in and see the ban screen in the frontend.
+      // The frontend will use the 'status' field from the user profile to show the overlay.
       next();
     } catch (error) {
+      // If it's the ban error, re-throw it to be handled by the main Express error handler
+      if ((error as any).isBanError) {
+        throw error;
+      }
+      
+      // Handle JWT errors (invalid signature, expired, etc.)
       console.error(error);
       res.status(401);
       throw new Error('غير مصرح لك، الرمز غير صالح');
+    }
     }
   }
 

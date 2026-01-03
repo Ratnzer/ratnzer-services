@@ -201,11 +201,8 @@ router.post('/login', asyncHandler(async (req, res) => {
     : await prisma.user.findUnique({ where: { phone: cleanPhone } });
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    if (user.status === 'banned') {
-       res.status(403);
-       throw new Error('تم حظر حسابك، يرجى الاتصال بالدعم');
-    }
-
+    // Allow login even if banned, so the frontend can show the ban screen 
+    // while keeping the user logged in to see their ID/info.
     res.json({
       id: user.id,       // ✅ إضافة id
       _id: user.id,

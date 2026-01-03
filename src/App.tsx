@@ -582,8 +582,18 @@ useEffect(() => {
       } catch (error: any) {
         const status = error?.response?.status;
 
-        // ✅ Only logout if the server explicitly says the token is invalid/expired
-        if (status === 401 || status === 403) {
+        // ✅ Handle Ban (403) or Invalid Token (401)
+        const isBannedError = error?.response?.data?.message?.includes('تم حظر حسابك') || error?.message?.includes('تم حظر حسابك');
+
+        if (isBannedError && status === 403) {
+          // If banned, update local state to 'banned' to show the overlay, but keep user data
+          console.warn('User is banned (403) -> showing ban overlay', error);
+          setCurrentUser(prev => prev ? ({ ...prev, status: 'banned' }) : null);
+          return;
+        }
+
+        if (status === 401) {
+          // For 401 errors (invalid token, expired, etc.), log out
           console.warn('Token invalid/expired -> logging out', error);
           localStorage.removeItem('token');
           setCurrentUser(null);
@@ -622,7 +632,16 @@ useEffect(() => {
     } catch (error: any) {
       // If token expired/invalid -> logout safely
       const status = error?.response?.status;
-      if (status === 401 || status === 403) {
+      const isBannedError = error?.response?.data?.message?.includes('تم حظر حسابك') || error?.message?.includes('تم حظر حسابك');
+
+      if (isBannedError && status === 403) {
+        // If banned, update local state to 'banned' to show the overlay, but keep user data
+        console.warn('User is banned (403) -> showing ban overlay', error);
+        setCurrentUser(prev => prev ? ({ ...prev, status: 'banned' }) : null);
+        return;
+      }
+
+      if (status === 401) {
         localStorage.removeItem('token');
         setCurrentUser(null);
         return;
@@ -2277,7 +2296,7 @@ useEffect(() => {
 
         {/* Global Ban Overlay */}
         {isUserBanned && (
-          <div className="fixed inset-0 z-[100] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
+          <div className="fixed inset-0 z-[100] bg-[#13141f]/80 backdrop-blur-md flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
             <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
               <ShieldAlert size={48} className="text-red-500" />
             </div>
