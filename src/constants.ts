@@ -51,4 +51,6 @@ export const MOCK_INVENTORY: InventoryCode[] = [] as InventoryCode[];
 export const INITIAL_TERMS: AppTerms = {
   contentAr: '',
   contentEn: '',
+  contactWhatsapp: '9647763410970',
+  contactTelegram: 'Ratluzen',
 } as AppTerms;

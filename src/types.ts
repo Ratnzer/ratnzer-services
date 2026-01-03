@@ -138,6 +138,7 @@ export interface AppTerms {
   contentAr: string; 
   contentEn: string;
   contactWhatsapp?: string;
+  contactTelegram?: string;
 }
 
 export interface Banner {

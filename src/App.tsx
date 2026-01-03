@@ -13,6 +13,7 @@ import ProductDetailsModal from './components/ProductDetailsModal'; // Imported 
 import InvoiceModal from './components/InvoiceModal'; // Import InvoiceModal
 import LoginModal from './components/LoginModal'; // Import LoginModal
 import ExitConfirmModal from './components/ExitConfirmModal'; // Import ExitConfirmModal
+import SupportModal from './components/SupportModal'; // Import SupportModal
 import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
@@ -213,6 +214,7 @@ const App: React.FC = () => {
   const [paytabsProcessingText, setPaytabsProcessingText] = useState<string>('');
   const [isPurchaseProcessing, setIsPurchaseProcessing] = useState<boolean>(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   const showInAppBanner = (title: string, body?: string) => {
     setInAppNotification({ title, body: body || '' });
@@ -2333,15 +2335,7 @@ useEffect(() => {
 
             <div className="w-full space-y-3">
               <button 
-                onClick={() => {
-                  // Open support link or whatsapp if available in terms
-                  const whatsapp = terms.contactWhatsapp || '';
-                  if (whatsapp) {
-                    window.open(`https://wa.me/${whatsapp}`, '_blank');
-                  } else {
-                    showActionToast('يرجى التواصل مع الإدارة');
-                  }
-                }}
+                onClick={() => setIsSupportModalOpen(true)}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <MessageCircle size={20} />
@@ -2395,11 +2389,19 @@ useEffect(() => {
       />
 
       {/* Exit Confirmation Modal */}
-      <ExitConfirmModal
-        isOpen={isExitModalOpen}
-        onClose={() => setIsExitModalOpen(false)}
-        onConfirm={() => CapApp.exitApp()}
-      />
+        <ExitConfirmModal 
+          isOpen={isExitModalOpen} 
+          onClose={() => setIsExitModalOpen(false)} 
+          onConfirm={() => CapApp.exitApp()}
+        />
+
+        {/* Support Modal */}
+        <SupportModal 
+          isOpen={isSupportModalOpen} 
+          onClose={() => setIsSupportModalOpen(false)}
+          whatsappNumber={terms.contactWhatsapp}
+          telegramUsername={terms.contactTelegram}
+        />
 
         
         <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
