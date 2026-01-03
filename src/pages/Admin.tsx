@@ -2192,9 +2192,11 @@ try {
                                         <div className="bg-orange-500/10 p-2 rounded-lg text-orange-400"><Calendar size={16} /></div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-[10px] text-gray-500 font-bold mb-0.5">تاريخ الانضمام</p>
-                                            <p className="text-xs text-white font-bold dir-ltr text-right select-all">{foundUser.joinedDate}</p>
+                                            <p className="text-xs text-white font-bold dir-ltr text-right select-all">
+                                                {foundUser.createdAt ? new Date(foundUser.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }) : foundUser.joinedDate}
+                                            </p>
                                         </div>
-                                        <button onClick={() => navigator.clipboard.writeText(foundUser.joinedDate)} className="text-gray-600 hover:text-white p-1 absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => navigator.clipboard.writeText(foundUser.createdAt ? new Date(foundUser.createdAt).toLocaleDateString('ar-EG') : foundUser.joinedDate)} className="text-gray-600 hover:text-white p-1 absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Copy size={14} />
                                         </button>
                                     </div>
