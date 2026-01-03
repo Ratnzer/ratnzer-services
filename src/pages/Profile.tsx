@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { View, AppTerms, UserProfile, Currency } from '../types';
 import { authService } from '../services/api';
+import versionData from '../version.json';
 
 interface Props {
   setView: (view: View) => void;
@@ -318,7 +319,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
 
        {/* Version */}
        <div className="text-center text-gray-600 text-[10px] mt-8 mb-4 font-mono tracking-widest opacity-60">
-         v3.4.0
+         v{versionData.version}
        </div>
 
        {/* --- MODALS --- */}
