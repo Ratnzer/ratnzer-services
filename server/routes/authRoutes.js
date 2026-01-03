@@ -354,13 +354,8 @@ router.post('/delete-account', protect, asyncHandler(async (req, res) => {
     return res.status(401).json({ message: 'كلمة المرور غير صحيحة' });
   }
 
-  // Delete user and all related data in a transaction
-  await prisma.$transaction([
-    prisma.order.deleteMany({ where: { userId: req.user.id } }),
-    prisma.transaction.deleteMany({ where: { userId: req.user.id } }),
-    prisma.cartItem.deleteMany({ where: { userId: req.user.id } }),
-    prisma.user.delete({ where: { id: req.user.id } }),
-  ]);
+  // Delete user (related data will be deleted automatically via Cascade Delete in Prisma schema)
+  await prisma.user.delete({ where: { id: req.user.id } });
 
   res.json({ message: 'تم حذف الحساب وجميع البيانات المرتبطة به بنجاح' });
 }));
