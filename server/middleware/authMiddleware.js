@@ -24,9 +24,18 @@ const protect = asyncHandler(async (req, res, next) => {
       // Remove password from object (optional in raw object, but good practice)
       if(req.user) delete req.user.password;
 
-      // We no longer block requests with 403 here, because we want the user 
-      // to stay logged in and see the ban screen in the frontend.
-      // The frontend will use the 'status' field from the user profile to show the overlay.
+      // Security Check: Block all requests for banned users EXCEPT for the profile request
+      // This allows the frontend to load the user status and show the ban screen,
+      // but prevents any other actions (orders, payments, etc.)
+      if (req.user && req.user.status === 'banned' && req.user.role !== 'admin') {
+        const isProfileRequest = req.originalUrl.includes('/auth/profile') && req.method === 'GET';
+        
+        if (!isProfileRequest) {
+          res.status(403);
+          throw new Error('تم حظر حسابك. لا يمكنك إجراء هذه العملية.');
+        }
+      }
+
       next();
     } catch (error) {
       // If it's the ban error, re-throw it to be handled by the main Express error handler
