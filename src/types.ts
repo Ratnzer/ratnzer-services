@@ -159,6 +159,7 @@ export interface UserProfile {
   preferredCurrency?: string;
   hasPassword?: boolean;
   joinedDate: string;
+  createdAt?: string;
   status: 'active' | 'banned';
   role?: 'user' | 'admin';
   ip?: string;
