@@ -137,6 +137,7 @@ export interface AdminAnalytics {
 export interface AppTerms {
   contentAr: string; 
   contentEn: string;
+  contactWhatsapp?: string;
 }
 
 export interface Banner {
@@ -159,6 +160,7 @@ export interface UserProfile {
   hasPassword?: boolean;
   joinedDate: string;
   status: 'active' | 'banned';
+  role?: 'user' | 'admin';
   ip?: string;
   avatar?: string;
   password?: string; // NEW: Optional password field
