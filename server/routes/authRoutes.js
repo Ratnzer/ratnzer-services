@@ -333,4 +333,36 @@ router.put('/profile', protect, asyncHandler(async (req, res) => {
   }
 }));
 
+// ============================================================
+// ✅ Delete Account (Secure)
+// POST /api/auth/delete-account
+// Body: { password: string }
+// ============================================================
+router.post('/delete-account', protect, asyncHandler(async (req, res) => {
+  const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ message: 'كلمة المرور مطلوبة لتأكيد الحذف' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+  if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+  // Verify password
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'كلمة المرور غير صحيحة' });
+  }
+
+  // Delete user and all related data in a transaction
+  await prisma.$transaction([
+    prisma.order.deleteMany({ where: { userId: req.user.id } }),
+    prisma.transaction.deleteMany({ where: { userId: req.user.id } }),
+    prisma.cartItem.deleteMany({ where: { userId: req.user.id } }),
+    prisma.user.delete({ where: { id: req.user.id } }),
+  ]);
+
+  res.json({ message: 'تم حذف الحساب وجميع البيانات المرتبطة به بنجاح' });
+}));
+
 module.exports = router;

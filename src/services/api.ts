@@ -46,6 +46,8 @@ export const authService = {
   updateProfile: (data: any) => api.put("/auth/profile", data),
   // ✅ Change/Set password (server-side)
   changePassword: (data: any) => api.put("/auth/change-password", data),
+  // ✅ Delete account (server-side)
+  deleteAccount: (data: any) => api.post("/auth/delete-account", data),
 };
 
 // ============================================================

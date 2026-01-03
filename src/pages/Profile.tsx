@@ -34,6 +34,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   // New Modals State
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [showDeleteConfirmWithPassword, setShowDeleteConfirmWithPassword] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
   
   // FAQ State
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
@@ -148,11 +152,27 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       alert("تم تحديث البيانات بنجاح");
     } catch (error: any) {
       console.warn('Failed to update profile via API', error);
-      const msg =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        "حدث خطأ أثناء تحديث البيانات";
-      alert(msg);
+      alert(error?.response?.data?.message || "فشل تحديث البيانات");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+        alert("يرجى إدخال كلمة المرور للتأكيد");
+        return;
+    }
+
+    setIsDeleting(true);
+    try {
+        // We'll use a new endpoint /auth/delete-account
+        await authService.deleteAccount({ password: deletePassword });
+        alert("تم حذف حسابك بنجاح. نأسف لرحيلك.");
+        onLogout();
+    } catch (error: any) {
+        console.error("Failed to delete account", error);
+        alert(error?.response?.data?.message || "فشل حذف الحساب. تأكد من كلمة المرور.");
+    } finally {
+        setIsDeleting(false);
     }
   };
 
@@ -450,8 +470,69 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                     </p>
                     <div className="flex gap-3">
                         <button onClick={() => setShowDeleteAccountModal(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-bold transition-colors">تراجع</button>
-                        <button onClick={() => { setShowDeleteAccountModal(false); alert('تم حذف الحساب (محاكاة)'); }} className="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold transition-colors">حذف نهائي</button>
+                        <button onClick={() => { setShowDeleteAccountModal(false); setShowDeleteConfirmWithPassword(true); }} className="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold transition-colors">حذف نهائي</button>
                     </div>
+                </div>
+            </div>
+       )}
+
+       {/* Delete Account Password Verification Modal */}
+       {showDeleteConfirmWithPassword && (
+            <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-fadeIn">
+                <div className="bg-[#1f212e] w-full max-w-sm rounded-2xl p-6 border border-gray-700 shadow-2xl">
+                    <div className="flex justify-between items-center mb-6">
+                        <button onClick={() => { setShowDeleteConfirmWithPassword(false); setDeletePassword(''); }} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white">
+                            <X size={20} />
+                        </button>
+                        <h3 className="text-lg font-bold text-white">تأكيد الهوية</h3>
+                        <div className="w-9"></div>
+                    </div>
+
+                    <div className="text-center mb-6">
+                        <div className="w-14 h-14 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-yellow-400/20">
+                            <Lock size={24} className="text-yellow-400" />
+                        </div>
+                        <p className="text-gray-300 text-sm">يرجى إدخال كلمة المرور الخاصة بك للمتابعة في حذف الحساب</p>
+                    </div>
+
+                    <div className="space-y-4 mb-6">
+                        <div className="relative">
+                            <input 
+                                type={showDeletePassword ? "text" : "password"} 
+                                value={deletePassword}
+                                onChange={(e) => setDeletePassword(e.target.value)}
+                                placeholder="كلمة المرور"
+                                className="w-full bg-[#13141f] border border-gray-700 rounded-xl py-3.5 pr-11 pl-12 text-white text-right focus:border-red-500 focus:outline-none transition-all"
+                            />
+                            <Lock className="absolute right-3.5 top-4 text-gray-500" size={18} />
+                            <button 
+                                type="button"
+                                onClick={() => setShowDeletePassword(!showDeletePassword)}
+                                className="absolute left-3.5 top-4 text-gray-500 hover:text-gray-300 transition-colors"
+                            >
+                                {showDeletePassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={handleDeleteAccount}
+                        disabled={isDeleting || !deletePassword}
+                        className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
+                            isDeleting || !deletePassword 
+                            ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
+                            : 'bg-red-600 text-white hover:bg-red-500 shadow-lg shadow-red-600/20 active:scale-[0.98]'
+                        }`}
+                    >
+                        {isDeleting ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                جاري الحذف...
+                            </>
+                        ) : (
+                            <>حذف الحساب نهائياً</>
+                        )}
+                    </button>
                 </div>
             </div>
        )}
