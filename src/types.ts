@@ -161,6 +161,7 @@ export interface UserProfile {
   hasPassword?: boolean;
   joinedDate: string;
   createdAt?: string;
+  bannedAt?: string;
   status: 'active' | 'banned';
   role?: 'user' | 'admin';
   ip?: string;
