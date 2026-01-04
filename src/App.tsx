@@ -216,10 +216,23 @@ const App: React.FC = () => {
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
+  const getFormattedBanDate = () => {
+    const rawDate =
+      currentUser?.bannedAt ||
+      (currentUser as any)?.banned_at ||
+      currentUser?.createdAt ||
+      currentUser?.joinedDate;
+
+    if (!rawDate) return '—';
+
+    const parsed = new Date(rawDate);
+    return isNaN(parsed.getTime())
+      ? rawDate
+      : parsed.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
   const showInAppBanner = (title: string, body?: string) => {
     setInAppNotification({ title, body: body || '' });
-    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
-    inAppNotifTimeout.current = setTimeout(() => setInAppNotification(null), 4000);
   };
 
   const showActionToast = (title: string, message?: string, duration = 2000) => {
@@ -227,6 +240,23 @@ const App: React.FC = () => {
     if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
     actionToastTimeout.current = setTimeout(() => setActionToast(null), duration);
   };
+
+  useEffect(() => {
+    if (inAppNotification) {
+      if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+      inAppNotifTimeout.current = setTimeout(() => setInAppNotification(null), 4000);
+    } else if (inAppNotifTimeout.current) {
+      clearTimeout(inAppNotifTimeout.current);
+      inAppNotifTimeout.current = null;
+    }
+
+    return () => {
+      if (inAppNotifTimeout.current) {
+        clearTimeout(inAppNotifTimeout.current);
+        inAppNotifTimeout.current = null;
+      }
+    };
+  }, [inAppNotification]);
 
   useEffect(() => {
     // Handle Hardware Back Button for Android
@@ -247,10 +277,13 @@ const App: React.FC = () => {
 
     return () => {
       backButtonListener.then((l: any) => l.remove());
-      if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
-      if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
     };
   }, [currentView]);
+
+  useEffect(() => () => {
+    if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
+    if (actionToastTimeout.current) clearTimeout(actionToastTimeout.current);
+  }, []);
 
   // Track navigation history
   useEffect(() => {
@@ -2298,7 +2331,7 @@ useEffect(() => {
 
         {/* Global Ban Overlay */}
         {isUserBanned && (
-          <div className="fixed inset-0 z-[100] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
+          <div className="fixed inset-0 z-[400] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
             <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
               <ShieldAlert size={48} className="text-red-500" />
             </div>
@@ -2327,21 +2360,19 @@ useEffect(() => {
               </div>
               <div className="flex items-center justify-between text-sm border-t border-gray-700/30 pt-3">
                 <span className="text-gray-500">تاريخ الإجراء:</span>
-                <span className="text-gray-300">
-                  {new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </span>
+                <span className="text-gray-300">{getFormattedBanDate()}</span>
               </div>
             </div>
 
             <div className="w-full space-y-3">
-              <button 
+              <button
                 onClick={() => setIsSupportModalOpen(true)}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <MessageCircle size={20} />
                 تواصل مع الدعم الفني
               </button>
-              <button 
+              <button
                 onClick={() => {
                   localStorage.removeItem('token');
                   localStorage.removeItem('cache_user_v1');
@@ -2351,6 +2382,14 @@ useEffect(() => {
               >
                 تسجيل الخروج
               </button>
+
+              {/* Support options sheet (same as profile support button) */}
+              <SupportModal
+                isOpen={isSupportModalOpen}
+                onClose={() => setIsSupportModalOpen(false)}
+                whatsappNumber={terms.contactWhatsapp}
+                telegramUsername={terms.contactTelegram}
+              />
             </div>
           </div>
         )}
@@ -2395,15 +2434,6 @@ useEffect(() => {
           onConfirm={() => CapApp.exitApp()}
         />
 
-        {/* Support Modal */}
-        <SupportModal 
-          isOpen={isSupportModalOpen} 
-          onClose={() => setIsSupportModalOpen(false)}
-          whatsappNumber={terms.contactWhatsapp}
-          telegramUsername={terms.contactTelegram}
-        />
-
-        
         <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
       </div>
     </div>
