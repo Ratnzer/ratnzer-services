@@ -1133,6 +1133,8 @@ useEffect(() => {
   };
 
   const handleSetView = (view: View) => {
+    if (isUserBanned && view !== View.ADMIN) return;
+
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(5);
     }
@@ -2345,12 +2347,14 @@ useEffect(() => {
         )}
 
         {/* Scrollable Content Area */}
-        <div 
-          key={currentView} // Force scroll reset on view change
-          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth ${currentView !== View.ADMIN ? 'pb-24 pt-14' : ''}`}
-        >
-          <ErrorBoundary onReset={() => setCurrentView(View.HOME)}>{renderView()}</ErrorBoundary>
-        </div>
+        {!isUserBanned && (
+          <div 
+            key={currentView} // Force scroll reset on view change
+            className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth ${currentView !== View.ADMIN ? 'pb-24 pt-14' : ''}`}
+          >
+            <ErrorBoundary onReset={() => setCurrentView(View.HOME)}>{renderView()}</ErrorBoundary>
+          </div>
+        )}
 
         {/* Persistent Bottom Nav (Hidden in Admin View or if Banned) */}
         {currentView !== View.ADMIN && !isUserBanned && (
@@ -2359,7 +2363,7 @@ useEffect(() => {
 
         {/* Global Ban Overlay */}
         {isUserBanned && (
-          <div className="fixed inset-0 z-[400] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
+          <div className="fixed inset-0 z-[9999] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
             <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
               <ShieldAlert size={48} className="text-red-500" />
             </div>
