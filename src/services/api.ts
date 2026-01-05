@@ -37,6 +37,25 @@ api.interceptors.request.use(
 );
 
 // ============================================================
+// Global ban detector: emit a browser event on 403 / ban message
+// (App listens and shows the ban overlay immediately)
+// ============================================================
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<any>) => {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error?.message;
+    const isBan = status === 403 || message?.includes("تم حظر حسابك");
+
+    if (isBan && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("ratelozn:ban-detected"));
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// ============================================================
 // Auth Services
 // ============================================================
 export const authService = {

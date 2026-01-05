@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, CartItem, Currency, Order, InventoryCode, Transaction } from './types';
 import Home from './pages/Home';
 import SearchPage from './pages/Search';
@@ -231,7 +231,7 @@ const App: React.FC = () => {
       : parsed.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  const markUserAsBanned = () => {
+  const markUserAsBanned = useCallback(() => {
     setHasBannedOverride(true);
     setCurrentUser(prev => {
       if (prev) return { ...prev, status: 'banned' };
@@ -239,7 +239,15 @@ const App: React.FC = () => {
       const cachedUser = hasToken ? loadCache<UserProfile | null>('cache_user_v1', null) : null;
       return cachedUser ? { ...cachedUser, status: 'banned' } : prev;
     });
-  };
+  }, [hasToken]);
+
+  // Listen for global ban events emitted by axios interceptor (any 403)
+  useEffect(() => {
+    const handleBan = () => markUserAsBanned();
+
+    window.addEventListener('ratelozn:ban-detected', handleBan);
+    return () => window.removeEventListener('ratelozn:ban-detected', handleBan);
+  }, [markUserAsBanned]);
 
   const showInAppBanner = (title: string, body?: string) => {
     setInAppNotification({ title, body: body || '' });
@@ -440,9 +448,8 @@ useEffect(() => {
   }, []);
 
   // Check for ban status on every user update
-  const isUserBanned =
-    (currentUser?.status === 'banned' && currentUser?.role !== 'admin') ||
-    (hasBannedOverride && currentUser?.role !== 'admin');
+  const isAdmin = currentUser?.role === 'admin';
+  const isUserBanned = !isAdmin && (currentUser?.status === 'banned' || hasBannedOverride);
   
   // --- Global App State (Lifted for Admin Control) ---
   const [products, setProducts] = useState<Product[]>(() => loadCache<Product[]>('cache_products_v1', INITIAL_PRODUCTS));
@@ -630,9 +637,11 @@ useEffect(() => {
         const status = error?.response?.status;
 
         // ✅ Handle Ban (403) or Invalid Token (401)
-        const isBannedError = error?.response?.data?.message?.includes('تم حظر حسابك') || error?.message?.includes('تم حظر حسابك');
+        const isBannedError =
+          error?.response?.data?.message?.includes('تم حظر حسابك') ||
+          error?.message?.includes('تم حظر حسابك');
 
-        if (isBannedError && status === 403) {
+        if (status === 403 || isBannedError) {
           // If banned, update local state to 'banned' to show the overlay, but keep user data
           console.warn('User is banned (403) -> showing ban overlay', error);
           markUserAsBanned();
@@ -686,9 +695,11 @@ useEffect(() => {
     } catch (error: any) {
       // If token expired/invalid -> logout safely
       const status = error?.response?.status;
-      const isBannedError = error?.response?.data?.message?.includes('تم حظر حسابك') || error?.message?.includes('تم حظر حسابك');
+      const isBannedError =
+        error?.response?.data?.message?.includes('تم حظر حسابك') ||
+        error?.message?.includes('تم حظر حسابك');
 
-      if (isBannedError && status === 403) {
+      if (status === 403 || isBannedError) {
         // If banned, update local state to 'banned' to show the overlay, but keep user data
         console.warn('User is banned (403) -> showing ban overlay', error);
         markUserAsBanned();

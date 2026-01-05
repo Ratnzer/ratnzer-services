@@ -29,18 +29,22 @@ const protect = asyncHandler(async (req, res, next) => {
       // but prevents any other actions (orders, payments, etc.)
       if (req.user && req.user.status === 'banned' && req.user.role !== 'admin') {
         const isProfileRequest = req.originalUrl.includes('/auth/profile') && req.method === 'GET';
-        
+
         if (!isProfileRequest) {
+          // Preserve the 403 status and flag the error so the catch block doesn't
+          // overwrite it with a 401, which would hide the ban status from the client.
+          const banError = new Error('تم حظر حسابك. لا يمكنك إجراء هذه العملية.');
+          banError.isBanError = true;
           res.status(403);
-          // Frontend expects this exact message to trigger the ban overlay
-          throw new Error('تم حظر حسابك. لا يمكنك إجراء هذه العملية.');
+          throw banError;
         }
       }
 
       next();
     } catch (error) {
-      // If it's the ban error, re-throw it to be handled by the main Express error handler
+      // If it's the ban error, keep the 403 so the frontend can show the ban screen
       if (error.isBanError) {
+        res.status(403);
         throw error;
       }
       
