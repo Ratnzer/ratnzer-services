@@ -218,13 +218,12 @@ const App: React.FC = () => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   const getFormattedBanDate = () => {
+    // Only show the actual ban date, do not fallback to creation date
     const rawDate =
       currentUser?.bannedAt ||
-      (currentUser as any)?.banned_at ||
-      currentUser?.createdAt ||
-      currentUser?.joinedDate;
+      (currentUser as any)?.banned_at;
 
-    if (!rawDate) return '—';
+    if (!rawDate) return 'غير محدد';
 
     const parsed = new Date(rawDate);
     return isNaN(parsed.getTime())
