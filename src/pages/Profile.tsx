@@ -219,31 +219,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       setExpandedFaq(expandedFaq === index ? null : index);
   };
 
-  // If user is banned
-  if (user?.status === 'banned') {
-      return (
-          <div className="min-h-screen bg-[#13141f] flex flex-col items-center justify-center p-6 text-center">
-              <ShieldAlert size={64} className="text-red-500 mb-4" />
-              <h1 className="text-2xl font-bold text-white mb-2">تم حظر حسابك</h1>
-              <p className="text-gray-400">يرجى التواصل مع الدعم الفني لاستعادة الوصول.</p>
-              <button onClick={() => setShowSupportModal(true)} className="mt-6 bg-red-600 text-white px-6 py-3 rounded-xl font-bold">الدعم الفني</button>
-               {/* Support Modal (Included even when banned) */}
-               {showSupportModal && (
-                    <div className="fixed inset-0 z-[60] flex items-end justify-center">
-                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSupportModal(false)}></div>
-                        <div className="bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 relative z-10 animate-slide-up border-t border-gray-700">
-                           <h2 className="text-xl font-bold mb-4 text-center text-white">الدعم الفني</h2>
-                           <div className="grid grid-cols-2 gap-4 mb-6">
-                             <button onClick={() => window.open('https://wa.me/9647763410970', '_blank')} className="bg-[#242636] p-5 rounded-2xl flex flex-col items-center gap-3 border border-gray-700 text-white font-bold">واتس اب</button>
-                             <button onClick={() => window.open('https://t.me/Ratluzen', '_blank')} className="bg-[#242636] p-5 rounded-2xl flex flex-col items-center gap-3 border border-gray-700 text-white font-bold">تيليجرام</button>
-                           </div>
-                           <button onClick={() => setShowSupportModal(false)} className="w-full bg-gray-700 text-white font-bold py-3.5 rounded-xl">إغلاق</button>
-                        </div>
-                    </div>
-               )}
-          </div>
-      );
-  }
+
 
   return (
     <div className="min-h-screen pb-24 bg-[#13141f] relative pt-6">

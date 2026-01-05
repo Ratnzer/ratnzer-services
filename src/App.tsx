@@ -670,8 +670,15 @@ useEffect(() => {
     try {
       const res = await authService.getProfile();
       if (res && res.data) {
-        setCurrentUser(res.data);
-        if ((res.data as any)?.preferredCurrency) {
+        const userData = res.data;
+        setCurrentUser(userData);
+
+        // Check if user status is banned in the response data
+        if (userData.status === 'banned' && userData.role !== 'admin') {
+          markUserAsBanned();
+        }
+
+        if ((userData as any)?.preferredCurrency) {
           const pc = (res.data as any).preferredCurrency;
           setCurrencyCode(pc);
           localStorage.setItem('currencyCode', String(pc));
@@ -1015,7 +1022,7 @@ useEffect(() => {
 
     const id = window.setInterval(() => {
       void refreshProfileFromServer();
-    }, 25000);
+    }, 10000); // Reduced to 10 seconds for faster ban detection
 
     return () => window.clearInterval(id);
   }, [currentUser?.id]);
@@ -1077,8 +1084,15 @@ useEffect(() => {
       // بعد نجاح register/login في LoginModal والتوكن تخزن، نجلب البروفايل من الباك إند
       const res = await authService.getProfile();
       if (res && res.data) {
-        setCurrentUser(res.data);
-        if ((res.data as any)?.preferredCurrency) {
+        const userData = res.data;
+        setCurrentUser(userData);
+
+        // Check if user status is banned in the response data
+        if (userData.status === 'banned' && userData.role !== 'admin') {
+          markUserAsBanned();
+        }
+
+        if ((userData as any)?.preferredCurrency) {
           const pc = (res.data as any).preferredCurrency;
           setCurrencyCode(pc);
           localStorage.setItem('currencyCode', String(pc));
