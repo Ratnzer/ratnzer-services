@@ -991,11 +991,32 @@ useEffect(() => {
 
       const annItems = Array.isArray(annRes.data) ? annRes.data : (annRes.data?.items || []);
       const notifItems = Array.isArray(notifRes.data) ? notifRes.data : (notifRes.data?.items || []);
+
+      const notificationKey = (item: Announcement) => {
+        const createdAt = (item as Announcement & { createdAt?: string }).createdAt || item.date || '';
+        return [
+          item.id ?? '',
+          item.type ?? '',
+          createdAt,
+          item.title ?? '',
+          item.message ?? ''
+        ].join('|');
+      };
+
+      const dedupeNotifications = (items: Announcement[]) => {
+        const seen = new Set<string>();
+        return items.filter(item => {
+          const key = notificationKey(item);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      };
       
       // Merge and sort by date/createdAt
-      const combined = [...annItems, ...notifItems].sort((a, b) => {
-        const dateA = new Date(a.createdAt || 0).getTime();
-        const dateB = new Date(b.createdAt || 0).getTime();
+      const combined = dedupeNotifications([...annItems, ...notifItems]).sort((a, b) => {
+        const dateA = new Date((a as Announcement & { createdAt?: string }).createdAt || a.date || 0).getTime();
+        const dateB = new Date((b as Announcement & { createdAt?: string }).createdAt || b.date || 0).getTime();
         return dateB - dateA;
       });
 
@@ -1005,13 +1026,10 @@ useEffect(() => {
         setAnnouncements(combined);
       } else {
         setAnnouncements(prev => {
-          const merged = [...prev, ...combined];
-          // Remove duplicates by ID
-          return merged.filter((item, index, self) => 
-            index === self.findIndex((t) => t.id === item.id)
-          ).sort((a, b) => {
-            const dateA = new Date(a.createdAt || 0).getTime();
-            const dateB = new Date(b.createdAt || 0).getTime();
+          const merged = dedupeNotifications([...prev, ...combined]);
+          return merged.sort((a, b) => {
+            const dateA = new Date((a as Announcement & { createdAt?: string }).createdAt || a.date || 0).getTime();
+            const dateB = new Date((b as Announcement & { createdAt?: string }).createdAt || b.date || 0).getTime();
             return dateB - dateA;
           });
         });
