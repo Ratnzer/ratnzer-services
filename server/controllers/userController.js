@@ -100,7 +100,7 @@ const updateUserBalance = asyncHandler(async (req, res) => {
     ? `تم إضافة ${numAmount} رصيد إلى حسابك بنجاح.` 
     : `تم خصم ${numAmount} رصيد من حسابك.`;
   
-  await sendNotification(id, title, message, 'wallet');
+  await sendNotification(id, title, message, isAdd ? 'wallet_credit' : 'wallet_debit');
   
   const tokens = await getTokensForUsers([id]);
   if (tokens.length > 0) {

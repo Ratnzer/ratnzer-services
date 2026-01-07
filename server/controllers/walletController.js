@@ -109,7 +109,7 @@ const depositFunds = asyncHandler(async (req, res) => {
   const title = 'تم شحن رصيدك بنجاح';
   const message = `تم إضافة ${numAmount} رصيد إلى حسابك. رصيدك الحالي هو ${result.user.balance}.`;
   
-  await sendNotification(userId, title, message, 'info');
+  await sendNotification(userId, title, message, 'wallet_credit');
   
   const tokens = await getTokensForUsers([userId]);
   if (tokens.length > 0) {

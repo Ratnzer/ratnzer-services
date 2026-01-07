@@ -173,7 +173,7 @@ export interface Announcement {
   id: string;
   title: string;
   message: string;
-  type: 'offer' | 'alert' | 'info' | 'ad' | 'order' | 'wallet' | 'account' | 'order_pending' | 'order_completed' | 'order_cancelled';
+  type: 'offer' | 'alert' | 'info' | 'ad' | 'order' | 'wallet' | 'account' | 'order_pending' | 'order_completed' | 'order_cancelled' | 'wallet_credit' | 'wallet_debit';
   isActive: boolean;
   showOnHome?: boolean; // NEW: whether announcement should appear on the home page
   showInNotifications?: boolean; // NEW: whether announcement should appear in notifications page

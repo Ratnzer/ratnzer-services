@@ -76,6 +76,10 @@ const Notifications: React.FC<Props> = ({
                 ? 'border-red-500 border-l-red-500'
                 : ann.type === 'wallet'
                 ? 'border-amber-500 border-l-amber-500'
+                : ann.type === 'wallet_credit'
+                ? 'border-emerald-500 border-l-emerald-500'
+                : ann.type === 'wallet_debit'
+                ? 'border-red-500 border-l-red-500'
                 : ann.type === 'account'
                 ? 'border-rose-500 border-l-rose-500'
                 : 'border-blue-500 border-l-blue-500'
@@ -98,6 +102,10 @@ const Notifications: React.FC<Props> = ({
                   ? 'bg-red-500'
                   : ann.type === 'wallet'
                   ? 'bg-amber-500'
+                  : ann.type === 'wallet_credit'
+                  ? 'bg-emerald-500'
+                  : ann.type === 'wallet_debit'
+                  ? 'bg-red-500'
                   : ann.type === 'account'
                   ? 'bg-rose-500'
                   : 'bg-blue-500'
@@ -113,6 +121,8 @@ const Notifications: React.FC<Props> = ({
               {ann.type === 'order_completed' && <ShoppingBag className="text-emerald-500" size={32} />}
               {ann.type === 'order_cancelled' && <ShoppingBag className="text-red-500" size={32} />}
               {ann.type === 'wallet' && <Wallet className="text-amber-500" size={32} />}
+              {ann.type === 'wallet_credit' && <Wallet className="text-emerald-500" size={32} />}
+              {ann.type === 'wallet_debit' && <Wallet className="text-red-500" size={32} />}
               {ann.type === 'account' && <ShieldAlert className="text-rose-500" size={32} />}
             </div>
 
