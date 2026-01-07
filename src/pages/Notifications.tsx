@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Info, AlertTriangle, Gift, Megaphone } from 'lucide-react';
+import { Clock, Info, AlertTriangle, Gift, Megaphone, ShoppingBag, Wallet, ShieldAlert } from 'lucide-react';
 import { View, Announcement } from '../types';
 
 interface Props {
@@ -68,6 +68,12 @@ const Notifications: React.FC<Props> = ({
                 ? 'border-red-500 border-l-red-500'
                 : ann.type === 'ad'
                 ? 'border-purple-500 border-l-purple-500'
+                : ann.type === 'order'
+                ? 'border-emerald-500 border-l-emerald-500'
+                : ann.type === 'wallet'
+                ? 'border-amber-500 border-l-amber-500'
+                : ann.type === 'account'
+                ? 'border-rose-500 border-l-rose-500'
                 : 'border-blue-500 border-l-blue-500'
             }`}
           >
@@ -80,6 +86,12 @@ const Notifications: React.FC<Props> = ({
                   ? 'bg-red-500'
                   : ann.type === 'ad'
                   ? 'bg-purple-500'
+                  : ann.type === 'order'
+                  ? 'bg-emerald-500'
+                  : ann.type === 'wallet'
+                  ? 'bg-amber-500'
+                  : ann.type === 'account'
+                  ? 'bg-rose-500'
                   : 'bg-blue-500'
               }`}
             ></div>
@@ -89,6 +101,9 @@ const Notifications: React.FC<Props> = ({
               {ann.type === 'alert' && <AlertTriangle className="text-red-500" size={32} />}
               {ann.type === 'info' && <Info className="text-blue-500" size={32} />}
               {ann.type === 'ad' && <Megaphone className="text-purple-500" size={32} />}
+              {ann.type === 'order' && <ShoppingBag className="text-emerald-500" size={32} />}
+              {ann.type === 'wallet' && <Wallet className="text-amber-500" size={32} />}
+              {ann.type === 'account' && <ShieldAlert className="text-rose-500" size={32} />}
             </div>
 
             <div className="flex-1">

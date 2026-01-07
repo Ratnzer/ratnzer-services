@@ -221,10 +221,25 @@ const buildOrderPushPayload = (order, overrides = {}) => {
 // Helper Function: Send Notification (Internal Use)
 const sendNotification = async (userId, title, message, type = 'info') => {
     try {
-        await prisma.notification.create({
-            data: { id: generateShortId(), userId, title, message, type }
+        const now = new Date();
+        const dateStr = now.toLocaleString('ar-EG', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
         });
-        // Future: Trigger Push Notification (FCM/OneSignal) here
+
+        await prisma.notification.create({
+            data: { 
+                id: generateShortId(), 
+                userId, 
+                title, 
+                message, 
+                type,
+                date: dateStr
+            }
+        });
         return true;
     } catch (error) {
         console.error('Error sending notification:', error);
@@ -268,7 +283,7 @@ const notifyAdminsPush = async ({ order, title, message, extraData } = {}) => {
         adminId,
         pushPayload.title || 'طلب جديد',
         pushPayload.body || (order?.id ? `تم إنشاء طلب جديد رقم ${order.id}` : 'تم إنشاء طلب جديد'),
-        'info'
+        'order'
       )
     )
   );
@@ -386,7 +401,7 @@ const sendUserOrderNotification = async ({ orderId, status, userId, title, messa
     targetUserId,
     pushPayload.title || 'تحديث الطلب',
     pushPayload.body || (status ? `تم تحديث حالة الطلب إلى ${status}` : 'تم تحديث حالة الطلب'),
-    'info'
+    'order'
   );
 
   const tokens = await getTokensForUsers([targetUserId]);

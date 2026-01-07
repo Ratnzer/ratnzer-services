@@ -983,15 +983,38 @@ useEffect(() => {
     if (mode === 'append') setAnnouncementsLoadingMore(true);
 
     try {
-      const res = await contentService.getAnnouncementsPaged(nextSkip, pageSize);
-      const rawData = res.data;
-      const items = Array.isArray(rawData) ? rawData : (rawData?.items || []);
-      const hasMore = rawData?.hasMore ?? (items.length === pageSize);
+      // Fetch both public announcements and private notifications
+      const [annRes, notifRes] = await Promise.all([
+        contentService.getAnnouncementsPaged(nextSkip, pageSize),
+        currentUser ? pushService.getMyNotifications(nextSkip, pageSize) : Promise.resolve({ data: { items: [], total: 0, hasMore: false } })
+      ]);
+
+      const annItems = Array.isArray(annRes.data) ? annRes.data : (annRes.data?.items || []);
+      const notifItems = Array.isArray(notifRes.data) ? notifRes.data : (notifRes.data?.items || []);
+      
+      // Merge and sort by date/createdAt
+      const combined = [...annItems, ...notifItems].sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        return dateB - dateA;
+      });
+
+      const hasMore = (annRes.data?.hasMore || notifRes.data?.hasMore) ?? (combined.length >= pageSize);
 
       if (mode === 'replace') {
-        setAnnouncements(items);
+        setAnnouncements(combined);
       } else {
-        setAnnouncements(prev => [...prev, ...items]);
+        setAnnouncements(prev => {
+          const merged = [...prev, ...combined];
+          // Remove duplicates by ID
+          return merged.filter((item, index, self) => 
+            index === self.findIndex((t) => t.id === item.id)
+          ).sort((a, b) => {
+            const dateA = new Date(a.createdAt || 0).getTime();
+            const dateB = new Date(b.createdAt || 0).getTime();
+            return dateB - dateA;
+          });
+        });
       }
       setAnnouncementsHasMore(hasMore);
     } catch (error) {

@@ -169,6 +169,8 @@ export const pushService = {
     api.post("/notifications/notify-user-order", data),
   broadcastAnnouncement: (data: { title: string; message: string }) =>
     api.post("/notifications/broadcast", data),
+  getMyNotifications: (skip = 0, limit = 10) =>
+    api.get(`/notifications?skip=${skip}&limit=${limit}`),
 };
 
 // ============================================================

@@ -1326,7 +1326,7 @@ try {
       setEditingAnnouncement(ann);
       setAnnounceTitle(ann.title);
       setAnnounceMsg(ann.message);
-      setAnnounceType(ann.type);
+      setAnnounceType(ann.type as any);
 
       const onHome = ann.showOnHome !== false;
       const inNotifs = (ann as any).showInNotifications !== false; // backward compatible

@@ -100,7 +100,7 @@ const updateUserBalance = asyncHandler(async (req, res) => {
     ? `تم إضافة ${numAmount} رصيد إلى حسابك بنجاح.` 
     : `تم خصم ${numAmount} رصيد من حسابك.`;
   
-  await sendNotification(id, title, message, 'info');
+  await sendNotification(id, title, message, 'wallet');
   
   const tokens = await getTokensForUsers([id]);
   if (tokens.length > 0) {
@@ -141,7 +141,7 @@ const updateUserStatus = asyncHandler(async (req, res) => {
     ? 'عذراً، لقد تم حظر حسابك من قبل الإدارة. يرجى التواصل مع الدعم الفني للمزيد من التفاصيل.' 
     : 'تم إلغاء حظر حسابك بنجاح، يمكنك الآن استخدام التطبيق بشكل طبيعي.';
   
-  await sendNotification(id, title, message, isBanned ? 'error' : 'info');
+  await sendNotification(id, title, message, 'account');
   
   const tokens = await getTokensForUsers([id]);
   if (tokens.length > 0) {

@@ -194,8 +194,9 @@ model Notification {
   message   String
   type      String   @default("info")
   isRead    Boolean  @default(false)
+  date      String?  // نص التاريخ للعرض (مثل "منذ 5 دقائق")
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 // --- الإعدادات العامة ---

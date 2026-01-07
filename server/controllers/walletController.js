@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { generateShortId } = require('../utils/id');
+const { sendNotification, sendFcmPush } = require('./notificationController');
+const { getTokensForUsers } = require('../utils/tokenStore');
 
 // @desc    Get current user transaction history
 // @route   GET /api/wallet/transactions
@@ -102,6 +104,21 @@ const depositFunds = asyncHandler(async (req, res) => {
 
     return { user, transaction };
   });
+
+  // Send Notification & FCM Push
+  const title = 'تم شحن رصيدك بنجاح';
+  const message = `تم إضافة ${numAmount} رصيد إلى حسابك. رصيدك الحالي هو ${result.user.balance}.`;
+  
+  await sendNotification(userId, title, message, 'info');
+  
+  const tokens = await getTokensForUsers([userId]);
+  if (tokens.length > 0) {
+    await sendFcmPush(tokens.map(t => t.token), {
+      title,
+      body: message,
+      data: { type: 'wallet_deposit', amount: String(numAmount) }
+    });
+  }
 
   res.json({
     message: 'تم إضافة الرصيد بنجاح',

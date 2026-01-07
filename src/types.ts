@@ -173,12 +173,16 @@ export interface Announcement {
   id: string;
   title: string;
   message: string;
-  type: 'offer' | 'alert' | 'info' | 'ad';
+  type: 'offer' | 'alert' | 'info' | 'ad' | 'order' | 'wallet' | 'account';
   isActive: boolean;
   showOnHome?: boolean; // NEW: whether announcement should appear on the home page
   showInNotifications?: boolean; // NEW: whether announcement should appear in notifications page
   date: string;
+  isRead?: boolean;
+  userId?: string;
 }
+
+export interface Notification extends Announcement {}
 
 export enum View {
   HOME = 'home',
