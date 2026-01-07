@@ -63,7 +63,7 @@ const Notifications: React.FC<Props> = ({
             key={ann.id}
             className={`bg-[#242636] p-4 rounded-xl shadow-md flex items-start gap-4 relative border border-l-4 overflow-hidden animate-fadeIn ${
               ann.type === 'offer'
-                ? 'border-yellow-400 border-l-yellow-400'
+                ? 'border-emerald-500 border-l-emerald-500'
                 : ann.type === 'alert'
                 ? 'border-red-500 border-l-red-500'
                 : ann.type === 'ad'
@@ -85,7 +85,7 @@ const Notifications: React.FC<Props> = ({
             <div
               className={`absolute top-2 left-2 w-2 h-2 rounded-full ${
                 ann.type === 'offer'
-                  ? 'bg-yellow-400'
+                  ? 'bg-emerald-500'
                   : ann.type === 'alert'
                   ? 'bg-red-500'
                   : ann.type === 'ad'
@@ -105,7 +105,7 @@ const Notifications: React.FC<Props> = ({
             ></div>
 
             <div className="text-2xl mt-1">
-              {ann.type === 'offer' && <Gift className="text-yellow-400" size={32} />}
+              {ann.type === 'offer' && <Gift className="text-emerald-500" size={32} />}
               {ann.type === 'alert' && <AlertTriangle className="text-red-500" size={32} />}
               {ann.type === 'info' && <Info className="text-blue-500" size={32} />}
               {ann.type === 'ad' && <Megaphone className="text-purple-500" size={32} />}
