@@ -324,6 +324,10 @@ const App: React.FC = () => {
       '';
 
     const display = () => {
+      // Only show system notification if app is in background to avoid double notification
+      if (document.visibilityState === 'visible') {
+        return false;
+      }
       try {
         new Notification(title, { body });
         return true;
@@ -993,9 +997,11 @@ useEffect(() => {
       const notifItems = Array.isArray(notifRes.data) ? notifRes.data : (notifRes.data?.items || []);
 
       const notificationKey = (item: Announcement) => {
+        // Use the ID if available, otherwise fallback to a composite key
+        if (item.id) return String(item.id);
+        
         const createdAt = (item as Announcement & { createdAt?: string }).createdAt || item.date || '';
         return [
-          item.id ?? '',
           item.type ?? '',
           createdAt,
           item.title ?? '',

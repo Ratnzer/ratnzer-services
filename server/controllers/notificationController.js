@@ -221,6 +221,22 @@ const buildOrderPushPayload = (order, overrides = {}) => {
 // Helper Function: Send Notification (Internal Use)
 const sendNotification = async (userId, title, message, type = 'info') => {
     try {
+        // ✅ PREVENT DUPLICATE NOTIFICATIONS: Check if a similar notification was sent to this user in the last 5 seconds
+        const fiveSecondsAgo = new Date(Date.now() - 5 * 1000);
+        const existingNotif = await prisma.notification.findFirst({
+            where: {
+                userId,
+                title,
+                message,
+                createdAt: { gte: fiveSecondsAgo }
+            }
+        });
+
+        if (existingNotif) {
+            console.log(`Skipping duplicate notification for user ${userId}: ${title}`);
+            return true;
+        }
+
         const now = new Date();
         const dateStr = now.toLocaleString('ar-EG', { 
             hour: '2-digit', 
