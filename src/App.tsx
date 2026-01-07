@@ -997,16 +997,20 @@ useEffect(() => {
       const notifItems = Array.isArray(notifRes.data) ? notifRes.data : (notifRes.data?.items || []);
 
       const notificationKey = (item: Announcement) => {
-        // Use the ID if available, otherwise fallback to a composite key
-        if (item.id) return String(item.id);
+        // ✅ STRONGER DEDUPLICATION: 
+        // When an admin broadcasts, it creates an Announcement (public) AND a Notification (private).
+        // They have different IDs but identical title/message.
+        // We use a composite key of title + message to treat them as the same entity.
+        const title = (item.title || '').trim();
+        const message = (item.message || '').trim();
         
-        const createdAt = (item as Announcement & { createdAt?: string }).createdAt || item.date || '';
-        return [
-          item.type ?? '',
-          createdAt,
-          item.title ?? '',
-          item.message ?? ''
-        ].join('|');
+        // If it's a system notification (like order update), it might have a unique ID we should trust.
+        // But for general info/broadcasts, title+message is a better deduplicator.
+        if (item.type === 'info' || !item.type) {
+          return `content|${title}|${message}`;
+        }
+
+        return item.id ? String(item.id) : `composite|${item.type}|${title}|${message}`;
       };
 
       const dedupeNotifications = (items: Announcement[]) => {
