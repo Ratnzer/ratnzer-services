@@ -14,7 +14,7 @@ import InvoiceModal from './components/InvoiceModal'; // Import InvoiceModal
 import LoginModal from './components/LoginModal'; // Import LoginModal
 import ExitConfirmModal from './components/ExitConfirmModal'; // Import ExitConfirmModal
 import SupportModal from './components/SupportModal'; // Import SupportModal
-import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut } from 'lucide-react';
+import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut, Sparkles, Zap, Music, Video, ShoppingBasket, MonitorSmartphone, Wifi, Laptop, Tablet, Mouse, Keyboard, Cpu, Router, Server, Coffee, Pizza, Shirt, Watch, Briefcase, Plane, Megaphone, Ticket, Film, Clapperboard, Palette, Brush, Dumbbell, Bike, Bed, Home, Building, GraduationCap, School, BookOpen, Library, Code, Terminal, Database, Cloud, Bitcoin, DollarSign, Key, Wrench, Hammer, Settings, Flame, Sun, Moon, CloudRain, Truck, Anchor, Crown, Diamond, Medal, Trophy, Gamepad } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -83,6 +83,62 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
   heart: Heart,
   star: Star,
   coins: Coins,
+  sparkles: Sparkles,
+  zap: Zap,
+  music: Music,
+  video: Video,
+  shopping: ShoppingBag,
+  basket: ShoppingBasket,
+  monitorsmartphone: MonitorSmartphone,
+  wifi: Wifi,
+  laptop: Laptop,
+  tablet: Tablet,
+  mouse: Mouse,
+  keyboard: Keyboard,
+  cpu: Cpu,
+  router: Router,
+  server: Server,
+  coffee: Coffee,
+  pizza: Pizza,
+  shirt: Shirt,
+  watch: Watch,
+  briefcase: Briefcase,
+  plane: Plane,
+  megaphone: Megaphone,
+  ticket: Ticket,
+  film: Film,
+  clapperboard: Clapperboard,
+  palette: Palette,
+  brush: Brush,
+  dumbbell: Dumbbell,
+  bike: Bike,
+  bed: Bed,
+  home: Home,
+  building: Building,
+  graduationcap: GraduationCap,
+  school: School,
+  bookopen: BookOpen,
+  library: Library,
+  code: Code,
+  terminal: Terminal,
+  database: Database,
+  cloud: Cloud,
+  bitcoin: Bitcoin,
+  dollar: DollarSign,
+  key: Key,
+  wrench: Wrench,
+  hammer: Hammer,
+  settings: Settings,
+  flame: Flame,
+  sun: Sun,
+  moon: Moon,
+  cloudrain: CloudRain,
+  truck: Truck,
+  anchor: Anchor,
+  crown: Crown,
+  diamond: Diamond,
+  medal: Medal,
+  trophy: Trophy,
 };
 
 
@@ -515,7 +571,7 @@ useEffect(() => {
           if (res?.data) {
             setCategories(res.data.map((c: any) => ({
               ...c,
-              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase()] || Tags) : c.icon,
+              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Sparkles) : c.icon,
             })));
           }
         }).catch(() => {}),
