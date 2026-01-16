@@ -69,6 +69,7 @@ const AVAILABLE_ICONS = [
   { id: 'basket', icon: ShoppingBasket, label: 'سلة' },
   { id: 'gift', icon: Gift, label: 'هدايا' },
   { id: 'globe', icon: Globe, label: 'عالمي' },
+  { id: 'sparkles', icon: Sparkles, label: 'نجوم' },
   
   // Tech & Telecom
   { id: 'phone', icon: Smartphone, label: 'هاتف' },
