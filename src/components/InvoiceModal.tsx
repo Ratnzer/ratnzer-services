@@ -347,8 +347,8 @@ const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice }) 
                 
                 {/* Branding Footer */}
                 <div className="mt-4 pt-3 border-t border-gray-800/50 flex flex-col items-center justify-center">
-                     <p className="text-[11px] text-yellow-500 font-black tracking-wide">خدمات راتلوزن</p>
-                     <p className="text-[6px] text-gray-600 font-mono tracking-[0.2em] uppercase dir-ltr mt-0.5">RATLUZEN SERVICES</p>
+                     <p className="text-[11px] text-yellow-500 font-black tracking-wide">خدمات راتنزر</p>
+                     <p className="text-[6px] text-gray-600 font-mono tracking-[0.2em] uppercase dir-ltr mt-0.5">RATNZER SERVICES</p>
                 </div>
             </div>
         </div>

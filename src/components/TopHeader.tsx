@@ -55,7 +55,7 @@ const TopHeader: React.FC<Props> = ({
          {/* Center: Simple Text Logo */}
          <div className="flex flex-col items-center justify-center cursor-pointer" onClick={() => setView(View.HOME)}>
             <h1 className="text-xl font-bold text-yellow-400 drop-shadow-sm tracking-wide">
-              خدمات راتلوزن
+              خدمات راتنزر
             </h1>
          </div>
 
