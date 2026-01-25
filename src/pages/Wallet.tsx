@@ -95,7 +95,7 @@ const Wallet: React.FC<Props> = ({
   };
 
   const openTelegram = () => {
-      window.open('https://t.me/Ratluzen', '_blank');
+      window.open("https://t.me/Ratnzer", "_blank");
   };
 
   // Updated Payment Methods Names & Styles

@@ -12,7 +12,7 @@ const SupportModal: React.FC<SupportModalProps> = ({
   isOpen, 
   onClose, 
   whatsappNumber = '9647763410970', 
-  telegramUsername = 'Ratluzen' 
+  telegramUsername = 'Ratnzer' 
 }) => {
   if (!isOpen) return null;
 

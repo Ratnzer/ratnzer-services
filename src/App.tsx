@@ -2388,7 +2388,7 @@ useEffect(() => {
               </p>
               <div className="flex items-center gap-2 text-xs text-gray-600 bg-black/20 px-4 py-2 rounded-lg border border-gray-800">
                   <Lock size={12} />
-                  <span>Ratluzen Security System v1.0</span>
+                  <span>Ratnzer Security System v1.0</span>
               </div>
           </div>
       );

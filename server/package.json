@@ -1,7 +1,7 @@
 {
   "name": "ratelozn-backend",
   "version": "1.0.0",
-  "description": "Professional Backend for Ratelozn Services App",
+  "description": "Professional Backend for Ratnzer Services App",
   "main": "index.js",
   "engines": {
     "node": "18.x"

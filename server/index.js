@@ -64,7 +64,7 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    message: 'Ratelozn Backend is running',
+    message: 'Ratnzer Backend is running',
   });
 });
 
@@ -89,7 +89,7 @@ async function startServer() {
     // 2. بدء تشغيل السيرفر بعد نجاح الاتصال
     app.listen(PORT, HOST, () => {
       console.log(`Server running in ${process.env.NODE_ENV} mode on ${HOST}:${PORT}`);
-      console.log('Ratelozn Backend (Prisma/Postgres) is Ready! 🚀');
+      console.log('Ratnzer Backend (Prisma/Postgres) is Ready! 🚀');
     });
 
     // Kick off periodic KD1S order status sync so provider updates flow to users automatically
