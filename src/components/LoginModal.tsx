@@ -174,7 +174,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                     {/* Welcome Text */}
                     <div className="text-center mb-6 animate-fadeIn">
                         <h2 className="text-2xl font-black text-white mb-2 tracking-wide">
-                            {mode === 'login' ? 'أهلاً بك مجدداً 👋' : 'انضم إلينا الآن 🚀'}
+                            {mode === 'login' ? 'أهلاً بك مجدداً 👋' : 'انضم الى عالمنا الان 🚀'}
                         </h2>
                         <p className="text-sm text-gray-400 leading-relaxed">
                             {mode === 'login' ? 'سجّل دخولك للمتابعة والاستمتاع بجميع المميزات' : 'أنشئ حسابك الجديد في ثوانٍ وابدأ رحلتك'}
@@ -246,7 +246,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                                         value={phone}
                                         onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
                                         className="w-full bg-[#242636] border border-gray-700 rounded-xl py-4 pr-11 pl-4 text-white text-right focus:border-yellow-400 focus:bg-[#2a2d3e] focus:outline-none transition-all text-sm shadow-inner placeholder-gray-600 dir-rtl"
-                                        placeholder="0770 000 0000"
+                                        placeholder=" ادخل رقم الهاتف الخاص بك "
                                     />
                                     <div className="absolute right-3.5 top-4 text-gray-500 group-focus-within:text-yellow-400 transition-colors">
                                         <Phone size={20} strokeWidth={1.5} />
