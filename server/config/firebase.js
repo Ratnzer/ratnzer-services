@@ -1,15 +1,24 @@
 const admin = require('firebase-admin');
 
-// ✅ ملاحظة: يجب وضع ملف firebase-service-account.json في مجلد server/config/
-// أو استخدام متغيرات البيئة لإعداد Firebase Admin بشكل آمن.
+// ✅ دعم التهيئة عبر ملف أو عبر متغير بيئي (لـ Vercel)
 try {
-  const serviceAccount = require('./firebase-service-account.json');
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  console.log('✅ Firebase Admin Initialized');
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    // إذا كان المتغير البيئي موجوداً (غالباً كـ JSON string)
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('✅ Firebase Admin Initialized via Environment Variable');
+  } else {
+    // المحاولة عبر الملف المحلي (للتطوير المحلي)
+    const serviceAccount = require('./firebase-service-account.json');
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('✅ Firebase Admin Initialized via JSON file');
+  }
 } catch (error) {
-  console.error('⚠️ Firebase Admin failed to initialize. Make sure firebase-service-account.json exists.');
+  console.error('⚠️ Firebase Admin failed to initialize:', error.message);
 }
 
 module.exports = admin;
