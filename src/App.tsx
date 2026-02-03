@@ -1248,9 +1248,13 @@ useEffect(() => {
     
     // Mark notifications as read when entering notifications view
     if (view === View.NOTIFICATIONS && announcements.length > 0) {
+      // Use a special marker or the latest ID to indicate all current notifications are seen
       const latestId = announcements[0].id;
       setLastSeenAnnouncementId(latestId);
       localStorage.setItem('last_seen_announcement_id', latestId);
+      
+      // Also mark all as read in the local state to ensure the badge disappears immediately
+      setAnnouncements(prev => prev.map(a => ({ ...a, isRead: true })));
     }
   };
 
@@ -2441,7 +2445,7 @@ useEffect(() => {
             cartItemCount={cartItems.length}
             isLoggedIn={!!currentUser}
             onLoginClick={() => setShowLoginModal(true)}
-            hasUnreadNotifications={announcements.some(a => a.id !== lastSeenAnnouncementId)}
+            hasUnreadNotifications={announcements.length > 0 && announcements[0].id !== lastSeenAnnouncementId && announcements.some(a => !a.isRead && a.id !== lastSeenAnnouncementId)}
           />
         )}
 
