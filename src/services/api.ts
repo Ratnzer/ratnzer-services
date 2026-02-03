@@ -3,7 +3,7 @@ import axios, { InternalAxiosRequestConfig, AxiosError, AxiosHeaders } from "axi
 // ============================================================
 // ✅ Vite Env: اقرأ الرابط من VITE_API_URL لضمان الأمان والمرونة
 // ============================================================
-const API_URL = "https://rrrr-ratluzens-projects.vercel.app/api";
+const API_URL = "https://rrrr-7ms4.vercel.app/api";
 
 if (!API_URL) {
   console.warn("⚠️ Warning: VITE_API_URL is not defined. API calls may fail.");
