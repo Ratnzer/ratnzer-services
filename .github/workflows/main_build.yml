@@ -162,7 +162,7 @@ jobs:
       - name: رفع الملفات كـ Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Ratnzer
+          name: Ratnzer-v${{ steps.vars.outputs.version }}
           path: |
             ${{ steps.sign_apk.outputs.signedReleaseFile }}
             ${{ steps.sign_aab.outputs.signedReleaseFile }}
