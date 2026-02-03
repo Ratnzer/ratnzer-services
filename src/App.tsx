@@ -516,7 +516,14 @@ useEffect(() => {
   const [terms, setTerms] = useState<AppTerms>(() => loadCache<AppTerms>('cache_terms_v1', INITIAL_TERMS)); // Updated type
   const [banners, setBanners] = useState<Banner[]>(() => loadCache<Banner[]>('cache_banners_v1', INITIAL_BANNERS));
   const [users, setUsers] = useState<UserProfile[]>(MOCK_USERS);
-  const [announcements, setAnnouncements] = useState<Announcement[]>(() => loadCache<Announcement[]>('cache_announcements_v1', []));
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    const cached = loadCache<Announcement[]>('cache_announcements_v1', []);
+    const currentLastSeen = localStorage.getItem('last_seen_announcement_id') || '';
+    return cached.map((ann: any) => ({
+      ...ann,
+      isRead: ann.isRead || (currentLastSeen && ann.id <= currentLastSeen)
+    }));
+  });
   const [announcementsHasMore, setAnnouncementsHasMore] = useState<boolean>(true);
   const [announcementsLoadingMore, setAnnouncementsLoadingMore] = useState<boolean>(false);
   const [lastSeenAnnouncementId, setLastSeenAnnouncementId] = useState<string>(() => localStorage.getItem('last_seen_announcement_id') || '');
@@ -585,6 +592,7 @@ useEffect(() => {
             isRead: ann.isRead || (currentLastSeen && ann.id <= currentLastSeen)
           }));
           setAnnouncements(processedItems);
+          saveCache('cache_announcements_v1', processedItems);
           setAnnouncementsHasMore(typeof data?.hasMore === 'boolean' ? data.hasMore : (items.length === 10));
         }).catch(() => {}),
         contentService.getTerms().then(res => {
