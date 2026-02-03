@@ -3,7 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # أو اسم الفرع الرئيسي لديك
+      - main
+    tags:
+      - 'v*'
+      - '*.*.*'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,7 +30,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: تحديث رقم الإصدار
+      - name: تحديد رقم الإصدار
+        id: vars
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            VERSION=${TAG_NAME#v}
+          else
+            VERSION=$(node -p "require('./package.json').version")
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "🚀 الإصدار المستخدم للويب: $VERSION"
+
+      - name: تحديث رقم الإصدار في الملفات
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.version }}
         run: npm run update-version
 
       - name: Build
