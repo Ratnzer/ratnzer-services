@@ -1,12 +1,12 @@
 import axios, { InternalAxiosRequestConfig, AxiosError, AxiosHeaders } from "axios";
 
 // ============================================================
-// ✅ Vite Env: اقرأ الرابط من VITE_API_URL لضمان الأمان والمرونة
+// ✅ Heroku API URL: تم التحديث من Vercel إلى Heroku
 // ============================================================
-const API_URL = "https://rrrr-7ms4.vercel.app/api";
+const API_URL = "https://ratnzer-services-bb0a0cce4837.herokuapp.com/api";
 
 if (!API_URL) {
-  console.warn("⚠️ Warning: VITE_API_URL is not defined. API calls may fail.");
+  console.warn("⚠️ Warning: API_URL is not defined. API calls may fail.");
 }
 
 console.log("Connecting to API:", API_URL);
