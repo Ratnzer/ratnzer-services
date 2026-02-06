@@ -158,7 +158,7 @@ const Wallet: React.FC<Props> = ({
   };
 
   return (
-    <div className="min-h-screen pb-24 pt-4 relative">
+    <div className="min-h-screen pb-36 pt-4 relative">
       <div className="px-4 mb-4">
         <h1 className="text-xl font-bold text-white text-right">محفظتي</h1>
           {onRefreshTransactions && (
@@ -276,7 +276,7 @@ const Wallet: React.FC<Props> = ({
         <div className="fixed inset-0 z-[70] flex items-end justify-center">
            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowAddBalanceModal(false)}></div>
            
-           <div className="bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 relative z-10 animate-slide-up border-t border-gray-700 max-h-[90vh] overflow-y-auto no-scrollbar flex flex-col">
+           <div className="bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-24 relative z-10 animate-slide-up border-t border-gray-800 max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
               
               <div className="flex items-center justify-between mb-6">
                   {modalStep === 'select' ? (
