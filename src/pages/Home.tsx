@@ -416,7 +416,7 @@ const Home: React.FC<Props> = ({
         </div>
 
         {/* Grid Layout - 3 Columns */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product: any) => (
               <ProductCard
@@ -427,13 +427,13 @@ const Home: React.FC<Props> = ({
               />
             ))
           ) : isRefreshing || (!hasCachedData && viewProducts.length === 0) ? (
-            <div className="col-span-3 grid grid-cols-3 gap-3">
+            <div className="col-span-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="h-36 rounded-2xl bg-[#242636] border border-gray-800 animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="col-span-3 text-center py-10 text-gray-500 font-bold text-sm bg-[#242636] rounded-2xl border border-dashed border-gray-700">
+            <div className="col-span-full text-center py-10 text-gray-500 font-bold text-sm bg-[#242636] rounded-2xl border border-dashed border-gray-700">
               لا توجد منتجات في هذا القسم
             </div>
           )}

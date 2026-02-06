@@ -20,7 +20,7 @@ const BottomNav: React.FC<Props> = ({ currentView, setView }) => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#1a1b26] border-t border-gray-800 pb-safe pt-3 z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
-      <div className="flex justify-around items-center px-4 pb-4 max-w-[430px] mx-auto">
+      <div className="flex justify-around items-center px-4 pb-4 w-full max-w-6xl mx-auto">
         {navItems.map((item) => {
           const isActive = currentView === item.id;
           return (

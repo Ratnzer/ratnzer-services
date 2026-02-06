@@ -19,7 +19,8 @@ const TopHeader: React.FC<Props> = ({
   hasUnreadNotifications = false 
 }) => {
   return (
-    <div className="absolute top-0 left-0 right-0 flex justify-between items-center px-4 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 z-50 h-[65px] shadow-sm">
+    <div className="fixed top-0 left-0 right-0 flex justify-center bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 z-50 h-[65px] shadow-sm">
+      <div className="w-full max-w-6xl flex justify-between items-center px-4 h-full">
          {/* Right: Balance/Wallet OR Login (First in RTL) */}
          {isLoggedIn ? (
              <button 
