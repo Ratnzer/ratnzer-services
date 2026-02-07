@@ -187,8 +187,13 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                 {/* Scrollable Content Area - Added pb-4 for better scrolling space */}
                 <div className="px-6 overflow-y-auto no-scrollbar flex-1 py-2 pb-4">
                     
+{/* Logo */}
+                    <div className="flex justify-center mb-4 animate-fadeIn">
+                        <img src="/icon.png" alt="Logo" className="w-16 h-16 rounded-2xl shadow-xl border border-gray-700/50" />
+                    </div>
+
                     {/* Welcome Text */}
-                    <div className="text-center mb-6 animate-fadeIn">
+	                    <div className="text-center mb-6 animate-fadeIn">
                         <h2 className="text-2xl font-black text-white mb-2 tracking-wide">
                             {mode === 'login' ? 'أهلاً بك مجدداً 👋' : 'انضم الى عالمنا الان 🚀'}
                         </h2>
