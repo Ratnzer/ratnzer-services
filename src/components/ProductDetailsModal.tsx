@@ -606,7 +606,7 @@ onClose();
       ></div>
 
       {/* Modal Content */}
-      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[90vh] flex flex-col shadow-2xl border-t border-gray-700 h-[85vh] sm:h-auto">
+      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto mb-[calc(env(safe-area-inset-bottom,0px)+70px)] sm:mb-0">
         
         {/* Close Button (X) */}
         <button 
@@ -629,7 +629,7 @@ onClose();
 
         {/* Action Buttons (Only on Details Step) */}
         {currentStep === 'details' && (
-            <div className="p-4 bg-[#1f212e] border-t border-gray-800 flex gap-3 pb-safe">
+            <div className="p-4 bg-[#1f212e] border-t border-gray-800 flex gap-3 pb-safe z-[110] sticky bottom-0">
                 {!isAvailableGlobally ? (
                     <div className="flex-1 bg-red-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg text-center">
                         المنتج غير متوفر حالياً
