@@ -2061,7 +2061,7 @@ useEffect(() => {
                   {cartRefreshing ? "جاري التحديث..." : "تحديث"}
                 </button>
                 <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
-                <div className="w-16"></div>
+                <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
              </div>
 
              {cartItems.length === 0 ? (

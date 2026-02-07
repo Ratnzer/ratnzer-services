@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Info, AlertTriangle, Gift, Megaphone, ShoppingBag, Wallet, ShieldAlert } from 'lucide-react';
+import { Clock, Info, AlertTriangle, Gift, Megaphone, ShoppingBag, Wallet, ShieldAlert, ArrowLeft } from 'lucide-react';
 import { View, Announcement } from '../types';
 
 interface Props {
@@ -40,11 +40,9 @@ const Notifications: React.FC<Props> = ({
     <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
       {/* Header */}
       <div className="px-4 mb-4 flex items-center justify-between">
-        <button onClick={() => setView(View.HOME)} className="p-2 text-gray-400 hover:text-white transition-colors">
-          <Clock size={24} className="rotate-180" />
-        </button>
-        <h1 className="text-xl font-bold text-white">الإشعارات</h1>
         <div className="w-10"></div> {/* Spacer */}
+        <h1 className="text-xl font-bold text-white">الإشعارات</h1>
+        <button onClick={() => setView(View.HOME)}><ArrowLeft className="text-white" /></button>
       </div>
 
       <div className="p-4 space-y-3 pt-0">

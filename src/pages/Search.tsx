@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search as SearchIcon, Sparkles } from 'lucide-react';
+import { Search as SearchIcon, Sparkles, ArrowLeft } from 'lucide-react';
 import { View, Category, Product, CartItem } from '../types';
 // ProductDetailsModal import removed
 import ProductCard from '../components/ProductCard';
@@ -103,7 +103,11 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
   return (
     <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
       <div className="px-4 mb-6">
-        <h1 className="text-xl font-bold text-white text-right mb-4">البحث</h1>
+        <div className="flex items-center justify-between mb-4">
+          <div className="w-10"></div>
+          <h1 className="text-xl font-bold text-white">البحث</h1>
+          <button onClick={() => setView(View.HOME)}><ArrowLeft className="text-white" /></button>
+        </div>
         <div className="relative">
             <input 
               type="text" 
