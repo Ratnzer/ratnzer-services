@@ -32,12 +32,20 @@ jobs:
 
       - name: تحديد رقم الإصدار
         id: vars
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG_NAME=${GITHUB_REF#refs/tags/}
             VERSION=${TAG_NAME#v}
           else
-            VERSION=$(node -p "require('./package.json').version")
+            # جلب أحدث إصدار من Releases إذا لم يكن الحدث هو Tag
+            LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+            if [ -n "$LATEST_RELEASE" ]; then
+              VERSION=${LATEST_RELEASE#v}
+            else
+              VERSION=$(node -p "require('./package.json').version")
+            fi
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "🚀 الإصدار المستخدم للويب: $VERSION"
