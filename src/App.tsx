@@ -2219,9 +2219,9 @@ useEffect(() => {
           <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
                {/* Header */}
                <div className="px-4 mb-4 flex items-center justify-between">
-                  <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
-                  <h1 className="text-xl font-bold text-white">طلباتي</h1>
                   <button onClick={() => loadMyOrdersPage('replace')} className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" disabled={myOrdersRefreshing}>{myOrdersRefreshing ? "جاري التحديث..." : "تحديث"}</button>
+                  <h1 className="text-xl font-bold text-white">طلباتي</h1>
+                  <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
                </div>
 
                {(myOrdersRefreshing ? false : myOrdersPage.length === 0) ? (
