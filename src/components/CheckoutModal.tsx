@@ -45,7 +45,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
 
       {/* Modal Content */}
-      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up flex flex-col shadow-2xl border-t border-gray-700 max-h-[90vh]">
+      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up flex flex-col shadow-2xl border-t border-gray-700 max-h-[85vh] mb-[calc(env(safe-area-inset-bottom,0px)+75px)] sm:mb-0">
         
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-800">
@@ -121,7 +121,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                  </button>
               </div>
 
-              <div className="pt-4 mt-auto">
+              <div className="pt-4 mt-auto pb-4">
                   <button 
                     onClick={handleProceed}
                     disabled={!selectedMethod || isSubmitting}
