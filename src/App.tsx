@@ -2050,9 +2050,9 @@ useEffect(() => {
         );
       case View.CART:
         return (
-          <div className="pt-4">
+          <div className="pt-4 flex flex-col h-full overflow-hidden">
              {/* Header */}
-             <div className="px-4 mb-4 flex items-center justify-between">
+             <div className="px-4 mb-4 flex-shrink-0 flex items-center justify-between">
                 <button 
                   onClick={() => refreshCartFromServer('replace')} 
                   className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
@@ -2076,7 +2076,7 @@ useEffect(() => {
                     </button>
                 </div>
              ) : (
-                <div className="px-4 space-y-4 animate-slide-up">
+                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 animate-slide-up pb-32">
                     
                     {/* Summary (Moved to Top) */}
                     <div className="bg-[#242636] p-4 rounded-2xl border border-gray-700 shadow-lg mb-2">
@@ -2099,7 +2099,7 @@ useEffect(() => {
                     </div>
 
                     {/* Cart Items List */}
-                    <div className="space-y-3 pb-32">
+                    <div className="space-y-3 pb-8">
                         {cartItems.map((item) => (
                             <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
                                 <div className="flex items-start gap-3">
