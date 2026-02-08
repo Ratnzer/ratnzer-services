@@ -655,11 +655,12 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                            </div>
                        </div>
                    </div>
-               </div>
 
-               <div className="p-4 border-t border-gray-800/50 bg-[#13141f]">
-                   <button onClick={handleSaveProfile} className="w-full bg-yellow-400 text-black font-bold py-3.5 rounded-xl hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 shadow-lg">
-                       <Save size={18} /> حفظ التغييرات
+                   <button 
+                       onClick={handleSaveProfile}
+                       className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl shadow-lg mt-8 transition-transform active:scale-95"
+                   >
+                       حفظ التغييرات
                    </button>
                </div>
            </div>
