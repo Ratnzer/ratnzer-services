@@ -973,7 +973,7 @@ useEffect(() => {
   const [serverCartTotal, setServerCartTotal] = useState<number>(0);
   const [serverCartCount, setServerCartCount] = useState<number>(0);
 
-  const refreshCartFromServer = async (mode: 'replace' | 'append' = 'replace') => {
+  const refreshCartFromServer = async (mode: 'replace' | 'append' | 'silent' = 'replace') => {
     if (!hasToken) return;
     
     const nextSkip = mode === 'append' ? cartItems.length : 0;
@@ -990,7 +990,7 @@ useEffect(() => {
       setCartRefreshing(true);
       setCartHasMore(true);
       setCartVisibleCount(10);
-    } else {
+    } else if (mode === 'append') {
       setCartLoadingMore(true);
     }
 
@@ -1009,7 +1009,7 @@ useEffect(() => {
       const hasMore = res.data?.hasMore ?? (items.length === 10);
       console.log('✅ Processed:', { items: items.length, hasMore, totalAfter: mode === 'replace' ? items.length : cartItems.length + items.length });
 
-      if (mode === 'replace') {
+      if (mode === 'replace' || mode === 'silent') {
         setCartItems(items);
       } else {
         setCartItems(prev => [...prev, ...items]);
@@ -1042,16 +1042,16 @@ useEffect(() => {
     }
 
     if (currentView === View.CART) {
-      void refreshCartFromServer('replace');
+      void refreshCartFromServer('silent');
     }
 
     if (currentView === View.NOTIFICATIONS) {
-      void refreshAnnouncementsFromServer('replace');
+      void refreshAnnouncementsFromServer('silent');
     }
   }, [currentView, currentUser?.id, isAdminLoggedIn]);
 
-  const refreshAnnouncementsFromServer = async (mode: 'replace' | 'append' = 'replace') => {
-    const nextSkip = mode === 'append' ? announcements.length : 0;
+  const refreshAnnouncementsFromServer = async (mode: 'replace' | 'append' | 'silent' = 'replace') => {
+    const nextSkip = (mode === 'append') ? announcements.length : 0;
     const pageSize = 10;
 
     if (mode === 'append' && (announcementsLoadingMore || !announcementsHasMore)) return;
@@ -1107,7 +1107,7 @@ useEffect(() => {
 
       const hasMore = (annRes.data?.hasMore || notifRes.data?.hasMore) ?? (combined.length >= pageSize);
 
-      if (mode === 'replace') {
+      if (mode === 'replace' || mode === 'silent') {
         setAnnouncements(combined);
       } else {
         setAnnouncements(prev => {
