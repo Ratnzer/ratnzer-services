@@ -988,7 +988,7 @@ useEffect(() => {
 
     if (mode === 'replace') {
       setCartRefreshing(true);
-      setCartHasMore(true);
+      // We don't reset cartHasMore to true here to prevent UI flickering if it was false
       setCartVisibleCount(10);
     } else if (mode === 'append') {
       setCartLoadingMore(true);
@@ -1057,6 +1057,7 @@ useEffect(() => {
     if (mode === 'append' && (announcementsLoadingMore || !announcementsHasMore)) return;
     if (mode === 'append') setAnnouncementsLoadingMore(true);
     if (mode === 'replace') setAnnouncementsRefreshing(true);
+    // Note: We don't reset announcementsHasMore to prevent UI flickering
 
     try {
       // Fetch both public announcements and private notifications
@@ -2182,7 +2183,7 @@ useEffect(() => {
                                 </div>
                             </div>
                         ))}
-                        {(cartHasMore || cartItems.length >= 10) && (
+                        {cartHasMore && (
                           <div className="flex justify-center py-6">
                             <button
                               onClick={() => {
