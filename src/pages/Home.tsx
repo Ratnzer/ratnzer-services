@@ -284,10 +284,10 @@ const Home: React.FC<Props> = ({
       {/* Hero Slider Section */}
       <div className="px-4">
         {viewBanners.length === 0 ? (
-          <div className="w-full aspect-[21/9] rounded-2xl relative overflow-hidden shadow-lg border border-gray-800 bg-[#242636] animate-pulse" />
+          <div className="w-full aspect-[16/9] rounded-2xl relative overflow-hidden shadow-lg border border-gray-800 bg-[#242636] animate-pulse" />
         ) : (
           <>
-            <div className="w-full aspect-[21/9] rounded-2xl relative overflow-hidden shadow-lg border border-gray-800">
+            <div className="w-full aspect-[16/9] rounded-2xl relative overflow-hidden shadow-lg border border-gray-800">
               <div
                 ref={scrollRef}
                 onScroll={handleScroll}
