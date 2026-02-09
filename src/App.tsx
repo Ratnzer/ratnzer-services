@@ -598,11 +598,11 @@ useEffect(() => {
         }).catch(() => {}),
         contentService.getTerms().then(res => {
           if (res?.data) {
-            const data: any = res.data;
+            const termsData: any = res.data;
             setTerms(prev => ({
               ...prev,
-              contentAr: typeof data.contentAr === 'string' ? data.contentAr : prev.contentAr,
-              contentEn: typeof data.contentEn === 'string' ? data.contentEn : prev.contentEn,
+              contentAr: typeof termsData.contentAr === 'string' ? termsData.contentAr : prev.contentAr,
+              contentEn: typeof termsData.contentEn === 'string' ? termsData.contentEn : prev.contentEn,
             }));
           }
         }).catch(() => {}),
@@ -1156,46 +1156,27 @@ useEffect(() => {
   // --- Security Check Effect ---
   useEffect(() => {
     const checkSecurity = async () => {
-      if (Capacitor.getPlatform() === 'android') {
-        try {
-          // Check for App Cloning / Parallel Space
-          // Standard path: /data/user/0/com.ratnzer.app/files
-          // Cloned paths often contain: '999', 'parallel', 'virtual', 'dual', '10', '11' (multi-user)
-          
+      try {
+        if (Capacitor.getPlatform() === 'android') {
           const uriResult = await Filesystem.getUri({
             directory: Directory.Data,
             path: '',
-          });
+          }).catch(() => null);
           
+          if (!uriResult) return;
           const path = uriResult.uri;
           
-          // List of suspicious keywords in path
           const suspiciousIndicators = ['999', 'parallel', 'virtual', 'dual', 'clone', 'lbe', 'exposed', 'space'];
-          
-          // Check if path indicates a non-owner user (User 0 is owner)
-          // Dual apps usually run as user 999 or 10+
-          const isStandardUser = (
-            path.includes('/user/0/') ||
-            path.includes('/user_de/0/') ||
-            path.includes('/data/data/com.ratnzer.app') ||
-            path.includes('/data/user/0/')
-          );
           const hasSuspiciousKeywords = suspiciousIndicators.some(keyword => path.toLowerCase().includes(keyword));
-
-                    // If we can reliably detect a non-owner Android user profile (e.g., user/10, user/999), block.
           const isNonOwnerUser = /\/user\/(?!0\/)\d+\//.test(path) || /\/user_de\/(?!0\/)\d+\//.test(path);
 
-          // NOTE: We intentionally do NOT block just because the path isn't in our "standard" list,
-          // because some devices return variants like /user_de/0/ which are normal.
           if (hasSuspiciousKeywords || isNonOwnerUser) {
              setIsSecurityBlocked(true);
              setSecurityMessage('تم اكتشاف تشغيل التطبيق في بيئة غير آمنة (ناسخ تطبيقات أو مساحة مزدوجة). يرجى تشغيل التطبيق من الواجهة الرئيسية للهاتف لضمان حماية بياناتك المالية.');
           }
-
-        } catch (error) {
-          // If we can't access filesystem, it might be restricted, which is also suspicious
-          console.error("Security Check Failed:", error);
         }
+      } catch (error) {
+        console.error("Security Check Failed:", error);
       }
     };
 
