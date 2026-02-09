@@ -4,7 +4,7 @@
   "description": "Professional Backend for Ratnzer Services App",
   "main": "index.cjs",
   "engines": {
-    "node": "18.x"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "start": "node index.cjs",
