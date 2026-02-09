@@ -39,10 +39,16 @@ export const signInWithGoogle = async () => {
     if (Capacitor.isNativePlatform()) {
       // استخدام الإضافة الأصلية للهواتف
       const result = await FirebaseAuthentication.signInWithGoogle();
-      const credential = GoogleAuthProvider.credential(result.credential?.idToken);
+      const idToken = result.credential?.idToken;
+      
+      if (!idToken) {
+        throw new Error("لم يتم استلام idToken من جوجل");
+      }
+
+      const credential = GoogleAuthProvider.credential(idToken);
       const userCredential = await signInWithCredential(auth, credential);
-      const idToken = await userCredential.user.getIdToken();
-      return { user: userCredential.user, idToken };
+      const serverIdToken = await userCredential.user.getIdToken();
+      return { user: userCredential.user, idToken: serverIdToken };
     } else {
       // استخدام الويب
       const result = await signInWithPopup(auth, googleProvider);
@@ -64,7 +70,13 @@ export const signInWithFacebook = async () => {
     if (Capacitor.isNativePlatform()) {
       // استخدام الإضافة الأصلية للهواتف
       const result = await FirebaseAuthentication.signInWithFacebook();
-      const credential = FacebookAuthProvider.credential(result.credential?.accessToken);
+      const accessToken = result.credential?.accessToken;
+
+      if (!accessToken) {
+        throw new Error("لم يتم استلام accessToken من فيسبوك");
+      }
+
+      const credential = FacebookAuthProvider.credential(accessToken);
       const userCredential = await signInWithCredential(auth, credential);
       const idToken = await userCredential.user.getIdToken();
       return { user: userCredential.user, idToken };
