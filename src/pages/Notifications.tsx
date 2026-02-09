@@ -149,7 +149,7 @@ const Notifications: React.FC<Props> = ({
       
         <div ref={sentinelRef} style={{ height: 1 }} />
         {loadingMore && (<div className="text-center text-gray-400 text-xs py-3">جاري تحميل المزيد...</div>)}
-        {!hasMore && announcements.length >= 10 && visibleAnnouncements.length > 0 && (<div className="text-center text-gray-500 text-xs py-3">لا يوجد المزيد</div>)}
+        {!hasMore && announcements.length >= 10 && visibleAnnouncements.length > 0 && (<div className="text-center text-gray-500 text-xs py-3">تم عرض كل الإشعارات</div>)}
       </div>
     </div>
   );
