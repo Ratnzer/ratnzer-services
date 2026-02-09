@@ -8,7 +8,9 @@ interface Props {
   announcements?: Announcement[];
   hasMore?: boolean;
   loadingMore?: boolean;
+  refreshing?: boolean;
   onLoadMore?: () => void;
+  onRefresh?: () => void;
 }
 
 const Notifications: React.FC<Props> = ({ 
@@ -17,7 +19,9 @@ const Notifications: React.FC<Props> = ({
   announcements = [],
   hasMore = false,
   loadingMore = false,
-  onLoadMore
+  refreshing = false,
+  onLoadMore,
+  onRefresh
 }) => {
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const visibleAnnouncements = (announcements || []).filter(a => a && a.showInNotifications !== false && (a.isActive ?? true));
@@ -40,14 +44,20 @@ const Notifications: React.FC<Props> = ({
     <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
       {/* Header */}
       <div className="px-4 mb-4 flex items-center justify-between">
-        <div className="w-10"></div> {/* Spacer */}
+        <button 
+          onClick={onRefresh} 
+          className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
+          disabled={refreshing}
+        >
+          {refreshing ? "جاري التحديث..." : "تحديث"}
+        </button>
         <h1 className="text-xl font-bold text-white">الإشعارات</h1>
         <button onClick={() => setView(View.HOME)}><ArrowLeft className="text-white" /></button>
       </div>
 
       <div className="p-4 space-y-3 pt-0">
         {/* Empty state (Centered) */}
-        {visibleAnnouncements.length === 0 && !loadingMore && (
+        {(refreshing ? false : visibleAnnouncements.length === 0) && !loadingMore && (
           <div className="flex items-center justify-center min-h-[70vh]">
             <div className="bg-[#242636] p-5 rounded-xl border border-gray-700 text-center text-gray-400 text-sm w-full max-w-md">
               لا توجد إشعارات حالياً
@@ -140,7 +150,7 @@ const Notifications: React.FC<Props> = ({
         <div ref={sentinelRef} style={{ height: 1 }} />
         {loadingMore && (<div className="text-center text-gray-400 text-xs py-3">جاري تحميل المزيد...</div>)}
         {!hasMore && announcements.length > 0 && visibleAnnouncements.length > 0 && (<div className="text-center text-gray-500 text-xs py-3">لا يوجد المزيد</div>)}
-</div>
+      </div>
     </div>
   );
 };

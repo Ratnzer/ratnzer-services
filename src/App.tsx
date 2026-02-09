@@ -526,6 +526,7 @@ useEffect(() => {
   });
   const [announcementsHasMore, setAnnouncementsHasMore] = useState<boolean>(true);
   const [announcementsLoadingMore, setAnnouncementsLoadingMore] = useState<boolean>(false);
+  const [announcementsRefreshing, setAnnouncementsRefreshing] = useState<boolean>(false);
   const [lastSeenAnnouncementId, setLastSeenAnnouncementId] = useState<string>(() => localStorage.getItem('last_seen_announcement_id') || '');
   const [currencies, setCurrencies] = useState<Currency[]>(() => loadCache<Currency[]>('cache_currencies_v1', INITIAL_CURRENCIES));
   const [orders, setOrders] = useState<Order[]>(() => {
@@ -1055,6 +1056,7 @@ useEffect(() => {
 
     if (mode === 'append' && (announcementsLoadingMore || !announcementsHasMore)) return;
     if (mode === 'append') setAnnouncementsLoadingMore(true);
+    if (mode === 'replace') setAnnouncementsRefreshing(true);
 
     try {
       // Fetch both public announcements and private notifications
@@ -1118,10 +1120,11 @@ useEffect(() => {
         });
       }
       setAnnouncementsHasMore(hasMore);
-    } catch (error) {
-      console.warn('Failed to refresh announcements from API', error);
+    } catch (err) {
+      console.error('Failed to refresh announcements:', err);
     } finally {
       setAnnouncementsLoadingMore(false);
+      setAnnouncementsRefreshing(false);
     }
   };
 
@@ -2045,7 +2048,9 @@ useEffect(() => {
             announcements={announcements} 
             hasMore={announcementsHasMore}
             loadingMore={announcementsLoadingMore}
+            refreshing={announcementsRefreshing}
             onLoadMore={() => refreshAnnouncementsFromServer('append')}
+            onRefresh={() => refreshAnnouncementsFromServer('replace')}
           />
         );
       case View.CART:
