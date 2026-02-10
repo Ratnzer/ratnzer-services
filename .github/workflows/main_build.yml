@@ -75,7 +75,7 @@ jobs:
         run: npm run update-version
 
       - name: Build Web Assets
-        run: VITE_API_URL="https://rrrr-ratluzens-projects.vercel.app/api" npm run build
+        run: VITE_API_URL="https://ratnzer-services-bb0a0cce4837.herokuapp.com/api" npm run build
 
       - name: ضغط ملفات الويب (Web Build)
         run: |
