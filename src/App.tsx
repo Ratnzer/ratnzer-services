@@ -394,7 +394,13 @@ useEffect(() => {
       const perm = await PushNotifications.requestPermissions();
       if (perm.receive !== 'granted') return;
 
-      await PushNotifications.register();
+      // ✅ Critical Fix: Wrap registration in try-catch to prevent native crash
+      // if google-services.json is missing or invalid on Android
+      try {
+        await PushNotifications.register();
+      } catch (regError) {
+        console.error('Native Push Registration Failed:', regError);
+      }
       PushNotifications.addListener('registration', async (token) => {
         try {
           const value = String(token?.value || '');
