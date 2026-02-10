@@ -12,7 +12,7 @@ import {
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
-// ✅ استخدام المتغيرات البيئية لضمان الأمان والمرونة
+// ✅ إعدادات Firebase
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
@@ -22,9 +22,20 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || ""
 };
 
-// تهيئة Firebase بشكل آمن
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+// ✅ تهيئة Firebase بشكل آمن (فقط إذا كانت الإعدادات موجودة)
+let app;
+let auth: any;
+
+try {
+  if (firebaseConfig.apiKey) {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+  } else {
+    console.warn("Firebase configuration is missing. Auth features might not work.");
+  }
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+}
 
 // Providers
 export const googleProvider = new GoogleAuthProvider();
@@ -39,9 +50,10 @@ export const signInWithGoogle = async () => {
       // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin
       const result = await FirebaseAuthentication.signInWithGoogle();
       
-      // تحويل النتيجة إلى Firebase Credential لتسجيل الدخول في Firebase SDK
       const idToken = result.credential?.idToken;
       if (!idToken) throw new Error("Google idToken is missing from native provider");
+
+      if (!auth) throw new Error("Firebase Auth is not initialized");
 
       const credential = GoogleAuthProvider.credential(idToken);
       const userCredential = await signInWithCredential(auth, credential);
@@ -51,7 +63,9 @@ export const signInWithGoogle = async () => {
         idToken: await userCredential.user.getIdToken() 
       };
     } else {
-      // ✅ للويب: محاولة استخدام Popup أولاً، وإذا فشل (بسبب المتصفح) نستخدم Redirect
+      // ✅ للويب
+      if (!auth) throw new Error("Firebase Auth is not initialized");
+      
       try {
         const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
         const idToken = await result.user.getIdToken();
@@ -59,7 +73,7 @@ export const signInWithGoogle = async () => {
       } catch (popupError: any) {
         if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
           await signInWithRedirect(auth, googleProvider);
-          return { user: null, idToken: null }; // سيتم التعامل معه بعد إعادة التوجيه
+          return { user: null, idToken: null };
         }
         throw popupError;
       }
@@ -76,12 +90,13 @@ export const signInWithGoogle = async () => {
 export const signInWithFacebook = async () => {
   try {
     if (Capacitor.isNativePlatform()) {
-      // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin
+      // ✅ للهاتف
       const result = await FirebaseAuthentication.signInWithFacebook();
       
-      // تحويل النتيجة إلى Firebase Credential
       const accessToken = result.credential?.accessToken;
       if (!accessToken) throw new Error("Facebook accessToken is missing from native provider");
+
+      if (!auth) throw new Error("Firebase Auth is not initialized");
 
       const credential = FacebookAuthProvider.credential(accessToken);
       const userCredential = await signInWithCredential(auth, credential);
@@ -92,6 +107,8 @@ export const signInWithFacebook = async () => {
       };
     } else {
       // ✅ للويب
+      if (!auth) throw new Error("Firebase Auth is not initialized");
+      
       try {
         const result = await signInWithPopup(auth, facebookProvider, browserPopupRedirectResolver);
         const idToken = await result.user.getIdToken();
@@ -111,10 +128,14 @@ export const signInWithFacebook = async () => {
 };
 
 /**
- * وظيفة للتحقق من نتائج إعادة التوجيه (للويب)
+ * وظيفة للتحقق من نتائج إعادة التوجيه (للويب فقط)
  */
 export const handleRedirectResult = async () => {
+  // حماية: لا تنفذ على الهاتف إطلاقاً
   if (Capacitor.isNativePlatform()) return null;
+  
+  // التأكد من وجود auth
+  if (!auth) return null;
   
   try {
     const result = await getRedirectResult(auth);
@@ -125,6 +146,8 @@ export const handleRedirectResult = async () => {
     return null;
   } catch (error) {
     console.error("Error handling redirect result:", error);
-    throw error;
+    return null; // لا ترفع خطأ لتجنب توقف التطبيق
   }
 };
+
+export { auth };

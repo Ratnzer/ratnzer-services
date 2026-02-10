@@ -361,25 +361,29 @@ const App: React.FC = () => {
   // Track navigation history
   // Handle Firebase Auth Redirect Result (Web Only)
   useEffect(() => {
-    // Only run on web platform
-    if (!Capacitor.isNativePlatform()) {
+    // ✅ Safe check for web platform only
+    const isWeb = Capacitor.getPlatform() === 'web';
+    
+    if (isWeb) {
       const checkRedirect = async () => {
         try {
-          const result = await handleRedirectResult();
-          if (result?.idToken) {
-            const res = await authService.googleLogin(result.idToken);
-            const token = (res as any)?.data?.token;
-            if (token) {
-              localStorage.setItem('token', token);
-              // Use replace to avoid back-button loops
-              window.location.replace(window.location.origin);
+          // Double check if handleRedirectResult is available
+          if (typeof handleRedirectResult === 'function') {
+            const result = await handleRedirectResult();
+            if (result?.idToken) {
+              const res = await authService.googleLogin(result.idToken);
+              const token = (res as any)?.data?.token;
+              if (token) {
+                localStorage.setItem('token', token);
+                window.location.replace(window.location.origin);
+              }
             }
           }
         } catch (error) {
-          console.error("Redirect auth error:", error);
+          console.warn("Non-critical redirect auth error:", error);
         }
       };
-      checkRedirect();
+      void checkRedirect();
     }
   }, []);
 
