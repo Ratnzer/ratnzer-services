@@ -21,37 +21,267 @@
         height: 100%;
         min-height: 100vh;
         overflow-x: hidden;
+        font-family: 'Cairo', sans-serif;
+      }
+
+      /* ✅ شاشة الخطأ المبكرة - تظهر إذا React لم يبدأ */
+      #early-crash-screen {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #0a0a0f;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+        overflow-y: auto;
+        font-family: 'Cairo', sans-serif;
+      }
+      #early-crash-screen.visible {
+        display: flex;
+      }
+      #early-crash-icon {
+        width: 80px; height: 80px;
+        background: rgba(239,68,68,0.1);
+        border-radius: 24px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 24px;
+        border: 1px solid rgba(239,68,68,0.2);
+        font-size: 40px;
+      }
+      #early-crash-title {
+        font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 8px;
+      }
+      #early-crash-desc {
+        font-size: 13px; color: #9ca3af; margin-bottom: 32px; max-width: 300px; line-height: 1.8;
+      }
+      #early-crash-log-box {
+        width: 100%; max-width: 420px;
+        background: #13141f; border: 1px solid #1f2937;
+        border-radius: 16px; padding: 20px; margin-bottom: 32px;
+        text-align: left; direction: ltr;
+      }
+      #early-crash-log-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(31,41,55,0.5);
+      }
+      #early-crash-log-type {
+        font-size: 10px; font-weight: 700; color: #ef4444;
+        text-transform: uppercase; letter-spacing: 2px;
+      }
+      #early-crash-log-time {
+        font-size: 9px; color: #6b7280; font-family: monospace;
+      }
+      #early-crash-copy-btn {
+        font-size: 10px; background: rgba(16,185,129,0.1);
+        color: #10b981; padding: 6px 12px; border-radius: 8px;
+        border: 1px solid rgba(16,185,129,0.2); cursor: pointer;
+        font-weight: 700; font-family: 'Cairo', sans-serif;
+      }
+      #early-crash-log-content {
+        font-family: monospace; font-size: 11px; color: #d1d5db;
+        word-break: break-word; white-space: pre-wrap;
+        max-height: 240px; overflow-y: auto;
+        background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.4);
+        user-select: all; -webkit-user-select: all;
+      }
+      #early-crash-restart-btn {
+        width: 100%; max-width: 420px;
+        padding: 16px; border-radius: 16px;
+        background: #fff; color: #000; font-weight: 900;
+        font-size: 14px; border: none; cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      }
+      #early-crash-dismiss-btn {
+        width: 100%; max-width: 420px;
+        padding: 12px; border-radius: 16px;
+        background: transparent; color: #6b7280; font-weight: 700;
+        font-size: 12px; border: none; cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        margin-top: 12px;
+      }
+      #early-crash-footer {
+        margin-top: 48px; font-size: 10px; color: #374151;
+        font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
       }
     </style>
     <script>
-      // ✅ Early Error Catcher: Catch and save crashes before React even starts
+      // ============================================================
+      // ✅ Early Error Catcher v3.0
+      // يلتقط الأخطاء قبل أن يبدأ React ويعرض شاشة خطأ مباشرة
+      // ============================================================
       (function() {
+        var crashLog = null;
+
         function saveCrash(error, type) {
           try {
-            const crashData = {
-              message: error.message || String(error),
-              stack: error.stack || 'No stack trace',
+            var msg = '';
+            var stack = 'No stack trace';
+            
+            if (error && typeof error === 'object') {
+              msg = error.message || String(error);
+              stack = error.stack || 'No stack trace';
+            } else {
+              msg = String(error || 'Unknown error');
+            }
+
+            var crashData = {
+              message: msg,
+              stack: stack,
               time: new Date().toISOString(),
               type: type || 'UncaughtError'
             };
+            
+            crashLog = crashData;
             localStorage.setItem('last_app_crash', JSON.stringify(crashData));
           } catch (e) {}
         }
 
+        function showEarlyCrashScreen(crash) {
+          try {
+            var screen = document.getElementById('early-crash-screen');
+            if (!screen) return;
+
+            var logContent = document.getElementById('early-crash-log-content');
+            var logType = document.getElementById('early-crash-log-type');
+            var logTime = document.getElementById('early-crash-log-time');
+
+            if (logType) logType.textContent = crash.type || 'Error';
+            if (logTime) logTime.textContent = crash.time || new Date().toISOString();
+            if (logContent) {
+              logContent.textContent = '[' + (crash.type || 'Error') + '] ' + (crash.message || 'Unknown') + '\n\n' + (crash.stack || '');
+            }
+
+            screen.classList.add('visible');
+          } catch (e) {
+            // آخر محاولة: عرض alert بسيط
+            try {
+              alert('App Crash: ' + (crash.message || 'Unknown error'));
+            } catch(e2) {}
+          }
+        }
+
+        // التقاط أخطاء JavaScript العامة
         window.onerror = function(msg, url, line, col, error) {
-          saveCrash(error || msg, 'GlobalError');
+          saveCrash(error || { message: String(msg), stack: url + ':' + line + ':' + col }, 'GlobalError');
+          
+          // ✅ FIX: إذا React لم يبدأ بعد 2 ثانية، نعرض شاشة الخطأ المبكرة
+          setTimeout(function() {
+            var root = document.getElementById('root');
+            if (root && (!root.hasChildNodes() || root.innerHTML.trim() === '')) {
+              showEarlyCrashScreen(crashLog || { message: String(msg), type: 'GlobalError', time: new Date().toISOString() });
+            }
+          }, 1500);
+          
           return false;
         };
 
+        // التقاط Promise rejections غير المعالجة
         window.onunhandledrejection = function(event) {
           saveCrash(event.reason, 'UnhandledPromise');
+          
+          setTimeout(function() {
+            var root = document.getElementById('root');
+            if (root && (!root.hasChildNodes() || root.innerHTML.trim() === '')) {
+              showEarlyCrashScreen(crashLog || { message: String(event.reason), type: 'UnhandledPromise', time: new Date().toISOString() });
+            }
+          }, 1500);
+        };
+
+        // ✅ فحص: إذا كان هناك كراش محفوظ من جلسة سابقة
+        // React سيتعامل معه عبر ErrorBoundary، لكن إذا React لم يبدأ نعرضه هنا
+        try {
+          var savedCrash = localStorage.getItem('last_app_crash');
+          if (savedCrash) {
+            var parsed = JSON.parse(savedCrash);
+            // ✅ FIX: ننتظر 3 ثواني - إذا React بدأ سيتعامل ErrorBoundary مع الكراش
+            // إذا لم يبدأ React (بسبب كراش module-level)، نعرض شاشة الخطأ المبكرة
+            setTimeout(function() {
+              var root = document.getElementById('root');
+              if (root && (!root.hasChildNodes() || root.innerHTML.trim() === '')) {
+                showEarlyCrashScreen(parsed);
+              }
+            }, 3000);
+          }
+        } catch(e) {}
+
+        // تصدير الدوال للاستخدام من الأزرار
+        window.__earlyCrashCopy = function() {
+          try {
+            var content = document.getElementById('early-crash-log-content');
+            if (!content) return;
+            var text = content.textContent || '';
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(text).then(function() {
+                alert('تم نسخ تفاصيل الخطأ بنجاح');
+              }).catch(function() {
+                // fallback
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;left:-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('تم نسخ تفاصيل الخطأ بنجاح');
+              });
+            } else {
+              var ta = document.createElement('textarea');
+              ta.value = text;
+              ta.style.cssText = 'position:fixed;left:-9999px';
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+              alert('تم نسخ تفاصيل الخطأ بنجاح');
+            }
+          } catch(e) {
+            alert('لم نتمكن من النسخ. يرجى تحديد النص يدوياً.');
+          }
+        };
+
+        window.__earlyCrashRestart = function() {
+          try { localStorage.removeItem('last_app_crash'); } catch(e) {}
+          window.location.reload();
+        };
+
+        window.__earlyCrashDismiss = function() {
+          try { localStorage.removeItem('last_app_crash'); } catch(e) {}
+          var screen = document.getElementById('early-crash-screen');
+          if (screen) screen.classList.remove('visible');
         };
       })();
     </script>
   </head>
   <body class="bg-black">
+    <!-- ✅ شاشة الخطأ المبكرة - تظهر فقط إذا React لم يبدأ -->
+    <div id="early-crash-screen">
+      <div id="early-crash-icon">🛡️</div>
+      <div id="early-crash-title">تم اكتشاف خطأ</div>
+      <div id="early-crash-desc">
+        حدث خطأ أثناء تشغيل التطبيق. يمكنك نسخ سجل الخطأ وإرساله للدعم الفني.
+      </div>
+      <div id="early-crash-log-box">
+        <div id="early-crash-log-header">
+          <div>
+            <div id="early-crash-log-type">Error</div>
+            <div id="early-crash-log-time"></div>
+          </div>
+          <button id="early-crash-copy-btn" onclick="window.__earlyCrashCopy()">📋 نسخ السجل</button>
+        </div>
+        <div id="early-crash-log-content">Loading...</div>
+      </div>
+      <button id="early-crash-restart-btn" onclick="window.__earlyCrashRestart()">🔄 إعادة تشغيل التطبيق</button>
+      <button id="early-crash-dismiss-btn" onclick="window.__earlyCrashDismiss()">🗑️ مسح السجل والمتابعة</button>
+      <div id="early-crash-footer">Ratnzer Services Debug System v3.0</div>
+    </div>
+
     <div id="root"></div>
-    <!-- تم إزالة importmap الخارجي لضمان التحميل من الملفات المحلية بعد البناء -->
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>
