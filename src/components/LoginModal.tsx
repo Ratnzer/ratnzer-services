@@ -79,20 +79,50 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
 
   const handleFacebookLogin = async () => {
     try {
-      const { idToken } = await signInWithFacebook();
-      if (!idToken) throw new Error('فشل الحصول على رمز التحقق من فيسبوك');
-      const res = await authService.facebookLogin(idToken);
-      const token = (res as any)?.data?.token;
-      if (token) {
-        localStorage.setItem('token', token);
-        onLogin({ isRegister: false });
-      } else {
-        alert('فشل الحصول على رمز الدخول من السيرفر');
+      // عرض مؤشر تحميل
+      const button = Array.from(document.querySelectorAll('button')).find(
+        btn => btn.textContent?.includes('فيسبوك')
+      );
+      
+      if (button) {
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<span className="inline-block animate-spin">⟳</span> جاري الاتصال...';
+        
+        try {
+          const { idToken } = await signInWithFacebook();
+          
+          // إذا كانت النتيجة null، فهذا يعني أنه تم استخدام Redirect
+          // وسيتم معالجة النتيجة في App.tsx
+          if (!idToken) {
+            console.log('تم بدء عملية تسجيل الدخول عبر Redirect من فيسبوك...');
+            // لا تقم بأي شيء هنا - سيتم معالجة النتيجة تلقائياً عند العودة
+            return;
+          }
+          
+          // في حالة نادرة جداً حيث يتم الحصول على idToken مباشرة (للهاتف)
+          const res = await authService.facebookLogin(idToken);
+          const token = (res as any)?.data?.token;
+          
+          if (token) {
+            localStorage.setItem('token', token);
+            onLogin({ isRegister: false });
+          } else {
+            alert('فشل الحصول على رمز الدخول من السيرفر');
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+          }
+        } catch (error: any) {
+          console.error('Facebook Login Error:', error);
+          const errorMsg = error.message || 'فشل تسجيل الدخول عبر فيسبوك';
+          alert(error?.response?.data?.message || errorMsg);
+          button.disabled = false;
+          button.innerHTML = originalHTML;
+        }
       }
     } catch (error: any) {
       console.error(error);
-      const errorMsg = error.message || 'فشل تسجيل الدخول عبر فيسبوك - تأكد من اتصالك بالإنترنت';
-      alert(error?.response?.data?.message || errorMsg);
+      alert('حدث خطأ غير متوقع');
     }
   };
 

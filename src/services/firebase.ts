@@ -119,17 +119,10 @@ export const signInWithFacebook = async () => {
       // ✅ للويب
       if (!auth) throw new Error("Firebase Auth غير مهيأ");
       
-      try {
-        const result = await signInWithPopup(auth, facebookProvider, browserPopupRedirectResolver);
-        const idToken = await result.user.getIdToken();
-        return { user: result.user, idToken };
-      } catch (popupError: any) {
-        if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
-          await signInWithRedirect(auth, facebookProvider);
-          return { user: null, idToken: null };
-        }
-        throw popupError;
-      }
+      // ✅ للويب: استخدام signInWithRedirect مباشرة لتجنب حظر النوافذ المنبثقة
+      await signInWithRedirect(auth, facebookProvider);
+      // لن يتم الوصول إلى هنا بعد إعادة التوجيه، سيتم معالجة النتيجة في App.tsx عبر handleRedirectResult
+      return { user: null, idToken: null };
     }
   } catch (error: any) {
     console.error("Error signing in with Facebook:", error);
