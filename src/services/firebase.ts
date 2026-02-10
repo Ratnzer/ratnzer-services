@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
 
 // ✅ استخدام المتغيرات البيئية لضمان الأمان والمرونة
-// ✅ استخدام المتغيرات البيئية مع التحقق لتجنب الانهيار
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
@@ -31,9 +32,18 @@ export const facebookProvider = new FacebookAuthProvider();
 
 export const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const idToken = await result.user.getIdToken();
-    return { user: result.user, idToken };
+    if (Capacitor.isNativePlatform()) {
+      // ✅ استخدام المصادقة الأصلية لتطبيقات الهاتف (Android/iOS)
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      // في المكون @capacitor-firebase/authentication، الـ idToken موجود داخل credential
+      const idToken = result.credential?.idToken;
+      return { user: result.user, idToken };
+    } else {
+      // ✅ استخدام الويب للمتصفحات
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      return { user: result.user, idToken };
+    }
   } catch (error) {
     console.error("Error signing in with Google", error);
     throw error;
@@ -42,9 +52,18 @@ export const signInWithGoogle = async () => {
 
 export const signInWithFacebook = async () => {
   try {
-    const result = await signInWithPopup(auth, facebookProvider);
-    const idToken = await result.user.getIdToken();
-    return { user: result.user, idToken };
+    if (Capacitor.isNativePlatform()) {
+      // ✅ استخدام المصادقة الأصلية لتطبيقات الهاتف (Android/iOS)
+      const result = await FirebaseAuthentication.signInWithFacebook();
+      // في المكون @capacitor-firebase/authentication، الـ idToken موجود داخل credential
+      const idToken = result.credential?.idToken;
+      return { user: result.user, idToken };
+    } else {
+      // ✅ استخدام الويب للمتصفحات
+      const result = await signInWithPopup(auth, facebookProvider);
+      const idToken = await result.user.getIdToken();
+      return { user: result.user, idToken };
+    }
   } catch (error) {
     console.error("Error signing in with Facebook", error);
     throw error;

@@ -18,6 +18,7 @@
     "update-android-version": "node update-android-version.cjs"
   },
   "dependencies": {
+    "@capacitor-firebase/authentication": "^6.3.1",
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "^6.0.3",
     "@capacitor/clipboard": "^6.0.0",

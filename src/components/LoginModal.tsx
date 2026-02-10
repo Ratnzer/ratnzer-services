@@ -60,6 +60,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
   const handleGoogleLogin = async () => {
     try {
       const { idToken } = await signInWithGoogle();
+      if (!idToken) throw new Error('فشل الحصول على رمز التحقق من جوجل');
       const res = await authService.googleLogin(idToken);
       const token = (res as any)?.data?.token;
       if (token) {
@@ -77,6 +78,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
   const handleFacebookLogin = async () => {
     try {
       const { idToken } = await signInWithFacebook();
+      if (!idToken) throw new Error('فشل الحصول على رمز التحقق من فيسبوك');
       const res = await authService.facebookLogin(idToken);
       const token = (res as any)?.data?.token;
       if (token) {
