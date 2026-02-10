@@ -71,7 +71,9 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
       }
     } catch (error: any) {
       console.error(error);
-      alert(error?.response?.data?.message || 'فشل تسجيل الدخول عبر جوجل - تأكد من اتصالك بالإنترنت');
+      // عرض رسالة الخطأ الأصلية إذا كانت موجودة (للمساعدة في التشخيص)
+      const errorMsg = error.message || 'فشل تسجيل الدخول عبر جوجل - تأكد من اتصالك بالإنترنت';
+      alert(error?.response?.data?.message || errorMsg);
     }
   };
 
@@ -89,7 +91,8 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
       }
     } catch (error: any) {
       console.error(error);
-      alert(error?.response?.data?.message || 'فشل تسجيل الدخول عبر فيسبوك - تأكد من اتصالك بالإنترنت');
+      const errorMsg = error.message || 'فشل تسجيل الدخول عبر فيسبوك - تأكد من اتصالك بالإنترنت';
+      alert(error?.response?.data?.message || errorMsg);
     }
   };
 
