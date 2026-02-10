@@ -7,8 +7,6 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // ✅ مهم: هذا يمنع فتح PayTabs بمتصفح خارجي ويجعل صفحة الدفع تفتح داخل التطبيق (WebView)
-    // Capacitor يمنع التنقّل إلى دومينات خارجية افتراضياً، فلابد من عمل whitelist.
     allowNavigation: [
       'rrrr-production-f1ca.up.railway.app',
       '*.paytabs.com',
@@ -21,6 +19,10 @@ const config: CapacitorConfig = {
       launchShowDuration: 0,
       launchAutoHide: true,
       backgroundColor: "#000000"
+    },
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ["google.com", "facebook.com"]
     }
   }
 };
