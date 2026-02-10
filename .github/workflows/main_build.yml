@@ -67,7 +67,7 @@ jobs:
           java-version: '17'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: تحديث رقم الإصدار في الملفات
         env:

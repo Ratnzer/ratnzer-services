@@ -45,7 +45,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: تحديث رقم الإصدار في الملفات
         env:
