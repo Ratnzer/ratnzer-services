@@ -1,1 +1,1 @@
-web: npx prisma db push --schema=./server/prisma/schema.prisma && node server/index.cjs
+web: npx prisma@5.10.2 db push --schema=./server/prisma/schema.prisma && node server/index.cjs
