@@ -24,10 +24,10 @@ const config: CapacitorConfig = {
       androidSpinnerStyle: "large",
       spinnerColor: "#10b981"
     },
-    // FirebaseAuthentication: {
-    //   providers: ["google.com", "facebook.com"],
-    //   skipNativeAuth: false
-    // }
+    FirebaseAuthentication: {
+      providers: ["google.com", "facebook.com"],
+      skipNativeAuth: false
+    }
   }
 };
 
