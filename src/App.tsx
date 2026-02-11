@@ -371,7 +371,14 @@ const App: React.FC = () => {
           if (typeof handleRedirectResult === 'function') {
             const result = await handleRedirectResult();
             if (result?.idToken) {
-              const res = await authService.googleLogin(result.idToken);
+              // محاولة تسجيل الدخول - قد يكون من Google أو Facebook
+              let res = await authService.googleLogin(result.idToken).catch(() => null);
+              
+              // إذا فشل Google، حاول Facebook
+              if (!res) {
+                res = await authService.facebookLogin(result.idToken).catch(() => null);
+              }
+              
               const token = (res as any)?.data?.token;
               if (token) {
                 localStorage.setItem('token', token);
