@@ -84,8 +84,8 @@ jobs:
       - name: Initialize Android Platform
         run: |
           # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
-          rm -rf android
-          npx cap add android
+          npx cap sync android
+          
 
       - name: تحديث رقم إصدار Android
         env:
