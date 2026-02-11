@@ -83,11 +83,9 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          if [ -d "android" ]; then
-            echo "Android platform already exists, skipping 'cap add android'..."
-          else
-            npx cap add android
-          fi
+          # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
+          rm -rf android
+          npx cap add android
 
       - name: تحديث رقم إصدار Android
         env:
@@ -112,11 +110,6 @@ jobs:
       - name: Build APK & AAB (Always Release)
         run: |
           cd android
-          # التأكد من وجود ملفات Gradle الأساسية
-          if [ ! -f "gradlew" ]; then
-            echo "⚠️ gradlew missing, attempting to restore..."
-            npx cap update android
-          fi
           chmod +x gradlew
           echo "🏗️ بناء ملف APK (للتثبيت المباشر)..."
           ./gradlew assembleRelease
@@ -157,7 +150,6 @@ jobs:
             ${{ steps.sign_apk.outputs.signedReleaseFile }}
             ${{ steps.sign_aab.outputs.signedReleaseFile }}
             web-build-v${{ steps.vars.outputs.version }}.zip
-          # تم تغيير اسم الملف الناتج إلى Ratnzer بناءً على طلبك
           body: |
             ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
             تم بناء وتوقيع الملفات تلقائياً.
