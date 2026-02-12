@@ -90,14 +90,8 @@ jobs:
             rm -rf android
             npx cap add android
 
-            echo "🔁 إعادة تطبيق ملفات Android المخصصة من المستودع"
-            git checkout -- \
-              android/app/src/main/AndroidManifest.xml \
-              android/app/src/main/res/values/strings.xml \
-              android/app/src/main/java/com/ratnzer/app/MainActivity.java \
-              android/app/src/main/java/com/ratnzer/app/RatnzerApplication.java \
-              android/app/src/main/java/com/ratnzer/app/EarlyStartupProvider.java \
-              android/app/src/main/java/com/ratnzer/app/RatnzerStartupDiagnostics.java || true
+            echo "🔁 إعادة تطبيق كل ملفات Android المتعقبة في Git"
+            git checkout -- android
           else
             echo "android project مكتمل - سيتم استخدامه كما هو"
           fi

@@ -33,8 +33,15 @@ public final class RatnzerStartupDiagnostics {
 
     private RatnzerStartupDiagnostics() {}
 
+    private static boolean isDebugBuild(Context context) {
+        if (context == null) {
+            return false;
+        }
+        return (context.getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
+
     public static void installUncaughtHandler(Context context, String source) {
-        if (!BuildConfig.DEBUG || handlerInstalled) {
+        if (!isDebugBuild(context) || handlerInstalled) {
             return;
         }
 
@@ -64,7 +71,7 @@ public final class RatnzerStartupDiagnostics {
     }
 
     public static void recordStartupMarker(Context context, String marker) {
-        if (!BuildConfig.DEBUG || context == null) {
+        if (!isDebugBuild(context)) {
             return;
         }
 
@@ -88,7 +95,7 @@ public final class RatnzerStartupDiagnostics {
     }
 
     public static void recordCrash(Context context, String title, Throwable error) {
-        if (!BuildConfig.DEBUG || context == null) {
+        if (!isDebugBuild(context)) {
             return;
         }
 
@@ -101,7 +108,7 @@ public final class RatnzerStartupDiagnostics {
     }
 
     public static void recordMessage(Context context, String category, String message) {
-        if (!BuildConfig.DEBUG || context == null) {
+        if (!isDebugBuild(context)) {
             return;
         }
         appendToDebugFile(context.getApplicationContext(), category, message);
@@ -109,7 +116,7 @@ public final class RatnzerStartupDiagnostics {
     }
 
     public static void showPreviousCrashIfAny(Context context) {
-        if (!BuildConfig.DEBUG || context == null) {
+        if (!isDebugBuild(context)) {
             return;
         }
 
@@ -145,7 +152,7 @@ public final class RatnzerStartupDiagnostics {
     }
 
     public static void forceExportStateSnapshot(Context context, String reason) {
-        if (!BuildConfig.DEBUG || context == null) {
+        if (!isDebugBuild(context)) {
             return;
         }
 
@@ -167,7 +174,7 @@ public final class RatnzerStartupDiagnostics {
     }
 
     private static void appendToDebugFile(Context context, String category, String message) {
-        if (!BuildConfig.DEBUG || context == null) {
+        if (!isDebugBuild(context)) {
             return;
         }
 
