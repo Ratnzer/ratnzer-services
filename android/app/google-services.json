@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "PLACEHOLDER",
+    "project_number": "15167051559",
     "project_id": "ratnzer-services",
-    "storage_bucket": "ratnzer-services.appspot.com"
+    "storage_bucket": "ratnzer-services.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:PLACEHOLDER:android:PLACEHOLDER",
+        "mobilesdk_app_id": "1:15167051559:android:fa085432f46c581dba7b02",
         "android_client_info": {
           "package_name": "com.ratnzer.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "15167051559-h8nlfunsfkgh701au10kkkaksbdeipc7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ratnzer.app",
+            "certificate_hash": "71fe742b5337507274c0faef1859198d8d9b4bb9"
+          }
+        },
+        {
+          "client_id": "15167051559-4ogduika94je0f80v67jt5f1a365hvfk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "PLACEHOLDER"
+          "current_key": "AIzaSyDLboP2rnoI4u1GWo3XqQloxKHs-IV2-uc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "15167051559-4ogduika94je0f80v67jt5f1a365hvfk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
