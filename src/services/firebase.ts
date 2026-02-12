@@ -59,36 +59,41 @@ const isNative = () => Capacitor.isNativePlatform();
 
 export const signInWithGoogle = async () => {
   try {
-    ensureAuth();
-
-    if (isNative()) {
-      const result = await FirebaseAuthentication.signInWithGoogle().catch((err) => {
+    if (Capacitor.isNativePlatform()) {
+      // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin
+      console.log("Starting Native Google Sign-In...");
+      
+      const result = await FirebaseAuthentication.signInWithGoogle().catch(err => {
         console.error("Native Google Plugin Error:", err);
-        throw new Error(formatNativePluginError("جوجل", err));
+        throw new Error(`خطأ في إضافة جوجل: ${err.message || 'تأكد من إعدادات SHA-1 في Firebase'}`);
       });
+      
+      const idToken = result.credential?.idToken;
+      if (!idToken) throw new Error("لم يتم استلام رمز التحقق (idToken) من جوجل. تأكد من ملف google-services.json");
 
-      const idToken = result?.credential?.idToken;
-      if (!idToken) {
-        throw new Error("لم يتم استلام رمز التحقق (idToken) من جوجل.");
-      }
+      if (!auth) throw new Error("Firebase Auth غير مهيأ");
 
       const credential = GoogleAuthProvider.credential(idToken);
       const userCredential = await signInWithCredential(auth, credential);
-
-      return {
-        user: userCredential.user,
-        idToken: await userCredential.user.getIdToken(),
+      
+      return { 
+        user: userCredential.user, 
+        idToken: await userCredential.user.getIdToken() 
       };
-    }
-
-    try {
-      const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
-      const idToken = await result.user.getIdToken();
-      return { user: result.user, idToken };
-    } catch (popupError: any) {
-      if (popupError.code === "auth/popup-blocked" || popupError.code === "auth/cancelled-popup-request") {
-        await signInWithRedirect(auth, googleProvider);
-        return { user: null, idToken: null };
+    } else {
+      // ✅ للويب
+      if (!auth) throw new Error("Firebase Auth غير مهيأ");
+      
+      try {
+        const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+        const idToken = await result.user.getIdToken();
+        return { user: result.user, idToken };
+      } catch (popupError: any) {
+        if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
+          await signInWithRedirect(auth, googleProvider);
+          return { user: null, idToken: null };
+        }
+        throw popupError;
       }
       throw popupError;
     }
@@ -131,9 +136,9 @@ export const signInWithFacebook = async () => {
 };
 
 export const handleRedirectResult = async () => {
-  if (isNative()) return null;
+  if (Capacitor.isNativePlatform()) return null;
   if (!auth) return null;
-
+  
   try {
     const result = await getRedirectResult(auth);
     if (result) {
