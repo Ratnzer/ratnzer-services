@@ -343,12 +343,21 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
+    if (!Capacitor.isPluginAvailable('App')) return;
 
-    // Handle Hardware Back Button for Android
-    const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
-      if (currentView !== View.HOME) {
-        // If not on Home, go back to previous view or Home
-        if (navigationHistory.current.length > 0) {
+    // Handle Android hardware back button safely and prevent accidental exits.
+    const backButtonListener = CapApp.addListener('backButton', () => {
+      // If exit dialog is visible, close it first.
+      if (exitModalOpenRef.current) {
+        setIsExitModalOpen(false);
+        return;
+      }
+
+      if (currentViewRef.current !== View.HOME) {
+        // If not on Home, navigate back inside the app first.
+        if (navigationHistory.current.length > 1) {
+          // Remove current view, then take the previous one.
+          navigationHistory.current.pop();
           const prevView = navigationHistory.current.pop();
           setCurrentView(prevView || View.HOME);
         } else {
@@ -482,6 +491,7 @@ useEffect(() => {
   const initPushNotifications = async () => {
     try {
       if (Capacitor.getPlatform() !== 'android') return;
+      if (!Capacitor.isPluginAvailable('PushNotifications')) return;
       if (pushInitRef.current) return;
       pushInitRef.current = true;
 
@@ -2601,7 +2611,9 @@ useEffect(() => {
           onClose={() => setIsExitModalOpen(false)} 
           onConfirm={() => {
             setIsExitModalOpen(false);
-            CapApp.exitApp();
+            if (Capacitor.isPluginAvailable('App')) {
+              CapApp.exitApp();
+            }
           }}
         />
 

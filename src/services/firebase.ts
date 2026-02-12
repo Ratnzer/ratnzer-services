@@ -9,7 +9,6 @@ import {
   signInWithCredential,
   browserPopupRedirectResolver
 } from "firebase/auth";
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
 // ✅ إعدادات Firebase
@@ -32,6 +31,15 @@ const ensureToken = (value: unknown, fallbackMessage: string) => {
   const token = typeof value === 'string' ? value.trim() : '';
   if (!token) throw new Error(fallbackMessage);
   return token;
+};
+
+const getFirebaseAuthPlugin = async () => {
+  if (!Capacitor.isPluginAvailable('FirebaseAuthentication')) {
+    throw new Error('إضافة FirebaseAuthentication غير متاحة على هذا الجهاز.');
+  }
+
+  const module = await import('@capacitor-firebase/authentication');
+  return module.FirebaseAuthentication;
 };
 
 try {
@@ -57,8 +65,9 @@ export const signInWithGoogle = async () => {
     if (Capacitor.isNativePlatform()) {
       // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin
       console.log("Starting Native Google Sign-In...");
+      const firebaseAuthPlugin = await getFirebaseAuthPlugin();
       
-      const result = await FirebaseAuthentication.signInWithGoogle().catch(err => {
+      const result = await firebaseAuthPlugin.signInWithGoogle().catch(err => {
         console.error("Native Google Plugin Error:", err);
         const error = new Error(`خطأ في إضافة جوجل: ${err.message || 'تأكد من إعدادات SHA-1 في Firebase'}`);
         (error as any).code = err.code || 'plugin_error';
@@ -114,8 +123,9 @@ export const signInWithFacebook = async () => {
     if (Capacitor.isNativePlatform()) {
       // ✅ للهاتف
       console.log("Starting Native Facebook Sign-In...");
+      const firebaseAuthPlugin = await getFirebaseAuthPlugin();
       
-      const result = await FirebaseAuthentication.signInWithFacebook().catch(err => {
+      const result = await firebaseAuthPlugin.signInWithFacebook().catch(err => {
         console.error("Native Facebook Plugin Error:", err);
         const error = new Error(`خطأ في إضافة فيسبوك: ${err.message || 'تأكد من معرف التطبيق (App ID) في strings.xml'}`);
         (error as any).code = err.code || 'plugin_error';
