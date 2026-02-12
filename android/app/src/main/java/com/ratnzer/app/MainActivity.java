@@ -1,5 +1,7 @@
 package com.ratnzer.app;
 
+import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.getcapacitor.BridgeActivity;

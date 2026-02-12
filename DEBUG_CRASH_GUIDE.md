@@ -53,10 +53,3 @@ adb logcat -v time -s EarlyStartupProvider RatnzerApplication StartupDiagnostics
 2. افتح التطبيق (إذا انهار فورًا، أعد فتحه مرة).
 3. افتح الملفين أعلاه في مدير الملفات.
 4. أرسل محتواهما (أو آخر 100 سطر من `startup-debug.log`) للتحليل.
-
-
-## ملاحظة خاصة بـ FirebaseAuthentication
-
-- تم إزالة أي تسجيل يدوي للـ `FirebaseAuthenticationPlugin` من `MainActivity` لتجنب التعارض مع تسجيل Capacitor التلقائي.
-- تحميل plugin في JavaScript يتم Lazy/Dynamic داخل `src/services/firebase.ts` فقط عند طلب تسجيل الدخول (Google/Facebook)، وليس عند إقلاع التطبيق.
-- هذا يقلل احتمالية كراش الإقلاع المرتبط بتهيئة plugin المبكرة.
