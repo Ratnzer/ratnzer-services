@@ -14,7 +14,7 @@ const DIAG_STORAGE_KEY = 'ratnzer_runtime_diag_v1';
 
 const readStoredEvents = (): DiagnosticEvent[] => {
   try {
-    const raw = sessionStorage.getItem(DIAG_STORAGE_KEY);
+    const raw = localStorage.getItem(DIAG_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed.slice(-20) : [];
@@ -25,7 +25,7 @@ const readStoredEvents = (): DiagnosticEvent[] => {
 
 const writeStoredEvents = (events: DiagnosticEvent[]) => {
   try {
-    sessionStorage.setItem(DIAG_STORAGE_KEY, JSON.stringify(events.slice(-20)));
+    localStorage.setItem(DIAG_STORAGE_KEY, JSON.stringify(events.slice(-20)));
   } catch {
     // ignore storage issues
   }
