@@ -1,17 +1,11 @@
-# Debug APK Crash Guide (Early Startup)
+# Debug APK Crash Guide
 
-تمت إضافة طبقة تشخيص أعمق في Native Layer لالتقاط كراشات الإقلاع المبكرة جدًا:
+تم إضافة آلية تشخيص للكراش في نسخة **Debug**:
 
-1. `EarlyStartupProvider` يعمل قبل `Application` و`MainActivity` ويضع Startup Markers مبكرًا.
-2. `RatnzerApplication` يثبت `UncaughtExceptionHandler` في `attachBaseContext` و`onCreate`.
-3. `MainActivity` يكمل التسجيل ويعرض آخر Crash مخزن (مع Startup Trace) عند الفتح التالي.
-4. أي خطأ يتم تسجيله داخل `SharedPreferences` + `Logcat` بعلامات:
-   - `EarlyStartupProvider`
-   - `RatnzerApplication`
-   - `StartupDiagnostics`
-   - `MainActivity`
-
-> ملاحظة: إذا كان الكراش من نوع Native قاتل جدًا (مثل SIGSEGV داخل مكتبة C/C++ قبل Java bootstrap)، قد لا يمر عبر UncaughtExceptionHandler. لكن Startup Markers تساعدنا نعرف آخر مرحلة وصل لها التطبيق.
+1. في Android (`MainActivity`) يتم تركيب `UncaughtExceptionHandler` في وضع Debug.
+2. أي خطأ غير ملتقط أثناء الإقلاع يتم حفظه تلقائيًا في `SharedPreferences`.
+3. عند فتح التطبيق مرة أخرى، تظهر نافذة تحتوي آخر Stack Trace.
+4. يتم أيضًا تسجيل التفاصيل في Logcat بعلامة `MainActivity`.
 
 ## بناء نسخة Debug
 
@@ -21,7 +15,7 @@ npx cap sync android
 cd android && ./gradlew assembleDebug
 ```
 
-ملف الـ APK الناتج:
+ملف الـ APK الناتج غالبًا يكون في:
 
 `android/app/build/outputs/apk/debug/app-debug.apk`
 

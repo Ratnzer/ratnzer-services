@@ -1,6 +1,10 @@
 package com.ratnzer.app;
 
+import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.getcapacitor.BridgeActivity;
@@ -9,6 +13,8 @@ import io.capawesome.capacitorjs.plugins.firebase.auth.FirebaseAuthenticationPlu
 
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "MainActivity";
+    private static final String PREFS_NAME = "ratnzer_debug_crash";
+    private static final String LAST_CRASH_KEY = "last_crash";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -16,6 +22,9 @@ public class MainActivity extends BridgeActivity {
         RatnzerStartupDiagnostics.installUncaughtHandler(this, "main_activity");
 
         super.onCreate(savedInstanceState);
+
+        installDebugCrashReporter();
+        showPreviousCrashIfAny();
 
         try {
             this.registerPlugin(FirebaseAuthenticationPlugin.class);
