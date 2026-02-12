@@ -371,7 +371,11 @@ const App: React.FC = () => {
           if (typeof handleRedirectResult === 'function') {
             const result = await handleRedirectResult();
             if (result?.idToken) {
-              const res = await authService.googleLogin(result.idToken);
+              const authApiCall = result.providerId === 'facebook.com'
+                ? authService.facebookLogin
+                : authService.googleLogin;
+
+              const res = await authApiCall(result.idToken);
               const token = (res as any)?.data?.token;
               if (token) {
                 localStorage.setItem('token', token);

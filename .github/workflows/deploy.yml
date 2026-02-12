@@ -58,11 +58,20 @@ jobs:
           npm run update-version || echo "⚠️ تنبيه: حدثت مشكلة بسيطة في تحديث بعض ملفات التكوين، ولكن سنستمر في البناء."
 
       - name: Build
+        env:
+          VITE_APP_VERSION: ${{ steps.vars.outputs.version }}
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://ratnzer-services-bb0a0cce4837.herokuapp.com/api' }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
         run: |
           # مسح أي ملفات بناء قديمة لضمان تحديث الإصدار
           rm -rf dist
           # بناء المشروع مع تمرير رقم الإصدار كمتغير بيئة لـ Vite إذا لزم الأمر
-          VITE_APP_VERSION=${{ steps.vars.outputs.version }} npm run build
+          npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

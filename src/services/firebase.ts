@@ -40,6 +40,16 @@ try {
 // Providers
 export const googleProvider = new GoogleAuthProvider();
 export const facebookProvider = new FacebookAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+facebookProvider.addScope('email');
+facebookProvider.addScope('public_profile');
+
+type SocialProviderId = 'google.com' | 'facebook.com' | null;
+
+const getProviderIdFromResult = (providerId?: string | null): SocialProviderId => {
+  if (providerId === 'google.com' || providerId === 'facebook.com') return providerId;
+  return null;
+};
 
 /**
  * معالجة تسجيل الدخول عبر Google
@@ -74,11 +84,11 @@ export const signInWithGoogle = async () => {
       try {
         const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
         const idToken = await result.user.getIdToken();
-        return { user: result.user, idToken };
+        return { user: result.user, idToken, providerId: getProviderIdFromResult(result.providerId) };
       } catch (popupError: any) {
         if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
           await signInWithRedirect(auth, googleProvider);
-          return { user: null, idToken: null };
+          return { user: null, idToken: null, providerId: 'google.com' };
         }
         throw popupError;
       }
@@ -113,7 +123,8 @@ export const signInWithFacebook = async () => {
       
       return { 
         user: userCredential.user, 
-        idToken: await userCredential.user.getIdToken() 
+        idToken: await userCredential.user.getIdToken(),
+        providerId: 'facebook.com'
       };
     } else {
       // ✅ للويب
@@ -122,7 +133,7 @@ export const signInWithFacebook = async () => {
       // ✅ للويب: استخدام signInWithRedirect مباشرة لتجنب حظر النوافذ المنبثقة
       await signInWithRedirect(auth, facebookProvider);
       // لن يتم الوصول إلى هنا بعد إعادة التوجيه، سيتم معالجة النتيجة في App.tsx عبر handleRedirectResult
-      return { user: null, idToken: null };
+      return { user: null, idToken: null, providerId: 'facebook.com' };
     }
   } catch (error: any) {
     console.error("Error signing in with Facebook:", error);
@@ -141,7 +152,11 @@ export const handleRedirectResult = async () => {
     const result = await getRedirectResult(auth);
     if (result) {
       const idToken = await result.user.getIdToken();
-      return { user: result.user, idToken };
+      const providerId =
+        getProviderIdFromResult(result.providerId) ||
+        getProviderIdFromResult(result.user.providerData?.[0]?.providerId);
+
+      return { user: result.user, idToken, providerId };
     }
     return null;
   } catch (error) {
