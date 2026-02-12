@@ -83,12 +83,21 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          # بعض المستودعات تحتوي مجلد android جزئيًا (مثل android/app فقط) بدون gradlew.
-          # في هذه الحالة نعيد توليد المشروع الكامل حتى لا يفشل البناء عند chmod/gradlew.
+          # بعض المستودعات تحتوي مجلد android جزئيًا بدون gradlew.
+          # نولّد مشروعًا كاملاً ثم نعيد تطبيق ملفات Android المخصصة الموجودة في git.
           if [ ! -f "android/gradlew" ]; then
-            echo "⚠️ Android project غير مكتمل أو غير موجود - سيتم توليده من جديد"
+            echo "⚠️ Android project غير مكتمل - سيتم إعادة توليد الهيكل الأساسي"
             rm -rf android
             npx cap add android
+
+            echo "🔁 إعادة تطبيق ملفات Android المخصصة من المستودع"
+            git checkout -- \
+              android/app/src/main/AndroidManifest.xml \
+              android/app/src/main/res/values/strings.xml \
+              android/app/src/main/java/com/ratnzer/app/MainActivity.java \
+              android/app/src/main/java/com/ratnzer/app/RatnzerApplication.java \
+              android/app/src/main/java/com/ratnzer/app/EarlyStartupProvider.java \
+              android/app/src/main/java/com/ratnzer/app/RatnzerStartupDiagnostics.java || true
           else
             echo "android project مكتمل - سيتم استخدامه كما هو"
           fi
