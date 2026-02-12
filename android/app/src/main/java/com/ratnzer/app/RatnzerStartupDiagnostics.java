@@ -26,6 +26,8 @@ public final class RatnzerStartupDiagnostics {
     private static final String LAST_CRASH_KEY = "last_crash";
     private static final String STARTUP_TRACE_KEY = "startup_trace";
     private static final String LOG_FILE_NAME = "startup-debug.log";
+    private static final String PUBLIC_SUBDIR = "RatnzerDebug";
+    private static final String PRIMARY_PUBLIC_PATH = "/sdcard/" + PUBLIC_SUBDIR + "/" + LOG_FILE_NAME;
     private static volatile boolean handlerInstalled = false;
 
     private RatnzerStartupDiagnostics() {}
@@ -120,7 +122,8 @@ public final class RatnzerStartupDiagnostics {
 
         String fullMessage = previousCrash
             + "\n\n--- Startup Trace ---\n" + startupTrace
-            + "\n\n--- Debug Log File ---\n" + logFilePath;
+            + "\n\n--- Internal Debug Log File ---\n" + internalLogFilePath
+            + "\n\n--- Public Export ---\n" + exportedPath;
 
         new Handler(Looper.getMainLooper()).post(() -> new AlertDialog.Builder(context)
             .setTitle("آخر خطأ أثناء الإقلاع (Debug)")
@@ -144,7 +147,7 @@ public final class RatnzerStartupDiagnostics {
         String line = System.currentTimeMillis() + " [" + category + "] " + message + "\n";
 
         appendToInternalFile(context, line);
-        appendToPublicDownloadFile(context, line);
+        appendToPublicLocations(context, line);
     }
 
     private static void appendToInternalFile(Context context, String line) {
@@ -167,7 +170,16 @@ public final class RatnzerStartupDiagnostics {
         }
     }
 
-    private static void appendToPublicDownloadFile(Context context, String line) {
+    private static void appendToPublicLocations(Context context, String line) {
+        // 1) Try explicit shared root path requested by QA: /sdcard/RatnzerDebug/startup-debug.log
+        try {
+            appendUsingSdcardRoot(line);
+            return;
+        } catch (Throwable rootError) {
+            Log.w(TAG, "Failed writing /sdcard debug export, trying fallback exports.", rootError);
+        }
+
+        // 2) Fallback to Downloads via MediaStore (Android 10+) or legacy Downloads path.
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 appendUsingMediaStore(context, line);
@@ -256,10 +268,6 @@ public final class RatnzerStartupDiagnostics {
     }
 
     public static String getPublicExportHint(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return "Downloads/" + PUBLIC_SUBDIR + "/" + LOG_FILE_NAME;
-        }
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            + "/" + PUBLIC_SUBDIR + "/" + LOG_FILE_NAME;
+        return PRIMARY_PUBLIC_PATH + " (fallback: Downloads/" + PUBLIC_SUBDIR + "/" + LOG_FILE_NAME + ")";
     }
 }

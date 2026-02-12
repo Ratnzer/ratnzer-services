@@ -3,8 +3,10 @@
 الآن السجل يتم حفظه تلقائيًا بطريقتين مع كل Marker/Crash:
 
 1. **Internal log** داخل التطبيق: `startup-debug.log`
-2. **Public export** في مجلد التنزيلات (Download) بحيث يمكن فتحه من الهاتف بدون ADB:
-   - `Downloads/RatnzerDebug/startup-debug.log`
+2. **Public export** في مسار عام مباشر على الذاكرة المشتركة (SD Card shared storage):
+   - `/sdcard/RatnzerDebug/startup-debug.log`
+
+   مع fallback إضافي إلى: `Downloads/RatnzerDebug/startup-debug.log` إذا منع الجهاز الكتابة على `/sdcard`.
 
 بهذا يمكنك قراءة Stack Trace + Startup Markers مباشرة من مدير الملفات في الهاتف.
 
@@ -48,5 +50,6 @@ adb logcat -v time -s EarlyStartupProvider RatnzerApplication StartupDiagnostics
 1. ثبّت `app-debug.apk`.
 2. افتح التطبيق (إذا انهار فورًا، افتحه مرة ثانية).
 3. افتح ملف:
-   - `Downloads/RatnzerDebug/startup-debug.log`
+   - `/sdcard/RatnzerDebug/startup-debug.log`
+   - أو fallback: `Downloads/RatnzerDebug/startup-debug.log`
 4. أرسل محتوى الملف (أو آخر 100 سطر) لتحليل السبب الحقيقي للكراش.
