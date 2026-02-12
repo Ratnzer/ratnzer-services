@@ -8,6 +8,17 @@ const { protect } = require('../middleware/authMiddleware');
 const { generateShortId } = require('../utils/id');
 const admin = require('../config/firebase');
 
+const extractSignInProvider = (decodedToken) => decodedToken?.firebase?.sign_in_provider || null;
+
+const assertExpectedProvider = (decodedToken, expectedProvider) => {
+  const provider = extractSignInProvider(decodedToken);
+  if (provider !== expectedProvider) {
+    const err = new Error(`رمز الدخول لا يطابق موفر ${expectedProvider}`);
+    err.statusCode = 401;
+    throw err;
+  }
+};
+
 // ============================================================
 // Admin Setup (Server-side promotion) - Protected by secret key
 // Usage:
@@ -109,9 +120,11 @@ router.post('/google', asyncHandler(async (req, res) => {
   try {
     decodedToken = await admin.auth().verifyIdToken(idToken);
   } catch (error) {
-    res.status(401);
-    throw new Error('فشل التحقق من رمز جوجل');
+    res.status(error?.statusCode || 401);
+    throw new Error(error?.message || 'فشل التحقق من رمز جوجل');
   }
+
+  assertExpectedProvider(decodedToken, 'google.com');
 
   const { email, name, picture, uid } = decodedToken;
 
@@ -165,9 +178,11 @@ router.post('/facebook', asyncHandler(async (req, res) => {
   try {
     decodedToken = await admin.auth().verifyIdToken(idToken);
   } catch (error) {
-    res.status(401);
-    throw new Error('فشل التحقق من رمز فيسبوك');
+    res.status(error?.statusCode || 401);
+    throw new Error(error?.message || 'فشل التحقق من رمز فيسبوك');
   }
+
+  assertExpectedProvider(decodedToken, 'facebook.com');
 
   const { email, name, picture, uid } = decodedToken;
 
