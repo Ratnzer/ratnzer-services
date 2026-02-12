@@ -126,6 +126,11 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Verify Android Gradle Wrapper
+        run: |
+          test -f android/gradlew
+          chmod +x android/gradlew
+
       - name: Build APK & AAB (Always Release)
         run: |
           cd android
