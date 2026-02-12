@@ -70,15 +70,10 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
         alert('فشل الحصول على رمز الدخول من السيرفر');
       }
     } catch (error: any) {
-      console.error("Detailed Google Login Error:", error);
-      
-      let errorDetails = "";
-      if (error.code) errorDetails += `\nCode: ${error.code}`;
-      if (error.message) errorDetails += `\nMessage: ${error.message}`;
-      if (error.response?.data) errorDetails += `\nServer: ${JSON.stringify(error.response.data)}`;
-      
-      const errorMsg = `فشل تسجيل الدخول عبر جوجل:\n${errorDetails || 'تأكد من اتصالك بالإنترنت'}`;
-      alert(errorMsg);
+      console.error(error);
+      // عرض رسالة الخطأ الأصلية إذا كانت موجودة (للمساعدة في التشخيص)
+      const errorMsg = error.message || 'فشل تسجيل الدخول عبر جوجل - تأكد من اتصالك بالإنترنت';
+      alert(error?.response?.data?.message || errorMsg);
     }
   };
 
@@ -118,16 +113,9 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
             button.innerHTML = originalHTML;
           }
         } catch (error: any) {
-          console.error('Detailed Facebook Login Error:', error);
-          
-          let errorDetails = "";
-          if (error.code) errorDetails += `\nCode: ${error.code}`;
-          if (error.message) errorDetails += `\nMessage: ${error.message}`;
-          if (error.response?.data) errorDetails += `\nServer: ${JSON.stringify(error.response.data)}`;
-          
-          const errorMsg = `فشل تسجيل الدخول عبر فيسبوك:\n${errorDetails}`;
-          alert(errorMsg);
-          
+          console.error('Facebook Login Error:', error);
+          const errorMsg = error.message || 'فشل تسجيل الدخول عبر فيسبوك';
+          alert(error?.response?.data?.message || errorMsg);
           button.disabled = false;
           button.innerHTML = originalHTML;
         }
