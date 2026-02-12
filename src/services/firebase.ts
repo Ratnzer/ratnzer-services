@@ -9,7 +9,6 @@ import {
   signInWithCredential,
   browserPopupRedirectResolver,
 } from "firebase/auth";
-import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { Capacitor } from "@capacitor/core";
 
 const firebaseConfig = {
@@ -57,12 +56,41 @@ const formatNativePluginError = (providerName: "جوجل" | "فيسبوك", err:
 
 const isNative = () => Capacitor.isNativePlatform();
 
+let firebaseAuthenticationPlugin: any = null;
+let pluginLoadAttempted = false;
+
+const getFirebaseAuthenticationPlugin = async () => {
+  if (!isNative()) return null;
+
+  if (firebaseAuthenticationPlugin) return firebaseAuthenticationPlugin;
+  if (pluginLoadAttempted) return null;
+
+  pluginLoadAttempted = true;
+
+  try {
+    const module = await import("@capacitor-firebase/authentication");
+    firebaseAuthenticationPlugin = module?.FirebaseAuthentication ?? null;
+  } catch (error) {
+    console.error("Failed to load Firebase Authentication plugin:", error);
+    firebaseAuthenticationPlugin = null;
+  }
+
+  return firebaseAuthenticationPlugin;
+};
+
 export const signInWithGoogle = async () => {
   try {
     ensureAuth();
 
     if (isNative()) {
-      const result = await FirebaseAuthentication.signInWithGoogle().catch((err) => {
+      const plugin = await getFirebaseAuthenticationPlugin();
+      if (!plugin) {
+        throw new Error(
+          "تعذر تهيئة مكتبة Firebase Authentication على هذا الجهاز. تحقق من إعدادات Capacitor وFirebase native."
+        );
+      }
+
+      const result = await plugin.signInWithGoogle().catch((err: any) => {
         console.error("Native Google Plugin Error:", err);
         throw new Error(formatNativePluginError("جوجل", err));
       });
@@ -104,7 +132,14 @@ export const signInWithFacebook = async () => {
     ensureAuth();
 
     if (isNative()) {
-      const result = await FirebaseAuthentication.signInWithFacebook().catch((err) => {
+      const plugin = await getFirebaseAuthenticationPlugin();
+      if (!plugin) {
+        throw new Error(
+          "تعذر تهيئة مكتبة Firebase Authentication على هذا الجهاز. تحقق من إعدادات Capacitor وFirebase native."
+        );
+      }
+
+      const result = await plugin.signInWithFacebook().catch((err: any) => {
         console.error("Native Facebook Plugin Error:", err);
         throw new Error(formatNativePluginError("فيسبوك", err));
       });
