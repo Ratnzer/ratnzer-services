@@ -15,7 +15,7 @@ npx cap sync android
 cd android && ./gradlew assembleDebug
 ```
 
-ملف الـ APK الناتج غالبًا يكون في:
+ملف APK:
 
 `android/app/build/outputs/apk/debug/app-debug.apk`
 
@@ -25,9 +25,22 @@ cd android && ./gradlew assembleDebug
 adb logcat -v time -s EarlyStartupProvider RatnzerApplication StartupDiagnostics MainActivity AndroidRuntime Capacitor
 ```
 
-## كيف تستخدم التشخيص سريعًا
+## سحب ملف السجل الداخلي من الهاتف
 
-1. ثبّت `app-debug.apk` على الهاتف.
-2. شغّل `adb logcat` بالأمر أعلاه.
-3. افتح التطبيق؛ إذا انهار فورًا، أعد فتحه مرة ثانية.
-4. في الفتح الثاني، ستظهر نافذة تحتوي آخر Stack Trace + Startup Trace (إن أمكن التقاطهما).
+بعد تثبيت نسخة Debug وتشغيل التطبيق:
+
+```bash
+adb shell run-as com.ratnzer.app cat files/startup-debug.log
+```
+
+(إذا كان `run-as` مدعومًا على الجهاز، سيعرض لك محتوى السجل الكامل.)
+
+## طريقة التشخيص السريعة
+
+1. ثبّت `app-debug.apk`.
+2. شغل Logcat بالأمر أعلاه.
+3. افتح التطبيق؛ إذا انهار فورًا، افتحه مرة ثانية.
+4. خذ:
+   - Stack trace من Logcat
+   - محتوى `startup-debug.log`
+   - Startup Trace الظاهر في النافذة (إن ظهرت)

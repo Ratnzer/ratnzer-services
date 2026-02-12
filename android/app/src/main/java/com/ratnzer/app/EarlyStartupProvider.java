@@ -15,6 +15,7 @@ public class EarlyStartupProvider extends ContentProvider {
             RatnzerStartupDiagnostics.recordStartupMarker(getContext(), "provider_onCreate_start");
             RatnzerStartupDiagnostics.installUncaughtHandler(getContext(), "provider");
             Log.i(TAG, "Early startup provider initialized.");
+            RatnzerStartupDiagnostics.recordMessage(getContext(), "EARLY_PROVIDER", "initialized");
             RatnzerStartupDiagnostics.recordStartupMarker(getContext(), "provider_onCreate_done");
         } catch (Throwable error) {
             Log.e(TAG, "Failed during earliest startup provider initialization.", error);

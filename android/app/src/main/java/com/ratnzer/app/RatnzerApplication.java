@@ -2,6 +2,7 @@ package com.ratnzer.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 public class RatnzerApplication extends Application {
@@ -26,6 +27,8 @@ public class RatnzerApplication extends Application {
         try {
             RatnzerStartupDiagnostics.recordStartupMarker(this, "application_onCreate_start");
             RatnzerStartupDiagnostics.installUncaughtHandler(this, "application_onCreate");
+            logRuntimeBootstrapInfo();
+            verifyCriticalStartupClasses();
             RatnzerStartupDiagnostics.recordStartupMarker(this, "application_onCreate_done");
             Log.i(TAG, "Application onCreate diagnostics complete.");
         } catch (Throwable error) {
