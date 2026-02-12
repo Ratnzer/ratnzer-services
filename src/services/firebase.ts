@@ -9,6 +9,7 @@ import {
   signInWithCredential,
   browserPopupRedirectResolver
 } from "firebase/auth";
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
 // ✅ إعدادات Firebase
@@ -24,23 +25,6 @@ const firebaseConfig = {
 // ✅ تهيئة Firebase بشكل آمن
 let app;
 let auth: any;
-
-const isFirebaseWebReady = () => Boolean(auth);
-
-const ensureToken = (value: unknown, fallbackMessage: string) => {
-  const token = typeof value === 'string' ? value.trim() : '';
-  if (!token) throw new Error(fallbackMessage);
-  return token;
-};
-
-const getFirebaseAuthPlugin = async () => {
-  if (!Capacitor.isPluginAvailable('FirebaseAuthentication')) {
-    throw new Error('إضافة FirebaseAuthentication غير متاحة على هذا الجهاز.');
-  }
-
-  const module = await import('@capacitor-firebase/authentication');
-  return module.FirebaseAuthentication;
-};
 
 try {
   if (firebaseConfig.apiKey) {
@@ -65,37 +49,27 @@ export const signInWithGoogle = async () => {
     if (Capacitor.isNativePlatform()) {
       // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin
       console.log("Starting Native Google Sign-In...");
-      const firebaseAuthPlugin = await getFirebaseAuthPlugin();
       
-      const result = await firebaseAuthPlugin.signInWithGoogle().catch(err => {
+      const result = await FirebaseAuthentication.signInWithGoogle().catch(err => {
         console.error("Native Google Plugin Error:", err);
-        const error = new Error(`خطأ في إضافة جوجل: ${err.message || 'تأكد من إعدادات SHA-1 في Firebase'}`);
-        (error as any).code = err.code || 'plugin_error';
-        throw error;
+        throw new Error(`خطأ في إضافة جوجل: ${err.message || 'تأكد من إعدادات SHA-1 في Firebase'}`);
       });
       
-      const idToken = ensureToken(
-        result?.credential?.idToken,
-        "لم يتم استلام رمز التحقق (idToken) من جوجل. تأكد من ملف google-services.json"
-      );
+      const idToken = result.credential?.idToken;
+      if (!idToken) throw new Error("لم يتم استلام رمز التحقق (idToken) من جوجل. تأكد من ملف google-services.json");
 
-      // إذا كانت تهيئة Firebase Web متاحة، نوحّد الجلسة عبر signInWithCredential.
-      // وإذا لم تكن متاحة، نُرجع idToken مباشرة لتفادي أي انهيار في التطبيق.
-      if (isFirebaseWebReady()) {
-        const credential = GoogleAuthProvider.credential(idToken);
-        const userCredential = await signInWithCredential(auth, credential);
-        return {
-          user: userCredential.user,
-          idToken: await userCredential.user.getIdToken()
-        };
-      }
+      if (!auth) throw new Error("Firebase Auth غير مهيأ");
 
-      return { user: null, idToken };
+      const credential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await signInWithCredential(auth, credential);
+      
+      return { 
+        user: userCredential.user, 
+        idToken: await userCredential.user.getIdToken() 
+      };
     } else {
       // ✅ للويب
-      if (!isFirebaseWebReady()) {
-        throw new Error("Firebase Auth غير مهيأ. تأكد من متغيرات VITE_FIREBASE_*");
-      }
+      if (!auth) throw new Error("Firebase Auth غير مهيأ");
       
       try {
         const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
@@ -123,38 +97,27 @@ export const signInWithFacebook = async () => {
     if (Capacitor.isNativePlatform()) {
       // ✅ للهاتف
       console.log("Starting Native Facebook Sign-In...");
-      const firebaseAuthPlugin = await getFirebaseAuthPlugin();
       
-      const result = await firebaseAuthPlugin.signInWithFacebook().catch(err => {
+      const result = await FirebaseAuthentication.signInWithFacebook().catch(err => {
         console.error("Native Facebook Plugin Error:", err);
-        const error = new Error(`خطأ في إضافة فيسبوك: ${err.message || 'تأكد من معرف التطبيق (App ID) في strings.xml'}`);
-        (error as any).code = err.code || 'plugin_error';
-        throw error;
+        throw new Error(`خطأ في إضافة فيسبوك: ${err.message || 'تأكد من معرف التطبيق (App ID) في strings.xml'}`);
       });
       
-      const accessToken = ensureToken(
-        result?.credential?.accessToken,
-        "لم يتم استلام رمز الوصول (accessToken) من فيسبوك."
-      );
+      const accessToken = result.credential?.accessToken;
+      if (!accessToken) throw new Error("لم يتم استلام رمز الوصول (accessToken) من فيسبوك.");
 
-      // Facebook native returns access token؛ نحوله إلى Firebase ID token إن كانت
-      // تهيئة Firebase Web متاحة. في حال غيابها نعيد خطأ واضح بدل انهيار عشوائي.
-      if (!isFirebaseWebReady()) {
-        throw new Error("Firebase Auth غير مهيأ لفيسبوك. تأكد من متغيرات VITE_FIREBASE_*.");
-      }
+      if (!auth) throw new Error("Firebase Auth غير مهيأ");
 
       const credential = FacebookAuthProvider.credential(accessToken);
       const userCredential = await signInWithCredential(auth, credential);
-
-      return {
-        user: userCredential.user,
-        idToken: await userCredential.user.getIdToken()
+      
+      return { 
+        user: userCredential.user, 
+        idToken: await userCredential.user.getIdToken() 
       };
     } else {
       // ✅ للويب
-      if (!isFirebaseWebReady()) {
-        throw new Error("Firebase Auth غير مهيأ. تأكد من متغيرات VITE_FIREBASE_*");
-      }
+      if (!auth) throw new Error("Firebase Auth غير مهيأ");
       
       // ✅ للويب: استخدام signInWithRedirect مباشرة لتجنب حظر النوافذ المنبثقة
       await signInWithRedirect(auth, facebookProvider);
@@ -172,7 +135,7 @@ export const signInWithFacebook = async () => {
  */
 export const handleRedirectResult = async () => {
   if (Capacitor.isNativePlatform()) return null;
-  if (!isFirebaseWebReady()) return null;
+  if (!auth) return null;
   
   try {
     const result = await getRedirectResult(auth);

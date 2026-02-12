@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   appName: 'خدمات راتنزر',
   webDir: 'dist',
   server: {
-    iosScheme: 'https',
+    androidScheme: 'https',
     allowNavigation: [
       'ratnzer-services-bb0a0cce4837.herokuapp.com',
       '*.paytabs.com',
@@ -16,24 +16,13 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 3000,
       launchAutoHide: true,
-      launchFadeOutDuration: 300,
       backgroundColor: "#0f172a",
       androidScaleType: "CENTER_CROP",
-      showSpinner: false,
+      showSpinner: true,
       androidSpinnerStyle: "large",
-      spinnerColor: "#10b981",
-      splashFullScreen: true,
-      splashImmersive: true
-    },
-    FirebaseAuthentication: {
-      // ✅ Prevent hard native-auth dependency at app boot (avoids startup crashes
-      // when Firebase native files/config are missing or partially configured).
-      // We still use the plugin for Google/Facebook sign-in and exchange tokens
-      // safely in the app layer.
-      skipNativeAuth: true,
-      providers: ["google.com", "facebook.com"]
+      spinnerColor: "#10b981"
     }
   }
 };
