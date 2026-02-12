@@ -75,15 +75,7 @@ jobs:
         run: npm run update-version
 
       - name: Build Web Assets
-        env:
-          VITE_API_URL: "https://ratnzer-services-bb0a0cce4837.herokuapp.com/api"
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-        run: npm run build
+        run: VITE_API_URL="https://ratnzer-services-bb0a0cce4837.herokuapp.com/api" npm run build
 
       - name: ضغط ملفات الويب (Web Build)
         run: |
@@ -91,22 +83,10 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
+          # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
           rm -rf android
           npx cap add android
-
-      - name: حقن إعدادات Facebook و Firebase في Android
-        run: |
-          # إضافة معرفات فيسبوك إلى strings.xml لمنع الانهيار
-          STRINGS_FILE="android/app/src/main/res/values/strings.xml"
-          sed -i '/<\/resources>/i \    <string name="facebook_app_id">${{ secrets.FACEBOOK_APP_ID }}<\/string>' $STRINGS_FILE
-          sed -i '/<\/resources>/i \    <string name="fb_login_protocol_scheme">fb${{ secrets.FACEBOOK_APP_ID }}<\/string>' $STRINGS_FILE
-          sed -i '/<\/resources>/i \    <string name="facebook_client_token">${{ secrets.FACEBOOK_CLIENT_TOKEN }}<\/string>' $STRINGS_FILE
           
-          # إضافة أذونات الإشعارات إلى AndroidManifest.xml
-          MANIFEST_FILE="android/app/src/main/src/main/AndroidManifest.xml"
-          # تصحيح المسار إذا كان مختلفاً في Capacitor 6
-          if [ ! -f "$MANIFEST_FILE" ]; then MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"; fi
-          sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' $MANIFEST_FILE
 
       - name: تحديث رقم إصدار Android
         env:
@@ -173,12 +153,12 @@ jobs:
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
             ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء وتوقيع الملفات تلقائياً مع إصلاحات الاستقرار.
+            تم بناء وتوقيع الملفات تلقائياً.
             
             ### 📁 الملفات المرفقة:
             1. **APK**: للتثبيت المباشر على الهواتف.
-            2. **AAB**: للرفع على متجر جوجل بلاي.
-            3. **Web Build**: ملفات الويب.
+            2. **AAB**: للرفع على متجر جوجل بلاي (Google Play Store).
+            3. **Web Build**: ملفات الويب جاهزة للنشر على أي استضافة.
           draft: false
           prerelease: false
 
