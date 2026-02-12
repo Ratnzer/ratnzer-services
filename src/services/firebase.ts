@@ -84,8 +84,7 @@ export const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
       const idToken = await result.user.getIdToken();
-      const providerId = result.user.providerData?.[0]?.providerId || null;
-      return { user: result.user, idToken, providerId };
+      return { user: result.user, idToken };
     } catch (error) {
       const popupError = error as any;
       if (popupError?.code === "auth/popup-blocked" || popupError?.code === "auth/cancelled-popup-request") {
