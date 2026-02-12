@@ -100,9 +100,10 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
-          rm -rf android
-          npx cap add android
+          # لا نحذف مجلد android حتى لا نفقد إعدادات Facebook/Google الأصلية
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
           
 
       - name: تحديث رقم إصدار Android

@@ -6,7 +6,6 @@ import {
   signInWithPopup, 
   signInWithRedirect,
   getRedirectResult,
-  signInWithCredential,
   browserPopupRedirectResolver
 } from "firebase/auth";
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
@@ -55,25 +54,22 @@ export const facebookProvider = new FacebookAuthProvider();
 export const signInWithGoogle = async () => {
   try {
     if (Capacitor.isNativePlatform()) {
-      // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin
+      // ✅ للهاتف: استخدام المصادقة الأصلية عبر Capacitor Plugin بدون الاعتماد على Firebase JS
       console.log("Starting Native Google Sign-In...");
       
       const result = await FirebaseAuthentication.signInWithGoogle().catch(err => {
         console.error("Native Google Plugin Error:", err);
         throw new Error(`خطأ في إضافة جوجل: ${err.message || 'تأكد من إعدادات SHA-1 في Firebase'}`);
       });
-      
-      const idToken = result.credential?.idToken;
-      if (!idToken) throw new Error("لم يتم استلام رمز التحقق (idToken) من جوجل. تأكد من ملف google-services.json");
+      if (!result?.user) throw new Error("فشل تسجيل الدخول عبر جوجل على النظام");
 
-      if (!auth) throw new Error("Firebase Auth غير مهيأ");
-
-      const credential = GoogleAuthProvider.credential(idToken);
-      const userCredential = await signInWithCredential(auth, credential);
+      const tokenResult = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
+      const idToken = tokenResult?.token;
+      if (!idToken) throw new Error("لم يتم استلام رمز التحقق (idToken) من جوجل");
       
       return { 
-        user: userCredential.user, 
-        idToken: await userCredential.user.getIdToken(),
+        user: result.user,
+        idToken,
         provider: 'google.com'
       } satisfies SocialSignInResult;
     } else {
@@ -104,25 +100,22 @@ export const signInWithGoogle = async () => {
 export const signInWithFacebook = async () => {
   try {
     if (Capacitor.isNativePlatform()) {
-      // ✅ للهاتف
+      // ✅ للهاتف: Native Facebook + Firebase token من الطبقة الأصلية
       console.log("Starting Native Facebook Sign-In...");
       
       const result = await FirebaseAuthentication.signInWithFacebook().catch(err => {
         console.error("Native Facebook Plugin Error:", err);
         throw new Error(`خطأ في إضافة فيسبوك: ${err.message || 'تأكد من معرف التطبيق (App ID) في strings.xml'}`);
       });
-      
-      const accessToken = result.credential?.accessToken;
-      if (!accessToken) throw new Error("لم يتم استلام رمز الوصول (accessToken) من فيسبوك.");
+      if (!result?.user) throw new Error("فشل تسجيل الدخول عبر فيسبوك على النظام");
 
-      if (!auth) throw new Error("Firebase Auth غير مهيأ");
-
-      const credential = FacebookAuthProvider.credential(accessToken);
-      const userCredential = await signInWithCredential(auth, credential);
+      const tokenResult = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
+      const idToken = tokenResult?.token;
+      if (!idToken) throw new Error("لم يتم استلام رمز التحقق (idToken) من فيسبوك");
       
       return { 
-        user: userCredential.user, 
-        idToken: await userCredential.user.getIdToken(),
+        user: result.user,
+        idToken,
         provider: 'facebook.com'
       } satisfies SocialSignInResult;
     } else {
