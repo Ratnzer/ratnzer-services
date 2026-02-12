@@ -263,6 +263,8 @@ const App: React.FC = () => {
   const actionToastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pushInitRef = useRef(false);
   const navigationHistory = useRef<View[]>([]);
+  const currentViewRef = useRef<View>(View.HOME);
+  const exitModalOpenRef = useRef(false);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
@@ -273,6 +275,14 @@ const App: React.FC = () => {
   const [isPurchaseProcessing, setIsPurchaseProcessing] = useState<boolean>(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+
+  useEffect(() => {
+    currentViewRef.current = currentView;
+  }, [currentView]);
+
+  useEffect(() => {
+    exitModalOpenRef.current = isExitModalOpen;
+  }, [isExitModalOpen]);
 
   const getFormattedBanDate = () => {
     const rawDate =
@@ -340,20 +350,21 @@ const App: React.FC = () => {
         // If not on Home, go back to previous view or Home
         if (navigationHistory.current.length > 0) {
           const prevView = navigationHistory.current.pop();
-          if (prevView) setCurrentView(prevView);
+          setCurrentView(prevView || View.HOME);
         } else {
           setCurrentView(View.HOME);
         }
-      } else {
-        // If on Home, show confirmation alert before exit
-        setIsExitModalOpen(true);
+        return;
       }
+
+      // On Home screen, require explicit confirmation before exiting.
+      setIsExitModalOpen(true);
     });
 
     return () => {
       backButtonListener.then((l: any) => l.remove());
     };
-  }, [currentView]);
+  }, []);
 
   useEffect(() => () => {
     if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
@@ -2588,7 +2599,10 @@ useEffect(() => {
         <ExitConfirmModal 
           isOpen={isExitModalOpen} 
           onClose={() => setIsExitModalOpen(false)} 
-          onConfirm={() => CapApp.exitApp()}
+          onConfirm={() => {
+            setIsExitModalOpen(false);
+            CapApp.exitApp();
+          }}
         />
 
         <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
