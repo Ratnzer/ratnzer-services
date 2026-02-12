@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.getcapacitor.BridgeActivity;
+import io.capawesome.capacitorjs.plugins.firebase.auth.FirebaseAuthenticationPlugin;
 
 import io.capawesome.capacitorjs.plugins.firebase.auth.FirebaseAuthenticationPlugin;
 
