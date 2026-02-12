@@ -83,19 +83,10 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          # بعض المستودعات تحتوي مجلد android جزئيًا بدون gradlew.
-          # نولّد مشروعًا كاملاً ثم نعيد تطبيق ملفات Android المخصصة الموجودة في git.
-          if [ ! -f "android/gradlew" ]; then
-            echo "⚠️ Android project غير مكتمل - سيتم إعادة توليد الهيكل الأساسي"
-            rm -rf android
-            npx cap add android
-
-            echo "🔁 إعادة تطبيق كل ملفات Android المتعقبة في Git"
-            git checkout -- android
-          else
-            echo "android project مكتمل - سيتم استخدامه كما هو"
-          fi
-
+          # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
+          rm -rf android
+          npx cap add android
+          
 
       - name: تحديث رقم إصدار Android
         env:
@@ -117,15 +108,13 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build APKs & AAB (Release + Debug)
+      - name: Build APK & AAB (Always Release)
         run: |
           cd android
           chmod +x gradlew
-          echo "🏗️ بناء ملف APK Release (للتثبيت المباشر)..."
+          echo "🏗️ بناء ملف APK (للتثبيت المباشر)..."
           ./gradlew assembleRelease
-          echo "🐞 بناء ملف APK Debug (لتشخيص الكراش على الهاتف)..."
-          ./gradlew assembleDebug
-          echo "🏗️ بناء ملف AAB Release (لمتجر جوجل بلاي)..."
+          echo "🏗️ بناء ملف AAB (لمتجر جوجل بلاي)..."
           ./gradlew bundleRelease
 
       - name: توقيع ملف APK
@@ -161,17 +150,15 @@ jobs:
           files: |
             ${{ steps.sign_apk.outputs.signedReleaseFile }}
             ${{ steps.sign_aab.outputs.signedReleaseFile }}
-            android/app/build/outputs/apk/debug/app-debug.apk
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
             ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
             تم بناء وتوقيع الملفات تلقائياً.
             
             ### 📁 الملفات المرفقة:
-            1. **APK Release (Signed)**: للتثبيت المباشر على الهواتف.
-            2. **AAB Release (Signed)**: للرفع على متجر جوجل بلاي (Google Play Store).
-            3. **APK Debug**: مخصص لاختبار الهاتف وتشخيص كراشات الإقلاع.
-            4. **Web Build**: ملفات الويب جاهزة للنشر على أي استضافة.
+            1. **APK**: للتثبيت المباشر على الهواتف.
+            2. **AAB**: للرفع على متجر جوجل بلاي (Google Play Store).
+            3. **Web Build**: ملفات الويب جاهزة للنشر على أي استضافة.
           draft: false
           prerelease: false
 
@@ -182,6 +169,5 @@ jobs:
           path: |
             ${{ steps.sign_apk.outputs.signedReleaseFile }}
             ${{ steps.sign_aab.outputs.signedReleaseFile }}
-            android/app/build/outputs/apk/debug/app-debug.apk
             web-build-v${{ steps.vars.outputs.version }}.zip
           retention-days: 14

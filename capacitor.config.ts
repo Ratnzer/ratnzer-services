@@ -1,5 +1,3 @@
-/// <reference types="@capacitor-firebase/authentication" />
-
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
@@ -17,10 +15,6 @@ const config: CapacitorConfig = {
     ]
   },
   plugins: {
-    FirebaseAuthentication: {
-      skipNativeAuth: true,
-      providers: ['google.com', 'facebook.com']
-    },
     SplashScreen: {
       launchShowDuration: 3000,
       launchAutoHide: true,
