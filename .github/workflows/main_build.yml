@@ -83,11 +83,14 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          # لا نحذف مجلد android حتى لا نفقد التعديلات الأصلية (Manifest/MainActivity/Application)
-          if [ ! -d "android" ]; then
+          # بعض المستودعات تحتوي مجلد android جزئيًا (مثل android/app فقط) بدون gradlew.
+          # في هذه الحالة نعيد توليد المشروع الكامل حتى لا يفشل البناء عند chmod/gradlew.
+          if [ ! -f "android/gradlew" ]; then
+            echo "⚠️ Android project غير مكتمل أو غير موجود - سيتم توليده من جديد"
+            rm -rf android
             npx cap add android
           else
-            echo "android project موجود مسبقًا - سيتم استخدامه كما هو"
+            echo "android project مكتمل - سيتم استخدامه كما هو"
           fi
 
 
