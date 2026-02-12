@@ -263,8 +263,6 @@ const App: React.FC = () => {
   const actionToastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pushInitRef = useRef(false);
   const navigationHistory = useRef<View[]>([]);
-  const currentViewRef = useRef<View>(View.HOME);
-  const exitModalOpenRef = useRef(false);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
@@ -275,14 +273,6 @@ const App: React.FC = () => {
   const [isPurchaseProcessing, setIsPurchaseProcessing] = useState<boolean>(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
-
-  useEffect(() => {
-    currentViewRef.current = currentView;
-  }, [currentView]);
-
-  useEffect(() => {
-    exitModalOpenRef.current = isExitModalOpen;
-  }, [isExitModalOpen]);
 
   const getFormattedBanDate = () => {
     const rawDate =
@@ -342,38 +332,26 @@ const App: React.FC = () => {
   }, [inAppNotification]);
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-    if (!Capacitor.isPluginAvailable('App')) return;
-
-    // Handle Android hardware back button safely and prevent accidental exits.
-    const backButtonListener = CapApp.addListener('backButton', () => {
-      // If exit dialog is visible, close it first.
-      if (exitModalOpenRef.current) {
-        setIsExitModalOpen(false);
-        return;
-      }
-
-      if (currentViewRef.current !== View.HOME) {
-        // If not on Home, navigate back inside the app first.
-        if (navigationHistory.current.length > 1) {
-          // Remove current view, then take the previous one.
-          navigationHistory.current.pop();
+    // Handle Hardware Back Button for Android
+    const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
+      if (currentView !== View.HOME) {
+        // If not on Home, go back to previous view or Home
+        if (navigationHistory.current.length > 0) {
           const prevView = navigationHistory.current.pop();
-          setCurrentView(prevView || View.HOME);
+          if (prevView) setCurrentView(prevView);
         } else {
           setCurrentView(View.HOME);
         }
-        return;
+      } else {
+        // If on Home, show confirmation alert before exit
+        setIsExitModalOpen(true);
       }
-
-      // On Home screen, require explicit confirmation before exiting.
-      setIsExitModalOpen(true);
     });
 
     return () => {
       backButtonListener.then((l: any) => l.remove());
     };
-  }, []);
+  }, [currentView]);
 
   useEffect(() => () => {
     if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
@@ -393,14 +371,7 @@ const App: React.FC = () => {
           if (typeof handleRedirectResult === 'function') {
             const result = await handleRedirectResult();
             if (result?.idToken) {
-              // محاولة تسجيل الدخول - قد يكون من Google أو Facebook
-              let res = await authService.googleLogin(result.idToken).catch(() => null);
-              
-              // إذا فشل Google، حاول Facebook
-              if (!res) {
-                res = await authService.facebookLogin(result.idToken).catch(() => null);
-              }
-              
+              const res = await authService.googleLogin(result.idToken);
               const token = (res as any)?.data?.token;
               if (token) {
                 localStorage.setItem('token', token);
@@ -408,9 +379,8 @@ const App: React.FC = () => {
               }
             }
           }
-        } catch (error: any) {
-          console.error("Critical redirect auth error:", error);
-          alert(`فشل إكمال تسجيل الدخول بعد العودة: ${error.message || 'خطأ غير معروف'}`);
+        } catch (error) {
+          console.warn("Non-critical redirect auth error:", error);
         }
       };
       void checkRedirect();
@@ -491,7 +461,6 @@ useEffect(() => {
   const initPushNotifications = async () => {
     try {
       if (Capacitor.getPlatform() !== 'android') return;
-      if (!Capacitor.isPluginAvailable('PushNotifications')) return;
       if (pushInitRef.current) return;
       pushInitRef.current = true;
 
@@ -2609,12 +2578,7 @@ useEffect(() => {
         <ExitConfirmModal 
           isOpen={isExitModalOpen} 
           onClose={() => setIsExitModalOpen(false)} 
-          onConfirm={() => {
-            setIsExitModalOpen(false);
-            if (Capacitor.isPluginAvailable('App')) {
-              CapApp.exitApp();
-            }
-          }}
+          onConfirm={() => CapApp.exitApp()}
         />
 
         <div className="hidden sm:block absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-[#2d2d2d] rounded-b-2xl z-[60]"></div>
