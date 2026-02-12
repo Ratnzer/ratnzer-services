@@ -49,7 +49,6 @@ public final class RatnzerStartupDiagnostics {
                 recordCrash(appContext, "Uncaught exception from " + source + " on thread: " + thread.getName(), throwable);
                 Log.e(TAG, "Uncaught exception captured in early startup diagnostics.", throwable);
                 appendToDebugFile(appContext, "UNCAUGHT", "source=" + source + " thread=" + thread.getName() + "\n" + Log.getStackTraceString(throwable));
-                forceExportStateSnapshot(appContext, "uncaught_" + source);
                 if (defaultHandler != null) {
                     defaultHandler.uncaughtException(thread, throwable);
                 }
