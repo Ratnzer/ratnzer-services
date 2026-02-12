@@ -12,6 +12,8 @@ import io.capawesome.capacitorjs.plugins.firebase.auth.FirebaseAuthenticationPlu
 
 import io.capawesome.capacitorjs.plugins.firebase.auth.FirebaseAuthenticationPlugin;
 
+import io.capawesome.capacitorjs.plugins.firebase.auth.FirebaseAuthenticationPlugin;
+
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "MainActivity";
 
