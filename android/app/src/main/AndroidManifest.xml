@@ -6,7 +6,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
@@ -34,11 +34,7 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".EarlyStartupProvider"
-            android:authorities="com.ratnzer.app.startup"
-            android:exported="false"
-            android:initOrder="1000" />
+<!-- EarlyStartupProvider removed to prevent startup crashes -->
 
         <provider
             android:name="androidx.core.content.FileProvider"
