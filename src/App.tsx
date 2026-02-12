@@ -344,19 +344,11 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    // Handle Android hardware back button safely and prevent accidental exits.
-    const backButtonListener = CapApp.addListener('backButton', () => {
-      // If exit dialog is visible, close it first.
-      if (exitModalOpenRef.current) {
-        setIsExitModalOpen(false);
-        return;
-      }
-
-      if (currentViewRef.current !== View.HOME) {
-        // If not on Home, navigate back inside the app first.
-        if (navigationHistory.current.length > 1) {
-          // Remove current view, then take the previous one.
-          navigationHistory.current.pop();
+    // Handle Hardware Back Button for Android
+    const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
+      if (currentView !== View.HOME) {
+        // If not on Home, go back to previous view or Home
+        if (navigationHistory.current.length > 0) {
           const prevView = navigationHistory.current.pop();
           setCurrentView(prevView || View.HOME);
         } else {
