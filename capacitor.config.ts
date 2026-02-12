@@ -28,7 +28,11 @@ const config: CapacitorConfig = {
       splashImmersive: true
     },
     FirebaseAuthentication: {
-      skipNativeAuth: false,
+      // ✅ Prevent hard native-auth dependency at app boot (avoids startup crashes
+      // when Firebase native files/config are missing or partially configured).
+      // We still use the plugin for Google/Facebook sign-in and exchange tokens
+      // safely in the app layer.
+      skipNativeAuth: true,
       providers: ["google.com", "facebook.com"]
     }
   }
