@@ -17,7 +17,6 @@ import SupportModal from './components/SupportModal'; // Import SupportModal
 import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut, Sparkles, Zap, Music, Video, ShoppingBasket, MonitorSmartphone, Wifi, Laptop, Tablet, Mouse, Keyboard, Cpu, Router, Server, Coffee, Pizza, Shirt, Watch, Briefcase, Plane, Megaphone, Ticket, Film, Clapperboard, Palette, Brush, Dumbbell, Bike, Bed, Home as HomeIcon, Building, GraduationCap, School, BookOpen, Library, Code, Terminal, Database, Cloud, Bitcoin, DollarSign, Key, Wrench, Hammer, Settings, Flame, Sun, Moon, CloudRain, Truck, Anchor, Crown, Diamond, Medal, Trophy } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
-// @ts-ignore
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 // @ts-ignore
@@ -334,30 +333,23 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Handle Hardware Back Button for Android
-    let listener: any = null;
-    try {
-      listener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
-        if (currentView !== View.HOME) {
-          // If not on Home, go back to previous view or Home
-          if (navigationHistory.current.length > 0) {
-            const prevView = navigationHistory.current.pop();
-            if (prevView) setCurrentView(prevView);
-          } else {
-            setCurrentView(View.HOME);
-          }
+    const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
+      if (currentView !== View.HOME) {
+        // If not on Home, go back to previous view or Home
+        if (navigationHistory.current.length > 0) {
+          const prevView = navigationHistory.current.pop();
+          if (prevView) setCurrentView(prevView);
         } else {
-          // If on Home, show confirmation alert before exit
-          setIsExitModalOpen(true);
+          setCurrentView(View.HOME);
         }
-      });
-    } catch (e) {
-      console.warn("CapApp backButton listener failed to register", e);
-    }
+      } else {
+        // If on Home, show confirmation alert before exit
+        setIsExitModalOpen(true);
+      }
+    });
 
     return () => {
-      if (listener) {
-        listener.then((l: any) => l.remove()).catch(() => {});
-      }
+      backButtonListener.then((l: any) => l.remove());
     };
   }, [currentView]);
 
@@ -370,13 +362,7 @@ const App: React.FC = () => {
   // Handle Firebase Auth Redirect Result (Web Only)
   useEffect(() => {
     // ✅ Safe check for web platform only
-    let isWeb = false;
-    try {
-      isWeb = Capacitor.getPlatform() === 'web';
-    } catch (e) {
-      console.warn("Capacitor platform check failed", e);
-      isWeb = typeof window !== 'undefined' && !window.hasOwnProperty('Capacitor');
-    }
+    const isWeb = Capacitor.getPlatform() === 'web';
     
     if (isWeb) {
       const checkRedirect = async () => {
@@ -416,13 +402,6 @@ const App: React.FC = () => {
 
   const showLocalNotification = async (notification: PushNotificationSchema) => {
     if (typeof window === 'undefined') return;
-    
-    // Safety check for Capacitor
-    try {
-      if (Capacitor.getPlatform() === 'web' && document.visibilityState === 'visible') {
-        // on web, if visible, we might not want to show system notification
-      }
-    } catch (e) {}
 
     const title = notification?.title || 'إشعار جديد';
     const body =
@@ -481,99 +460,74 @@ const App: React.FC = () => {
 // ✅ Firebase Push Notifications (FCM) - Android only
 // - Saves token into localStorage (fcm_token) and registers device silently
 // ============================================================
-  useEffect(() => {
-    const initPushNotifications = async () => {
-      try {
-        let platform = '';
+useEffect(() => {
+  const initPushNotifications = async () => {
+    try {
+      if (Capacitor.getPlatform() !== 'android') return;
+      if (pushInitRef.current) return;
+      pushInitRef.current = true;
+
+      const perm = await PushNotifications.requestPermissions();
+      if (perm.receive !== 'granted') return;
+
+      await PushNotifications.register();
+      PushNotifications.addListener('registration', async (token) => {
         try {
-          platform = Capacitor.getPlatform();
-        } catch (pe) {
-          console.warn("Push init: platform detection failed", pe);
-          return;
-        }
+          const value = String(token?.value || '');
+          if (!value) return;
 
-        if (platform !== 'android') return;
-        if (pushInitRef.current) return;
-        pushInitRef.current = true;
+          localStorage.setItem('fcm_token', value);
+          setFcmToken(value);
 
-        // Wrap each plugin call in try-catch to be extremely safe
-        try {
-          const perm = await PushNotifications.requestPermissions();
-          if (perm.receive !== 'granted') return;
+          try {
+            await pushService.registerDevice({
+              token: value,
+              platform: 'android',
+              userId: currentUser?.id,
+            });
+          } catch (regErr) {
+            console.warn('Failed to register device token', regErr);
+          }
+        } catch {}
+      });
 
-          await PushNotifications.register();
-          
-          PushNotifications.addListener('registration', async (token) => {
-            try {
-              const value = String(token?.value || '');
-              if (!value) return;
+      PushNotifications.addListener('registrationError', (err) => {
+        console.error('Push registration error:', err);
+      });
 
-              localStorage.setItem('fcm_token', value);
-              setFcmToken(value);
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('Notification received:', notification);
+        void showLocalNotification(notification);
+      });
 
-              try {
-                await pushService.registerDevice({
-                  token: value,
-                  platform: 'android',
-                  userId: currentUser?.id,
-                });
-              } catch (regErr) {
-                console.warn('Failed to register device token', regErr);
-              }
-            } catch (innerErr) {
-              console.warn("Push registration listener error", innerErr);
-            }
-          });
+      PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+        console.log('Notification action:', action);
+      });
+    } catch (e) {
+      console.warn('Failed to init push notifications', e);
+    }
+  };
 
-          PushNotifications.addListener('registrationError', (err) => {
-            console.error('Push registration error:', err);
-          });
+  void initPushNotifications();
+}, [currentUser?.id]);
 
-          PushNotifications.addListener('pushNotificationReceived', (notification) => {
-            console.log('Notification received:', notification);
-            void showLocalNotification(notification);
-          });
-
-          PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-            console.log('Notification action:', action);
-          });
-        } catch (pluginErr) {
-          console.warn("PushNotifications plugin calls failed", pluginErr);
-        }
-      } catch (e) {
-        console.warn('Failed to init push notifications', e);
-      }
-    };
-
-    void initPushNotifications();
-  }, [currentUser?.id]);
-
-  // Register device when token already available (e.g., after login)
-  useEffect(() => {
-    const syncToken = async () => {
-      if (!fcmToken) return;
-      
-      let platform = '';
-      try {
-        platform = Capacitor.getPlatform();
-      } catch (pe) {
-        return;
-      }
-      
-      if (platform !== 'android') return;
-      
-      try {
-        await pushService.registerDevice({
-          token: fcmToken,
-          platform: 'android',
-          userId: currentUser?.id,
-        });
-      } catch (err) {
-        console.warn('Failed to sync device token', err);
-      }
-    };
-    void syncToken();
-  }, [fcmToken, currentUser?.id]);
+// Register device when token already available (e.g., after login)
+useEffect(() => {
+  const syncToken = async () => {
+    if (!fcmToken) return;
+    if (Capacitor.getPlatform() !== 'android') return;
+    try {
+      await pushService.registerDevice({
+        token: fcmToken,
+        platform: 'android',
+        userId: currentUser?.id,
+      });
+    } catch (err) {
+      console.warn('Failed to sync device token', err);
+    }
+  };
+  void syncToken();
+}, [fcmToken, currentUser?.id]);
 
   // Clear in-app notification timeout on unmount
   useEffect(() => {
@@ -1234,45 +1188,46 @@ const App: React.FC = () => {
   // --- Security Check Effect ---
   useEffect(() => {
     const checkSecurity = async () => {
-      try {
-        let platform = '';
+      if (Capacitor.getPlatform() === 'android') {
         try {
-          platform = Capacitor.getPlatform();
-        } catch (pe) {
-          console.warn("Security check: platform detection failed", pe);
-          return;
-        }
+          // Check for App Cloning / Parallel Space
+          // Standard path: /data/user/0/com.ratnzer.app/files
+          // Cloned paths often contain: '999', 'parallel', 'virtual', 'dual', '10', '11' (multi-user)
+          
+          const uriResult = await Filesystem.getUri({
+            directory: Directory.Data,
+            path: '',
+          });
+          
+          const path = uriResult.uri;
+          
+          // List of suspicious keywords in path
+          const suspiciousIndicators = ['999', 'parallel', 'virtual', 'dual', 'clone', 'lbe', 'exposed', 'space'];
+          
+          // Check if path indicates a non-owner user (User 0 is owner)
+          // Dual apps usually run as user 999 or 10+
+          const isStandardUser = (
+            path.includes('/user/0/') ||
+            path.includes('/user_de/0/') ||
+            path.includes('/data/data/com.ratnzer.app') ||
+            path.includes('/data/user/0/')
+          );
+          const hasSuspiciousKeywords = suspiciousIndicators.some(keyword => path.toLowerCase().includes(keyword));
 
-        if (platform === 'android') {
-          try {
-            // Check for App Cloning / Parallel Space
-            const uriResult = await Filesystem.getUri({
-              directory: Directory.Data,
-              path: '',
-            }).catch(e => {
-              console.warn("Security check: Filesystem.getUri failed", e);
-              return null;
-            });
-            
-            if (!uriResult) return;
-            const path = uriResult.uri;
-            
-            // List of suspicious keywords in path
-            const suspiciousIndicators = ['999', 'parallel', 'virtual', 'dual', 'clone', 'lbe', 'exposed', 'space'];
-            
-            const hasSuspiciousKeywords = suspiciousIndicators.some(keyword => path.toLowerCase().includes(keyword));
-            const isNonOwnerUser = /\/user\/(?!0\/)\d+\//.test(path) || /\/user_de\/(?!0\/)\d+\//.test(path);
+                    // If we can reliably detect a non-owner Android user profile (e.g., user/10, user/999), block.
+          const isNonOwnerUser = /\/user\/(?!0\/)\d+\//.test(path) || /\/user_de\/(?!0\/)\d+\//.test(path);
 
-            if (hasSuspiciousKeywords || isNonOwnerUser) {
-               setIsSecurityBlocked(true);
-               setSecurityMessage('تم اكتشاف تشغيل التطبيق في بيئة غير آمنة (ناسخ تطبيقات أو مساحة مزدوجة). يرجى تشغيل التطبيق من الواجهة الرئيسية للهاتف لضمان حماية بياناتك المالية.');
-            }
-          } catch (error) {
-            console.error("Security Check Logic Failed:", error);
+          // NOTE: We intentionally do NOT block just because the path isn't in our "standard" list,
+          // because some devices return variants like /user_de/0/ which are normal.
+          if (hasSuspiciousKeywords || isNonOwnerUser) {
+             setIsSecurityBlocked(true);
+             setSecurityMessage('تم اكتشاف تشغيل التطبيق في بيئة غير آمنة (ناسخ تطبيقات أو مساحة مزدوجة). يرجى تشغيل التطبيق من الواجهة الرئيسية للهاتف لضمان حماية بياناتك المالية.');
           }
+
+        } catch (error) {
+          // If we can't access filesystem, it might be restricted, which is also suspicious
+          console.error("Security Check Failed:", error);
         }
-      } catch (globalError) {
-        console.error("Global Security Check Failure:", globalError);
       }
     };
 

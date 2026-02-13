@@ -100,31 +100,10 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          # احتفظ بنسخة من تخصيصات Android (Manifest/strings/java) لاستخدامها عند أي إعادة توليد
-          rm -rf /tmp/ratnzer-android-backup
-          mkdir -p /tmp/ratnzer-android-backup
-          if [ -d android/app/src/main ]; then
-            cp -R android/app/src/main /tmp/ratnzer-android-backup/main
-          fi
-
-          # إذا كان مشروع Android ناقص (مثل غياب gradlew) نعيد توليده
-          NEED_RECREATE=false
-          if [ ! -d android ]; then
-            NEED_RECREATE=true
-          elif [ ! -f android/gradlew ]; then
-            NEED_RECREATE=true
-          fi
-
-          if [ "$NEED_RECREATE" = true ]; then
-            echo "Android project missing/incomplete. Recreating platform..."
-            rm -rf android
-            npx cap add android
-
-            if [ -d /tmp/ratnzer-android-backup/main ]; then
-              mkdir -p android/app/src/main
-              cp -R /tmp/ratnzer-android-backup/main/. android/app/src/main/
-            fi
-          fi
+          # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
+          rm -rf android
+          npx cap add android
+          
 
       - name: تحديث رقم إصدار Android
         env:
@@ -145,24 +124,6 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
-
-      - name: Verify Android Gradle Wrapper
-        run: |
-          if [ ! -f android/gradlew ]; then
-            echo "gradlew not found after sync. Recreating Android platform..."
-            rm -rf android
-            npx cap add android
-
-            if [ -d /tmp/ratnzer-android-backup/main ]; then
-              mkdir -p android/app/src/main
-              cp -R /tmp/ratnzer-android-backup/main/. android/app/src/main/
-            fi
-
-            npx cap sync android
-          fi
-
-          test -f android/gradlew
-          chmod +x android/gradlew
 
       - name: Build APK & AAB (Always Release)
         run: |

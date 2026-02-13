@@ -60,11 +60,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
   const handleGoogleLogin = async () => {
     try {
       const { idToken } = await signInWithGoogle();
-      // في حالة redirect على الويب سيتم التعامل معها تلقائياً من App.tsx
-      if (!idToken) {
-        console.log('تم بدء تسجيل الدخول عبر Redirect من جوجل');
-        return;
-      }
+      if (!idToken) throw new Error('فشل الحصول على رمز التحقق من جوجل');
       const res = await authService.googleLogin(idToken);
       const token = (res as any)?.data?.token;
       if (token) {
