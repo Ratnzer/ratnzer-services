@@ -34,6 +34,14 @@ export interface SocialSignInResult {
   provider: SocialProvider;
 }
 
+const POPUP_RECOVERABLE_ERRORS = new Set([
+  'auth/popup-blocked',
+  'auth/cancelled-popup-request',
+  'auth/popup-closed-by-user'
+]);
+
+const shouldFallbackToRedirect = (error: any) => POPUP_RECOVERABLE_ERRORS.has(error?.code);
+
 try {
   if (firebaseConfig.apiKey) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -81,11 +89,12 @@ export const signInWithGoogle = async () => {
       if (!auth) throw new Error("Firebase Auth غير مهيأ");
       
       try {
+        // مهم: يجب استدعاء Popup مباشرة بعد حدث المستخدم لتجنب إغلاقه في Chrome
         const result = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
         const idToken = await result.user.getIdToken();
         return { user: result.user, idToken, provider: 'google.com' } satisfies SocialSignInResult;
       } catch (popupError: any) {
-        if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
+        if (shouldFallbackToRedirect(popupError)) {
           await signInWithRedirect(auth, googleProvider);
           return { user: null, idToken: null, provider: 'google.com' } satisfies SocialSignInResult;
         }
@@ -130,11 +139,12 @@ export const signInWithFacebook = async () => {
       if (!auth) throw new Error("Firebase Auth غير مهيأ");
 
       try {
+        // مهم: يجب استدعاء Popup مباشرة بعد حدث المستخدم لتجنب إغلاقه في Chrome
         const result = await signInWithPopup(auth, facebookProvider, browserPopupRedirectResolver);
         const idToken = await result.user.getIdToken();
         return { user: result.user, idToken, provider: 'facebook.com' } satisfies SocialSignInResult;
       } catch (popupError: any) {
-        if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
+        if (shouldFallbackToRedirect(popupError)) {
           await signInWithRedirect(auth, facebookProvider);
           return { user: null, idToken: null, provider: 'facebook.com' } satisfies SocialSignInResult;
         }
