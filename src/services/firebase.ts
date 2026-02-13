@@ -48,6 +48,31 @@ try {
 export const googleProvider = new GoogleAuthProvider();
 export const facebookProvider = new FacebookAuthProvider();
 
+const REDIRECT_PROVIDER_KEY = 'ratnzer_social_redirect_provider';
+
+const setPendingRedirectProvider = (provider: SocialProvider) => {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(REDIRECT_PROVIDER_KEY, provider);
+  } catch (_) {}
+};
+
+const getPendingRedirectProvider = (): SocialProvider | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = sessionStorage.getItem(REDIRECT_PROVIDER_KEY);
+    if (v === 'google.com' || v === 'facebook.com') return v;
+  } catch (_) {}
+  return null;
+};
+
+const clearPendingRedirectProvider = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(REDIRECT_PROVIDER_KEY);
+  } catch (_) {}
+};
+
 /**
  * معالجة تسجيل الدخول عبر Google
  */
@@ -82,6 +107,7 @@ export const signInWithGoogle = async () => {
         return { user: result.user, idToken, provider: 'google.com' } satisfies SocialSignInResult;
       } catch (popupError: any) {
         if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
+          setPendingRedirectProvider('google.com');
           await signInWithRedirect(auth, googleProvider);
           return { user: null, idToken: null, provider: 'google.com' } satisfies SocialSignInResult;
         }
@@ -128,6 +154,7 @@ export const signInWithFacebook = async () => {
         return { user: result.user, idToken, provider: 'facebook.com' } satisfies SocialSignInResult;
       } catch (popupError: any) {
         if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-popup-request') {
+          setPendingRedirectProvider('facebook.com');
           await signInWithRedirect(auth, facebookProvider);
           return { user: null, idToken: null, provider: 'facebook.com' } satisfies SocialSignInResult;
         }
@@ -152,8 +179,20 @@ export const handleRedirectResult = async () => {
     if (result) {
       const idToken = await result.user.getIdToken();
       const provider = (result.providerId === 'facebook.com' ? 'facebook.com' : 'google.com') as SocialProvider;
+      clearPendingRedirectProvider();
       return { user: result.user, idToken, provider } satisfies SocialSignInResult;
     }
+
+    // Chrome في بعض الحالات لا يعيد redirectResult رغم اكتمال تسجيل الدخول
+    const pendingProvider = getPendingRedirectProvider();
+    if (pendingProvider && auth.currentUser) {
+      const idToken = await auth.currentUser.getIdToken();
+      if (idToken) {
+        clearPendingRedirectProvider();
+        return { user: auth.currentUser, idToken, provider: pendingProvider } satisfies SocialSignInResult;
+      }
+    }
+
     return null;
   } catch (error) {
     console.error("Error handling redirect result:", error);
