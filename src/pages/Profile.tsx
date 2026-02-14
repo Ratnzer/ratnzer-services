@@ -10,6 +10,7 @@ import {
 import SupportModal from '../components/SupportModal';
 import { View, AppTerms, UserProfile, Currency } from '../types';
 import { authService } from '../services/api';
+import { auth } from '../services/firebase';
 import versionData from '../version.json';
 
 interface Props {
@@ -57,6 +58,13 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     confirmPassword: ''
   });
   const [showPasswords, setShowPasswords] = useState({ old: false, new: false, confirm: false });
+  const [avatarFailed, setAvatarFailed] = useState(false);
+
+  const defaultAvatar =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236b7280"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
+  const socialPhoto = auth?.currentUser?.photoURL || '';
+  const profileAvatar = (!avatarFailed && (user?.avatar || socialPhoto)) || defaultAvatar;
 
   // ✅ Server never sends the password itself; use a safe flag instead.
   const hasPassword = Boolean((user as any)?.hasPassword ?? (user as any)?.passwordSet ?? false);
@@ -70,6 +78,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
         });
     }
   }, [user]);
+
+  useEffect(() => {
+    setAvatarFailed(false);
+  }, [user?.avatar, socialPhoto]);
 
   const menuItems = [
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },
@@ -322,11 +334,13 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       >
          <div className="relative">
             <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border-[3px] border-yellow-400 shadow-lg group-hover:shadow-yellow-400/20 transition-all">
-                <div className="w-full h-full bg-[#cbd5e1] flex items-center justify-center text-gray-500">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-14 h-14 mt-2">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
-                </div>
+                <img
+                  src={profileAvatar}
+                  alt="صورة المستخدم"
+                  className="w-full h-full object-cover"
+                  onError={() => setAvatarFailed(true)}
+                  loading="lazy"
+                />
             </div>
             <div className="absolute bottom-0 left-0 bg-[#242636] text-yellow-400 p-1 rounded-full border border-gray-700 shadow-sm">
                 <Edit2 size={10} />
@@ -620,11 +634,13 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <div className="flex flex-col items-center mb-8">
                        <div className="relative mb-3">
                            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-yellow-400">
-                                <div className="w-full h-full bg-[#cbd5e1] flex items-center justify-center text-gray-500">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-20 h-20 mt-3">
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                    </svg>
-                                </div>
+                                <img
+                                  src={profileAvatar}
+                                  alt="صورة المستخدم"
+                                  className="w-full h-full object-cover"
+                                  onError={() => setAvatarFailed(true)}
+                                  loading="lazy"
+                                />
                            </div>
                            <button className="absolute bottom-0 right-0 bg-[#242636] p-2 rounded-full border border-gray-700 text-yellow-400 shadow-md">
                                <Camera size={16} />
