@@ -168,17 +168,30 @@ const getReturnUrl = (type) => {
   return `${cleanBase}/api/payments/paytabs/return`;
 };
 
-const getFrontendReturnUrl = (params, type) => {
-  // Deep links for Android app
-  if (type === 'topup') {
-    return `ratnzer://wallet`;
-  } else if (type === 'single' || type === 'cart') {
-    return `ratnzer://service`;
-  }
-  
-  // Fallback to Capacitor default local origin
+const getFrontendReturnUrl = (params, type, isApp = false) => {
+  const base = process.env.APP_BASE_URL || 'https://www.ratnzer.com';
+  const cleanBase = base.replace(/\/$/, '');
   const qs = new URLSearchParams(params || {}).toString();
-  return `https://localhost/?${qs}`;
+
+  if (isApp) {
+    // Deep links for Android app
+    if (type === 'topup') {
+      return `ratnzer://wallet?${qs}`;
+    } else if (type === 'single' || type === 'cart') {
+      return `ratnzer://service?${qs}`;
+    }
+    // Fallback to Capacitor default local origin
+    return `https://localhost/?${qs}`;
+  }
+
+  // Web redirection
+  if (type === 'topup') {
+    return `${cleanBase}/wallet?${qs}`;
+  } else if (type === 'single' || type === 'cart') {
+    return `${cleanBase}/profile?${qs}`; // Or wherever orders are listed
+  }
+
+  return `${cleanBase}/?${qs}`;
 };
 
 const buildCustomerDetails = (user) => {
@@ -867,32 +880,58 @@ const paytabsReturn = asyncHandler(async (req, res) => {
     } catch {}
   }
 
+  // Detect if request is from the app (using a custom header or user agent hint if available)
+  // For now, we can check if the user agent contains "Capacitor" or similar, 
+  // or rely on the fact that the app might pass a specific flag.
+  const ua = req.headers['user-agent'] || '';
+  const isApp = ua.includes('Capacitor') || ua.includes('wv') || src.is_app === 'true';
+
   const frontendUrl = getFrontendReturnUrl({
     pt_payment_id: paymentId || '',
     pt_tran_ref: tranRef || '',
     pt_return_view: returnView || 'home',
-  }, returnView === 'wallet' ? 'topup' : 'service');
+  }, returnView === 'wallet' ? 'topup' : 'service', isApp);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  const isDeepLink = frontendUrl.startsWith('ratnzer://');
+  const title = isDeepLink ? 'العودة إلى التطبيق' : 'جاري توجيهك...';
+  const message = isDeepLink ? 'جاري العودة للتطبيق…' : 'جاري العودة للموقع…';
+  const buttonText = isDeepLink ? 'العودة للتطبيق' : 'العودة للموقع';
+
   res.end(`<!doctype html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>العودة إلى التطبيق</title>
+  <title>${title}</title>
   <style>
     body{background:#0f111a;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-    .box{max-width:420px;padding:24px;border-radius:18px;background:#1b1e2b;border:1px solid rgba(255,255,255,.08);text-align:center}
-    a{color:#facc15;text-decoration:none;font-weight:700}
+    .box{max-width:420px;padding:32px 24px;border-radius:24px;background:#1b1e2b;border:1px solid rgba(255,255,255,.08);text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04)}
+    .loader{border:3px solid rgba(255,255,255,.1);border-top:3px solid #facc15;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    a{display:inline-block;margin-top:20px;padding:12px 24px;background:#facc15;color:#000;text-decoration:none;font-weight:700;border-radius:12px;transition:transform 0.2s}
+    a:active{transform:scale(0.95)}
   </style>
 </head>
 <body>
   <div class="box">
-    <h2 style="margin:0 0 12px">جاري العودة للتطبيق…</h2>
-    <p style="margin:0 0 16px;color:rgba(255,255,255,.7)">إذا لم يتم تحويلك تلقائيًا اضغط الرابط أدناه</p>
-    <p style="margin:0"><a href="${frontendUrl}">العودة للتطبيق</a></p>
+    <div class="loader"></div>
+    <h2 style="margin:0 0 12px;font-size:20px">${message}</h2>
+    <p style="margin:0;color:rgba(255,255,255,.6);font-size:14px">إذا لم يتم تحويلك تلقائيًا خلال ثوانٍ، اضغط الزر أدناه</p>
+    <a href="${frontendUrl}">${buttonText}</a>
   </div>
-  <script>setTimeout(function(){ window.location.replace(${JSON.stringify(frontendUrl)}); }, 50);</script>
+  <script>
+    // Attempt immediate redirect
+    window.location.replace(${JSON.stringify(frontendUrl)});
+    
+    // Fallback for deep links (if app not installed or browser blocks)
+    if (${isDeepLink}) {
+      setTimeout(function() {
+        // If still on this page after 2.5s, maybe show a web fallback or just let them click
+        console.log("Deep link might have failed or app not installed");
+      }, 2500);
+    }
+  </script>
 </body>
 </html>`);
 });
