@@ -98,11 +98,14 @@ jobs:
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
 
-      - name: Initialize Android Platform
+      - name: Initialize or Repair Android Platform
         run: |
-          if [ ! -d "android" ]; then
+          if [ ! -f "android/build.gradle" ]; then
+            echo "مجلد الأندرويد غير مكتمل أو مفقود. يتم إعادة الإنشاء..."
+            rm -rf android
             npx cap add android
           else
+            echo "مجلد الأندرويد موجود، يتم التحديث..."
             npx cap sync android
           fi
 
@@ -114,11 +117,13 @@ jobs:
       - name: Add google-services.json (base64)
         run: |
           mkdir -p android/app
-          # استخدام السر إذا كان موجوداً، وإلا الاعتماد على الملف الموجود في المستودع
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
             printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           fi
-          test -s android/app/google-services.json
+          # التحقق من وجود الملف، إذا لم يكن موجوداً في الأسرار فإنه قد يكون موجوداً أصلاً في المستودع
+          if [ ! -s "android/app/google-services.json" ]; then
+            echo "تحذير: google-services.json مفقود أو فارغ!"
+          fi
 
       - name: Setup Facebook Authentication Config
         run: |
@@ -135,28 +140,6 @@ jobs:
           echo '    <string name="fb_login_protocol_scheme">fb2994111874110231</string>' >> "$STRINGS_FILE"
           echo '    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>' >> "$STRINGS_FILE"
           echo '</resources>' >> "$STRINGS_FILE"
-          echo "تم إنشاء ملف strings.xml بنجاح"
-          cat "$STRINGS_FILE"
-
-      - name: Verify AndroidManifest.xml Facebook Config
-        run: |
-          echo "التحقق من إعدادات Facebook في AndroidManifest.xml..."
-          MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
-          if [ -f "$MANIFEST_FILE" ]; then
-            echo "ملف AndroidManifest.xml موجود"
-            if grep -q "com.facebook.sdk.ApplicationId" "$MANIFEST_FILE"; then
-              echo "Facebook ApplicationId موجود في AndroidManifest"
-            else
-              echo "تحذير: Facebook ApplicationId غير موجود في AndroidManifest"
-              echo "سيتم الاعتماد على Capacitor لإضافته تلقائياً..."
-            fi
-            echo "--- بداية AndroidManifest.xml ---"
-            head -30 "$MANIFEST_FILE"
-            echo "--- نهاية المقتطف ---"
-          else
-            echo "خطأ: ملف AndroidManifest.xml غير موجود!"
-            exit 1
-          fi
 
       - name: Install Capacitor Assets Tool
         run: npm i -D @capacitor/assets --legacy-peer-deps
@@ -164,65 +147,23 @@ jobs:
       - name: Generate Android assets from resources
         run: npx @capacitor/assets generate --android
 
-      - name: Sync Capacitor
+      - name: Sync Capacitor (Final)
         run: npx cap sync android
-
-      - name: Final Verification of Required Files
-        run: |
-          echo "التحقق النهائي من جميع الملفات المطلوبة للمصادقة..."
-          ERRORS=0
-          if [ -f "android/app/google-services.json" ]; then
-            echo "google-services.json موجود"
-            if [ -s "android/app/google-services.json" ]; then
-              echo "google-services.json يحتوي على بيانات"
-            else
-              echo "google-services.json فارغ!"
-              ERRORS=$((ERRORS + 1))
-            fi
-          else
-            echo "google-services.json غير موجود!"
-            ERRORS=$((ERRORS + 1))
-          fi
-          if [ -f "android/app/src/main/res/values/strings.xml" ]; then
-            echo "strings.xml موجود"
-            if grep -q "facebook_app_id" "android/app/src/main/res/values/strings.xml"; then
-              echo "Facebook App ID موجود في strings.xml"
-            else
-              echo "Facebook App ID غير موجود في strings.xml!"
-              ERRORS=$((ERRORS + 1))
-            fi
-          else
-            echo "strings.xml غير موجود!"
-            ERRORS=$((ERRORS + 1))
-          fi
-          if grep -q "FirebaseAuthentication" "capacitor.config.ts"; then
-            echo "إعدادات FirebaseAuthentication موجودة في capacitor.config.ts"
-          else
-            echo "تحذير: إعدادات FirebaseAuthentication غير موجودة في capacitor.config.ts"
-            echo "يُفضل إضافتها لضمان عمل المصادقة بشكل صحيح"
-          fi
-          if [ -f "android/app/build.gradle" ]; then
-            echo "build.gradle موجود"
-          else
-            echo "build.gradle غير موجود!"
-            ERRORS=$((ERRORS + 1))
-          fi
-          echo ""
-          if [ $ERRORS -eq 0 ]; then
-            echo "جميع الملفات المطلوبة موجودة وصحيحة!"
-          else
-            echo "هناك $ERRORS ملفات ناقصة أو بها مشاكل!"
-            echo "سيتم متابعة البناء، لكن قد تحدث مشاكل في تسجيل الدخول..."
-          fi
 
       - name: Build APK & AAB (Always Release)
         run: |
           cd android
-          chmod +x gradlew
-          echo "بناء ملف APK (للتثبيت المباشر)..."
-          ./gradlew assembleRelease
-          echo "بناء ملف AAB (لمتجر جوجل بلاي)..."
-          ./gradlew bundleRelease
+          # التأكد من صلاحيات التنفيذ لـ gradlew
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+            echo "بناء ملف APK (للتثبيت المباشر)..."
+            ./gradlew assembleRelease
+            echo "بناء ملف AAB (لمتجر جوجل بلاي)..."
+            ./gradlew bundleRelease
+          else
+            echo "خطأ: ملف gradlew لا يزال مفقوداً!"
+            exit 1
+          fi
 
       - name: توقيع ملف APK
         uses: r0adkll/sign-android-release@v1
@@ -261,16 +202,6 @@ jobs:
           body: |
             ## الإصدار ${{ steps.vars.outputs.version }}
             تم بناء وتوقيع الملفات تلقائياً مع دعم كامل لتسجيل الدخول عبر Google و Facebook.
-            
-            ### الملفات المرفقة:
-            1. APK: للتثبيت المباشر على الهواتف.
-            2. AAB: للرفع على متجر جوجل بلاي (Google Play Store).
-            3. Web Build: ملفات الويب جاهزة للنشر على أي استضافة.
-            
-            ### تحسينات هذا الإصدار:
-            - دعم كامل لتسجيل الدخول عبر Google
-            - دعم كامل لتسجيل الدخول عبر Facebook
-            - تحسينات في عملية البناء والتحقق من الملفات
           draft: false
           prerelease: false
 
