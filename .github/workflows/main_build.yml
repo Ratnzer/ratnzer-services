@@ -100,7 +100,6 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          # حذف مجلد android لضمان بناء نظيف وتجنب فقدان ملفات Gradle
           rm -rf android
           npx cap add android
 
@@ -115,59 +114,41 @@ jobs:
           printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           test -s android/app/google-services.json
 
-      # ✅ الخطوة المحدثة والنظيفة لإعداد ملف strings.xml
-      # تم إزالة إنشاء النسخة الاحتياطية التي كانت تسبب خطأ البناء
-      # الآن يتم إنشاء ملف strings.xml من الصفر مباشرة بالمحتوى الكامل والصحيح
       - name: Setup Facebook Authentication Config
         run: |
-          echo "🔧 إعداد ملف strings.xml مع Facebook App ID..."
+          echo "إعداد ملف strings.xml مع Facebook App ID..."
           STRINGS_FILE="android/app/src/main/res/values/strings.xml"
-          
-          # التأكد من وجود المجلد
           mkdir -p android/app/src/main/res/values
-          
-          # إنشاء ملف strings.xml جديد من الصفر بالمحتوى الكامل
-          # هذا الملف يحتوي على جميع الإعدادات المطلوبة للتطبيق وإعدادات Facebook
-          cat > "$STRINGS_FILE" << 'EOF'
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">خدمات راتنزر</string>
-    <string name="title_activity_main">خدمات راتنزر</string>
-    <string name="package_name">com.ratnzer.app</string>
-    <string name="custom_url_scheme">com.ratnzer.app</string>
-    <string name="facebook_app_id">2994111874110231</string>
-    <string name="fb_login_protocol_scheme">fb2994111874110231</string>
-    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>
-</resources>
-EOF
-          
-          echo "✅ تم إنشاء ملف strings.xml بنجاح"
-          echo "محتوى الملف:"
+          echo '<?xml version="1.0" encoding="utf-8"?>' > "$STRINGS_FILE"
+          echo '<resources>' >> "$STRINGS_FILE"
+          echo '    <string name="app_name">خدمات راتنزر</string>' >> "$STRINGS_FILE"
+          echo '    <string name="title_activity_main">خدمات راتنزر</string>' >> "$STRINGS_FILE"
+          echo '    <string name="package_name">com.ratnzer.app</string>' >> "$STRINGS_FILE"
+          echo '    <string name="custom_url_scheme">com.ratnzer.app</string>' >> "$STRINGS_FILE"
+          echo '    <string name="facebook_app_id">2994111874110231</string>' >> "$STRINGS_FILE"
+          echo '    <string name="fb_login_protocol_scheme">fb2994111874110231</string>' >> "$STRINGS_FILE"
+          echo '    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>' >> "$STRINGS_FILE"
+          echo '</resources>' >> "$STRINGS_FILE"
+          echo "تم إنشاء ملف strings.xml بنجاح"
           cat "$STRINGS_FILE"
 
-      # ✅ خطوة التحقق من AndroidManifest.xml
       - name: Verify AndroidManifest.xml Facebook Config
         run: |
-          echo "🔍 التحقق من إعدادات Facebook في AndroidManifest.xml..."
+          echo "التحقق من إعدادات Facebook في AndroidManifest.xml..."
           MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
-          
           if [ -f "$MANIFEST_FILE" ]; then
-            echo "✓ ملف AndroidManifest.xml موجود"
-            
-            # التحقق من وجود meta-data للـ Facebook
+            echo "ملف AndroidManifest.xml موجود"
             if grep -q "com.facebook.sdk.ApplicationId" "$MANIFEST_FILE"; then
-              echo "✅ Facebook ApplicationId موجود في AndroidManifest"
+              echo "Facebook ApplicationId موجود في AndroidManifest"
             else
-              echo "⚠️  تحذير: Facebook ApplicationId غير موجود في AndroidManifest"
+              echo "تحذير: Facebook ApplicationId غير موجود في AndroidManifest"
               echo "سيتم الاعتماد على Capacitor لإضافته تلقائياً..."
             fi
-            
-            # عرض جزء من المحتوى للتأكد
             echo "--- بداية AndroidManifest.xml ---"
             head -30 "$MANIFEST_FILE"
             echo "--- نهاية المقتطف ---"
           else
-            echo "❌ خطأ: ملف AndroidManifest.xml غير موجود!"
+            echo "خطأ: ملف AndroidManifest.xml غير موجود!"
             exit 1
           fi
 
@@ -180,64 +161,51 @@ EOF
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # ✅ خطوة التحقق النهائي من جميع الملفات المطلوبة
       - name: Final Verification of Required Files
         run: |
-          echo "🔍 التحقق النهائي من جميع الملفات المطلوبة للمصادقة..."
-          
+          echo "التحقق النهائي من جميع الملفات المطلوبة للمصادقة..."
           ERRORS=0
-          
-          # التحقق من google-services.json
           if [ -f "android/app/google-services.json" ]; then
-            echo "✅ google-services.json موجود"
+            echo "google-services.json موجود"
             if [ -s "android/app/google-services.json" ]; then
-              echo "✅ google-services.json يحتوي على بيانات"
+              echo "google-services.json يحتوي على بيانات"
             else
-              echo "❌ google-services.json فارغ!"
+              echo "google-services.json فارغ!"
               ERRORS=$((ERRORS + 1))
             fi
           else
-            echo "❌ google-services.json غير موجود!"
+            echo "google-services.json غير موجود!"
             ERRORS=$((ERRORS + 1))
           fi
-          
-          # التحقق من strings.xml
           if [ -f "android/app/src/main/res/values/strings.xml" ]; then
-            echo "✅ strings.xml موجود"
-            
-            # التحقق من وجود Facebook App ID
+            echo "strings.xml موجود"
             if grep -q "facebook_app_id" "android/app/src/main/res/values/strings.xml"; then
-              echo "✅ Facebook App ID موجود في strings.xml"
+              echo "Facebook App ID موجود في strings.xml"
             else
-              echo "❌ Facebook App ID غير موجود في strings.xml!"
+              echo "Facebook App ID غير موجود في strings.xml!"
               ERRORS=$((ERRORS + 1))
             fi
           else
-            echo "❌ strings.xml غير موجود!"
+            echo "strings.xml غير موجود!"
             ERRORS=$((ERRORS + 1))
           fi
-          
-          # التحقق من capacitor.config.ts (في الكود المصدري)
           if grep -q "FirebaseAuthentication" "capacitor.config.ts"; then
-            echo "✅ إعدادات FirebaseAuthentication موجودة في capacitor.config.ts"
+            echo "إعدادات FirebaseAuthentication موجودة في capacitor.config.ts"
           else
-            echo "⚠️  تحذير: إعدادات FirebaseAuthentication غير موجودة في capacitor.config.ts"
-            echo "    يُفضل إضافتها لضمان عمل المصادقة بشكل صحيح"
+            echo "تحذير: إعدادات FirebaseAuthentication غير موجودة في capacitor.config.ts"
+            echo "يُفضل إضافتها لضمان عمل المصادقة بشكل صحيح"
           fi
-          
-          # التحقق من build.gradle
           if [ -f "android/app/build.gradle" ]; then
-            echo "✅ build.gradle موجود"
+            echo "build.gradle موجود"
           else
-            echo "❌ build.gradle غير موجود!"
+            echo "build.gradle غير موجود!"
             ERRORS=$((ERRORS + 1))
           fi
-          
           echo ""
           if [ $ERRORS -eq 0 ]; then
-            echo "✅✅✅ جميع الملفات المطلوبة موجودة وصحيحة!"
+            echo "جميع الملفات المطلوبة موجودة وصحيحة!"
           else
-            echo "❌❌❌ هناك $ERRORS ملفات ناقصة أو بها مشاكل!"
+            echo "هناك $ERRORS ملفات ناقصة أو بها مشاكل!"
             echo "سيتم متابعة البناء، لكن قد تحدث مشاكل في تسجيل الدخول..."
           fi
 
@@ -245,9 +213,9 @@ EOF
         run: |
           cd android
           chmod +x gradlew
-          echo "🏗️ بناء ملف APK (للتثبيت المباشر)..."
+          echo "بناء ملف APK (للتثبيت المباشر)..."
           ./gradlew assembleRelease
-          echo "🏗️ بناء ملف AAB (لمتجر جوجل بلاي)..."
+          echo "بناء ملف AAB (لمتجر جوجل بلاي)..."
           ./gradlew bundleRelease
 
       - name: توقيع ملف APK
@@ -285,18 +253,18 @@ EOF
             ${{ steps.sign_aab.outputs.signedReleaseFile }}
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
-            ## 🎉 الإصدار ${{ steps.vars.outputs.version }}
+            ## الإصدار ${{ steps.vars.outputs.version }}
             تم بناء وتوقيع الملفات تلقائياً مع دعم كامل لتسجيل الدخول عبر Google و Facebook.
             
-            ### 📁 الملفات المرفقة:
-            1. **APK**: للتثبيت المباشر على الهواتف.
-            2. **AAB**: للرفع على متجر جوجل بلاي (Google Play Store).
-            3. **Web Build**: ملفات الويب جاهزة للنشر على أي استضافة.
+            ### الملفات المرفقة:
+            1. APK: للتثبيت المباشر على الهواتف.
+            2. AAB: للرفع على متجر جوجل بلاي (Google Play Store).
+            3. Web Build: ملفات الويب جاهزة للنشر على أي استضافة.
             
-            ### ✨ تحسينات هذا الإصدار:
-            - ✅ دعم كامل لتسجيل الدخول عبر Google
-            - ✅ دعم كامل لتسجيل الدخول عبر Facebook
-            - ✅ تحسينات في عملية البناء والتحقق من الملفات
+            ### تحسينات هذا الإصدار:
+            - دعم كامل لتسجيل الدخول عبر Google
+            - دعم كامل لتسجيل الدخول عبر Facebook
+            - تحسينات في عملية البناء والتحقق من الملفات
           draft: false
           prerelease: false
 
