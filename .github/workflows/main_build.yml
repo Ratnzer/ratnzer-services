@@ -115,7 +115,9 @@ jobs:
           printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           test -s android/app/google-services.json
 
-      # ✅ خطوة جديدة: إنشاء/تحديث ملف strings.xml مع Facebook App ID
+      # ✅ الخطوة المحدثة والنظيفة لإعداد ملف strings.xml
+      # تم إزالة إنشاء النسخة الاحتياطية التي كانت تسبب خطأ البناء
+      # الآن يتم إنشاء ملف strings.xml من الصفر مباشرة بالمحتوى الكامل والصحيح
       - name: Setup Facebook Authentication Config
         run: |
           echo "🔧 إعداد ملف strings.xml مع Facebook App ID..."
@@ -124,52 +126,26 @@ jobs:
           # التأكد من وجود المجلد
           mkdir -p android/app/src/main/res/values
           
-          # قراءة المحتوى الحالي أو إنشاء ملف جديد
-          if [ -f "$STRINGS_FILE" ]; then
-            echo "✓ ملف strings.xml موجود، سيتم التحديث..."
-            # حفظ نسخة احتياطية
-            cp "$STRINGS_FILE" "${STRINGS_FILE}.backup"
-          else
-            echo "✓ إنشاء ملف strings.xml جديد..."
-            cat > "$STRINGS_FILE" << 'EOF'
-          <?xml version='1.0' encoding='utf-8'?>
-          <resources>
-          </resources>
-          EOF
-          fi
+          # إنشاء ملف strings.xml جديد من الصفر بالمحتوى الكامل
+          # هذا الملف يحتوي على جميع الإعدادات المطلوبة للتطبيق وإعدادات Facebook
+          cat > "$STRINGS_FILE" << 'EOF'
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">خدمات راتنزر</string>
+    <string name="title_activity_main">خدمات راتنزر</string>
+    <string name="package_name">com.ratnzer.app</string>
+    <string name="custom_url_scheme">com.ratnzer.app</string>
+    <string name="facebook_app_id">2994111874110231</string>
+    <string name="fb_login_protocol_scheme">fb2994111874110231</string>
+    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>
+</resources>
+EOF
           
-          # إضافة أو تحديث Facebook settings
-          # نستخدم xmlstarlet إذا كان متوفراً، وإلا نستخدم sed
-          if command -v xmlstarlet &> /dev/null; then
-            echo "استخدام xmlstarlet للتحديث..."
-            xmlstarlet ed -L \
-              -s "/resources" -t elem -n "string" -v "2994111874110231" \
-              -i "/resources/string[last()]" -t attr -n "name" -v "facebook_app_id" \
-              "$STRINGS_FILE" 2>/dev/null || true
-            xmlstarlet ed -L \
-              -s "/resources" -t elem -n "string" -v "fb2994111874110231" \
-              -i "/resources/string[last()]" -t attr -n "name" -v "fb_login_protocol_scheme" \
-              "$STRINGS_FILE" 2>/dev/null || true
-            xmlstarlet ed -L \
-              -s "/resources" -t elem -n "string" -v "c55884326412a3468d50b1952f047bbd" \
-              -i "/resources/string[last()]" -t attr -n "name" -v "facebook_client_token" \
-              "$STRINGS_FILE" 2>/dev/null || true
-          else
-            echo "استخدام طريقة بديلة للتحديث..."
-            # إزالة السطور القديمة إذا كانت موجودة
-            sed -i '/<string name="facebook_app_id">/d' "$STRINGS_FILE"
-            sed -i '/<string name="fb_login_protocol_scheme">/d' "$STRINGS_FILE"
-            sed -i '/<string name="facebook_client_token">/d' "$STRINGS_FILE"
-            
-            # إضافة السطور الجديدة قبل </resources>
-            sed -i 's|</resources>|    <string name="facebook_app_id">2994111874110231</string>\n    <string name="fb_login_protocol_scheme">fb2994111874110231</string>\n    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>\n</resources>|' "$STRINGS_FILE"
-          fi
-          
-          echo "✅ تم تحديث ملف strings.xml بنجاح"
+          echo "✅ تم إنشاء ملف strings.xml بنجاح"
           echo "محتوى الملف:"
           cat "$STRINGS_FILE"
 
-      # ✅ خطوة جديدة: التحقق من وجود إعدادات Facebook في AndroidManifest.xml
+      # ✅ خطوة التحقق من AndroidManifest.xml
       - name: Verify AndroidManifest.xml Facebook Config
         run: |
           echo "🔍 التحقق من إعدادات Facebook في AndroidManifest.xml..."
@@ -204,7 +180,7 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # ✅ خطوة جديدة: التحقق النهائي من جميع الملفات المطلوبة
+      # ✅ خطوة التحقق النهائي من جميع الملفات المطلوبة
       - name: Final Verification of Required Files
         run: |
           echo "🔍 التحقق النهائي من جميع الملفات المطلوبة للمصادقة..."
@@ -214,7 +190,6 @@ jobs:
           # التحقق من google-services.json
           if [ -f "android/app/google-services.json" ]; then
             echo "✅ google-services.json موجود"
-            # التحقق من أنه ليس فارغاً
             if [ -s "android/app/google-services.json" ]; then
               echo "✅ google-services.json يحتوي على بيانات"
             else
