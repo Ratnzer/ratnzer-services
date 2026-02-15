@@ -4,9 +4,4 @@
     <string name="title_activity_main">خدمات راتنزر</string>
     <string name="package_name">com.ratnzer.app</string>
     <string name="custom_url_scheme">com.ratnzer.app</string>
-    
-    <!-- Facebook Auth Settings -->
-    <string name="facebook_app_id">2994111874110231</string>
-    <string name="fb_login_protocol_scheme">fb2994111874110231</string>
-    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>
 </resources>
