@@ -95,35 +95,41 @@ jobs:
             npx cap sync android
           fi
 
-      - name: Apply Firebase Gradle Configuration
+      - name: Apply Firebase Gradle Configuration & Fix SDK Version
         run: |
-          echo "تطبيق إعدادات Firebase في ملفات Gradle..."
+          echo "تطبيق إعدادات Firebase وإصلاح minSdkVersion..."
           
-          # 1. تحديث ملف build.gradle على مستوى المشروع
+          # 1. رفع minSdkVersion إلى 23 ليتوافق مع Firebase Auth
+          VARS_GRADLE="android/variables.gradle"
+          if [ -f "$VARS_GRADLE" ]; then
+            sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 23/g' "$VARS_GRADLE"
+            echo "تم تحديث minSdkVersion إلى 23 في $VARS_GRADLE"
+          fi
+
+          # 2. تحديث ملف build.gradle على مستوى المشروع
           PROJECT_GRADLE="android/build.gradle"
           if [ -f "$PROJECT_GRADLE" ]; then
-            # إضافة google-services classpath في قسم dependencies
             if ! grep -q "com.google.gms:google-services" "$PROJECT_GRADLE"; then
               sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' "$PROJECT_GRADLE"
-              echo "تمت إضافة google-services classpath إلى $PROJECT_GRADLE"
+              echo "تمت إضافة google-services classpath"
             fi
           fi
 
-          # 2. تحديث ملف build.gradle على مستوى التطبيق
+          # 3. تحديث ملف build.gradle على مستوى التطبيق
           APP_GRADLE="android/app/build.gradle"
           if [ -f "$APP_GRADLE" ]; then
-            # إضافة المكون الإضافي في الأعلى
             if ! grep -q "com.google.gms.google-services" "$APP_GRADLE"; then
-              # البحث عن مكان إضافات capacitor وإضافة google-services بعدها
               sed -i '/apply plugin: .com.android.application./a apply plugin: "com.google.gms.google-services"' "$APP_GRADLE"
-              echo "تمت إضافة google-services plugin إلى $APP_GRADLE"
+              echo "تمت إضافة google-services plugin"
             fi
             
-            # إضافة Firebase BoM و Analytics في التبعيات
             if ! grep -q "firebase-bom" "$APP_GRADLE"; then
               sed -i '/dependencies {/a \    implementation platform("com.google.firebase:firebase-bom:33.1.0")\n    implementation "com.google.firebase:firebase-analytics"' "$APP_GRADLE"
-              echo "تمت إضافة Firebase dependencies إلى $APP_GRADLE"
+              echo "تمت إضافة Firebase dependencies"
             fi
+            
+            # التأكد من minSdkVersion داخل build.gradle أيضاً كاحتياط
+            sed -i 's/minSdkVersion [0-9]*/minSdkVersion 23/g' "$APP_GRADLE"
           fi
 
       - name: تحديث رقم إصدار Android
@@ -137,13 +143,9 @@ jobs:
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
             printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           fi
-          if [ ! -s "android/app/google-services.json" ]; then
-            echo "تحذير: google-services.json مفقود أو فارغ!"
-          fi
 
       - name: Setup Facebook Authentication Config
         run: |
-          echo "إعداد ملف strings.xml مع Facebook App ID..."
           STRINGS_FILE="android/app/src/main/res/values/strings.xml"
           mkdir -p android/app/src/main/res/values
           echo '<?xml version="1.0" encoding="utf-8"?>' > "$STRINGS_FILE"
@@ -171,9 +173,7 @@ jobs:
           cd android
           if [ -f "gradlew" ]; then
             chmod +x gradlew
-            echo "بناء ملف APK..."
             ./gradlew assembleRelease
-            echo "بناء ملف AAB..."
             ./gradlew bundleRelease
           else
             echo "خطأ: ملف gradlew مفقود!"
