@@ -84,31 +84,10 @@ jobs:
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
 
-      - name: Initialize Android Platform
+      - name: Sync Capacitor (Using Pre-existing Android Files)
         run: |
-          rm -rf android
-          npx cap add android
-
-      - name: Patch Gradle Files (Smart Fix)
-        run: |
-          echo "تعديل ملفات Gradle بشكل ذكي لضمان التوافق..."
-          
-          # 1. تحديث variables.gradle لرفعSdkVersion
-          sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 23/g' android/variables.gradle
-          sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 34/g' android/variables.gradle
-          sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 34/g' android/variables.gradle
-
-          # 2. إضافة google-services classpath في build.gradle (Project Level)
-          sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' android/build.gradle
-
-          # 3. إضافة Firebase BoM في build.gradle (App Level)
-          # نستخدم sed للإضافة بعد أول سطر يحتوي على dependencies {
-          sed -i '/dependencies {/a \    implementation platform("com.google.firebase:firebase-bom:33.1.0")\n    implementation "com.google.firebase:firebase-analytics"' android/app/build.gradle
-
-      - name: تحديث رقم إصدار Android
-        env:
-          APP_VERSION: ${{ steps.vars.outputs.version }}
-        run: npm run update-android-version
+          # نستخدم فقط cap sync لتحديث ملفات الويب داخل مجلد الأندرويد المرفوع
+          npx cap sync android
 
       - name: Add google-services.json (base64)
         run: |
@@ -116,32 +95,13 @@ jobs:
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
             printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           fi
-          # إنشاء ملف فارغ إذا لم يوجد لضمان عمل الـ try/catch في build.gradle
+          # التأكد من وجود الملف حتى لو كان فارغاً لضمان عمل Gradle
           touch android/app/google-services.json
 
-      - name: Setup Facebook Authentication Config
-        run: |
-          STRINGS_FILE="android/app/src/main/res/values/strings.xml"
-          mkdir -p android/app/src/main/res/values
-          echo '<?xml version="1.0" encoding="utf-8"?>' > "$STRINGS_FILE"
-          echo '<resources>' >> "$STRINGS_FILE"
-          echo '    <string name="app_name">خدمات راتنزر</string>' >> "$STRINGS_FILE"
-          echo '    <string name="title_activity_main">خدمات راتنزر</string>' >> "$STRINGS_FILE"
-          echo '    <string name="package_name">com.ratnzer.app</string>' >> "$STRINGS_FILE"
-          echo '    <string name="custom_url_scheme">com.ratnzer.app</string>' >> "$STRINGS_FILE"
-          echo '    <string name="facebook_app_id">2994111874110231</string>' >> "$STRINGS_FILE"
-          echo '    <string name="fb_login_protocol_scheme">fb2994111874110231</string>' >> "$STRINGS_FILE"
-          echo '    <string name="facebook_client_token">c55884326412a3468d50b1952f047bbd</string>' >> "$STRINGS_FILE"
-          echo '</resources>' >> "$STRINGS_FILE"
-
-      - name: Install Capacitor Assets Tool
-        run: npm i -D @capacitor/assets --legacy-peer-deps
-
-      - name: Generate Android assets from resources
-        run: npx @capacitor/assets generate --android
-
-      - name: Sync Capacitor (Final)
-        run: npx cap sync android
+      - name: تحديث رقم إصدار Android
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.version }}
+        run: npm run update-android-version
 
       - name: Build APK & AAB (Always Release)
         run: |
@@ -186,7 +146,7 @@ jobs:
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
             ## الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء وتوقيع الملفات تلقائياً مع دعم كامل لـ Firebase و Facebook.
+            تم بناء وتوقيع الملفات باستخدام ملفات الأندرويد الثابتة والمعدة مسبقاً.
           draft: false
           prerelease: false
 
