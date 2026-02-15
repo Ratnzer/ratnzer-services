@@ -23,6 +23,18 @@ const config: CapacitorConfig = {
       showSpinner: true,
       androidSpinnerStyle: "large",
       spinnerColor: "#10b981"
+    },
+    // ✅ إضافة إعدادات Firebase Authentication
+    // هذا القسم ضروري لتفعيل المصادقة الأصلية في تطبيقات الهاتف
+    FirebaseAuthentication: {
+      // skipNativeAuth: false يعني "استخدم Native SDKs" وليس المتصفح
+      // هذا مهم جداً لأن المصادقة في تطبيقات الهاتف تعمل بشكل مختلف عن الويب
+      skipNativeAuth: false,
+      
+      // providers: قائمة بمزودي المصادقة المفعلين
+      // google.com = تسجيل الدخول عبر Google
+      // facebook.com = تسجيل الدخول عبر Facebook
+      providers: ["google.com", "facebook.com"]
     }
   }
 };
