@@ -110,6 +110,7 @@ jobs:
           PROJECT_GRADLE="android/build.gradle"
           if [ -f "$PROJECT_GRADLE" ]; then
             if ! grep -q "com.google.gms:google-services" "$PROJECT_GRADLE"; then
+              # إضافة classpath في قسم dependencies بشكل آمن
               sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' "$PROJECT_GRADLE"
               echo "تمت إضافة google-services classpath"
             fi
@@ -118,17 +119,20 @@ jobs:
           # 3. تحديث ملف build.gradle على مستوى التطبيق
           APP_GRADLE="android/app/build.gradle"
           if [ -f "$APP_GRADLE" ]; then
+            # إضافة المكون الإضافي في نهاية الملف لتجنب مشاكل الترتيب
             if ! grep -q "com.google.gms.google-services" "$APP_GRADLE"; then
-              sed -i '/apply plugin: .com.android.application./a apply plugin: "com.google.gms.google-services"' "$APP_GRADLE"
-              echo "تمت إضافة google-services plugin"
+              echo 'apply plugin: "com.google.gms.google-services"' >> "$APP_GRADLE"
+              echo "تمت إضافة google-services plugin في نهاية الملف"
             fi
             
+            # إضافة Firebase BoM و Analytics في التبعيات
             if ! grep -q "firebase-bom" "$APP_GRADLE"; then
+              # البحث عن كلمة dependencies { وإضافة المكتبات بعدها مباشرة
               sed -i '/dependencies {/a \    implementation platform("com.google.firebase:firebase-bom:33.1.0")\n    implementation "com.google.firebase:firebase-analytics"' "$APP_GRADLE"
               echo "تمت إضافة Firebase dependencies"
             fi
             
-            # التأكد من minSdkVersion داخل build.gradle أيضاً كاحتياط
+            # التأكد من minSdkVersion داخل build.gradle أيضاً
             sed -i 's/minSdkVersion [0-9]*/minSdkVersion 23/g' "$APP_GRADLE"
           fi
 
