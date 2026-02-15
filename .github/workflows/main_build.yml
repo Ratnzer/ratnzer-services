@@ -89,103 +89,21 @@ jobs:
           rm -rf android
           npx cap add android
 
-      - name: Overwrite Gradle Configs (Clean Fix)
+      - name: Patch Gradle Files (Smart Fix)
         run: |
-          echo "إعادة كتابة ملفات Gradle بشكل نظيف لضمان التوافق..."
+          echo "تعديل ملفات Gradle بشكل ذكي لضمان التوافق..."
           
-          # 1. تحديث variables.gradle
-          cat > android/variables.gradle <<EOF
-          ext {
-              minSdkVersion = 23
-              compileSdkVersion = 34
-              targetSdkVersion = 34
-              androidxActivityVersion = '1.8.0'
-              androidxAppCompatVersion = '1.6.1'
-              androidxCoordinatorLayoutVersion = '1.2.0'
-              androidxCoreVersion = '1.12.0'
-              androidxFragmentVersion = '1.6.2'
-              coreSplashScreenVersion = '1.0.1'
-              androidxWebkitVersion = '1.9.0'
-              junitVersion = '4.13.2'
-              androidxJunitVersion = '1.1.5'
-              androidxEspressoCoreVersion = '3.5.1'
-              cordovaAndroidVersion = '10.1.1'
-          }
-          EOF
+          # 1. تحديث variables.gradle لرفعSdkVersion
+          sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 23/g' android/variables.gradle
+          sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 34/g' android/variables.gradle
+          sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 34/g' android/variables.gradle
 
-          # 2. تحديث build.gradle (Project Level)
-          cat > android/build.gradle <<EOF
-          buildscript {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-              dependencies {
-                  classpath 'com.android.tools.build:gradle:8.2.1'
-                  classpath 'com.google.gms:google-services:4.4.1'
-              }
-          }
-          allprojects {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          task clean(type: Delete) {
-              delete rootProject.buildDir
-          }
-          EOF
+          # 2. إضافة google-services classpath في build.gradle (Project Level)
+          sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' android/build.gradle
 
-          # 3. تحديث build.gradle (App Level)
-          cat > android/app/build.gradle <<EOF
-          apply plugin: 'com.android.application'
-          
-          android {
-              namespace "com.ratnzer.app"
-              compileSdkVersion 34
-              defaultConfig {
-                  applicationId "com.ratnzer.app"
-                  minSdkVersion 23
-                  targetSdkVersion 34
-                  versionCode 1
-                  versionName "1.0"
-                  testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-              }
-              buildTypes {
-                  release {
-                      minifyEnabled false
-                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                  }
-              }
-          }
-
-          repositories {
-              flatDir {
-                  dirs 'libs'
-              }
-          }
-
-          dependencies {
-              implementation fileTree(dir: 'libs', include: ['*.jar'])
-              implementation "androidx.appcompat:appcompat:1.6.1"
-              implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
-              implementation "androidx.core:core:1.12.0"
-              implementation "androidx.core:core-splashscreen:1.0.1"
-              implementation project(':capacitor-android')
-              implementation project(':capacitor-cordova-android-plugins')
-              
-              // Firebase
-              implementation platform('com.google.firebase:firebase-bom:33.1.0')
-              implementation 'com.google.firebase:firebase-analytics'
-              
-              testImplementation "junit:junit:4.13.2"
-              androidTestImplementation "androidx.test.ext:junit:1.1.5"
-              androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
-          }
-
-          apply from: 'capacitor.build.gradle'
-          apply plugin: 'com.google.gms.google-services'
-          EOF
+          # 3. إضافة Firebase BoM في build.gradle (App Level)
+          # نستخدم sed للإضافة بعد أول سطر يحتوي على dependencies {
+          sed -i '/dependencies {/a \    implementation platform("com.google.firebase:firebase-bom:33.1.0")\n    implementation "com.google.firebase:firebase-analytics"' android/app/build.gradle
 
       - name: تحديث رقم إصدار Android
         env:
@@ -198,6 +116,8 @@ jobs:
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
             printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           fi
+          # إنشاء ملف فارغ إذا لم يوجد لضمان عمل الـ try/catch في build.gradle
+          touch android/app/google-services.json
 
       - name: Setup Facebook Authentication Config
         run: |
@@ -226,14 +146,9 @@ jobs:
       - name: Build APK & AAB (Always Release)
         run: |
           cd android
-          if [ -f "gradlew" ]; then
-            chmod +x gradlew
-            ./gradlew assembleRelease
-            ./gradlew bundleRelease
-          else
-            echo "خطأ: ملف gradlew مفقود!"
-            exit 1
-          fi
+          chmod +x gradlew
+          ./gradlew assembleRelease
+          ./gradlew bundleRelease
 
       - name: توقيع ملف APK
         uses: r0adkll/sign-android-release@v1
