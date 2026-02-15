@@ -16,6 +16,7 @@
     </style>
 
     <!-- Capacitor 6 SplashScreen Theme Fix -->
+    <!-- تم تبسيط السمة لضمان أقصى توافق مع أندرويد 12 وما فوق -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#0f172a</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
