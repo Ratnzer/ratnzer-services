@@ -142,11 +142,11 @@ jobs:
           
           android {
               namespace "com.ratnzer.app"
-              compileSdkVersion rootProject.ext.compileSdkVersion
+              compileSdkVersion 34
               defaultConfig {
                   applicationId "com.ratnzer.app"
-                  minSdkVersion rootProject.ext.minSdkVersion
-                  targetSdkVersion rootProject.ext.targetSdkVersion
+                  minSdkVersion 23
+                  targetSdkVersion 34
                   versionCode 1
                   versionName "1.0"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -170,9 +170,9 @@ jobs:
 
           dependencies {
               implementation fileTree(dir: 'libs', include: ['*.jar'])
-              implementation "androidx.appcompat:appcompat:\$rootProject.ext.androidxAppCompatVersion"
-              implementation "androidx.coordinatorlayout:coordinatorlayout:\$rootProject.ext.androidxCoordinatorLayoutVersion"
-              implementation "androidx.core:core:\$rootProject.ext.androidxCoreVersion"
+              implementation "androidx.appcompat:appcompat:1.6.1"
+              implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+              implementation "androidx.core:core:1.12.0"
               implementation project(':capacitor-android')
               implementation project(':capacitor-cordova-android-plugins')
               
@@ -180,9 +180,9 @@ jobs:
               implementation platform('com.google.firebase:firebase-bom:33.1.0')
               implementation 'com.google.firebase:firebase-analytics'
               
-              testImplementation "junit:junit:\$rootProject.ext.junitVersion"
-              androidTestImplementation "androidx.test.ext:junit:\$rootProject.ext.androidxJunitVersion"
-              androidTestImplementation "androidx.test.espresso:espresso-core:\$rootProject.ext.androidxEspressoCoreVersion"
+              testImplementation "junit:junit:4.13.2"
+              androidTestImplementation "androidx.test.ext:junit:1.1.5"
+              androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
           }
 
           apply from: 'capacitor.build.gradle'
