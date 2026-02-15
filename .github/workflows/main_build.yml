@@ -100,8 +100,11 @@ jobs:
 
       - name: Initialize Android Platform
         run: |
-          rm -rf android
-          npx cap add android
+          if [ ! -d "android" ]; then
+            npx cap add android
+          else
+            npx cap sync android
+          fi
 
       - name: تحديث رقم إصدار Android
         env:
@@ -111,7 +114,10 @@ jobs:
       - name: Add google-services.json (base64)
         run: |
           mkdir -p android/app
-          printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
+          # استخدام السر إذا كان موجوداً، وإلا الاعتماد على الملف الموجود في المستودع
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
+            printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
+          fi
           test -s android/app/google-services.json
 
       - name: Setup Facebook Authentication Config
