@@ -86,7 +86,6 @@ jobs:
 
       - name: Sync Capacitor (Using Pre-existing Android Files)
         run: |
-          # نستخدم فقط cap sync لتحديث ملفات الويب داخل مجلد الأندرويد المرفوع
           npx cap sync android
 
       - name: Add google-services.json (base64)
@@ -95,7 +94,6 @@ jobs:
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" ]; then
             printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON_B64 }}" | base64 --decode > android/app/google-services.json
           fi
-          # التأكد من وجود الملف حتى لو كان فارغاً لضمان عمل Gradle
           touch android/app/google-services.json
 
       - name: تحديث رقم إصدار Android
@@ -146,7 +144,7 @@ jobs:
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
             ## الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء وتوقيع الملفات باستخدام ملفات الأندرويد الثابتة والمعدة مسبقاً.
+            تم بناء وتوقيع الملفات باستخدام ملفات الأندرويد الثابتة والمعدة مسبقاً مع إصلاح مشكلة الانهيار عند التشغيل.
           draft: false
           prerelease: false
 
