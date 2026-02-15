@@ -114,9 +114,7 @@ dist
 .DS_Store
 
 # Android
-android/
 !android/app/src/main/res/
-!android/app/build.gradle
 !android/app/src/main/AndroidManifest.xml
 !android/app/src/main/java/com/ratnzer/app/MainActivity.java
 
