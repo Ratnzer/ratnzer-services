@@ -84,57 +84,110 @@ jobs:
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
 
-      - name: Initialize or Repair Android Platform
+      - name: Initialize Android Platform
         run: |
-          if [ ! -f "android/build.gradle" ]; then
-            echo "مجلد الأندرويد غير مكتمل أو مفقود. يتم إعادة الإنشاء..."
-            rm -rf android
-            npx cap add android
-          else
-            echo "مجلد الأندرويد موجود، يتم التحديث..."
-            npx cap sync android
-          fi
+          rm -rf android
+          npx cap add android
 
-      - name: Apply Firebase Gradle Configuration & Fix SDK Version
+      - name: Overwrite Gradle Configs (Clean Fix)
         run: |
-          echo "تطبيق إعدادات Firebase وإصلاح minSdkVersion..."
+          echo "إعادة كتابة ملفات Gradle بشكل نظيف لضمان التوافق..."
           
-          # 1. رفع minSdkVersion إلى 23 في variables.gradle
-          VARS_GRADLE="android/variables.gradle"
-          if [ -f "$VARS_GRADLE" ]; then
-            sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 23/g' "$VARS_GRADLE"
-          fi
+          # 1. تحديث variables.gradle
+          cat > android/variables.gradle <<EOF
+          ext {
+              minSdkVersion = 23
+              compileSdkVersion = 34
+              targetSdkVersion = 34
+              androidxActivityVersion = '1.8.0'
+              androidxAppCompatVersion = '1.6.1'
+              androidxCoordinatorLayoutVersion = '1.2.0'
+              androidxCoreVersion = '1.12.0'
+              androidxFragmentVersion = '1.6.2'
+              coreSplashScreenVersion = '1.0.1'
+              androidxWebkitVersion = '1.9.0'
+              junitVersion = '4.13.2'
+              androidxJunitVersion = '1.1.5'
+              androidxEspressoCoreVersion = '3.5.1'
+              cordovaAndroidVersion = '10.1.1'
+          }
+          EOF
 
-          # 2. تحديث ملف build.gradle على مستوى المشروع
-          PROJECT_GRADLE="android/build.gradle"
-          if [ -f "$PROJECT_GRADLE" ]; then
-            # إضافة classpath بشكل صحيح داخل قسم dependencies الخاص بـ buildscript
-            if ! grep -q "com.google.gms:google-services" "$PROJECT_GRADLE"; then
-              sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' "$PROJECT_GRADLE"
-            fi
-          fi
+          # 2. تحديث build.gradle (Project Level)
+          cat > android/build.gradle <<EOF
+          buildscript {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath 'com.android.tools.build:gradle:8.2.1'
+                  classpath 'com.google.gms:google-services:4.4.1'
+              }
+          }
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          task clean(type: Delete) {
+              delete rootProject.buildDir
+          }
+          EOF
 
-          # 3. تحديث ملف build.gradle على مستوى التطبيق
-          APP_GRADLE="android/app/build.gradle"
-          if [ -f "$APP_GRADLE" ]; then
-            # إضافة Firebase BoM و Analytics في التبعيات
-            if ! grep -q "firebase-bom" "$APP_GRADLE"; then
-              sed -i '/dependencies {/a \    implementation platform("com.google.firebase:firebase-bom:33.1.0")\n    implementation "com.google.firebase:firebase-analytics"' "$APP_GRADLE"
-            fi
-            
-            # إضافة تفعيل الإضافة في نهاية الملف (آمن جداً)
-            if ! grep -q "com.google.gms.google-services" "$APP_GRADLE"; then
-              echo "" >> "$APP_GRADLE"
-              echo 'try {' >> "$APP_GRADLE"
-              echo '    apply plugin: "com.google.gms.google-services"' >> "$APP_GRADLE"
-              echo '} catch (Exception e) {' >> "$APP_GRADLE"
-              echo '    logger.warn("Google Services plugin could not be applied")' >> "$APP_GRADLE"
-              echo '}' >> "$APP_GRADLE"
-            fi
-            
-            # التأكد من minSdkVersion
-            sed -i 's/minSdkVersion [0-9]*/minSdkVersion 23/g' "$APP_GRADLE"
-          fi
+          # 3. تحديث build.gradle (App Level)
+          cat > android/app/build.gradle <<EOF
+          apply plugin: 'com.android.application'
+          
+          android {
+              namespace "com.ratnzer.app"
+              compileSdkVersion rootProject.ext.compileSdkVersion
+              defaultConfig {
+                  applicationId "com.ratnzer.app"
+                  minSdkVersion rootProject.ext.minSdkVersion
+                  targetSdkVersion rootProject.ext.targetSdkVersion
+                  versionCode 1
+                  versionName "1.0"
+                  testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+                  aaptOptions {
+                       instancename "ratnzer-services"
+                  }
+              }
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                  }
+              }
+          }
+
+          repositories {
+              flatDir {
+                  dirs 'libs'
+              }
+          }
+
+          dependencies {
+              implementation fileTree(dir: 'libs', include: ['*.jar'])
+              implementation "androidx.appcompat:appcompat:\$rootProject.ext.androidxAppCompatVersion"
+              implementation "androidx.coordinatorlayout:coordinatorlayout:\$rootProject.ext.androidxCoordinatorLayoutVersion"
+              implementation "androidx.core:core:\$rootProject.ext.androidxCoreVersion"
+              implementation project(':capacitor-android')
+              implementation project(':capacitor-cordova-android-plugins')
+              
+              // Firebase
+              implementation platform('com.google.firebase:firebase-bom:33.1.0')
+              implementation 'com.google.firebase:firebase-analytics'
+              
+              testImplementation "junit:junit:\$rootProject.ext.junitVersion"
+              androidTestImplementation "androidx.test.ext:junit:\$rootProject.ext.androidxJunitVersion"
+              androidTestImplementation "androidx.test.espresso:espresso-core:\$rootProject.ext.androidxEspressoCoreVersion"
+          }
+
+          apply from: 'capacitor.build.gradle'
+          apply plugin: 'com.google.gms.google-services'
+          EOF
 
       - name: تحديث رقم إصدار Android
         env:
