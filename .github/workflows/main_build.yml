@@ -84,12 +84,10 @@ jobs:
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
 
-      # 🔥 توليد الأيقونات و Splash بشكل صحيح
       - name: Generate Capacitor Assets
         run: |
           npx @capacitor/assets generate
 
-      # 🔄 مزامنة ملفات أندرويد بعد التوليد
       - name: Sync Capacitor
         run: |
           npx cap sync android
@@ -138,12 +136,15 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "34.0.0"
 
-      - name: إنشاء Release ورفع الملفات
+      # ✅ الإصلاح هنا
+      - name: إنشاء أو تحديث Release ورفع الملفات
         if: steps.vars.outputs.is_tag_event == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.vars.outputs.version }}
           name: الإصدار ${{ steps.vars.outputs.version }}
+          allowUpdates: true
+          replace_assets: true
           files: |
             ${{ steps.sign_apk.outputs.signedReleaseFile }}
             ${{ steps.sign_aab.outputs.signedReleaseFile }}
