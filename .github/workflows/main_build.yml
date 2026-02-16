@@ -69,6 +69,12 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      # 🔥 الإصلاح المضاف فقط هنا
+      - name: Update version.json قبل بناء الويب
+        run: npm run update-version
+        env:
+          APP_VERSION: ${{ steps.vars.outputs.version }}
+
       - name: Build Web Assets
         env:
           VITE_API_URL: https://ratnzer-services-bb0a0cce4837.herokuapp.com/api
@@ -136,7 +142,6 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "34.0.0"
 
-      # ✅ الإصلاح هنا
       - name: إنشاء أو تحديث Release ورفع الملفات
         if: steps.vars.outputs.is_tag_event == 'true'
         uses: softprops/action-gh-release@v2
