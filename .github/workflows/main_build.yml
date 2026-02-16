@@ -84,11 +84,13 @@ jobs:
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
 
+      # 🔥 توليد الأيقونات و Splash بشكل صحيح
       - name: Generate Capacitor Assets
         run: |
-          npx capacitor-assets generate
+          npx @capacitor/assets generate
 
-      - name: Sync Capacitor (Using Pre-existing Android Files)
+      # 🔄 مزامنة ملفات أندرويد بعد التوليد
+      - name: Sync Capacitor
         run: |
           npx cap sync android
 
@@ -148,7 +150,7 @@ jobs:
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
             ## الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء وتوقيع الملفات باستخدام ملفات الأندرويد الثابتة والمعدة مسبقاً مع إصلاح مشكلة الانهيار عند التشغيل.
+            تم بناء وتوقيع الملفات بعد توليد أيقونات و Splash تلقائياً.
           draft: false
           prerelease: false
 
