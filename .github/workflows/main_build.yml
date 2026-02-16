@@ -84,6 +84,10 @@ jobs:
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
 
+      - name: Generate Capacitor Assets
+        run: |
+          npx capacitor-assets generate
+
       - name: Sync Capacitor (Using Pre-existing Android Files)
         run: |
           npx cap sync android
