@@ -2593,6 +2593,7 @@ useEffect(() => {
         onClose={() => setShowLoginModal(false)}
         onLogin={handleLogin}
         terms={terms}
+        privacy={privacy}
       />
 
       {/* Exit Confirmation Modal */}

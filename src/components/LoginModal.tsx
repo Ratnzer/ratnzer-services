@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Facebook } from 'lucide-react';
 import { signInWithGoogle, signInWithFacebook } from '../services/firebase';
-import { AppTerms } from '../types';
+import { AppTerms, AppPrivacy } from '../types';
 import { authService } from '../services/api'; // ✅ هذا هو المسار الصحيح
 
 interface Props {
@@ -9,9 +9,10 @@ interface Props {
   onClose: () => void;
   onLogin: (data: { name?: string; email?: string; phone?: string; password?: string; isRegister: boolean }) => void;
   terms: AppTerms;
+  privacy: AppPrivacy;
 }
 
-const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
+const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy }) => {
   const [mode, setMode] = useState<'login' | 'register'>('register'); // Changed default to 'register'
   const [method, setMethod] = useState<'email' | 'phone'>('email');
 
@@ -54,6 +55,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
   // UI State
   const [showPassword, setShowPassword] = useState(false);
   const [showFullTerms, setShowFullTerms] = useState(false);
+  const [showFullPrivacy, setShowFullPrivacy] = useState(false);
 
   if (!isOpen) return null;
 
@@ -366,7 +368,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                         <ArrowRight size={18} strokeWidth={2.5} />
                     </button>
 
-                    {/* Terms Text - Only for Register Mode */}
+                    {/* Terms & Privacy Text - Only for Register Mode */}
                     {mode === 'register' && (
                         <div className="text-center mt-3 px-2 animate-fadeIn">
                             <p className="text-[10px] text-gray-500 leading-relaxed font-medium">
@@ -376,6 +378,13 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                                     className="text-yellow-400 hover:text-yellow-300 mx-1 font-bold underline decoration-yellow-400/30 underline-offset-4 transition-colors"
                                 >
                                     الشروط والأحكام
+                                </button>
+                                و
+                                <button 
+                                    onClick={() => setShowFullPrivacy(true)} 
+                                    className="text-blue-400 hover:text-blue-300 mx-1 font-bold underline decoration-blue-400/30 underline-offset-4 transition-colors"
+                                >
+                                    سياسة الخصوصية
                                 </button>
                                 الخاصة بالتطبيق
                             </p>
@@ -405,6 +414,32 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms }) => {
                        <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">Terms of Service</h3></div>
                        <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
                            {terms.contentEn}
+                       </div>
+                   </div>
+               </div>
+           </div>
+       )}
+
+       {/* Full Privacy Modal */}
+       {showFullPrivacy && (
+           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
+               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
+                   <button onClick={() => setShowFullPrivacy(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
+                   <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2>
+                   <div className="w-9"></div>
+               </div>
+               <div className="flex-1 overflow-y-auto p-6 text-gray-300">
+                   <div className="space-y-6 text-right">
+                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
+                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
+                           {privacy.contentAr}
+                       </div>
+                   </div>
+                   <div className="my-8 border-t border-gray-700/50"></div>
+                   <div className="space-y-6 text-left dir-ltr">
+                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
+                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
+                           {privacy.contentEn}
                        </div>
                    </div>
                </div>
