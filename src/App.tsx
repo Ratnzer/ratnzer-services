@@ -16,7 +16,7 @@ import ExitConfirmModal from './components/ExitConfirmModal'; // Import ExitConf
 import SupportModal from './components/SupportModal'; // Import SupportModal
 import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut, Sparkles, Zap, Music, Video, ShoppingBasket, MonitorSmartphone, Wifi, Laptop, Tablet, Mouse, Keyboard, Cpu, Router, Server, Coffee, Pizza, Shirt, Watch, Briefcase, Plane, Megaphone, Ticket, Film, Clapperboard, Palette, Brush, Dumbbell, Bike, Bed, Home as HomeIcon, Building, GraduationCap, School, BookOpen, Library, Code, Terminal, Database, Cloud, Bitcoin, DollarSign, Key, Wrench, Hammer, Settings, Flame, Sun, Moon, CloudRain, Truck, Anchor, Crown, Diamond, Medal, Trophy } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_PRIVACY, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
-import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
+import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService, settingsService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 // @ts-ignore
@@ -581,7 +581,7 @@ useEffect(() => {
   const [transactions, setTransactions] = useState<Transaction[]>(() => (hasToken ? loadCache<Transaction[]>('cache_transactions_v1', INITIAL_TRANSACTIONS) : INITIAL_TRANSACTIONS)); // NEW: Transactions State
   const [transactionsHasMore, setTransactionsHasMore] = useState<boolean>(true);
   const [transactionsLoadingMore, setTransactionsLoadingMore] = useState<boolean>(false);
-  const [rateAppLink, setRateAppLink] = useState<string>(''); // New State for Rate Link
+  const [rateAppLink, setRateAppLink] = useState<string>(() => loadCache<string>('cache_rate_app_link_v1', '')); // New State for Rate Link
   
   // --- Cart State ---
   const [cartItems, setCartItems] = useState<CartItem[]>(() => (hasToken ? loadCache<CartItem[]>('cache_cart_v1', []) : []));
@@ -651,6 +651,11 @@ useEffect(() => {
             });
           }
         }).catch(() => {}),
+        settingsService.get('rateAppLink').then(res => {
+          if (typeof res?.data === 'string') {
+            setRateAppLink(res.data);
+          }
+        }).catch(() => {}),
       ];
 
       const userTasks = [];
@@ -705,6 +710,7 @@ useEffect(() => {
   useEffect(() => { saveArrayCache('cache_announcements_v1', announcements); }, [announcements]);
   useEffect(() => { saveCache('cache_terms_v1', terms); }, [terms]);
   useEffect(() => { saveCache('cache_privacy_v1', privacy); }, [privacy]);
+  useEffect(() => { saveCache('cache_rate_app_link_v1', rateAppLink); }, [rateAppLink]);
   useEffect(() => { saveArrayCache('cache_currencies_v1', currencies); }, [currencies]);
 
   // User-related caches (only meaningful when token exists)
@@ -2544,7 +2550,7 @@ useEffect(() => {
             privacy={privacy}
             user={currentUser || undefined}
             currencies={currencies}
-            rateAppLink={(terms as any).rateAppLink || ''}
+            rateAppLink={rateAppLink}
             onLogout={() => {
               localStorage.removeItem('token');
               localStorage.removeItem('cache_user_v1');

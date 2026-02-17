@@ -1429,23 +1429,6 @@ try {
       }
   };
 
-  // ============================================================
-  // ✅ Load admin-managed general settings (Rate link) once
-  // ============================================================
-  useEffect(() => {
-      (async () => {
-          try {
-              const res = await settingsService.get('rateAppLink');
-              if (typeof res?.data === 'string') {
-                  setRateAppLink(res.data);
-              }
-          } catch (e) {
-              console.warn('Failed to load rateAppLink from API', e);
-          }
-      })();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const saveRateAppLinkToServer = async () => {
       try {
           await settingsService.set('rateAppLink', rateAppLink || '');
