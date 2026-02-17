@@ -6,7 +6,7 @@ import {
   LogOut, Star, Trash2, Bell, Wallet, ClipboardList, Headset,
   CircleDollarSign, Check, Camera, User as UserIcon, Phone, Mail, X, Save, Edit2,
   Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle,
-  Shield
+  ShieldCheck
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
 import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
@@ -94,7 +94,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     { icon: Wallet, label: 'محفظتي', action: () => setView(View.WALLET) },
     { icon: HelpCircle, label: 'الأسئلة الشائعة', action: () => setShowFaqModal(true) },
     { icon: FileText, label: 'الشروط والأحكام', action: () => setShowTermsModal(true) },
-    { icon: Shield, label: 'سياسة الخصوصية', action: () => setShowPrivacyModal(true) },
+    { icon: ShieldCheck, label: 'سياسة الخصوصية', action: () => setShowPrivacyModal(true) },
     { icon: Star, label: 'تقييم التطبيق', action: () => { 
         if (rateAppLink) {
             window.open(rateAppLink, '_blank');

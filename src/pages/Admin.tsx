@@ -12,7 +12,7 @@ import {
   Briefcase, Plane, Megaphone, Ban, Unlock, User,
   Bell, Info, Star, ShoppingCart, ArrowUpRight, ArrowDownRight,
   PieChart, Calendar, Flag, Tags, CircleDollarSign, RefreshCw, ClipboardList, Send, Link, CheckSquare,
-  MapPin, Mail, Phone, Shield, ArrowRight, Copy, PackageOpen, XCircle, Receipt, ToggleRight, ToggleLeft,
+  MapPin, Mail, Phone, ShieldCheck, ArrowRight, Copy, PackageOpen, XCircle, Receipt, ToggleRight, ToggleLeft,
   // New Icons for Categories
   Facebook, Instagram, Twitter, Linkedin, Youtube, Twitch, 
   Code, Terminal, Database, Cloud, Bitcoin, Coins,
@@ -1489,7 +1489,7 @@ try {
           { id: 'banners', label: 'البانرات', icon: ImageIcon },
           { id: 'currencies', label: 'العملات', icon: CircleDollarSign },
           { id: 'terms', label: 'الشروط', icon: FileText },
-          { id: 'privacy', label: 'سياسة الخصوصية', icon: Shield },
+          { id: 'privacy', label: 'سياسة الخصوصية', icon: ShieldCheck },
           { id: 'settings', label: 'الإعدادات العامة', icon: Settings },
         ].map(tab => (
           <button
@@ -2305,7 +2305,7 @@ try {
                           {/* Account Security Panel */}
                           <div className="bg-[#242636] p-6 rounded-3xl border border-gray-700 flex flex-col justify-center items-center text-center">
                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${foundUser.status === 'active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                                   <Shield size={32} />
+                                   <ShieldCheck size={32} />
                                </div>
                                <h3 className="text-white font-bold text-white mb-1">حالة الحساب</h3>
                                <p className="text-xs text-gray-400 mb-6">يمكنك تقييد وصول المستخدم إلى التطبيق مؤقتاً أو نهائياً.</p>
@@ -2598,7 +2598,7 @@ try {
           <div className="space-y-6">
              <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-white flex items-center gap-2"><Shield size={20} className="text-blue-400" /> تعديل سياسة الخصوصية</h3>
+                    <h3 className="font-bold text-white flex items-center gap-2"><ShieldCheck size={20} className="text-blue-400" /> تعديل سياسة الخصوصية</h3>
                     
                     {/* Language Switcher */}
                     <div className="bg-[#13141f] p-1 rounded-lg flex gap-1">
