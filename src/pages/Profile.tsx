@@ -35,6 +35,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showFaqModal, setShowFaqModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
   
   // New Modals State
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -235,6 +236,15 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       setExpandedFaq(expandedFaq === index ? null : index);
   };
 
+  const handleCopyId = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!user?.id) return;
+      
+      navigator.clipboard.writeText(user.id);
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
+  };
+
   // If user is banned, show the enhanced ban UI (matches the requested design)
   if (user?.status === 'banned') {
     const getFormattedBanDate = () => {
@@ -354,8 +364,17 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
             <div className="flex items-center gap-2">
                 <h2 className="text-white font-bold text-xl group-hover:text-yellow-400 transition-colors">{user?.name || 'زائر'}</h2>
             </div>
-            <p className="text-gray-500 text-sm font-bold mt-0.5" dir="ltr">ID: {user?.id || '---'}</p>
-         </div>
+             <div className="flex items-center gap-1.5 mt-0.5">
+                 <button 
+                    onClick={handleCopyId}
+                    className={`p-1 rounded-md transition-all ${copiedId ? 'bg-green-500/20 text-green-500' : 'bg-gray-800/50 text-gray-500 hover:text-yellow-400'}`}
+                    title="نسخ المعرف"
+                 >
+                    {copiedId ? <Check size={12} /> : <Copy size={12} />}
+                 </button>
+                 <p className="text-gray-500 text-sm font-bold" dir="ltr">ID: {user?.id || '---'}</p>
+             </div>
+          </div>
          <ChevronLeft className="text-gray-600 w-5 h-5 group-hover:text-yellow-400 transition-colors" strokeWidth={1.5} />
       </button>
 
