@@ -14,8 +14,10 @@ const getUsers = asyncHandler(async (req, res) => {
   const where = query
     ? {
         OR: [
-          { id: query },
+          { id: { contains: query, mode: 'insensitive' } },
           { email: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: 'insensitive' } },
+          { phone: { contains: query, mode: 'insensitive' } },
         ],
       }
     : undefined;

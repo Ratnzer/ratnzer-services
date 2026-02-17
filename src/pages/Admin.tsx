@@ -1171,7 +1171,7 @@ try {
       const list = Array.isArray(res?.data) ? res.data : [];
       if (list.length === 0) {
         setFoundUser(null);
-        alert('لم يتم العثور على مستخدم بهذا البريد أو الـ ID');
+        alert('لم يتم العثور على مستخدم بهذا الـ ID، البريد، الاسم أو رقم الهاتف');
         return;
       }
 
@@ -2125,13 +2125,13 @@ try {
                           <Search size={40} className="text-gray-600" />
                       </div>
                       <h2 className="text-xl font-bold mb-2 text-white">إدارة المستخدمين</h2>
-                      <p className="text-gray-400 text-sm mb-6 max-w-xs">أدخل معرف المستخدم (ID) للوصول إلى ملفه الشخصي وإدارة الرصيد والحظر.</p>
+                      <p className="text-gray-400 text-sm mb-6 max-w-xs">أدخل (ID، البريد، الاسم، أو الهاتف) للوصول إلى ملف المستخدم وإدارة الرصيد والحظر.</p>
                       
                       <div className="flex w-full max-w-md gap-3">
                           <input 
                               type="text" 
-                              placeholder="أدخل ID المستخدم هنا..." 
-                              className="flex-1 bg-[#13141f] border border-gray-600 rounded-xl p-4 text-center text-white focus:border-yellow-400 outline-none font-mono text-lg shadow-inner"
+                              placeholder="ابحث عن مستخدم..." 
+                              className="flex-1 bg-[#13141f] border border-gray-600 rounded-xl p-4 text-center text-white focus:border-yellow-400 outline-none font-bold text-lg shadow-inner"
                               value={searchUserId}
                               onChange={(e) => setSearchUserId(e.target.value)}
                           />
