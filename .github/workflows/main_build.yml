@@ -43,10 +43,12 @@ jobs:
             TAG_NAME=${GITHUB_REF#refs/tags/}
             VERSION=${TAG_NAME#v}
           else
+            # محاولة جلب الإصدار من آخر Release
             LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
             if [ -n "$LATEST_RELEASE" ]; then
               VERSION=${LATEST_RELEASE#v}
             else
+              # إذا لم يوجد Release، نأخذ الإصدار من package.json
               VERSION=$(node -p "require('./package.json').version")
             fi
           fi
