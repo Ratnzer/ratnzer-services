@@ -141,6 +141,11 @@ export interface AppTerms {
   contactTelegram?: string;
 }
 
+export interface AppPrivacy {
+  contentAr: string;
+  contentEn: string;
+}
+
 export interface Banner {
   id: number;
   title: string;

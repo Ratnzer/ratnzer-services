@@ -25,7 +25,7 @@ import {
   GraduationCap, School, BookOpen, Library,
   LayoutGrid, Check, Settings2, LogOut
 } from 'lucide-react';
-import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics } from '../types';
+import { View, Product, Category, AppTerms, AppPrivacy, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics } from '../types';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
 import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
@@ -40,6 +40,8 @@ interface Props {
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   terms: AppTerms;
   setTerms: React.Dispatch<React.SetStateAction<AppTerms>>;
+  privacy: AppPrivacy;
+  setPrivacy: React.Dispatch<React.SetStateAction<AppPrivacy>>;
   banners: Banner[];
   setBanners: React.Dispatch<React.SetStateAction<Banner[]>>;
   users: UserProfile[];
@@ -143,6 +145,7 @@ const Admin: React.FC<Props> = ({
   products, setProducts, 
   categories, setCategories,
   terms, setTerms,
+  privacy, setPrivacy,
   banners, setBanners,
   users, setUsers,
   announcements, setAnnouncements,
@@ -193,7 +196,7 @@ const getOrderDate = (o: any) => {
   return raw || new Date().toLocaleString("en-US");
 };
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'categories' | 'terms' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
   
   // Orders State
   const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
@@ -216,6 +219,10 @@ const getOrderDate = (o: any) => {
   // Terms State
   const [termsLang, setTermsLang] = useState<'ar' | 'en'>('ar');
   const [isSavingTerms, setIsSavingTerms] = useState(false);
+
+  // Privacy State
+  const [privacyLang, setPrivacyLang] = useState<'ar' | 'en'>('ar');
+  const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
 
   // Terms: Save to server
   const handleSaveTerms = async () => {
@@ -251,6 +258,42 @@ const getOrderDate = (o: any) => {
       alert('فشل حفظ الشروط على السيرفر، حاول مرة أخرى');
     } finally {
       setIsSavingTerms(false);
+    }
+  };
+
+  // Privacy: Save to server
+  const handleSavePrivacy = async () => {
+    if (isSavingPrivacy) return;
+
+    const ar = (privacy?.contentAr ?? '').trim();
+    const en = (privacy?.contentEn ?? '').trim();
+
+    if (!ar && !en) {
+      alert('يرجى كتابة سياسة الخصوصية قبل الحفظ');
+      return;
+    }
+
+    setIsSavingPrivacy(true);
+    try {
+      const res = await contentService.updatePrivacy({
+        contentAr: privacy?.contentAr ?? '',
+        contentEn: privacy?.contentEn ?? '',
+      });
+
+      // Sync UI with server response if available
+      if (res?.data) {
+        setPrivacy({
+          contentAr: typeof res.data.contentAr === 'string' ? res.data.contentAr : (privacy?.contentAr ?? ''),
+          contentEn: typeof res.data.contentEn === 'string' ? res.data.contentEn : (privacy?.contentEn ?? ''),
+        });
+      }
+
+      alert('تم حفظ سياسة الخصوصية بنجاح ✅');
+    } catch (err) {
+      console.error('Save privacy failed:', err);
+      alert('فشل حفظ سياسة الخصوصية على السيرفر، حاول مرة أخرى');
+    } finally {
+      setIsSavingPrivacy(false);
     }
   };
 
@@ -1446,6 +1489,7 @@ try {
           { id: 'banners', label: 'البانرات', icon: ImageIcon },
           { id: 'currencies', label: 'العملات', icon: CircleDollarSign },
           { id: 'terms', label: 'الشروط', icon: FileText },
+          { id: 'privacy', label: 'سياسة الخصوصية', icon: Shield },
           { id: 'settings', label: 'الإعدادات العامة', icon: Settings },
         ].map(tab => (
           <button
@@ -2544,7 +2588,60 @@ try {
                     onClick={handleSaveTerms}
                     disabled={isSavingTerms}
                 >
-                    {isSavingTerms ? (<><RefreshCw size={18} className="animate-spin" /> جارٍ الحفظ...</>) : (<><Save size={18} /> حفظ التعديلات</>)}
+                    {isSavingTerms ? (<><RefreshCw size={18} className="animate-spin" /> جارِ الحفظ...</>) : (<><Save size={18} /> حفظ التعديلات</>)}
+                </button>
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'privacy' && (
+          <div className="space-y-6">
+             <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-white flex items-center gap-2"><Shield size={20} className="text-blue-400" /> تعديل سياسة الخصوصية</h3>
+                    
+                    {/* Language Switcher */}
+                    <div className="bg-[#13141f] p-1 rounded-lg flex gap-1">
+                        <button 
+                            onClick={() => setPrivacyLang('ar')}
+                            className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${privacyLang === 'ar' ? 'bg-blue-400 text-black' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            العربية
+                        </button>
+                        <button 
+                            onClick={() => setPrivacyLang('en')}
+                            className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${privacyLang === 'en' ? 'bg-blue-400 text-black' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            English
+                        </button>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-xs text-gray-400 font-bold block text-right">
+                        {privacyLang === 'ar' ? 'نص سياسة الخصوصية (بالعربية)' : 'Privacy Policy Content (English)'}
+                    </label>
+                    
+                    <textarea 
+                        className={`w-full bg-[#13141f] p-4 rounded-xl text-sm text-gray-300 min-h-[400px] border border-gray-700 focus:border-blue-400 outline-none leading-relaxed font-mono ${privacyLang === 'ar' ? 'text-right' : 'text-left dir-ltr'}`}
+                        value={privacyLang === 'ar' ? privacy.contentAr : privacy.contentEn}
+                        onChange={(e) => {
+                            if (privacyLang === 'ar') {
+                                setPrivacy({ ...privacy, contentAr: e.target.value });
+                            } else {
+                                setPrivacy({ ...privacy, contentEn: e.target.value });
+                            }
+                        }}
+                        spellCheck={false}
+                    />
+                </div>
+
+                <button
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold mt-6 shadow-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    onClick={handleSavePrivacy}
+                    disabled={isSavingPrivacy}
+                >
+                    {isSavingPrivacy ? (<><RefreshCw size={18} className="animate-spin" /> جارِ الحفظ...</>) : (<><Save size={18} /> حفظ التعديلات</>)}
                 </button>
              </div>
           </div>

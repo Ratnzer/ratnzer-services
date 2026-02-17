@@ -157,6 +157,11 @@ export const contentService = {
   getTerms: () => api.get("/content/terms"),
   updateTerms: (data: { contentAr: string; contentEn: string }) =>
     api.put("/content/terms", data),
+
+  // ✅ Privacy Policy
+  getPrivacy: () => api.get("/content/privacy"),
+  updatePrivacy: (data: { contentAr: string; contentEn: string }) =>
+    api.put("/content/privacy", data),
 };
 
 // ============================================================

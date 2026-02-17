@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Product, Category, AppTerms, Banner, UserProfile, Announcement, CartItem, Currency, Order, InventoryCode, Transaction } from './types';
+import { View, Product, Category, AppTerms, AppPrivacy, Banner, UserProfile, Announcement, CartItem, Currency, Order, InventoryCode, Transaction } from './types';
 import Home from './pages/Home';
 import SearchPage from './pages/Search';
 import Wallet from './pages/Wallet';
@@ -15,7 +15,7 @@ import LoginModal from './components/LoginModal'; // Import LoginModal
 import ExitConfirmModal from './components/ExitConfirmModal'; // Import ExitConfirmModal
 import SupportModal from './components/SupportModal'; // Import SupportModal
 import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut, Sparkles, Zap, Music, Video, ShoppingBasket, MonitorSmartphone, Wifi, Laptop, Tablet, Mouse, Keyboard, Cpu, Router, Server, Coffee, Pizza, Shirt, Watch, Briefcase, Plane, Megaphone, Ticket, Film, Clapperboard, Palette, Brush, Dumbbell, Bike, Bed, Home as HomeIcon, Building, GraduationCap, School, BookOpen, Library, Code, Terminal, Database, Cloud, Bitcoin, DollarSign, Key, Wrench, Hammer, Settings, Flame, Sun, Moon, CloudRain, Truck, Anchor, Crown, Diamond, Medal, Trophy } from 'lucide-react';
-import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
+import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_PRIVACY, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
@@ -549,6 +549,7 @@ useEffect(() => {
   const [products, setProducts] = useState<Product[]>(() => loadCache<Product[]>('cache_products_v1', INITIAL_PRODUCTS));
   const [categories, setCategories] = useState<Category[]>(() => loadCache<Category[]>('cache_categories_v1', INITIAL_CATEGORIES));
   const [terms, setTerms] = useState<AppTerms>(() => loadCache<AppTerms>('cache_terms_v1', INITIAL_TERMS)); // Updated type
+  const [privacy, setPrivacy] = useState<AppPrivacy>(() => loadCache<AppPrivacy>('cache_privacy_v1', INITIAL_PRIVACY));
   const [banners, setBanners] = useState<Banner[]>(() => loadCache<Banner[]>('cache_banners_v1', INITIAL_BANNERS));
   const [users, setUsers] = useState<UserProfile[]>(MOCK_USERS);
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
@@ -641,6 +642,15 @@ useEffect(() => {
             }));
           }
         }).catch(() => {}),
+        contentService.getPrivacy().then(res => {
+          if (res?.data) {
+            const data: any = res.data;
+            setPrivacy({
+              contentAr: typeof data.contentAr === 'string' ? data.contentAr : '',
+              contentEn: typeof data.contentEn === 'string' ? data.contentEn : '',
+            });
+          }
+        }).catch(() => {}),
       ];
 
       const userTasks = [];
@@ -694,6 +704,7 @@ useEffect(() => {
   useEffect(() => { saveArrayCache('cache_banners_v1', banners); }, [banners]);
   useEffect(() => { saveArrayCache('cache_announcements_v1', announcements); }, [announcements]);
   useEffect(() => { saveCache('cache_terms_v1', terms); }, [terms]);
+  useEffect(() => { saveCache('cache_privacy_v1', privacy); }, [privacy]);
   useEffect(() => { saveArrayCache('cache_currencies_v1', currencies); }, [currencies]);
 
   // User-related caches (only meaningful when token exists)
@@ -1996,7 +2007,8 @@ useEffect(() => {
             setView={handleSetView} 
             currentCurrency={currencyCode} 
             onCurrencyChange={handleCurrencyChange}
-            terms={terms} 
+            terms={terms}
+            privacy={privacy}
             user={currentUser || undefined}
             currencies={currencies}
             rateAppLink={rateAppLink} // Pass link
@@ -2057,6 +2069,8 @@ useEffect(() => {
             setCategories={setCategories}
             terms={terms}
             setTerms={setTerms}
+            privacy={privacy}
+            setPrivacy={setPrivacy}
             banners={banners}
             setBanners={setBanners}
             users={users}
@@ -2527,6 +2541,7 @@ useEffect(() => {
             currentCurrency={currencyCode}
             onCurrencyChange={setCurrencyCode}
             terms={terms}
+            privacy={privacy}
             user={currentUser || undefined}
             currencies={currencies}
             rateAppLink={(terms as any).rateAppLink || ''}

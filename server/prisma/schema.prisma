@@ -215,6 +215,15 @@ model AppTerms {
   updatedAt DateTime @updatedAt
 }
 
+// --- سياسة الخصوصية (Singleton) ---
+model AppPrivacy {
+  id        String   @id @default("singleton")
+  contentAr String   @db.Text
+  contentEn String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // --- السلة (Cart) ---
 // جدول واحد لعناصر السلة مرتبط بالمستخدم لتبسيط التخزين والـ API
 model CartItem {

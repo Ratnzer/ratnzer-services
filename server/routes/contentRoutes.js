@@ -15,6 +15,8 @@ const {
   updateCategory,
   getTerms,
   updateTerms,
+  getPrivacy,
+  updatePrivacy,
 } = require('../controllers/contentController');
 
 // Banners
@@ -42,5 +44,10 @@ router.route('/categories/:id')
 router.route('/terms')
   .get(getTerms)
   .put(protect, admin, updateTerms);
+
+// Privacy Policy
+router.route('/privacy')
+  .get(getPrivacy)
+  .put(protect, admin, updatePrivacy);
 
 module.exports = router;

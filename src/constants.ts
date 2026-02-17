@@ -4,6 +4,7 @@ import {
   Transaction,
   Currency,
   AppTerms,
+  AppPrivacy,
   Banner,
   UserProfile,
   Region,
@@ -54,3 +55,9 @@ export const INITIAL_TERMS: AppTerms = {
   contactWhatsapp: '9647763410970',
   contactTelegram: 'ratnzer',
 } as AppTerms;
+
+// سياسة الخصوصية – جاهزة تعبئتها من الباكند أو من لوحة الإدارة
+export const INITIAL_PRIVACY: AppPrivacy = {
+  contentAr: '',
+  contentEn: '',
+} as AppPrivacy;

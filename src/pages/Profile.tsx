@@ -8,7 +8,7 @@ import {
   Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
-import { View, AppTerms, UserProfile, Currency } from '../types';
+import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
 import { authService } from '../services/api';
 import { auth } from '../services/firebase';
 import versionData from '../version.json';
@@ -18,6 +18,7 @@ interface Props {
   currentCurrency: string;
   onCurrencyChange: (code: string) => void;
   terms: AppTerms;
+  privacy: AppPrivacy;
   user?: UserProfile;
   currencies: Currency[];
   rateAppLink: string;
@@ -25,11 +26,12 @@ interface Props {
   onUpdateUser: (updatedUser: UserProfile) => void; // New prop for updating user data
 }
 
-const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, user, currencies, rateAppLink, onLogout, onUpdateUser }) => {
+const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser }) => {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showFaqModal, setShowFaqModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   
@@ -91,6 +93,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     { icon: Wallet, label: 'محفظتي', action: () => setView(View.WALLET) },
     { icon: HelpCircle, label: 'الأسئلة الشائعة', action: () => setShowFaqModal(true) },
     { icon: FileText, label: 'الشروط والأحكام', action: () => setShowTermsModal(true) },
+    { icon: Shield, label: 'سياسة الخصوصية', action: () => setShowPrivacyModal(true) },
     { icon: Star, label: 'تقييم التطبيق', action: () => { 
         if (rateAppLink) {
             window.open(rateAppLink, '_blank');
@@ -779,6 +782,35 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                        {/* Display Full English Content with whitespace preserved */}
                        <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
                            {terms.contentEn}
+                       </div>
+                   </div>
+               </div>
+           </div>
+       )}
+
+       {/* Privacy Modal */}
+       {showPrivacyModal && (
+           <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
+               <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
+                   <button onClick={() => setShowPrivacyModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
+                   <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2><div className="w-9"></div>
+               </div>
+               <div className="flex-1 overflow-y-auto p-6 text-gray-300 pb-24">
+                   <div className="space-y-6 text-right">
+                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
+                       {/* Display Full Arabic Content with whitespace preserved */}
+                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
+                           {privacy.contentAr}
+                       </div>
+                   </div>
+                   
+                   <div className="my-8 border-t border-gray-700/50"></div>
+                   
+                   <div className="space-y-6 text-left dir-ltr">
+                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
+                       {/* Display Full English Content with whitespace preserved */}
+                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
+                           {privacy.contentEn}
                        </div>
                    </div>
                </div>

@@ -207,6 +207,39 @@ const updateTerms = asyncHandler(async (req, res) => {
   res.json(terms);
 });
 
+// =========================
+// Privacy Policy (Singleton)
+// =========================
+// GET /api/content/privacy
+const getPrivacy = asyncHandler(async (req, res) => {
+  let privacy = await prisma.appPrivacy.findUnique({ where: { id: 'singleton' } });
+
+  // Ensure singleton exists so client always receives a consistent shape
+  if (!privacy) {
+    privacy = await prisma.appPrivacy.create({
+      data: { id: 'singleton', contentAr: '', contentEn: '' },
+    });
+  }
+
+  res.json(privacy);
+});
+
+// PUT /api/content/privacy (admin)
+const updatePrivacy = asyncHandler(async (req, res) => {
+  const { contentAr, contentEn } = req.body || {};
+
+  const ar = typeof contentAr === 'string' ? contentAr : '';
+  const en = typeof contentEn === 'string' ? contentEn : '';
+
+  const privacy = await prisma.appPrivacy.upsert({
+    where: { id: 'singleton' },
+    update: { contentAr: ar, contentEn: en },
+    create: { id: 'singleton', contentAr: ar, contentEn: en },
+  });
+
+  res.json(privacy);
+});
+
 module.exports = {
   getBanners,
   createBanner,
@@ -220,4 +253,6 @@ module.exports = {
   updateCategory,
   getTerms,
   updateTerms,
+  getPrivacy,
+  updatePrivacy,
 };
