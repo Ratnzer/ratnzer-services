@@ -71,7 +71,6 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      # 🔥 الإصلاح المضاف فقط هنا
       - name: Update version.json قبل بناء الويب
         run: npm run update-version
         env:
@@ -91,10 +90,6 @@ jobs:
       - name: ضغط ملفات الويب (Web Build)
         run: |
           zip -r web-build-v${{ steps.vars.outputs.version }}.zip dist/
-
-      # - name: Generate Capacitor Assets
-      #   run: |
-      #     npx @capacitor/assets generate
 
       - name: Sync Capacitor
         run: |
@@ -158,7 +153,7 @@ jobs:
             web-build-v${{ steps.vars.outputs.version }}.zip
           body: |
             ## الإصدار ${{ steps.vars.outputs.version }}
-            تم بناء وتوقيع الملفات بعد توليد أيقونات و Splash تلقائياً.
+            تم بناء وتوقيع الملفات بنجاح.
           draft: false
           prerelease: false
 
