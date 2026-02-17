@@ -1471,7 +1471,7 @@ try {
           { id: 'announcements', label: 'الإشعارات', icon: Bell },
           { id: 'banners', label: 'البانرات', icon: ImageIcon },
           { id: 'currencies', label: 'العملات', icon: CircleDollarSign },
-          { id: 'terms', label: 'الشروط', icon: FileText },
+          { id: 'terms', label: 'الشروط والأحكام', icon: FileText },
           { id: 'privacy', label: 'سياسة الخصوصية', icon: ShieldCheck },
           { id: 'settings', label: 'الإعدادات العامة', icon: Settings },
         ].map(tab => (
