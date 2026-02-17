@@ -5,7 +5,8 @@ import {
   ChevronLeft, HelpCircle, FileText, 
   LogOut, Star, Trash2, Bell, Wallet, ClipboardList, Headset,
   CircleDollarSign, Check, Camera, User as UserIcon, Phone, Mail, X, Save, Edit2,
-  Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle
+  Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle,
+  Shield
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
 import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
