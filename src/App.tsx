@@ -263,6 +263,7 @@ const App: React.FC = () => {
   const actionToastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pushInitRef = useRef(false);
   const navigationHistory = useRef<View[]>([]);
+  const lastOrdersFetchRef = useRef<number>(0);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
@@ -682,6 +683,7 @@ useEffect(() => {
                 setMyOrdersPage(normalized);
                 setMyOrdersHasMore(typeof data?.hasMore === 'boolean' ? data.hasMore : (items.length === 10));
                 setMyOrdersSkip(items.length);
+                lastOrdersFetchRef.current = Date.now();
               })
           ).catch(() => {})
         );
@@ -909,6 +911,7 @@ useEffect(() => {
         const normalized = normalizeOrdersFromApi(items);
         setMyOrdersPage(normalized);
         saveCache('cache_orders_v1', normalized);
+        lastOrdersFetchRef.current = Date.now();
       } else {
         const normalized = normalizeOrdersFromApi(items);
         setMyOrdersPage(prev => [...prev, ...normalized]);
@@ -936,9 +939,12 @@ useEffect(() => {
   // load first page when entering ORDERS view
   useEffect(() => {
     if (currentView === View.ORDERS) {
-      // ✅ PREVENT DUPLICATE LOAD: Only fetch if we don't have items yet or if explicitly refreshing
-      // This avoids double-fetching on first mount since fetchInitialData already loads page 1.
-      if (myOrdersPage.length === 0) {
+      // ✅ SMART FETCH: Update in background but prevent "double-tap" duplicates
+      // If we just fetched (e.g. within last 5 seconds), skip the silent update.
+      const now = Date.now();
+      const timeSinceLastFetch = now - lastOrdersFetchRef.current;
+      
+      if (timeSinceLastFetch > 5000) {
         loadMyOrdersPage('silent');
       }
     }
