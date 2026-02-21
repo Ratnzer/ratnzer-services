@@ -1259,9 +1259,6 @@ useEffect(() => {
   // --- Login Logic (إصلاح: الاعتماد على الباك إند / التوكن) ---
   const handleLogin = async (_data: { name?: string; email?: string; phone?: string; password?: string; isRegister: boolean }) => {
     try {
-      // إضافة تأخير بسيط لضمان استقرار التوكن في localStorage
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       // بعد نجاح register/login في LoginModal والتوكن تخزن، نجلب البروفايل من الباك إند
       const res = await authService.getProfile();
       if (res && res.data) {
