@@ -264,6 +264,7 @@ const App: React.FC = () => {
   const pushInitRef = useRef(false);
   const navigationHistory = useRef<View[]>([]);
   const lastOrdersFetchRef = useRef<number>(0);
+  const lastTransactionsFetchRef = useRef<number>(0);
 
   // --- Firebase FCM Token (for Push Notifications) ---
   const [fcmToken, setFcmToken] = useState<string>(() => localStorage.getItem('fcm_token') || '');
@@ -659,37 +660,7 @@ useEffect(() => {
         }).catch(() => {}),
       ];
 
-      const userTasks = [];
-      if (hasToken) {
-        userTasks.push(
-          walletService.getTransactionsPaged(0, 10).then(res => {
-            const rawData = res.data;
-            const items = normalizeTransactionsFromApi(Array.isArray(rawData) ? rawData : (rawData?.items || []));
-            setTransactions(items);
-            setTransactionsHasMore(rawData?.hasMore ?? (items.length === 10));
-          }).catch(() => {}),
-          (isAdminLoggedIn 
-            ? orderService.getAllPaged(0, 10).then(res => {
-                if (res?.data) {
-                  const { items } = extractOrdersFromResponse(res.data);
-                  setOrders(items);
-                }
-              })
-            : orderService.getMyOrdersPaged(0, 10).then(res => {
-                const data: any = res?.data;
-                const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
-                const normalized = normalizeOrdersFromApi(items);
-                setOrders(normalized);
-                setMyOrdersPage(normalized);
-                setMyOrdersHasMore(typeof data?.hasMore === 'boolean' ? data.hasMore : (items.length === 10));
-                setMyOrdersSkip(items.length);
-                lastOrdersFetchRef.current = Date.now();
-              })
-          ).catch(() => {})
-        );
-      }
-
-      await Promise.all([...publicTasks, ...userTasks]);
+      await Promise.all([...publicTasks]);
     };
 
     fetchInitialData();
@@ -842,6 +813,7 @@ useEffect(() => {
 
       if (mode === 'replace') {
         setTransactions(items);
+        lastTransactionsFetchRef.current = Date.now();
       } else {
         setTransactions(prev => [...prev, ...items]);
       }
@@ -938,6 +910,16 @@ useEffect(() => {
       
       if (timeSinceLastFetch > 5000) {
         loadMyOrdersPage('silent');
+      }
+    }
+
+    if (currentView === View.WALLET) {
+      // ✅ SMART FETCH: Update in background for wallet too
+      const now = Date.now();
+      const timeSinceLastFetch = now - lastTransactionsFetchRef.current;
+      
+      if (timeSinceLastFetch > 5000) {
+        refreshTransactionsFromServer('replace');
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
