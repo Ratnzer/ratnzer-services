@@ -936,9 +936,11 @@ useEffect(() => {
   // load first page when entering ORDERS view
   useEffect(() => {
     if (currentView === View.ORDERS) {
-      // Use 'silent' to update in background without showing "Refreshing..." UI
-      // This keeps the cached data visible while syncing with server.
-      loadMyOrdersPage('silent');
+      // ✅ PREVENT DUPLICATE LOAD: Only fetch if we don't have items yet or if explicitly refreshing
+      // This avoids double-fetching on first mount since fetchInitialData already loads page 1.
+      if (myOrdersPage.length === 0) {
+        loadMyOrdersPage('silent');
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentView, currentUser?.id]);
