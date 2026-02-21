@@ -689,15 +689,7 @@ useEffect(() => {
         );
       }
 
-      const adminTasks = [];
-      if (isAdminLoggedIn) {
-        adminTasks.push(
-          userService.getAll().then(res => res?.data && setUsers(res.data)).catch(() => {}),
-          inventoryService.getAll().then(res => res?.data && setInventory(res.data)).catch(() => {})
-        );
-      }
-
-      await Promise.all([...publicTasks, ...userTasks, ...adminTasks]);
+      await Promise.all([...publicTasks, ...userTasks]);
     };
 
     fetchInitialData();
