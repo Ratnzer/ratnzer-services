@@ -1374,7 +1374,16 @@ useEffect(() => {
   };
 
   // --- User Logout Logic ---
-  const handleUserLogout = () => {
+  const handleUserLogout = async () => {
+      // ✅ تصفير حالة Firebase لضمان عدم بقاء صور أو بيانات الحساب السابق
+      try {
+        if (auth) {
+          await auth.signOut();
+        }
+      } catch (e) {
+        console.warn('Firebase signOut failed:', e);
+      }
+
       setCurrentUser(null);
       setHasBannedOverride(false);
       // Ensure admin session is also cleared for security
@@ -1388,6 +1397,10 @@ useEffect(() => {
       setOrders([]);
       // Clear cart
       setCartItems([]);
+      // Clear transactions
+      setTransactions([]);
+      // Clear myOrdersPage
+      setMyOrdersPage([]);
   };
   
   // --- Update User Profile Logic ---
