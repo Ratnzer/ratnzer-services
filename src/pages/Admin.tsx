@@ -158,28 +158,51 @@ const Admin: React.FC<Props> = ({
   onLogout
 }) => {
   // ============================================================
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
+
+// ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
+const getOrderDate = (o: any) => {
+  const raw =
+    typeof o?.date === "string" && o.date
+      ? o.date
+      : o?.createdAt
+      ? new Date(o.createdAt).toLocaleString("en-US")
+      : "";
+  return raw || new Date().toLocaleString("en-US");
+};
+  
+  // Orders State
+  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [ordersHasMore, setOrdersHasMore] = useState(false);
+  const [ordersRefreshing, setOrdersRefreshing] = useState(false);
+  const [ordersLoadingMore, setOrdersLoadingMore] = useState(false);
+  const [serverAnalytics, setServerAnalytics] = useState<any | null>(null);
+  const [fulfillmentOrder, setFulfillmentOrder] = useState<Order | null>(null);
+  const [fulfillmentCode, setFulfillmentCode] = useState('');
+
   // ✅ Auto refresh admin data when opening Admin panel
   // ============================================================
   useEffect(() => {
-  const refreshAdminData = async () => {
-    try {
-      const [p, c, a] = await Promise.all([
-        productService.getAll(),
-        contentService.getCategories(),
-        analyticsService.getDashboard(),
-      ]);
-      if (p?.data) setProducts(p.data);
-      if (c?.data) setCategories(c.data);
-      if (a?.data) setServerAnalytics(a.data);
-    } catch (e) {
-      console.warn('Failed to refresh admin data', e);
-    }
+    const refreshAdminData = async () => {
+      try {
+        const [p, c, a] = await Promise.all([
+          productService.getAll(),
+          contentService.getCategories(),
+          analyticsService.getDashboard(),
+        ]);
+        if (p?.data) setProducts(p.data);
+        if (c?.data) setCategories(c.data);
+        if (a?.data) setServerAnalytics(a.data);
+      } catch (e) {
+        console.warn('Failed to refresh admin data', e);
+      }
 
-    await loadAdminOrdersPage('replace');
-  };
-  refreshAdminData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+      await loadAdminOrdersPage('replace');
+    };
+    refreshAdminData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ✅ Lazy load inventory only when tab is active
   useEffect(() => {
@@ -195,29 +218,6 @@ const Admin: React.FC<Props> = ({
       loadInventory();
     }
   }, [activeTab, setInventory]);
-
-// ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
-const getOrderDate = (o: any) => {
-  const raw =
-    typeof o?.date === "string" && o.date
-      ? o.date
-      : o?.createdAt
-      ? new Date(o.createdAt).toLocaleString("en-US")
-      : "";
-  return raw || new Date().toLocaleString("en-US");
-};
-
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
-  
-  // Orders State
-  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
-  const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [ordersHasMore, setOrdersHasMore] = useState(false);
-  const [ordersRefreshing, setOrdersRefreshing] = useState(false);
-  const [ordersLoadingMore, setOrdersLoadingMore] = useState(false);
-  const [serverAnalytics, setServerAnalytics] = useState<any | null>(null);
-  const [fulfillmentOrder, setFulfillmentOrder] = useState<Order | null>(null);
-  const [fulfillmentCode, setFulfillmentCode] = useState('');
   
   // Invoice Viewer State
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
