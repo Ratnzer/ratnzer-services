@@ -163,16 +163,14 @@ const Admin: React.FC<Props> = ({
   useEffect(() => {
   const refreshAdminData = async () => {
     try {
-      const [p, c, u, i, a] = await Promise.all([
+      const [p, c, i, a] = await Promise.all([
         productService.getAll(),
         contentService.getCategories(),
-        userService.getAll(),
         inventoryService.getAll(),
         analyticsService.getDashboard(),
       ]);
       if (p?.data) setProducts(p.data);
       if (c?.data) setCategories(c.data);
-      if (u?.data) setUsers(u.data);
       if (i?.data) setInventory(i.data);
       if (a?.data) setServerAnalytics(a.data);
     } catch (e) {
