@@ -163,15 +163,13 @@ const Admin: React.FC<Props> = ({
   useEffect(() => {
   const refreshAdminData = async () => {
     try {
-      const [p, c, i, a] = await Promise.all([
+      const [p, c, a] = await Promise.all([
         productService.getAll(),
         contentService.getCategories(),
-        inventoryService.getAll(),
         analyticsService.getDashboard(),
       ]);
       if (p?.data) setProducts(p.data);
       if (c?.data) setCategories(c.data);
-      if (i?.data) setInventory(i.data);
       if (a?.data) setServerAnalytics(a.data);
     } catch (e) {
       console.warn('Failed to refresh admin data', e);
@@ -182,6 +180,21 @@ const Admin: React.FC<Props> = ({
   refreshAdminData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
+
+  // ✅ Lazy load inventory only when tab is active
+  useEffect(() => {
+    if (activeTab === 'inventory') {
+      const loadInventory = async () => {
+        try {
+          const res = await inventoryService.getAll();
+          if (res?.data) setInventory(res.data);
+        } catch (e) {
+          console.warn('Failed to load inventory', e);
+        }
+      };
+      loadInventory();
+    }
+  }, [activeTab, setInventory]);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
 const getOrderDate = (o: any) => {
