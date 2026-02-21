@@ -56,10 +56,13 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
   const [showPassword, setShowPassword] = useState(false);
   const [showFullTerms, setShowFullTerms] = useState(false);
   const [showFullPrivacy, setShowFullPrivacy] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const handleGoogleLogin = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
     try {
       const { idToken } = await signInWithGoogle();
       if (!idToken) throw new Error('فشل الحصول على رمز التحقق من جوجل');
@@ -77,10 +80,14 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
       // عرض رسالة الخطأ الأصلية إذا كانت موجودة (للمساعدة في التشخيص)
       const errorMsg = error.message || 'فشل تسجيل الدخول عبر جوجل - تأكد من اتصالك بالإنترنت';
       alert(error?.response?.data?.message || errorMsg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleFacebookLogin = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
     try {
       const { idToken } = await signInWithFacebook();
 
@@ -104,10 +111,13 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
       console.error('Facebook Login Error:', error);
       const errorMsg = error.message || 'فشل تسجيل الدخول عبر فيسبوك';
       alert(error?.response?.data?.message || errorMsg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSubmit = async () => {
+    if (isLoading) return;
     // Validation
     if (mode === 'register' && !name.trim()) {
         alert('يرجى إدخال الاسم الكامل');
@@ -155,6 +165,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
       password: password
     };
 
+    setIsLoading(true);
     try {
       // ✅ استدعاءات تسجيل الدخول / إنشاء الحساب
       const res = mode === 'register'
@@ -165,14 +176,15 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
       if (token) {
         localStorage.setItem('token', token);
       }
+      
+      // نفس السلوك القديم – إرجاع البيانات للأب
+      onLogin(payload);
     } catch (error: any) {
       console.error(error);
       alert(error?.response?.data?.message || 'حدث خطأ أثناء الاتصال بالخادم');
-      return; // ما نسوي onLogin إذا فشل الطلب
+    } finally {
+      setIsLoading(false);
     }
-
-    // نفس السلوك القديم – إرجاع البيانات للأب
-    onLogin(payload);
   };
 
   return (
@@ -236,7 +248,8 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
                     <div className="grid grid-cols-2 gap-3 mb-4">
                         <button 
                             onClick={handleGoogleLogin}
-                            className="bg-white hover:bg-gray-100 text-black font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs border border-gray-200"
+                            disabled={isLoading}
+                            className={`bg-white hover:bg-gray-100 text-black font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs border border-gray-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -248,7 +261,8 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
                         </button>
                         <button 
                             onClick={handleFacebookLogin}
-                            className="bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs"
+                            disabled={isLoading}
+                            className={`bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <Facebook size={18} fill="currentColor" />
                             <span>فيسبوك</span>
@@ -362,10 +376,20 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
                 <div className="p-6 pt-4 bg-[#1f212e] border-t border-gray-800/30 shrink-0">
                     <button 
                         onClick={handleSubmit}
-                        className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-yellow-400/20 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm"
+                        disabled={isLoading}
+                        className={`w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-black font-bold py-4 rounded-xl shadow-lg shadow-yellow-400/20 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm ${isLoading ? 'opacity-80 cursor-not-allowed' : ''}`}
                     >
-                        <span>{mode === 'login' ? 'دخول آمن' : 'إنشاء الحساب'}</span>
-                        <ArrowRight size={18} strokeWidth={2.5} />
+                        {isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                                <span>جاري المعالجة...</span>
+                            </div>
+                        ) : (
+                            <>
+                                <span>{mode === 'login' ? 'دخول آمن' : 'إنشاء الحساب'}</span>
+                                <ArrowRight size={18} strokeWidth={2.5} />
+                            </>
+                        )}
                     </button>
 
                     {/* Terms & Privacy Text - Only for Register Mode */}
