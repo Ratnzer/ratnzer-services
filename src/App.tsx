@@ -741,6 +741,7 @@ useEffect(() => {
           // For 401 errors (invalid token, expired, etc.), log out
           console.warn('Token invalid/expired -> logging out', error);
           localStorage.removeItem('token');
+          localStorage.removeItem('cache_user_v1');
           setCurrentUser(null);
           return;
         }
@@ -788,6 +789,7 @@ useEffect(() => {
 
       if (status === 401) {
         localStorage.removeItem('token');
+        localStorage.removeItem('cache_user_v1');
         setCurrentUser(null);
         return;
       }
@@ -1368,6 +1370,10 @@ useEffect(() => {
   const handleAdminLogout = () => {
       setIsAdminLoggedIn(false);
       localStorage.removeItem('ratnzer_admin_auth');
+      // Clear admin-only data from state
+      setUsers([]);
+      setInventory([]);
+      setOrders([]);
       setCurrentView(View.HOME);
       // The useEffect will fire due to isAdminLoggedIn change, 
       // automatically reverting to fetching only "my orders".
@@ -1384,10 +1390,18 @@ useEffect(() => {
       }
       setCurrentView(View.HOME);
       localStorage.removeItem('token');
-      // Clear orders immediately to avoid showing stale data before effect runs
+      
+      // ✅ Clear all user-related caches to prevent stale data (like profile photo) on re-login
+      localStorage.removeItem('cache_user_v1');
+      localStorage.removeItem('cache_cart_v1');
+      localStorage.removeItem('cache_orders_v1');
+      localStorage.removeItem('cache_transactions_v1');
+      localStorage.removeItem('fcm_token'); // Optional: clear push token on logout if desired
+      
+      // Clear state immediately to avoid showing stale data before effects run
       setOrders([]);
-      // Clear cart
       setCartItems([]);
+      setTransactions([]);
   };
   
   // --- Update User Profile Logic ---
@@ -2531,8 +2545,7 @@ useEffect(() => {
             currencies={currencies}
             rateAppLink={rateAppLink}
             onLogout={() => {
-              localStorage.removeItem('token');
-              localStorage.removeItem('cache_user_v1');
+              handleUserLogout();
               window.location.reload();
             }}
             onUpdateUser={setCurrentUser}
