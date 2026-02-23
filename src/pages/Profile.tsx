@@ -67,8 +67,9 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const defaultAvatar =
     'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236b7280"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
 
+  // ✅ Use profile avatar from API user data first, then fallback to Firebase if and only if it's the same session
   const socialPhoto = auth?.currentUser?.photoURL || '';
-  const profileAvatar = (!avatarFailed && (user?.avatar || socialPhoto)) || defaultAvatar;
+  const profileAvatar = (!avatarFailed && (user?.avatar || (user?.id && socialPhoto ? socialPhoto : ''))) || defaultAvatar;
 
   // ✅ Server never sends the password itself; use a safe flag instead.
   const hasPassword = Boolean((user as any)?.hasPassword ?? (user as any)?.passwordSet ?? false);

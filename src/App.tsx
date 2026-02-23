@@ -24,7 +24,7 @@ import { App as CapApp } from '@capacitor/app';
 import { PushNotificationSchema, PushNotifications } from '@capacitor/push-notifications';
 import { extractOrdersFromResponse, normalizeOrderFromApi, normalizeOrdersFromApi } from './utils/orders';
 import { generateShortId } from './utils/id';
-import { handleRedirectResult } from './services/firebase';
+import { handleRedirectResult, signOutFromFirebase } from './services/firebase';
 
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
@@ -1380,9 +1380,13 @@ useEffect(() => {
   };
 
   // --- User Logout Logic ---
-  const handleUserLogout = () => {
+  const handleUserLogout = async () => {
       setCurrentUser(null);
       setHasBannedOverride(false);
+      
+      // ✅ Clear Firebase Session (Fixes stale profile photo from Google/Facebook)
+      await signOutFromFirebase();
+
       // Ensure admin session is also cleared for security
       if (isAdminLoggedIn) {
           setIsAdminLoggedIn(false);

@@ -184,4 +184,20 @@ export const handleRedirectResult = async () => {
   }
 };
 
+/**
+ * تسجيل الخروج من Firebase بالكامل
+ */
+export const signOutFromFirebase = async () => {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      await FirebaseAuthentication.signOut();
+    }
+    if (auth) {
+      await auth.signOut();
+    }
+  } catch (error) {
+    console.error("Error signing out from Firebase:", error);
+  }
+};
+
 export { auth };
