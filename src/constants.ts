@@ -12,7 +12,7 @@ import {
   InventoryCode,
 } from './types';
 
-export const APP_NAME = 'خدمات راتلوزن';
+export const APP_NAME = 'خدمات راتنزر';
 
 // المناطق (تترك فاضية الآن، وتتعبّى لاحقاً من الباكند أو من لوحة الإدارة)
 export const PREDEFINED_REGIONS: Region[] = [];
