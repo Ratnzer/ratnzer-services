@@ -77,7 +77,7 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
   ];
 
   // Logic to filter products
-  let filteredProducts = products.filter((product) => {
+  let filteredProducts = query.trim() === '' ? [] : products.filter((product) => {
     // 1. Filter by Name (Search Query)
     const matchesQuery = product.name.toLowerCase().includes(query.toLowerCase());
 
@@ -138,6 +138,7 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
              </div>
           </div>
       ) : (
+        query.trim() !== '' && (
           <div className="flex flex-col items-center justify-center mt-12 px-10 text-center animate-fadeIn">
             <div className="w-32 h-32 bg-[#FCD34D] rounded-full flex items-center justify-center mb-6 relative overflow-hidden shadow-lg">
                 <div className="flex gap-3 transform translate-y-1">
@@ -153,6 +154,7 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
             <h2 className="text-lg font-bold text-white mb-2">لا يوجد اي عناصر لعرضها</h2>
             <p className="text-gray-400 text-xs">جرب تغيير الفلاتر أو البحث بكلمات أخرى</p>
           </div>
+        )
       )}
     </div>
   );
