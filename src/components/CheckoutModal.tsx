@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Wallet, CreditCard, ArrowLeft, Calendar, User, Lock, CheckCircle, Wifi } from 'lucide-react';
 
 interface Props {
@@ -16,6 +16,60 @@ interface Props {
 const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice }) => {
   const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Drag to dismiss state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [translateY, setTranslateY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const minSwipeDistance = 100;
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => setIsVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const currentTouch = e.targetTouches[0].clientY;
+    const diff = currentTouch - touchStart;
+    if (diff > 0) {
+      setTranslateY(diff);
+      setTouchEnd(currentTouch);
+    }
+  };
+
+  const onTouchEnd = () => {
+    setIsDragging(false);
+    if (!touchStart || !touchEnd) {
+      setTranslateY(0);
+      return;
+    }
+    const distance = touchEnd - touchStart;
+    if (distance > minSwipeDistance) {
+      setIsVisible(false);
+      setTimeout(() => {
+        onClose();
+        setTranslateY(0);
+        setTouchStart(null);
+        setTouchEnd(null);
+      }, 300);
+    } else {
+      setTranslateY(0);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -40,18 +94,45 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
+    <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+      <div 
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`} 
+        onClick={onClose}
+      ></div>
 
       {/* Modal Content */}
-      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up flex flex-col shadow-2xl border-t border-gray-700 max-h-[85vh] mb-[calc(env(safe-area-inset-bottom,0px)+75px)] sm:mb-0">
+      <div 
+        className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 flex flex-col shadow-2xl border-t border-gray-700 max-h-[85vh] mb-[calc(env(safe-area-inset-bottom,0px)+75px)] sm:mb-0 transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
+        style={{ 
+          transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
+          willChange: 'transform, opacity'
+        }}
+      >
         
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-800">
-           <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={20} /></button>
+        {/* Handle Bar & Close Button */}
+        <div className="relative">
+          <div 
+            className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+          </div>
+          
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+            aria-label="Close"
+          >
+            <X size={20} strokeWidth={2} />
+          </button>
+        </div>
+
+        {/* Header Title */}
+        <div className="flex items-center justify-center p-4">
            <h2 className="text-lg font-bold text-white">إتمام الطلب</h2>
-           <div className="w-5"></div>
         </div>
 
         <div className="p-6 space-y-6 flex flex-col h-full">
