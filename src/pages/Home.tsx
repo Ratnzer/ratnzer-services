@@ -292,13 +292,13 @@ const Home: React.FC<Props> = ({
                 ref={scrollRef}
                 onScroll={handleScroll}
                 dir="rtl"
-                className="flex overflow-x-auto snap-x snap-mandatory h-full w-full no-scrollbar"
+                className="flex overflow-x-auto snap-x snap-mandatory h-full w-full no-scrollbar overscroll-x-contain"
               >
                 {extendedBanners.map((banner: any, index: number) => (
                   <div
                     key={index}
-                    className="w-full flex-shrink-0 snap-center h-full relative flex items-center justify-center bg-gradient-to-r"
-                    style={{ scrollSnapStop: 'always' }}
+                    className="w-full flex-shrink-0 snap-center h-full relative flex items-center justify-center bg-gradient-to-r will-change-transform"
+                    style={{ scrollSnapStop: 'always', transform: 'translate3d(0,0,0)' }}
                   >
                     {banner.imageUrl ? (
                       <img
@@ -367,9 +367,9 @@ const Home: React.FC<Props> = ({
       <div className="px-4">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pr-1">
           {uiCategories.map((cat: any) => (
-            <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group touch-manipulation">
+            <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group touch-manipulation active:scale-95 transition-transform duration-150">
               <div
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-colors border shadow-md ${
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all duration-300 border shadow-md ${
                   effectiveCategory === cat.id
                     ? 'bg-yellow-400 text-black border-yellow-400'
                     : 'bg-[#242636] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
