@@ -123,7 +123,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
           
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+            className="absolute top-4 left-4 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
             aria-label="Close"
           >
             <X size={20} strokeWidth={2} />

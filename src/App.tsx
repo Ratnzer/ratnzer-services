@@ -2123,16 +2123,16 @@ useEffect(() => {
 
 	             {/* Header */}
 	             <div className="px-4 mb-4 flex-shrink-0 flex items-center justify-between">
-                <button 
-                  onClick={() => refreshCartFromServer('replace')} 
-                  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
-                  disabled={cartRefreshing}
-                >
-                  {cartRefreshing ? "جاري التحديث..." : "تحديث"}
-                </button>
-                <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
-                <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
-             </div>
+	                <button onClick={() => handleSetView(View.HOME)} className="p-2 bg-[#242636]/80 rounded-full text-gray-400 border border-gray-700/50"><X size={20} /></button>
+	                <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
+	                <button 
+	                  onClick={() => refreshCartFromServer('replace')} 
+	                  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
+	                  disabled={cartRefreshing}
+	                >
+	                  {cartRefreshing ? "جاري التحديث..." : "تحديث"}
+	                </button>
+	             </div>
 
 	             {cartItems.length === 0 ? (
 	                <div className="flex flex-col items-center justify-center pt-16 text-center px-6">

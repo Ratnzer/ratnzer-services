@@ -95,7 +95,7 @@ const SupportModal: React.FC<SupportModalProps> = ({
           
           <button 
             onClick={onClose}
-            className="absolute top-0 right-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+            className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
             aria-label="Close"
           >
             <X size={20} strokeWidth={2} />
