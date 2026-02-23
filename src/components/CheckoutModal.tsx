@@ -103,7 +103,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 
       {/* Modal Content */}
       <div 
-        className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 flex flex-col shadow-2xl border-t border-gray-700 max-h-[85vh] mb-[calc(env(safe-area-inset-bottom,0px)+75px)] sm:mb-0 transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
+        className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 flex flex-col shadow-2xl border-t border-gray-700 max-h-[85vh] mb-0 sm:mb-0 pb-safe transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
         style={{ 
           transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
           willChange: 'transform, opacity'
