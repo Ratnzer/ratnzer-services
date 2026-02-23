@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import { Send, X } from 'lucide-react';
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -82,15 +82,26 @@ const SupportModal: React.FC<SupportModalProps> = ({
           willChange: 'transform, opacity'
         }}
       >
-        {/* Handle Bar */}
-        <div 
-          className="w-full flex justify-center pb-6 -mt-2 cursor-grab active:cursor-grabbing"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+        {/* Handle Bar & Close Button */}
+        <div className="relative mb-6">
+          <div 
+            className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+          </div>
+          
+          <button 
+            onClick={onClose}
+            className="absolute top-0 right-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+            aria-label="Close"
+          >
+            <X size={20} strokeWidth={2} />
+          </button>
         </div>
+
         <h2 className="text-xl font-bold mb-6 text-center text-white">الدعم الفني</h2>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <button 

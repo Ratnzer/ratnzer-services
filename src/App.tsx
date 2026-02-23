@@ -2115,9 +2115,14 @@ useEffect(() => {
         );
 	      case View.CART:
 	        return (
-	          <div className="pt-4 flex flex-col h-full overflow-hidden animate-fadeIn">
-             {/* Header */}
-             <div className="px-4 mb-4 flex-shrink-0 flex items-center justify-between">
+	          <div className="pt-2 flex flex-col h-full overflow-hidden animate-fadeIn">
+	             {/* Handle Bar (Visual only for consistency) */}
+	             <div className="w-full flex justify-center pb-3">
+	                 <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+	             </div>
+
+	             {/* Header */}
+	             <div className="px-4 mb-4 flex-shrink-0 flex items-center justify-between">
                 <button 
                   onClick={() => refreshCartFromServer('replace')} 
                   className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
