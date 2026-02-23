@@ -430,7 +430,7 @@ const Wallet: React.FC<Props> = ({
                       </div>
 
                       <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
-                        سيتم تحويلك إلى صفحة الدفع الآمنة الخاصة بـ <span className="font-bold text-yellow-400">PayTabs</span> لإدخال بيانات البطاقة (Visa / Mastercard).
+                        سيتم تحويلك إلى صفحة الدفع الآمنة لإدخال بيانات البطاقة (Visa / Mastercard).
                       </div>
 
                       <button 
@@ -444,7 +444,7 @@ const Wallet: React.FC<Props> = ({
                                   <span>جاري المعالجة...</span>
                                </>
                           ) : (
-                               'متابعة إلى PayTabs'
+                               'متابعة الدفع'
                           )}
                       </button>
                     </div>
