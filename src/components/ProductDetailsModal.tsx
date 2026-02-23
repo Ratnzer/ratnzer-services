@@ -629,7 +629,7 @@ onClose();
 
         {/* Action Buttons (Only on Details Step) */}
         {currentStep === 'details' && (
-            <div className="p-4 bg-[#1f212e] border-t border-gray-800 flex gap-3 pb-safe z-[110] sticky bottom-0">
+            <div className="p-4 bg-[#1f212e] border-t border-gray-800 flex gap-3 pb-8 z-[110] sticky bottom-0">
                 {!isAvailableGlobally ? (
                     <div className="flex-1 bg-red-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg text-center">
                         المنتج غير متوفر حالياً
