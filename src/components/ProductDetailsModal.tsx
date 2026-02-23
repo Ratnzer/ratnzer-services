@@ -55,8 +55,20 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const minSwipeDistance = 100;
+
+  // Handle entry animation when isOpen changes
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure the DOM is ready for the transition
+      const timer = setTimeout(() => setIsVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
@@ -87,13 +99,14 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     const isSwipeDown = distance > minSwipeDistance;
     
     if (isSwipeDown) {
-      onClose();
-      // Reset after animation
+      setIsVisible(false); // Trigger exit animation
+      // Wait for animation to finish before calling onClose
       setTimeout(() => {
+        onClose();
         setTranslateY(0);
         setTouchStart(null);
         setTouchEnd(null);
-      }, 200);
+      }, 300);
     } else {
       setTranslateY(0);
     }
@@ -650,16 +663,16 @@ onClose();
     <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
       ></div>
 
       {/* Modal Content */}
       <div 
-        className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe ${!isDragging ? 'transition-transform duration-300 ease-out' : ''}`}
+        className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
         style={{ 
             transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
-            willChange: 'transform'
+            willChange: 'transform, opacity'
         }}
       >
         
