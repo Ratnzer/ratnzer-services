@@ -201,8 +201,8 @@ const getFrontendReturnUrl = (params, type, isApp = false) => {
 };
 
 const buildCustomerDetails = (user) => {
-  const name = user?.name || 'Customer';
-  const email = user?.email || `${user?.id || 'user'}@example.com`;
+  const name = user?.name || 'Ratnzer Customer';
+  const email = user?.email || `${user?.id || 'user'}@ratnzer.com`;
   const phone = user?.phone || '0000000000';
 
   // Minimal, safe defaults (PayTabs requires address fields)
@@ -767,7 +767,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
     tran_type: 'sale',
     tran_class: 'ecom',
     cart_id: payment.id,
-    cart_description: String(type || 'payment'),
+    cart_description: `Ratnzer Services - ${String(type || 'payment')}`,
     cart_currency: paytabsCurrency,
     cart_amount: paytabsCartAmount,
     callback: callback,
