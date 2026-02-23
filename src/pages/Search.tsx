@@ -101,7 +101,7 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
   });
 
   return (
-    <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
+    <div className="min-h-screen pb-24 bg-[#13141f] pt-4 will-change-scroll">
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="w-10"></div>
@@ -109,14 +109,14 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
           <button onClick={() => setView(View.HOME)}><ArrowLeft className="text-white" /></button>
         </div>
         <div className="relative">
-            <input 
-              type="text" 
-              placeholder="أبحث عن ... بطاقات ستور" 
-              className="w-full bg-[#13141f] border border-white/30 rounded-full py-3 pr-10 pl-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-sm text-right"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              autoFocus
-            />
+	            <input 
+	              type="text" 
+	              placeholder="أبحث عن ... بطاقات ستور" 
+	              className="w-full bg-[#13141f] border border-white/30 rounded-full py-3 pr-10 pl-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors text-sm text-right touch-manipulation"
+	              value={query}
+	              onChange={(e) => setQuery(e.target.value)}
+	              autoFocus
+	            />
             <SearchIcon className="absolute right-3 top-3 text-white" size={20} />
         </div>
       </div>

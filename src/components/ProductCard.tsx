@@ -12,7 +12,7 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
   return (
     <div 
       onClick={onClick}
-      className="group relative flex flex-col items-center bg-[#242636] rounded-[1.2rem] p-1.5 border border-gray-800/60 shadow-lg cursor-pointer active:scale-95 transition-all duration-300 hover:border-yellow-400/30 hover:shadow-yellow-400/10 w-full h-full"
+      className="group relative flex flex-col items-center bg-[#242636] rounded-[1.2rem] p-1.5 border border-gray-700 shadow-lg cursor-pointer active:scale-95 transition-all duration-300 hover:border-yellow-400/30 hover:shadow-yellow-400/10 w-full h-full will-change-transform touch-manipulation"
     >
       {/* The Visual Card (Image/Icon Area) */}
       <div className={`
@@ -29,7 +29,7 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
               alt={product.name} 
               loading="lazy"
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
+              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 will-change-transform" 
             />
          ) : (
             /* Fallback Icon/Text if no image */

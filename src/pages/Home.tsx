@@ -266,7 +266,7 @@ const Home: React.FC<Props> = ({
   })();
 
   return (
-    <div className="pb-24 pt-4 space-y-6">
+    <div className="pb-24 pt-4 space-y-6 will-change-scroll">
       {/* Announcements / Alerts */}
       {viewAnnouncements.length > 0 && (
         <div className="px-4">
@@ -367,7 +367,7 @@ const Home: React.FC<Props> = ({
       <div className="px-4">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pr-1">
           {uiCategories.map((cat: any) => (
-            <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group">
+            <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group touch-manipulation">
               <div
                 className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-colors border shadow-md ${
                   effectiveCategory === cat.id
