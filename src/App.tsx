@@ -2113,9 +2113,9 @@ useEffect(() => {
             onRefresh={() => refreshAnnouncementsFromServer('replace')}
           />
         );
-      case View.CART:
-        return (
-          <div className="pt-4 flex flex-col h-full overflow-hidden">
+	      case View.CART:
+	        return (
+	          <div className="pt-4 flex flex-col h-full overflow-hidden animate-fadeIn">
              {/* Header */}
              <div className="px-4 mb-4 flex-shrink-0 flex items-center justify-between">
                 <button 
@@ -2129,8 +2129,8 @@ useEffect(() => {
                 <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
              </div>
 
-             {cartItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center pt-16 text-center px-6 animate-fadeIn">
+	             {cartItems.length === 0 ? (
+	                <div className="flex flex-col items-center justify-center pt-16 text-center px-6">
                     <div className="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center mb-4 relative shadow-lg shadow-yellow-400/20">
                         <ShoppingCart size={48} className="text-black" strokeWidth={1.5} />
                     </div>
@@ -2140,8 +2140,8 @@ useEffect(() => {
                         تصفح المنتجات
                     </button>
                 </div>
-             ) : (
-                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 animate-slide-up pb-32">
+	             ) : (
+	                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 pb-32">
                     
                     {/* Summary (Moved to Top) */}
                     <div className="bg-[#242636] p-4 rounded-2xl border border-gray-700 shadow-lg mb-2">

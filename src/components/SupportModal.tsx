@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send } from 'lucide-react';
 
 interface SupportModalProps {
@@ -14,12 +14,83 @@ const SupportModal: React.FC<SupportModalProps> = ({
   whatsappNumber = '9647763410970', 
   telegramUsername = 'ratnzer' 
 }) => {
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [translateY, setTranslateY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const minSwipeDistance = 100;
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => setIsVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const currentTouch = e.targetTouches[0].clientY;
+    const diff = currentTouch - touchStart;
+    if (diff > 0) {
+      setTranslateY(diff);
+      setTouchEnd(currentTouch);
+    }
+  };
+
+  const onTouchEnd = () => {
+    setIsDragging(false);
+    if (!touchStart || !touchEnd) {
+      setTranslateY(0);
+      return;
+    }
+    const distance = touchEnd - touchStart;
+    if (distance > minSwipeDistance) {
+      setIsVisible(false);
+      setTimeout(() => {
+        onClose();
+        setTranslateY(0);
+        setTouchStart(null);
+        setTouchEnd(null);
+      }, 300);
+    } else {
+      setTranslateY(0);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[110] flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={onClose}></div>
-      <div className="bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 relative z-10 animate-slide-up border-t border-gray-700">
+      <div 
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`} 
+        onClick={onClose}
+      ></div>
+      <div 
+        className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 relative z-10 border-t border-gray-700 transform transition-all duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
+        style={{ 
+          transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
+          willChange: 'transform, opacity'
+        }}
+      >
+        {/* Handle Bar */}
+        <div 
+          className="w-full flex justify-center pb-6 -mt-2 cursor-grab active:cursor-grabbing"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+        </div>
         <h2 className="text-xl font-bold mb-6 text-center text-white">الدعم الفني</h2>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <button 
