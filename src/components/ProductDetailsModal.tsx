@@ -49,6 +49,49 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
       cvv: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Drag to dismiss state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [translateY, setTranslateY] = useState(0);
+
+  const minSwipeDistance = 100;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const currentTouch = e.targetTouches[0].clientY;
+    const diff = currentTouch - touchStart;
+    if (diff > 0) {
+      setTranslateY(diff);
+      setTouchEnd(currentTouch);
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      setTranslateY(0);
+      return;
+    }
+    const distance = touchEnd - touchStart;
+    const isSwipeDown = distance > minSwipeDistance;
+    
+    if (isSwipeDown) {
+      onClose();
+      // Small delay to reset state after closing animation might have started
+      setTimeout(() => {
+        setTranslateY(0);
+        setTouchStart(null);
+        setTouchEnd(null);
+      }, 300);
+    } else {
+      setTranslateY(0);
+    }
+  };
 
   // Reset or initialize state when product opens
   useEffect(() => {
@@ -606,7 +649,10 @@ onClose();
       ></div>
 
       {/* Modal Content */}
-      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe">
+      <div 
+        className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe transition-transform duration-75"
+        style={{ transform: translateY > 0 ? `translateY(${translateY}px)` : undefined }}
+      >
         
         {/* Close Button (X) */}
         <button 
@@ -618,7 +664,12 @@ onClose();
         </button>
 
         {/* Handle Bar (Mobile feel) */}
-        <div className="w-full flex justify-center pt-3 pb-1" onClick={onClose}>
+        <div 
+          className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing" 
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
             <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
         </div>
 
