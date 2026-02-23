@@ -2113,15 +2113,10 @@ useEffect(() => {
             onRefresh={() => refreshAnnouncementsFromServer('replace')}
           />
         );
-	      case View.CART:
-	        return (
-	          <div className="pt-2 flex flex-col h-full overflow-hidden animate-fadeIn">
-	             {/* Handle Bar (Visual only for consistency) */}
-	             <div className="w-full flex justify-center pb-3">
-	                 <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
-	             </div>
-
-	             {/* Header */}
+		      case View.CART:
+		        return (
+		          <div className="pt-4 flex flex-col h-full overflow-hidden animate-fadeIn">
+		             {/* Header */}
 	             <div className="px-4 mb-4 flex-shrink-0 flex items-center justify-between">
 	                <button onClick={() => handleSetView(View.HOME)} className="p-2 bg-[#242636]/80 rounded-full text-gray-400 border border-gray-700/50"><X size={20} /></button>
 	                <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
