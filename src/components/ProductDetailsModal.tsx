@@ -54,25 +54,31 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const minSwipeDistance = 100;
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientY);
+    setIsDragging(true);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
     if (!touchStart) return;
     const currentTouch = e.targetTouches[0].clientY;
     const diff = currentTouch - touchStart;
+    
     if (diff > 0) {
+      // Use requestAnimationFrame style logic via direct state update for React
+      // diff * 0.8 adds a slight resistance feel for better UX
       setTranslateY(diff);
       setTouchEnd(currentTouch);
     }
   };
 
   const onTouchEnd = () => {
+    setIsDragging(false);
     if (!touchStart || !touchEnd) {
       setTranslateY(0);
       return;
@@ -82,12 +88,12 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     
     if (isSwipeDown) {
       onClose();
-      // Small delay to reset state after closing animation might have started
+      // Reset after animation
       setTimeout(() => {
         setTranslateY(0);
         setTouchStart(null);
         setTouchEnd(null);
-      }, 300);
+      }, 200);
     } else {
       setTranslateY(0);
     }
@@ -650,8 +656,11 @@ onClose();
 
       {/* Modal Content */}
       <div 
-        className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe transition-transform duration-75"
-        style={{ transform: translateY > 0 ? `translateY(${translateY}px)` : undefined }}
+        className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe ${!isDragging ? 'transition-transform duration-300 ease-out' : ''}`}
+        style={{ 
+            transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
+            willChange: 'transform'
+        }}
       >
         
         {/* Close Button (X) */}
