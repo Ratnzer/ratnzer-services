@@ -1298,6 +1298,10 @@ useEffect(() => {
         return;
     }
 
+    // Close any open modals for a cleaner transition
+    setSelectedProduct(null);
+    setSelectedInvoiceOrder(null);
+    
     setCurrentView(view);
     
     // Mark notifications as read when entering notifications view

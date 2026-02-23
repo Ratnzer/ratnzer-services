@@ -598,15 +598,15 @@ onClose();
   );
 
   return (
-    <div className="absolute inset-0 z-[100] flex items-end justify-center sm:items-center">
+    <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
         onClick={onClose}
       ></div>
 
       {/* Modal Content */}
-      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto mb-[calc(env(safe-area-inset-bottom,0px)+70px)] sm:mb-0">
+      <div className="bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 animate-slide-up max-h-[85vh] flex flex-col shadow-2xl border-t border-gray-700 h-auto sm:mb-0 mb-safe">
         
         {/* Close Button (X) */}
         <button 
