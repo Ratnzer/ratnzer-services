@@ -2146,7 +2146,7 @@ useEffect(() => {
                     </button>
                 </div>
 	             ) : (
-	                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 pb-32">
+		                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 pb-20">
                     
                     {/* Summary (Moved to Top) */}
                     <div className="bg-[#242636] p-4 rounded-2xl border border-gray-700 shadow-lg mb-2">
