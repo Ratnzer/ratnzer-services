@@ -660,7 +660,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
       productCategory: p.productCategory || product.category,
       amount: price,
       quantity: p?.quantity ?? normalizedQuantity,
-      quantityLabel: p?.quantityLabel || p?.selectedDenomination?.label || (p?.selectedDenomination as any)?.name || (p?.selectedDenomination as any)?.value || (p?.quantity ? String(normalizedQuantity) : undefined),
+      quantityLabel: p?.quantityLabel || p?.selectedDenomination?.label || p?.selectedDenomination?.name || p?.selectedDenomination?.value || (p?.quantity ? String(normalizedQuantity) : undefined),
       customInputValue: trimmedCustomInputValue,
       customInputLabel: p?.customInputLabel || activeCustomInput?.label,
     };
@@ -708,7 +708,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
         regionName: i.selectedRegion?.name,
         regionId: i.selectedRegion?.id,
         denominationId: i.selectedDenomination?.id,
-        quantityLabel: i.selectedDenomination?.label || (i.selectedDenomination as any)?.name || (i.selectedDenomination as any)?.value || (i?.quantity ? String(normalizedQuantity) : undefined),
+        quantityLabel: i.selectedDenomination?.label || i.selectedDenomination?.name || i.selectedDenomination?.value || (i?.quantity ? String(normalizedQuantity) : undefined),
         quantity: Number.isFinite(Number(i.quantity)) && Number(i.quantity) > 0 ? Number(i.quantity) : normalizedQuantity,
         customInputValue: trimmedCustomInputValue,
         customInputLabel: i.customInputLabel,
