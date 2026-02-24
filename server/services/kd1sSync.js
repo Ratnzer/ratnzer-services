@@ -49,15 +49,45 @@ const syncOnce = async () => {
         // لكن الأهم هو تحديث الحالات النهائية (completed, cancelled)
         if (!nextStatus) continue;
 
-        const updated = await prisma.order.update({
-          where: { id: order.id },
-          data: {
-            status: nextStatus,
-            rejectionReason:
-              nextStatus === 'cancelled' && statusResult.providerStatus
-                ? `KD1S: ${statusResult.providerStatus}`
-                : undefined,
-          },
+        const updated = await prisma.$transaction(async (tx) => {
+          // If the status is changing to cancelled, we MUST refund the user
+          if (nextStatus === 'cancelled') {
+            // Re-fetch the latest order state inside transaction
+            const currentOrder = await tx.order.findUnique({ where: { id: order.id } });
+            
+            // Only refund if it's not already cancelled (safety check)
+            if (currentOrder && currentOrder.status !== 'cancelled') {
+              // 1. Refund Balance
+              await tx.user.update({
+                where: { id: order.userId },
+                data: { balance: { increment: Number(order.amount) } },
+              });
+
+              // 2. Create Refund Transaction Log
+              await tx.transaction.create({
+                data: {
+                  id: require('../utils/id').generateShortId(),
+                  userId: order.userId,
+                  title: `استرداد تلقائي: ${order.productName}`,
+                  amount: Number(order.amount),
+                  type: 'credit',
+                  status: 'completed',
+                },
+              });
+            }
+          }
+
+          // Update the order status
+          return await tx.order.update({
+            where: { id: order.id },
+            data: {
+              status: nextStatus,
+              rejectionReason:
+                nextStatus === 'cancelled' && statusResult.providerStatus
+                  ? `KD1S: ${statusResult.providerStatus}`
+                  : undefined,
+            },
+          });
         });
 
         try {
