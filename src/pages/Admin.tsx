@@ -2522,13 +2522,16 @@ try {
                                        const key = `payment_method_${method.id}_enabled`;
                                        const currentValue = localStorage.getItem(key) !== 'false';
                                        const newValue = !currentValue;
-                                       localStorage.setItem(key, String(newValue));
+                                       
                                        try {
+                                           // 1. Update Server First
                                            await settingsService.set(key, String(newValue));
-                                           alert(`تم ${newValue ? 'تفعيل' : 'تعطيل'} ${method.name} بنجاح`);
+                                           // 2. Update Local Only if Server Succeeds
+                                           localStorage.setItem(key, String(newValue));
+                                           alert(`تم ${newValue ? 'تفعيل' : 'تعطيل'} ${method.name} بنجاح ✅`);
                                            window.location.reload();
                                        } catch (e) {
-                                           alert('فشل حفظ الإعداد على السيرفر');
+                                           alert('فشل حفظ الإعداد على السيرفر، يرجى التحقق من الاتصال');
                                        }
                                    }}
                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${localStorage.getItem(`payment_method_${method.id}_enabled`) !== 'false' ? 'bg-emerald-500' : 'bg-gray-600'}`}

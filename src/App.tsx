@@ -584,6 +584,7 @@ useEffect(() => {
   const [transactionsHasMore, setTransactionsHasMore] = useState<boolean>(true);
   const [transactionsLoadingMore, setTransactionsLoadingMore] = useState<boolean>(false);
   const [rateAppLink, setRateAppLink] = useState<string>(() => loadCache<string>('cache_rate_app_link_v1', '')); // New State for Rate Link
+  const [paymentSettings, setPaymentSettings] = useState<Record<string, boolean>>({}); // NEW: Global Payment Settings
   
   // --- Cart State ---
   const [cartItems, setCartItems] = useState<CartItem[]>(() => (hasToken ? loadCache<CartItem[]>('cache_cart_v1', []) : []));
@@ -658,6 +659,23 @@ useEffect(() => {
             setRateAppLink(res.data);
           }
         }).catch(() => {}),
+        // Sync Payment Settings
+        Promise.all(['card', 'superkey', 'zaincash', 'asiacell_transfer'].map(async (id) => {
+          const key = `payment_method_${id}_enabled`;
+          try {
+            const res = await settingsService.get(key);
+            if (res !== null) {
+              const isEnabled = String(res) !== 'false';
+              localStorage.setItem(key, String(isEnabled));
+              return { id, isEnabled };
+            }
+          } catch (e) {}
+          return { id, isEnabled: localStorage.getItem(key) !== 'false' };
+        })).then(results => {
+          const settings: Record<string, boolean> = {};
+          results.forEach(r => { settings[r.id] = r.isEnabled; });
+          setPaymentSettings(settings);
+        }),
       ];
 
       await Promise.all([...publicTasks]);
