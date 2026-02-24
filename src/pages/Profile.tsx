@@ -29,6 +29,8 @@ interface Props {
 
 const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser }) => {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [currencyTranslateY, setCurrencyTranslateY] = useState(0);
+  const [isCurrencyDragging, setIsCurrencyDragging] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -709,8 +711,45 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Currency Modal */}
        {showCurrencyModal && (
          <div className="fixed inset-0 z-[60] flex items-end justify-center">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCurrencyModal(false)}></div>
-            <div className="bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-28 relative z-10 animate-slide-up border-t border-gray-700 max-h-[85vh] flex flex-col">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={() => setShowCurrencyModal(false)}></div>
+            <div 
+              className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-28 relative z-10 border-t border-gray-700 max-h-[85vh] flex flex-col transform transition-all duration-300 ease-out ${isCurrencyDragging ? 'duration-0 transition-none' : ''}`}
+              style={{ transform: `translate3d(0, ${currencyTranslateY}px, 0)` }}
+            >
+               {/* Handle Bar & Close Button */}
+               <div className="relative mb-4">
+                  <div 
+                    className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
+                    onTouchStart={(e) => {
+                      setIsCurrencyDragging(true);
+                      (e.currentTarget as any)._startY = e.targetTouches[0].clientY;
+                    }}
+                    onTouchMove={(e) => {
+                      const startY = (e.currentTarget as any)._startY;
+                      if (!startY) return;
+                      const diff = e.targetTouches[0].clientY - startY;
+                      if (diff > 0) setCurrencyTranslateY(diff);
+                    }}
+                    onTouchEnd={(e) => {
+                      setIsCurrencyDragging(false);
+                      if (currencyTranslateY > 100) {
+                        setShowCurrencyModal(false);
+                      }
+                      setCurrencyTranslateY(0);
+                      (e.currentTarget as any)._startY = null;
+                    }}
+                  >
+                    <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => setShowCurrencyModal(false)}
+                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 rounded-full text-gray-400 border border-gray-700/50"
+                  >
+                    <X size={20} />
+                  </button>
+               </div>
+
                <h2 className="text-xl font-bold mb-6 text-center text-white">العملة</h2>
                <div className="overflow-y-auto no-scrollbar space-y-2 mb-4 flex-1">
                  {currencies.map((currency) => (
