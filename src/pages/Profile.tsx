@@ -160,7 +160,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       const mergedUser: UserProfile = {
         ...user,
         ...data,
-        id: data.id || data._id || user.id,
+        id: data.id || user.id,
         phone: data.phone ?? payload.phone ?? user.phone,
         email: data.email ?? payload.email ?? user.email,
         name: data.name ?? payload.name ?? user.name,

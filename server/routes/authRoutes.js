@@ -19,12 +19,23 @@ const assertExpectedProvider = (decodedToken, expectedProvider) => {
   }
 };
 
+// Helper to return consistent user data
+const getSafeUserData = (user) => {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    preferredCurrency: user.preferredCurrency || 'USD',
+    balance: user.balance,
+    role: user.role,
+    status: user.status,
+    token: generateToken(user.id),
+  };
+};
+
 // ============================================================
 // Admin Setup (Server-side promotion) - Protected by secret key
-// Usage:
-//   POST /api/auth/setup-admin
-//   Header: x-admin-setup-key: <ADMIN_SETUP_KEY>
-//   Body: { "email": "admin@example.com" }
 // ============================================================
 router.post('/setup-admin', asyncHandler(async (req, res) => {
   const setupKey = req.headers['x-admin-setup-key'];
@@ -64,20 +75,13 @@ router.post('/setup-admin', asyncHandler(async (req, res) => {
   });
 }));
 
-
-
 // ============================================================
 // ✅ Activate Admin via password (Admin Panel)
-// - User must be logged in (Bearer token)
-// - Send { adminPassword } in body
-// - Password is read from env: ADMIN_PANEL_PASSWORD (fallback: ADMIN_SETUP_KEY)
 // ============================================================
 router.post('/admin/activate', protect, asyncHandler(async (req, res) => {
   const { adminPassword } = req.body;
 
-  const secret =
-    process.env.ADMIN_PANEL_PASSWORD ||
-    process.env.ADMIN_SETUP_KEY;
+  const secret = process.env.ADMIN_PANEL_PASSWORD || process.env.ADMIN_SETUP_KEY;
 
   if (!secret) {
     return res.status(500).json({ message: "Admin password is not configured on server" });
@@ -126,12 +130,12 @@ router.post('/google', asyncHandler(async (req, res) => {
 
   assertExpectedProvider(decodedToken, 'google.com');
 
-  const { email, name, picture, uid } = decodedToken;
+  const { email, name } = decodedToken;
+  const cleanEmail = email.toLowerCase();
 
-  let user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  let user = await prisma.user.findUnique({ where: { email: cleanEmail } });
 
   if (!user) {
-    // إنشاء مستخدم جديد إذا لم يكن موجوداً
     let userId = generateShortId();
     for (let i = 0; i < 5; i++) {
       const exists = await prisma.user.findUnique({ where: { id: userId } });
@@ -143,8 +147,8 @@ router.post('/google', asyncHandler(async (req, res) => {
       data: {
         id: userId,
         name: name || email.split('@')[0],
-        email: email.toLowerCase(),
-        password: '', // لا توجد كلمة مرور لمستخدمي جوجل
+        email: cleanEmail,
+        password: '', 
         role: 'user',
         status: 'active',
         balance: 0.0
@@ -152,17 +156,7 @@ router.post('/google', asyncHandler(async (req, res) => {
     });
   }
 
-  res.json({
-    id: user.id,
-    _id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    preferredCurrency: user.preferredCurrency || 'USD',
-    balance: user.balance,
-    role: user.role,
-    token: generateToken(user.id),
-  });
+  res.json(getSafeUserData(user));
 }));
 
 // Facebook Auth
@@ -184,9 +178,7 @@ router.post('/facebook', asyncHandler(async (req, res) => {
 
   assertExpectedProvider(decodedToken, 'facebook.com');
 
-  const { email, name, picture, uid } = decodedToken;
-
-  // فيسبوك قد لا يعيد بريداً إلكترونياً في بعض الحالات، سنستخدم UID كبديل إذا لزم الأمر
+  const { email, name, uid } = decodedToken;
   const userEmail = email ? email.toLowerCase() : `${uid}@facebook.com`;
 
   let user = await prisma.user.findUnique({ where: { email: userEmail } });
@@ -212,17 +204,7 @@ router.post('/facebook', asyncHandler(async (req, res) => {
     });
   }
 
-  res.json({
-    id: user.id,
-    _id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    preferredCurrency: user.preferredCurrency || 'USD',
-    balance: user.balance,
-    role: user.role,
-    token: generateToken(user.id),
-  });
+  res.json(getSafeUserData(user));
 }));
 
 // Register
@@ -247,7 +229,6 @@ router.post('/register', asyncHandler(async (req, res) => {
     throw new Error('يرجى إدخال البريد الإلكتروني أو رقم الهاتف');
   }
 
-  // Check if email already exists (only if provided)
   if (cleanEmail) {
     const emailExists = await prisma.user.findUnique({ where: { email: cleanEmail } });
     if (emailExists) {
@@ -256,7 +237,6 @@ router.post('/register', asyncHandler(async (req, res) => {
     }
   }
 
-  // Check if phone already exists (only if provided)
   if (cleanPhone) {
     const phoneExists = await prisma.user.findUnique({ where: { phone: cleanPhone } });
     if (phoneExists) {
@@ -265,11 +245,9 @@ router.post('/register', asyncHandler(async (req, res) => {
     }
   }
 
-  // Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Generate an 8-digit user id that doesn't collide with existing users
   let userId = generateShortId();
   for (let i = 0; i < 5; i++) {
     const exists = await prisma.user.findUnique({ where: { id: userId } });
@@ -284,30 +262,19 @@ router.post('/register', asyncHandler(async (req, res) => {
       email: cleanEmail,
       phone: cleanPhone,
       password: hashedPassword,
-      balance: 0.0, // Default is usually handled by DB, but explicit here
+      balance: 0.0,
       role: 'user',
       status: 'active'
     }
   });
 
   if (user) {
-    res.status(201).json({
-      id: user.id,       // ✅ إضافة id
-      _id: user.id,      // للإبقاء على التوافق القديم إذا احتجته
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      preferredCurrency: user.preferredCurrency || 'USD',
-      balance: user.balance,
-      role: user.role,
-      token: generateToken(user.id),
-    });
+    res.status(201).json(getSafeUserData(user));
   } else {
     res.status(400);
     throw new Error('بيانات غير صحيحة');
   }
 }));
-
 
 // Login
 router.post('/login', asyncHandler(async (req, res) => {
@@ -331,44 +298,20 @@ router.post('/login', asyncHandler(async (req, res) => {
     : await prisma.user.findUnique({ where: { phone: cleanPhone } });
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    // Allow login even if banned, so the frontend can show the ban screen 
-    // while keeping the user logged in to see their ID/info.
-    res.json({
-      id: user.id,       // ✅ إضافة id
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      preferredCurrency: user.preferredCurrency || 'USD',
-      balance: user.balance,
-      role: user.role,
-      token: generateToken(user.id),
-    });
+    res.json(getSafeUserData(user));
   } else {
     res.status(401);
     throw new Error('بيانات الدخول غير صحيحة');
   }
 }));
 
-
 // Get Profile
 router.get('/profile', protect, asyncHandler(async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: { id: req.user.id }
-  });
-
-  if (user) {
+  // Use data already attached by protect middleware
+  if (req.user) {
     res.json({
-      id: user.id,       // ✅ إضافة id
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      balance: user.balance,
-      phone: user.phone,
-      status: user.status,
-      role: user.role,
-      // ✅ Do NOT send password hash. Only send a boolean.
-      hasPassword: !!user.password
+      ...req.user,
+      hasPassword: !!req.user.password || true // Handled by protect select if we want
     });
   } else {
     res.status(404);
@@ -376,34 +319,19 @@ router.get('/profile', protect, asyncHandler(async (req, res) => {
   }
 }));
 
-// ============================================================
-// ✅ Change Password (Secure)
-// PUT /api/auth/change-password
-// Body: { currentPassword?: string, newPassword: string }
-// - If user already has a password: currentPassword is required
-// - If user has no password (edge case): set without currentPassword
-// ============================================================
+// Change Password
 router.put('/change-password', protect, asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
-  if (!newPassword || typeof newPassword !== 'string') {
-    return res.status(400).json({ message: 'newPassword مطلوب' });
-  }
-  if (newPassword.length < 6) {
-    return res.status(400).json({ message: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل' });
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({ message: 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل' });
   }
 
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });
   if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-  // If there is an existing password, verify it
-  if (user.password && user.password.length > 0) {
-    if (!currentPassword || typeof currentPassword !== 'string') {
-      return res.status(400).json({ message: 'يرجى إدخال كلمة المرور الحالية' });
-    }
-
-    const ok = await bcrypt.compare(currentPassword, user.password);
-    if (!ok) {
+  if (user.password) {
+    if (!currentPassword || !(await bcrypt.compare(currentPassword, user.password))) {
       return res.status(401).json({ message: 'كلمة المرور الحالية غير صحيحة' });
     }
   }
@@ -419,52 +347,24 @@ router.put('/change-password', protect, asyncHandler(async (req, res) => {
   res.json({ message: 'تم تحديث كلمة المرور بنجاح ✅' });
 }));
 
-// Update Profile (Name, Phone, Password)
+// Update Profile
 router.put('/profile', protect, asyncHandler(async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: { id: req.user.id }
+  const dataToUpdate = {
+    name: req.body.name || undefined,
+    email: req.body.email || undefined,
+    phone: req.body.phone || undefined,
+    preferredCurrency: req.body.preferredCurrency || undefined,
+  };
+
+  const updatedUser = await prisma.user.update({
+    where: { id: req.user.id },
+    data: dataToUpdate
   });
 
-  if (user) {
-    const dataToUpdate = {
-        name: req.body.name || user.name,
-        email: req.body.email || user.email,
-        phone: req.body.phone || user.phone,
-        preferredCurrency: req.body.preferredCurrency || user.preferredCurrency,
-    };
-
-    // ❌ Do not allow changing password here (use /auth/change-password)
-    if (req.body.password) {
-      return res.status(400).json({ message: 'لتغيير كلمة المرور استخدم /auth/change-password' });
-    }
-
-    const updatedUser = await prisma.user.update({
-        where: { id: req.user.id },
-        data: dataToUpdate
-    });
-
-    res.json({
-      id: updatedUser.id,     // ✅ إضافة id
-      _id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      phone: updatedUser.phone,
-      preferredCurrency: updatedUser.preferredCurrency || 'USD',
-      balance: updatedUser.balance,
-      role: updatedUser.role,
-      token: generateToken(updatedUser.id),
-    });
-  } else {
-    res.status(404);
-    throw new Error('المستخدم غير موجود');
-  }
+  res.json(getSafeUserData(updatedUser));
 }));
 
-// ============================================================
-// ✅ Delete Account (Secure)
-// POST /api/auth/delete-account
-// Body: { password: string }
-// ============================================================
+// Delete Account
 router.post('/delete-account', protect, asyncHandler(async (req, res) => {
   const { password } = req.body;
 
@@ -473,18 +373,12 @@ router.post('/delete-account', protect, asyncHandler(async (req, res) => {
   }
 
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-  if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
-
-  // Verify password
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: 'كلمة المرور غير صحيحة' });
   }
 
-  // Delete user (related data will be deleted automatically via Cascade Delete in Prisma schema)
   await prisma.user.delete({ where: { id: req.user.id } });
-
-  res.json({ message: 'تم حذف الحساب وجميع البيانات المرتبطة به بنجاح' });
+  res.json({ message: 'تم حذف الحساب بنجاح' });
 }));
 
 module.exports = router;

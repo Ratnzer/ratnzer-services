@@ -137,7 +137,7 @@ const createOrder = asyncHandler(async (req, res) => {
     customInputLabel,
   } = req.body;
 
-  const userId = req.user?.id || req.user?._id;
+  const userId = req.user?.id;
   if (!userId) {
     res.status(401);
     throw new Error('Unauthorized');
@@ -381,7 +381,7 @@ const createOrder = asyncHandler(async (req, res) => {
 });
 
 const getMyOrders = asyncHandler(async (req, res) => {
-  const userId = req.user?.id || req.user?._id;
+  const userId = req.user?.id;
   const limitRaw = req.query?.limit;
   const skipRaw = req.query?.skip;
   const usePaging = limitRaw !== undefined || skipRaw !== undefined;
