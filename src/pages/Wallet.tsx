@@ -52,7 +52,7 @@ const Wallet: React.FC<Props> = ({
         await Promise.all(methods.map(async (id) => {
           const key = `payment_method_${id}_enabled`;
           try {
-            const res = await settingsService.getSetting(key);
+            const res = await settingsService.get(key);
             if (res !== null) {
               localStorage.setItem(key, String(res));
             }

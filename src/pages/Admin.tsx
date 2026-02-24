@@ -11,7 +11,7 @@ import {
   Globe, ShoppingBasket, Headphones, Camera,
   Briefcase, Plane, Megaphone, Ban, Unlock, User,
   Bell, Info, Star, ShoppingCart, ArrowUpRight, ArrowDownRight,
-  PieChart, Calendar, Flag, Tags, CircleDollarSign, RefreshCw, ClipboardList, Send, Link, CheckSquare,
+  PieChart, Calendar, Flag, Tags, CircleDollarSign, RefreshCw, ClipboardList, Send, Link, CheckSquare, CreditCard,
   MapPin, Mail, Phone, ShieldCheck, ArrowRight, Copy, PackageOpen, XCircle, Receipt, ToggleRight, ToggleLeft,
   // New Icons for Categories
   Facebook, Instagram, Twitter, Linkedin, Youtube, Twitch, 
@@ -2525,7 +2525,7 @@ try {
                                        const newValue = !currentValue;
                                        localStorage.setItem(key, String(newValue));
                                        try {
-                                           await settingsService.updateSetting({ key, value: String(newValue) });
+                                           await settingsService.set(key, String(newValue));
                                            alert(`تم ${newValue ? 'تفعيل' : 'تعطيل'} ${method.name} بنجاح`);
                                            window.location.reload();
                                        } catch (e) {
