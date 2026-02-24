@@ -603,6 +603,13 @@ const createPaytabs = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Invalid amount');
     }
+
+    const MIN_TOPUP = 1.0;
+    if (a < MIN_TOPUP) {
+      res.status(400);
+      throw new Error(`الحد الأدنى للشحن هو ${MIN_TOPUP}$`);
+    }
+
     cartAmount = a;
     meta.amount = a;
   } else if (type === 'single') {

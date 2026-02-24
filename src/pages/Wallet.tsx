@@ -121,6 +121,13 @@ const Wallet: React.FC<Props> = ({
           alert('يرجى إدخال مبلغ صحيح');
           return;
       }
+
+      const MIN_DEPOSIT = 1.0;
+      if (value < MIN_DEPOSIT) {
+          alert(`عذراً، الحد الأدنى للشحن هو ${formatPrice(MIN_DEPOSIT)}`);
+          return;
+      }
+
       if (!onAddBalance) return;
       setIsProcessing(true);
       const success = await onAddBalance(value, 'card');

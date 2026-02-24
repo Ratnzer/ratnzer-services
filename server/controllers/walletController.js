@@ -55,6 +55,12 @@ const depositFunds = asyncHandler(async (req, res) => {
     throw new Error('المبلغ غير صالح');
   }
 
+  const MIN_DEPOSIT = 1.0;
+  if (numAmount < MIN_DEPOSIT) {
+    res.status(400);
+    throw new Error(`الحد الأدنى للشحن هو ${MIN_DEPOSIT}$`);
+  }
+
   // Build a helpful description but keep it short and safe
   let desc = description || 'شحن رصيد';
   if (paymentMethod) {
