@@ -717,7 +717,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
               style={{ transform: `translate3d(0, ${currencyTranslateY}px, 0)` }}
             >
                {/* Handle Bar & Close Button */}
-               <div className="relative mb-4">
+               <div className="relative mb-6">
                   <div 
                     className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
                     onTouchStart={(e) => {
@@ -744,9 +744,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                   
                   <button 
                     onClick={() => setShowCurrencyModal(false)}
-                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 rounded-full text-gray-400 border border-gray-700/50"
+                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+                    aria-label="Close"
                   >
-                    <X size={20} />
+                    <X size={20} strokeWidth={2} />
                   </button>
                </div>
 
