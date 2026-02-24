@@ -57,8 +57,10 @@ const Wallet: React.FC<Props> = ({
           const key = `payment_method_${id}_enabled`;
           try {
             const res = await settingsService.get(key);
-            if (res !== null) {
-              const isEnabled = String(res) !== 'false';
+            // res.data contains the value because settingsService.get returns api.get
+            const val = res?.data !== undefined ? res.data : res;
+            if (val !== null && val !== undefined) {
+              const isEnabled = String(val) !== 'false';
               localStorage.setItem(key, String(isEnabled));
               return isEnabled ? id : null;
             }

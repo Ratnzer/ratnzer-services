@@ -159,6 +159,7 @@ const Admin: React.FC<Props> = ({
 }) => {
   // ============================================================
   const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
+  const [settingsUpdateCounter, setSettingsUpdateCounter] = useState(0);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
 const getOrderDate = (o: any) => {
@@ -2525,12 +2526,23 @@ try {
                                        
                                        try {
                                            // 1. Update Server First
-                                           await settingsService.set(key, String(newValue));
+                                           // Ensure value is sent as boolean or string that server expects
+                                           await settingsService.set(key, newValue);
+                                           
                                            // 2. Update Local Only if Server Succeeds
                                            localStorage.setItem(key, String(newValue));
+                                           
+                                           // 3. Update state to trigger re-render without reload
+                                           // We use a dummy state or just rely on localStorage if the component re-renders
+                                           // But since we want to avoid reload, we just force a local update
                                            alert(`تم ${newValue ? 'تفعيل' : 'تعطيل'} ${method.name} بنجاح ✅`);
-                                           window.location.reload();
+                                           
+                                           // Instead of reload, we can just update a local state if needed, 
+                                           // but here the UI uses localStorage.getItem directly in className.
+                                           // To force React to re-render this part, we can use a simple counter.
+                                           setSettingsUpdateCounter(prev => prev + 1);
                                        } catch (e) {
+                                           console.error('Settings update error:', e);
                                            alert('فشل حفظ الإعداد على السيرفر، يرجى التحقق من الاتصال');
                                        }
                                    }}
