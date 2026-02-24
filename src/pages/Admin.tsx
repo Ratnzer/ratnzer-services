@@ -2506,8 +2506,43 @@ try {
         {/* SETTINGS TAB */}
         {activeTab === 'settings' && (
             <div className="space-y-6 animate-fadeIn">
+                <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700 mb-6">
+                   <h3 className="text-white font-bold mb-4 flex items-center gap-2"><CreditCard className="text-emerald-400" size={20} /> تفعيل/تعطيل طرق شحن المحفظة</h3>
+                   <div className="space-y-4">
+                       {[
+                           { id: 'card', name: 'بطاقة الماستر أو الفيزا' },
+                           { id: 'superkey', name: 'سوبركي' },
+                           { id: 'zaincash', name: 'زين كاش' },
+                           { id: 'asiacell', name: 'كارتات آسياسيل' },
+                           { id: 'asiacell_transfer', name: 'الشحن عبر اسياسيل' }
+                       ].map(method => (
+                           <div key={method.id} className="flex items-center justify-between p-3 bg-[#13141f] rounded-xl border border-gray-700">
+                               <span className="text-sm text-gray-200 font-bold">{method.name}</span>
+                               <button 
+                                   onClick={async () => {
+                                       const key = `payment_method_${method.id}_enabled`;
+                                       const currentValue = localStorage.getItem(key) !== 'false';
+                                       const newValue = !currentValue;
+                                       localStorage.setItem(key, String(newValue));
+                                       try {
+                                           await settingsService.updateSetting({ key, value: String(newValue) });
+                                           alert(`تم ${newValue ? 'تفعيل' : 'تعطيل'} ${method.name} بنجاح`);
+                                           window.location.reload();
+                                       } catch (e) {
+                                           alert('فشل حفظ الإعداد على السيرفر');
+                                       }
+                                   }}
+                                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${localStorage.getItem(`payment_method_${method.id}_enabled`) !== 'false' ? 'bg-emerald-500' : 'bg-gray-600'}`}
+                               >
+                                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${localStorage.getItem(`payment_method_${method.id}_enabled`) !== 'false' ? 'translate-x-6' : 'translate-x-1'}`} />
+                               </button>
+                           </div>
+                       ))}
+                   </div>
+                </div>
+
                 <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
-                   <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Star className="text-yellow-400" size={20} /> رابط تقييم التطبيق</h3>
+	                   <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Star className="text-yellow-400" size={20} /> رابط تقييم التطبيق</h3>
                    
                    <div className="space-y-2">
                        <label className="text-xs text-gray-400 font-bold mb-1 block">الرابط (Google Play / App Store)</label>

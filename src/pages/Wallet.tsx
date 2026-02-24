@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, CreditCard, X, Calendar, Lock, User, ChevronLeft, Smartphone, Zap, Gem, Headset, Send, Wallet as WalletIcon, ArrowLeft } from 'lucide-react';
 import { View, Transaction } from '../types';
+import { settingsService } from '../services/api';
 
 interface Props {
   setView: (view: View) => void;
@@ -45,7 +46,23 @@ const Wallet: React.FC<Props> = ({
   const minSwipeDistance = 100;
 
   useEffect(() => {
+    const syncPaymentSettings = async () => {
+      const methods = ['card', 'superkey', 'zaincash', 'asiacell', 'asiacell_transfer'];
+      try {
+        await Promise.all(methods.map(async (id) => {
+          const key = `payment_method_${id}_enabled`;
+          try {
+            const res = await settingsService.getSetting(key);
+            if (res !== null) {
+              localStorage.setItem(key, String(res));
+            }
+          } catch (e) {}
+        }));
+      } catch (e) {}
+    };
+    
     if (showAddBalanceModal) {
+      syncPaymentSettings();
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
     } else {
@@ -183,7 +200,16 @@ const Wallet: React.FC<Props> = ({
         border: 'border-red-500/30',
         desc: 'رصيد كروت الشحن' 
       },
-  ];
+      { 
+        id: 'asiacell_transfer', 
+        name: 'الشحن عبر اسياسيل', 
+        icon: Send, 
+        color: 'text-red-600', 
+        bg: 'from-red-600/20 to-red-700/5', 
+        border: 'border-red-600/30',
+        desc: 'تحويل رصيد مباشر' 
+      },
+  ].filter(method => localStorage.getItem(`payment_method_${method.id}_enabled`) !== 'false');
 
   const handleMethodSelect = (method: typeof paymentMethods[0]) => {
       if (method.id === 'card') {
