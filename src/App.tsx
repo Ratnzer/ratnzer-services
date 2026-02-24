@@ -1861,7 +1861,7 @@ useEffect(() => {
               regionName: item.selectedRegion?.name,
               regionId: item.selectedRegion?.id,
               denominationId: item.selectedDenomination?.id,
-              quantityLabel: item.selectedDenomination?.label,
+              quantityLabel: item.selectedDenomination?.label || item.selectedDenomination?.name || item.selectedDenomination?.value || String(item.quantity),
               customInputValue: item.customInputValue,
               customInputLabel: item.customInputLabel,
               paymentMethod: method,
@@ -1921,14 +1921,13 @@ useEffect(() => {
             price: activeCheckoutItem.price,
             fulfillmentType: activeCheckoutItem.apiConfig?.type || 'manual',
           regionName: activeCheckoutItem.selectedRegion?.name,
-          regionId: activeCheckoutItem.selectedRegion?.id,
-          denominationId: activeCheckoutItem.selectedDenomination?.id,
-          quantityLabel: activeCheckoutItem.selectedDenomination?.label,
-          // quantity removed to match direct purchase behavior (rely on quantityLabel)
-          customInputValue: activeCheckoutItem.customInputValue,
-          customInputLabel: activeCheckoutItem.customInputLabel,
-          paymentMethod: method,
-        };
+            regionId: activeCheckoutItem.selectedRegion?.id,
+            denominationId: activeCheckoutItem.selectedDenomination?.id,
+            quantityLabel: activeCheckoutItem.selectedDenomination?.label || activeCheckoutItem.selectedDenomination?.name || activeCheckoutItem.selectedDenomination?.value || String(activeCheckoutItem.quantity),
+            customInputValue: activeCheckoutItem.customInputValue,
+            customInputLabel: activeCheckoutItem.customInputLabel,
+            paymentMethod: method,
+          };
 
           const itemSnapshot = activeCheckoutItem;
           setActiveCheckoutItem(null);
