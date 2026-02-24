@@ -1920,7 +1920,7 @@ useEffect(() => {
             amount: activeCheckoutItem.price,
             price: activeCheckoutItem.price,
             fulfillmentType: activeCheckoutItem.apiConfig?.type || 'manual',
-          regionName: activeCheckoutItem.selectedRegion?.name,
+            regionName: activeCheckoutItem.selectedRegion?.name,
             regionId: activeCheckoutItem.selectedRegion?.id,
             denominationId: activeCheckoutItem.selectedDenomination?.id,
             quantityLabel: activeCheckoutItem.selectedDenomination?.label || activeCheckoutItem.selectedDenomination?.name || activeCheckoutItem.selectedDenomination?.value || String(activeCheckoutItem.quantity),
