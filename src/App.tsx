@@ -878,26 +878,20 @@ useEffect(() => {
     const now = Date.now();
 
     if (currentView === View.ORDERS) {
-      const timeSinceLastFetch = now - lastOrdersFetchRef.current;
-      if (timeSinceLastFetch > 5000) {
-        loadMyOrdersPage('silent'); // Restore silent refresh
-      }
+      loadMyOrdersPage('silent'); // Direct refresh on entry
     }
 
     if (currentView === View.WALLET) {
-      const timeSinceLastFetch = now - lastTransactionsFetchRef.current;
-      if (timeSinceLastFetch > 5000) {
-        refreshTransactionsFromServer('replace'); // Note: this doesn't have 'silent' mode yet, but it's fast
-        refreshProfileFromServer();
-      }
+      refreshTransactionsFromServer('replace');
+      refreshProfileFromServer();
     }
 
     if (currentView === View.CART) {
-      refreshCartFromServer('silent'); // Restore silent refresh
+      refreshCartFromServer('silent'); // Direct refresh on entry
     }
 
     if (currentView === View.NOTIFICATIONS) {
-      refreshAnnouncementsFromServer('silent'); // Restore silent refresh
+      refreshAnnouncementsFromServer('silent'); // Direct refresh on entry
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentView, currentUser?.id]);
