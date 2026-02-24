@@ -42,27 +42,36 @@ const Wallet: React.FC<Props> = ({
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [activeMethods, setActiveMethods] = useState<string[]>(() => {
+    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer'];
+    return all.filter(id => localStorage.getItem(`payment_method_${id}_enabled`) !== 'false');
+  });
 
   const minSwipeDistance = 100;
 
   useEffect(() => {
     const syncPaymentSettings = async () => {
-      const methods = ['card', 'superkey', 'zaincash', 'asiacell', 'asiacell_transfer'];
+      const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer'];
       try {
-        await Promise.all(methods.map(async (id) => {
+        const results = await Promise.all(methods.map(async (id) => {
           const key = `payment_method_${id}_enabled`;
           try {
             const res = await settingsService.get(key);
             if (res !== null) {
-              localStorage.setItem(key, String(res));
+              const isEnabled = String(res) !== 'false';
+              localStorage.setItem(key, String(isEnabled));
+              return isEnabled ? id : null;
             }
           } catch (e) {}
+          return localStorage.getItem(key) !== 'false' ? id : null;
         }));
+        
+        const enabledIds = results.filter((id): id is string => id !== null);
+        setActiveMethods(enabledIds);
       } catch (e) {}
     };
     
     if (showAddBalanceModal) {
-      // ✅ Sync only when opening the wallet modal
       syncPaymentSettings();
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
@@ -201,7 +210,7 @@ const Wallet: React.FC<Props> = ({
         border: 'border-red-600/30',
         desc: 'تحويل رصيد مباشر' 
       },
-  ].filter(method => localStorage.getItem(`payment_method_${method.id}_enabled`) !== 'false');
+  ].filter(method => activeMethods.includes(method.id));
 
   const handleMethodSelect = (method: typeof paymentMethods[0]) => {
       if (method.id === 'card') {
