@@ -659,23 +659,7 @@ useEffect(() => {
             setRateAppLink(res.data);
           }
         }).catch(() => {}),
-        // Sync Payment Settings
-        Promise.all(['card', 'superkey', 'zaincash', 'asiacell_transfer'].map(async (id) => {
-          const key = `payment_method_${id}_enabled`;
-          try {
-            const res = await settingsService.get(key);
-            if (res !== null) {
-              const isEnabled = String(res) !== 'false';
-              localStorage.setItem(key, String(isEnabled));
-              return { id, isEnabled };
-            }
-          } catch (e) {}
-          return { id, isEnabled: localStorage.getItem(key) !== 'false' };
-        })).then(results => {
-          const settings: Record<string, boolean> = {};
-          results.forEach(r => { settings[r.id] = r.isEnabled; });
-          setPaymentSettings(settings);
-        }),
+
       ];
 
       await Promise.all([...publicTasks]);

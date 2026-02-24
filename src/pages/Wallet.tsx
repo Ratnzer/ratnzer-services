@@ -62,6 +62,7 @@ const Wallet: React.FC<Props> = ({
     };
     
     if (showAddBalanceModal) {
+      // ✅ Sync only when opening the wallet modal
       syncPaymentSettings();
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
