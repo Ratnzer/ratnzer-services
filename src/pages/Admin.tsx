@@ -2513,7 +2513,6 @@ try {
                            { id: 'card', name: 'بطاقة الماستر أو الفيزا' },
                            { id: 'superkey', name: 'سوبركي' },
                            { id: 'zaincash', name: 'زين كاش' },
-                           { id: 'asiacell', name: 'كارتات آسياسيل' },
                            { id: 'asiacell_transfer', name: 'الشحن عبر اسياسيل' }
                        ].map(method => (
                            <div key={method.id} className="flex items-center justify-between p-3 bg-[#13141f] rounded-xl border border-gray-700">

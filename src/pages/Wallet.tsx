@@ -192,15 +192,6 @@ const Wallet: React.FC<Props> = ({
         desc: 'المحفظة الإلكترونية' 
       },
       { 
-        id: 'asiacell', 
-        name: 'كارتات آسياسيل', 
-        icon: Smartphone, 
-        color: 'text-red-500', 
-        bg: 'from-red-500/20 to-red-600/5', 
-        border: 'border-red-500/30',
-        desc: 'رصيد كروت الشحن' 
-      },
-      { 
         id: 'asiacell_transfer', 
         name: 'الشحن عبر اسياسيل', 
         icon: Send, 
