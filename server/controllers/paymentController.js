@@ -688,7 +688,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
       }
     }
 
-    const mapped = items.map((i) => {
+    const mapped = items.map((i, index) => {
       const normalizedQuantity = parseQuantity(
         i?.quantity ?? i?.selectedDenomination?.amount ?? i?.quantityLabel ?? 1
       );
@@ -697,6 +697,9 @@ const createPaytabs = asyncHandler(async (req, res) => {
         i?.customInputValue && typeof i.customInputValue === 'string'
           ? i.customInputValue.trim()
           : i?.customInputValue;
+
+      // Priority: use frontend provided payload if available to match wallet checkout logic
+      const p = Array.isArray(orderPayload) ? orderPayload[index] : (orderPayload || {});
 
       return {
         productId: i.productId,
@@ -708,9 +711,9 @@ const createPaytabs = asyncHandler(async (req, res) => {
         regionName: i.selectedRegion?.name,
         regionId: i.selectedRegion?.id,
         denominationId: i.selectedDenomination?.id,
-        quantityLabel: i.selectedDenomination?.label || i.selectedDenomination?.name || i.selectedDenomination?.value || (i?.quantity ? String(normalizedQuantity) : undefined),
+        quantityLabel: p?.quantityLabel || i.selectedDenomination?.label || i.selectedDenomination?.name || i.selectedDenomination?.value || (i?.quantity ? String(normalizedQuantity) : undefined),
         quantity: Number.isFinite(Number(i.quantity)) && Number(i.quantity) > 0 ? Number(i.quantity) : normalizedQuantity,
-        customInputValue: trimmedCustomInputValue,
+        customInputValue: p?.customInputValue || trimmedCustomInputValue,
         customInputLabel: i.customInputLabel,
       };
     });

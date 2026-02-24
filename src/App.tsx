@@ -1816,10 +1816,22 @@ useEffect(() => {
       // ✅ Card payment via PayTabs (one payment for cart)
       if (method === 'card') {
           if (isBulkCheckout) {
+              const items = [...cartItems];
+              if (items.length === 0) return;
+              
               await startPaytabsRedirect({
                 type: 'cart',
                 cartMode: 'bulk',
                 returnView: View.CART,
+                // Pass order data structure similar to wallet checkout
+                orderPayload: items.map(item => ({
+                  productId: item.productId,
+                  productName: item.name,
+                  quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
+                  denominationId: item.selectedRegion?.id,
+                  regionId: item.selectedRegion?.id,
+                  customInputValue: item.customInputValue,
+                }))
               });
               return;
           }
@@ -1829,6 +1841,15 @@ useEffect(() => {
                 cartMode: 'single',
                 cartItemId: activeCheckoutItem.id,
                 returnView: View.CART,
+                // Pass exact same structure as wallet checkout
+                orderPayload: {
+                  productId: activeCheckoutItem.productId,
+                  productName: activeCheckoutItem.name,
+                  quantityLabel: activeCheckoutItem.selectedDenomination?.label || (activeCheckoutItem.selectedDenomination as any)?.name || (activeCheckoutItem.selectedDenomination as any)?.value || String(activeCheckoutItem.quantity),
+                  denominationId: activeCheckoutItem.selectedDenomination?.id,
+                  regionId: activeCheckoutItem.selectedRegion?.id,
+                  customInputValue: activeCheckoutItem.customInputValue,
+                }
               });
               return;
           }
