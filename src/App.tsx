@@ -609,61 +609,28 @@ useEffect(() => {
 
   // --- Initial Data Load from API ---
   useEffect(() => {
-    const fetchInitialData = async () => {
-      // ✅ Parallelize requests to speed up boot and prevent blocking on failure
-      const publicTasks = [
-        productService.getAll().then(res => res?.data && setProducts(res.data)).catch(() => {}),
-        contentService.getBanners().then(res => res?.data && setBanners(res.data)).catch(() => {}),
-        contentService.getCategories().then(res => {
-          if (res?.data) {
-            setCategories(res.data.map((c: any) => ({
-              ...c,
-              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Sparkles) : c.icon,
-            })));
-          }
-        }).catch(() => {}),
-        contentService.getAnnouncementsPaged(0, 10).then(res => {
-          const data: any = res?.data;
-          const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
-          // Mark items as read if they are older than or equal to the last seen ID
-          const currentLastSeen = localStorage.getItem('last_seen_announcement_id') || '';
-          const processedItems = items.map((ann: any) => ({
-            ...ann,
-            isRead: ann.isRead || (currentLastSeen && ann.id <= currentLastSeen)
-          }));
-          setAnnouncements(processedItems);
-          saveCache('cache_announcements_v1', processedItems);
-          setAnnouncementsHasMore(typeof data?.hasMore === 'boolean' ? data.hasMore : (items.length === 10));
-        }).catch(() => {}),
-        contentService.getTerms().then(res => {
-          if (res?.data) {
-            const data: any = res.data;
-            setTerms(prev => ({
-              ...prev,
-              contentAr: typeof data.contentAr === 'string' ? data.contentAr : prev.contentAr,
-              contentEn: typeof data.contentEn === 'string' ? data.contentEn : prev.contentEn,
-            }));
-          }
-        }).catch(() => {}),
-        contentService.getPrivacy().then(res => {
-          if (res?.data) {
-            const data: any = res.data;
-            setPrivacy({
-              contentAr: typeof data.contentAr === 'string' ? data.contentAr : '',
-              contentEn: typeof data.contentEn === 'string' ? data.contentEn : '',
-            });
-          }
-        }).catch(() => {}),
-        settingsService.get('rateAppLink').then(res => {
-          if (typeof res?.data === 'string') {
-            setRateAppLink(res.data);
-          }
-        }).catch(() => {}),
-
-      ];
-
-      await Promise.all([...publicTasks]);
-    };
+	    const fetchInitialData = async () => {
+	      // ✅ Only fetch essential public data on boot to speed up initial load
+	      const essentialTasks = [
+	        productService.getAll().then(res => res?.data && setProducts(res.data)).catch(() => {}),
+	        contentService.getBanners().then(res => res?.data && setBanners(res.data)).catch(() => {}),
+	        contentService.getCategories().then(res => {
+	          if (res?.data) {
+	            setCategories(res.data.map((c: any) => ({
+	              ...c,
+	              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Sparkles) : c.icon,
+	            })));
+	          }
+	        }).catch(() => {}),
+	        settingsService.get('rateAppLink').then(res => {
+	          if (typeof res?.data === 'string') {
+	            setRateAppLink(res.data);
+	          }
+	        }).catch(() => {}),
+	      ];
+	
+	      await Promise.all([...essentialTasks]);
+	    };
 
     fetchInitialData();
   }, [isAdminLoggedIn, hasToken]);
@@ -904,27 +871,33 @@ useEffect(() => {
     }
   };
 
-  // load first page when entering ORDERS view
+  // ✅ SMART FETCH: Update in background when entering specific views
   useEffect(() => {
+    if (!currentUser) return;
+
+    const now = Date.now();
+
     if (currentView === View.ORDERS) {
-      // ✅ SMART FETCH: Update in background but prevent "double-tap" duplicates
-      // If we just fetched (e.g. within last 5 seconds), skip the silent update.
-      const now = Date.now();
       const timeSinceLastFetch = now - lastOrdersFetchRef.current;
-      
       if (timeSinceLastFetch > 5000) {
-        loadMyOrdersPage('silent');
+        loadMyOrdersPage('replace'); // Changed to replace for fresh data on entry
       }
     }
 
     if (currentView === View.WALLET) {
-      // ✅ SMART FETCH: Update in background for wallet too
-      const now = Date.now();
       const timeSinceLastFetch = now - lastTransactionsFetchRef.current;
-      
       if (timeSinceLastFetch > 5000) {
         refreshTransactionsFromServer('replace');
+        refreshProfileFromServer(); // Also refresh profile for latest balance
       }
+    }
+
+    if (currentView === View.CART) {
+      refreshCartFromServer('replace');
+    }
+
+    if (currentView === View.NOTIFICATIONS) {
+      refreshAnnouncementsFromServer('replace');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentView, currentUser?.id]);
@@ -951,57 +924,22 @@ useEffect(() => {
   // - Called automatically when entering Home view
   // ============================================================
   const refreshHomeFromServer = async () => {
-    // Products
+    // ✅ Refresh only Home-essential data
     try {
-      const res = await productService.getAll();
-      if (res && res.data) {
-        setProducts(res.data);
-      }
+      await Promise.all([
+        productService.getAll().then(res => res?.data && setProducts(res.data)),
+        contentService.getBanners().then(res => res?.data && setBanners(res.data)),
+        contentService.getCategories().then(res => {
+          if (res?.data) {
+            setCategories(res.data.map((c: any) => ({
+              ...c,
+              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Tags) : c.icon,
+            })));
+          }
+        })
+      ]);
     } catch (error) {
-      console.warn('Failed to refresh products from API', error);
-    }
-
-    // Banners
-    try {
-      const res = await contentService.getBanners();
-      if (res && res.data) {
-        setBanners(res.data);
-      }
-    } catch (error) {
-      console.warn('Failed to refresh banners from API', error);
-    }
-
-    // Categories
-    try {
-      const res = await contentService.getCategories();
-      if (res && res.data) {
-        setCategories(res.data.map((c: any) => ({
-          ...c,
-          icon: typeof c.icon === 'string'
-            ? (CATEGORY_ICON_MAP[c.icon.toLowerCase()] || Tags)
-            : c.icon,
-        })));
-      }
-    } catch (error) {
-      console.warn('Failed to refresh categories from API', error);
-    }
-
-    // Announcements
-    void refreshAnnouncementsFromServer('replace');
-
-    // Terms (Terms & Conditions)
-    try {
-      const res = await contentService.getTerms();
-      if (res && res.data) {
-        const data: any = res.data;
-        setTerms((prev) => ({
-          ...prev,
-          contentAr: typeof data.contentAr === 'string' ? data.contentAr : prev.contentAr,
-          contentEn: typeof data.contentEn === 'string' ? data.contentEn : prev.contentEn,
-        }));
-      }
-    } catch (error) {
-      console.warn('Failed to refresh terms from API', error);
+      console.warn('Failed to refresh home data from API', error);
     }
   };
 
@@ -1061,32 +999,7 @@ useEffect(() => {
     }
   };
 
-  // ============================================================
-  // ✅ Auto refresh when entering pages
-  // - Wallet: profile + transactions
-  // - Orders: orders
-  // - Cart: cart items
-  // ============================================================
-  useEffect(() => {
-    if (!currentUser) return;
-
-    if (currentView === View.WALLET) {
-      void refreshProfileFromServer();
-      void refreshTransactionsFromServer();
-    }
-
-    if (currentView === View.ORDERS) {
-      void refreshOrdersFromServer();
-    }
-
-    if (currentView === View.CART) {
-      void refreshCartFromServer('silent');
-    }
-
-    if (currentView === View.NOTIFICATIONS) {
-      void refreshAnnouncementsFromServer('silent');
-    }
-  }, [currentView, currentUser?.id, isAdminLoggedIn]);
+  // Removed redundant auto-refresh effect as it's now handled by the SMART FETCH effect above
 
   const refreshAnnouncementsFromServer = async (mode: 'replace' | 'append' | 'silent' = 'replace') => {
     const nextSkip = (mode === 'append') ? announcements.length : 0;
