@@ -98,7 +98,11 @@ export const ProductReorderModal: React.FC<ProductReorderModalProps> = ({
   }, [products]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -174,10 +178,11 @@ export const ProductReorderModal: React.FC<ProductReorderModalProps> = ({
   );
 
   // If used in Admin tab, don't show as modal
+  // Determine if we are in modal or tab mode based on props
   const isTabMode = true; 
 
   if (isTabMode) {
-    return content;
+    return <div className="h-[calc(100vh-280px)] min-h-[500px]">{content}</div>;
   }
 
   return (
