@@ -7,23 +7,12 @@ const { generateShortId } = require('../utils/id');
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  let products = await prisma.product.findMany({
+  const products = await prisma.product.findMany({
     orderBy: [
+      { sortOrder: 'asc' },
       { createdAt: 'desc' }
     ],
   });
-
-  // Process products to extract order from 'tag' field if present
-  products = products.map(p => {
-    if (p.tag && p.tag.startsWith('order:')) {
-      const orderVal = parseInt(p.tag.replace('order:', ''), 10);
-      return { ...p, sortOrder: isNaN(orderVal) ? 0 : orderVal };
-    }
-    return { ...p, sortOrder: p.sortOrder || 0 };
-  });
-
-  // Sort manually in memory
-  products.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   res.json(products);
 });
@@ -40,13 +29,10 @@ const updateProductsOrder = asyncHandler(async (req, res) => {
   }
 
   const updates = products.map((p) => {
-    // We use 'tag' as a fallback storage for sortOrder if the database schema 
-    // hasn't been migrated yet to include sortOrder field.
-    // We store it as a string "order:X"
     return prisma.product.update({
       where: { id: p.id },
       data: { 
-        tag: `order:${p.sortOrder}`
+        sortOrder: Number(p.sortOrder)
       },
     });
   });
@@ -67,7 +53,6 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 
   // 2. Create
-  // السعر صار اختياري: إذا لم يُرسل من الفرونت نضعه 0 حتى لا يفشل Prisma (schema يتطلب price)
   const safeBody = {
     ...req.body,
     id:
@@ -93,7 +78,6 @@ const createProduct = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  // Check if product exists first (Prisma throws P2025 if not found on update, but explicit check is safer)
   const existingProduct = await prisma.product.findUnique({ where: { id } });
   if (!existingProduct) {
     res.status(404);
