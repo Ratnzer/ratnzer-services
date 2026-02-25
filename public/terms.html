@@ -3,135 +3,239 @@
 <head>
 <meta charset="UTF-8">
 <title>الشروط والأحكام - خدمات راتنزر</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <style>
-    body {font-family: Arial, sans-serif; margin:20px; background:#f8f9fa; color:#333;}
-    h1, h2 {color:#0d47a1;}
-    h1 {border-bottom:2px solid #0d47a1; padding-bottom:10px;}
-    section {margin-bottom:25px; padding:15px; background:#ffffff; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-    ul {margin-left:20px;}
-    .arabic {direction:rtl; text-align:right;}
-    .english {direction:ltr; text-align:left;}
-    a {color:#0d47a1; text-decoration:none;}
-    a:hover {text-decoration:underline;}
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f6fa;
+        color: #333;
+    }
+    header {
+        background-color: #0d47a1;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+    }
+    .language-switch {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: white;
+        color: #0d47a1;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+        color: #0d47a1;
+        margin-bottom: 10px;
+    }
+    p, li {
+        line-height: 1.6;
+        font-size: 16px;
+    }
+    ul {
+        margin-left: 20px;
+    }
+    a {
+        color: #0d47a1;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    .arabic { direction: rtl; text-align: right; }
+    .english { direction: ltr; text-align: left; display: none; }
+    @media (max-width: 600px) {
+        p, li { font-size: 14px; }
+        .language-switch { top: 10px; right: 10px; padding: 6px 10px; }
+    }
 </style>
 </head>
 <body>
 
-<section class="arabic">
-<h1>الشروط والأحكام - خدمات راتنزر</h1>
-<p>الموقع الإلكتروني: <a href="https://www.ratnzer.com">https://www.ratnzer.com</a></p>
-<p>آخر تحديث: 1/1/2026</p>
+<header>
+    <h1>الشروط والأحكام - خدمات راتنزر</h1>
+    <button class="language-switch" onclick="toggleLanguage()">English / العربية</button>
+</header>
 
-<h2>مقدمة</h2>
-<p>مرحبًا بكم في خدمات راتنزر. باستخدامك موقعنا الإلكتروني أو تطبيقنا، أو عند إتمام أي عملية شراء، فإنك تقر بموافقتك الكاملة على الالتزام بجميع الشروط والأحكام الواردة أدناه. إذا كنت لا توافق على أي بند، يرجى عدم استخدام الخدمة.</p>
+<div class="container">
 
-<h2>1️⃣ طبيعة الخدمات والمنتجات</h2>
-<p>تقدم خدمات راتنزر منتجات وخدمات رقمية غير ملموسة (مثل بطاقات المتاجر، شحن الألعاب، أرصدة الهاتف، الاشتراكات الرقمية وغيرها). يتم تسليم المنتجات إلكترونيًا عبر حساب العميل فور تأكيد الدفع. لا يتم شحن أي منتجات مادية.</p>
+<!-- العربية -->
+<div class="arabic">
+    <div class="card">
+        <h2>1. مقدمة</h2>
+        <p>مرحبًا بكم في خدمات راتنزر. باستخدامك موقعنا الإلكتروني أو تطبيقنا، أو عند إتمام أي عملية شراء، فإنك تقر بموافقتك الكاملة على الالتزام بالشروط والأحكام.</p>
+    </div>
 
-<h2>2️⃣ إنشاء الحساب واستخدامه</h2>
-<ul>
-<li>تقديم معلومات صحيحة ودقيقة عند إنشاء الحساب</li>
-<li>المستخدم مسؤول عن الحفاظ على سرية بيانات تسجيل الدخول</li>
-<li>يحق للمتجر تعليق أو إلغاء أي حساب يثبت مخالفته للشروط أو الاشتباه في نشاط احتيالي</li>
-</ul>
+    <div class="card">
+        <h2>2. طبيعة الخدمات والمنتجات</h2>
+        <p>تقدم خدمات راتنزر منتجات وخدمات رقمية غير ملموسة مثل بطاقات المتاجر، شحن الألعاب، أرصدة الهاتف، الاشتراكات الرقمية وغيرها. يتم تسليم المنتجات إلكترونيًا عبر حساب العميل فور تأكيد الدفع. لا يتم شحن أي منتجات مادية.</p>
+    </div>
 
-<h2>3️⃣ مسؤولية العميل قبل الشراء</h2>
-<ul>
-<li>قراءة وصف المنتج بعناية (الدولة، الفئة، نوع الحساب، الشروط الخاصة)</li>
-<li>إتمام الدفع يعني الموافقة الكاملة على تفاصيل المنتج وسعره</li>
-<li>يتحمل العميل مسؤولية اختيار المنتج المناسب لمنطقته أو حسابه</li>
-</ul>
+    <div class="card">
+        <h2>3. إنشاء الحساب واستخدامه</h2>
+        <ul>
+            <li>يجب تقديم معلومات صحيحة عند إنشاء الحساب.</li>
+            <li>المستخدم مسؤول عن سرية بيانات تسجيل الدخول.</li>
+            <li>يحق للمتجر تعليق أو إلغاء أي حساب يخالف الشروط أو يشتبه في نشاط احتيالي.</li>
+        </ul>
+    </div>
 
-<h2>4️⃣ سياسة التسليم</h2>
-<p>يتم تسليم المنتجات الرقمية فور تأكيد عملية الدفع. قد يحدث تأخير تقني نادر خارج عن الإرادة. في حال عدم استلام المنتج، يجب التواصل مع الدعم فورًا.</p>
+    <div class="card">
+        <h2>4. مسؤولية العميل قبل الشراء</h2>
+        <p>يجب قراءة وصف المنتج بعناية (الدولة، الفئة، نوع الحساب، الشروط الخاصة). إتمام الدفع يعني الموافقة الكاملة على تفاصيل المنتج وسعره. العميل مسؤول عن اختيار المنتج المناسب لمنطقته أو حسابه.</p>
+    </div>
 
-<h2>5️⃣ سياسة الاسترجاع والاسترداد</h2>
-<p>نظرًا لطبيعة المنتجات الرقمية، جميع المبيعات تعتبر نهائية بعد تسليم المنتج أو ظهور الكود داخل حساب العميل. لا يمكن الاسترجاع أو الاستبدال بعد الاستخدام. في حال وجود خلل تقني مثبت قبل الاستخدام، يتم مراجعة الحالة من قبل الإدارة.</p>
+    <div class="card">
+        <h2>5. سياسة التسليم</h2>
+        <p>يتم تسليم المنتجات الرقمية فور تأكيد عملية الدفع. في بعض الحالات النادرة قد يحدث تأخير تقني خارج عن الإرادة. عند عدم استلام المنتج، يجب التواصل مع الدعم فورًا.</p>
+    </div>
 
-<h2>6️⃣ صحة البيانات</h2>
-<p>يتحمل العميل المسؤولية عن إدخال بيانات صحيحة أثناء الطلب. المتجر غير مسؤول عن الخسائر الناتجة عن معلومات خاطئة.</p>
+    <div class="card">
+        <h2>6. سياسة الاسترجاع والاسترداد</h2>
+        <p>نظرًا لطبيعة المنتجات الرقمية، جميع المبيعات تعتبر نهائية بعد تسليم المنتج أو ظهور الكود داخل حساب العميل. لا يمكن استرجاع أو استبدال أو استرداد المنتجات بعد كشف الكود أو تنفيذ الشحن بنجاح. في حال وجود خلل تقني مثبت قبل استخدام المنتج، يتم مراجعة الحالة من قبل الإدارة.</p>
+    </div>
 
-<h2>7️⃣ الأعطال والمشاكل الفنية</h2>
-<p>يجب الإبلاغ عن أي مشكلة خلال مدة معقولة. قد يُطلب تقديم دليل واضح (مثل تسجيل فيديو غير معدل) لإثبات المشكلة. لن يتم قبول أي شكوى بعد استخدام الكود أو استهلاك الرصيد.</p>
+    <div class="card">
+        <h2>7. صحة البيانات</h2>
+        <p>يتحمل العميل كامل المسؤولية عن إدخال بيانات صحيحة أثناء الطلب. المتجر غير مسؤول عن الخسائر الناتجة عن إدخال معلومات خاطئة.</p>
+    </div>
 
-<h2>8️⃣ مكافحة الاحتيال</h2>
-<ul>
-<li>إلغاء أي طلب مشبوه</li>
-<li>تعليق الحسابات المشتبه في استخدامها لوسائل دفع غير مشروعة</li>
-<li>طلب مستندات تحقق إضافية عند الحاجة</li>
-</ul>
+    <div class="card">
+        <h2>8. الأعطال والمشاكل الفنية</h2>
+        <p>يجب الإبلاغ عن أي مشكلة خلال مدة معقولة من وقت الشراء. قد يُطلب تقديم دليل واضح لإثبات المشكلة. لن يتم قبول أي شكوى بعد استخدام الكود أو استهلاك الرصيد.</p>
+    </div>
 
-<h2>9️⃣ إخلاء المسؤولية</h2>
-<p>خدمات راتنزر لا تمثل الشركات المالكة للعلامات التجارية، بل تعمل كوسيط بيع رقمي. يتحمل العميل مسؤولية استخدام المنتج وفقًا لشروط الجهة المزودة.</p>
+    <div class="card">
+        <h2>9. مكافحة الاحتيال</h2>
+        <p>يحتفظ المتجر بحقه في إلغاء الطلبات المشبوهة، تعليق الحسابات المشبوهة، وطلب مستندات تحقق إضافية عند الحاجة.</p>
+    </div>
 
-<h2>🔟 سياسة الأسعار</h2>
-<p>الأسعار قابلة للتغيير في أي وقت دون إشعار مسبق. لا يحق للعميل المطالبة بفارق السعر بعد الشراء.</p>
+    <div class="card">
+        <h2>10. إخلاء المسؤولية</h2>
+        <p>خدمات راتنزر لا تمثل الشركات المالكة للعلامات التجارية. العميل مسؤول عن استخدام المنتج وفق شروط الجهة المزودة. المتجر غير مسؤول عن سوء الاستخدام.</p>
+    </div>
 
-<h2>11️⃣ التعديلات على الشروط</h2>
-<p>يحتفظ المتجر بحقه في تعديل هذه الشروط في أي وقت. استمرار استخدام الخدمة بعد التعديلات يُعد موافقة ضمنية.</p>
+    <div class="card">
+        <h2>11. سياسة الأسعار</h2>
+        <p>الأسعار قابلة للتغيير في أي وقت دون إشعار مسبق. لا يحق للعميل المطالبة بفارق السعر بعد إتمام عملية الشراء.</p>
+    </div>
 
-<h2>12️⃣ التواصل</h2>
-<p>الموقع: <a href="https://www.ratnzer.com">https://www.ratnzer.com</a><br>
-البريد الإلكتروني: support@ratnzer.com</p>
-</section>
+    <div class="card">
+        <h2>12. التعديلات على الشروط</h2>
+        <p>يحتفظ المتجر بحقه في تعديل هذه الشروط في أي وقت. استمرار الاستخدام يعني الموافقة على التعديلات.</p>
+    </div>
 
-<section class="english">
-<h1>Terms and Conditions - Ratnzer Services</h1>
-<p>Website: <a href="https://www.ratnzer.com">https://www.ratnzer.com</a></p>
-<p>Last Updated: 1/1/2026</p>
+    <div class="card">
+        <h2>13. التواصل</h2>
+        <p>الموقع: <a href="https://www.ratnzer.com">https://www.ratnzer.com</a><br>
+        البريد الإلكتروني: support@ratnzer.com</p>
+    </div>
+</div>
 
-<h2>Introduction</h2>
-<p>Welcome to Ratnzer Services. By accessing or using our website or mobile application, or by completing any purchase, you agree to be legally bound by the following Terms and Conditions. If you do not agree with any part of these terms, please do not use our services.</p>
+<!-- الإنجليزية -->
+<div class="english">
+    <div class="card">
+        <h2>1. Introduction</h2>
+        <p>Welcome to Ratnzer Services. By using our website or app, or completing any purchase, you agree to be fully bound by these Terms and Conditions.</p>
+    </div>
 
-<h2>1. Nature of Products and Services</h2>
-<p>Ratnzer Services provides non-tangible digital products and services, including but not limited to digital gift cards, game top-ups, mobile recharges, and digital subscriptions. All products are delivered electronically through the customer’s account after successful payment confirmation. No physical products are shipped.</p>
+    <div class="card">
+        <h2>2. Nature of Products and Services</h2>
+        <p>Ratnzer Services provides non-tangible digital products and services, such as gift cards, game top-ups, mobile recharges, and digital subscriptions. All products are delivered electronically through the customer's account after payment confirmation. No physical products are shipped.</p>
+    </div>
 
-<h2>2. Account Registration and Usage</h2>
-<ul>
-<li>Users must provide accurate and complete information when creating an account</li>
-<li>Users are responsible for maintaining the confidentiality of login credentials</li>
-<li>Ratnzer Services reserves the right to suspend or terminate accounts suspected of violating these terms or engaging in fraudulent activity</li>
-</ul>
+    <div class="card">
+        <h2>3. Account Registration and Usage</h2>
+        <ul>
+            <li>Provide accurate information when creating an account.</li>
+            <li>Users are responsible for login credential confidentiality.</li>
+            <li>Ratnzer Services may suspend or terminate accounts violating terms or suspected of fraud.</li>
+        </ul>
+    </div>
 
-<h2>3. Customer Responsibility Before Purchase</h2>
-<ul>
-<li>Review product descriptions, regional restrictions, and compatibility details carefully</li>
-<li>Completing a purchase constitutes full acceptance of the product details and price</li>
-<li>The customer is responsible for selecting the correct product suitable for their account, region, or device</li>
-</ul>
+    <div class="card">
+        <h2>4. Customer Responsibility Before Purchase</h2>
+        <p>Carefully review product descriptions, regional restrictions, and compatibility details. Completing payment means full acceptance of product details and price. Customers are responsible for selecting the correct product.</p>
+    </div>
 
-<h2>4. Delivery Policy</h2>
-<p>Digital products are delivered immediately after payment confirmation. In rare cases, delivery may be delayed due to technical issues beyond our control. If a product is not received, contact support promptly.</p>
+    <div class="card">
+        <h2>5. Delivery Policy</h2>
+        <p>Digital products are delivered immediately after payment confirmation. Rare delays due to technical issues may occur. Contact support if product is not received.</p>
+    </div>
 
-<h2>5. Refund and Return Policy</h2>
-<p>All sales are final once the product code is displayed or the top-up is successfully processed. Digital products cannot be returned, replaced, or refunded after delivery. Verified technical issues before use will be reviewed by management.</p>
+    <div class="card">
+        <h2>6. Refund and Return Policy</h2>
+        <p>All sales are final once the product code is displayed or top-up is processed. Digital products cannot be returned, replaced, or refunded after delivery. Verified technical issues before usage will be reviewed by management.</p>
+    </div>
 
-<h2>6. Accuracy of Information</h2>
-<p>Customers are fully responsible for providing correct information during checkout. Ratnzer Services is not responsible for losses from incorrect details.</p>
+    <div class="card">
+        <h2>7. Accuracy of Information</h2>
+        <p>Customers are responsible for providing accurate information during checkout. Ratnzer Services is not liable for losses due to incorrect data entry.</p>
+    </div>
 
-<h2>7. Technical Issues and Complaints</h2>
-<p>Report any issue within a reasonable time. Evidence (such as unedited video) may be required. No claims will be accepted after code redemption or balance consumption.</p>
+    <div class="card">
+        <h2>8. Technical Issues and Complaints</h2>
+        <p>Report issues promptly. Clear evidence (such as unedited video) may be required. No claims accepted after code redemption.</p>
+    </div>
 
-<h2>8. Fraud Prevention</h2>
-<ul>
-<li>Cancel suspicious orders</li>
-<li>Suspend accounts involved in suspected fraudulent activity</li>
-<li>Request identity verification or additional documentation if necessary</li>
-</ul>
+    <div class="card">
+        <h2>9. Fraud Prevention</h2>
+        <p>Ratnzer Services may cancel suspicious orders, suspend suspicious accounts, and request additional verification if necessary.</p>
+    </div>
 
-<h2>9. Disclaimer of Liability</h2>
-<p>Ratnzer Services is an independent digital reseller and is not officially affiliated with brand owners. Customers are responsible for complying with third-party terms. Ratnzer Services is not liable for misuse after delivery.</p>
+    <div class="card">
+        <h2>10. Disclaimer of Liability</h2>
+        <p>Ratnzer Services does not represent brand owners. Customers are responsible for complying with third-party terms. We are not liable for misuse of products.</p>
+    </div>
 
-<h2>10. Pricing Policy</h2>
-<p>Prices are subject to change at any time without prior notice. Customers cannot claim price differences after purchase.</p>
+    <div class="card">
+        <h2>11. Pricing Policy</h2>
+        <p>Prices are subject to change without prior notice. Customers cannot claim price differences after purchase.</p>
+    </div>
 
-<h2>11. Modifications to Terms</h2>
-<p>Ratnzer Services may modify these Terms at any time. Continued use constitutes acceptance of updates.</p>
+    <div class="card">
+        <h2>12. Modifications to Terms</h2>
+        <p>Ratnzer Services reserves the right to modify these terms at any time. Continued use constitutes acceptance.</p>
+    </div>
 
-<h2>12. Contact Information</h2>
-<p>Website: <a href="https://www.ratnzer.com">https://www.ratnzer.com</a><br>
-Email: support@ratnzer.com</p>
-</section>
+    <div class="card">
+        <h2>13. Contact Information</h2>
+        <p>Website: <a href="https://www.ratnzer.com">https://www.ratnzer.com</a><br>Email: support@ratnzer.com</p>
+    </div>
+</div>
+
+<script>
+function toggleLanguage() {
+    const arabic = document.querySelector('.arabic');
+    const english = document.querySelector('.english');
+    if (arabic.style.display === 'none') {
+        arabic.style.display = 'block';
+        english.style.display = 'none';
+    } else {
+        arabic.style.display = 'none';
+        english.style.display = 'block';
+    }
+}
+</script>
 
 </body>
 </html>
