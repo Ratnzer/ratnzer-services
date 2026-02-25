@@ -188,19 +188,26 @@ const getOrderDate = (o: any) => {
   // ============================================================
   useEffect(() => {
     const refreshAdminData = async () => {
+      // 1. Load critical UI data first
       try {
-        const [p, c, a] = await Promise.all([
+        const [p, c] = await Promise.all([
           productService.getAll(),
           contentService.getCategories(),
-          analyticsService.getDashboard(),
         ]);
         if (p?.data) setProducts(p.data);
         if (c?.data) setCategories(c.data);
-        if (a?.data) setServerAnalytics(a.data);
       } catch (e) {
-        console.warn('Failed to refresh admin data', e);
+        console.warn('Failed to refresh basic admin data', e);
       }
 
+      // 2. Load Analytics independently (might be slower)
+      analyticsService.getDashboard()
+        .then(a => {
+          if (a?.data) setServerAnalytics(a.data);
+        })
+        .catch(e => console.warn('Failed to refresh analytics', e));
+
+      // 3. Load Orders
       await loadAdminOrdersPage('replace');
     };
     refreshAdminData();
@@ -1524,7 +1531,7 @@ try {
                         </div>
                         <p className="text-gray-400 text-xs font-bold mb-1">إجمالي الأرباح</p>
                         <p className="text-2xl font-black text-white dir-ltr text-right group-hover:text-emerald-400 transition-colors">
-                            {adminFormatPrice(analytics.totalRevenue)}
+                            {!serverAnalytics ? '...' : adminFormatPrice(analytics.totalRevenue)}
                         </p>
                     </div>
 
@@ -1539,7 +1546,7 @@ try {
                         </div>
                         <p className="text-gray-400 text-xs font-bold mb-1">الطلبات الكلية</p>
                         <p className="text-2xl font-black text-white dir-ltr text-right group-hover:text-yellow-400 transition-colors">
-                            {analytics.totalOrders}
+                            {!serverAnalytics ? '...' : analytics.totalOrders}
                         </p>
                     </div>
 
@@ -1554,7 +1561,7 @@ try {
                         </div>
                         <p className="text-gray-400 text-xs font-bold mb-1">المستخدمين</p>
                         <p className="text-2xl font-black text-white dir-ltr text-right group-hover:text-blue-400 transition-colors">
-                            {analytics.totalUsers}
+                            {!serverAnalytics ? '...' : analytics.totalUsers}
                         </p>
                     </div>
 
@@ -1569,7 +1576,7 @@ try {
                         </div>
                         <p className="text-gray-400 text-xs font-bold mb-1">المنتجات</p>
                         <p className="text-2xl font-black text-white dir-ltr text-right group-hover:text-purple-400 transition-colors">
-                            {analytics.totalProducts}
+                            {!serverAnalytics ? '...' : analytics.totalProducts}
                         </p>
                     </div>
                 </div>
