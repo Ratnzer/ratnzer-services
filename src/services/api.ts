@@ -60,6 +60,7 @@ export const productService = {
   create: (data: any) => api.post("/products", data),
   update: (id: string, data: any) => api.put("/products/" + id, data),
   delete: (id: string) => api.delete("/products/" + id),
+  updateOrder: (products: any[]) => api.put("/products/order", { products }),
 };
 
 // ============================================================

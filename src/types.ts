@@ -49,6 +49,7 @@ export interface Product {
   autoDeliverStock?: boolean; // NEW: Flag to enable auto-delivery from inventory
   customInput?: CustomInputConfig; // NEW: Config for custom user input
   isAvailable?: boolean; // NEW: Product availability status
+  sortOrder?: number; // NEW: Order of the product on the home page
 }
 
 export interface InventoryCode {
