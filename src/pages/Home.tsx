@@ -292,13 +292,13 @@ const Home: React.FC<Props> = ({
                 ref={announcementTextRef}
                 className="animate-marquee text-xs font-bold text-white"
               >
-                {viewAnnouncements[0].message}
                 {shouldScroll && (
                   <>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     {viewAnnouncements[0].message}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </>
                 )}
+                {viewAnnouncements[0].message}
               </div>
             </div>
           </div>

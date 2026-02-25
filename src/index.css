@@ -99,28 +99,30 @@ button:active {
   transition: transform 0.1s;
 }
 
-/* Marquee / Ticker animation for announcement bar (L-to-R for Arabic) */
+/* Marquee / Ticker animation for announcement bar (RTL) */
 @keyframes marquee-scroll-rtl {
-  0%   { transform: translateX(-50%); }
-  100% { transform: translateX(0%); }
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
 }
 
 .marquee-container {
   position: relative;
   overflow: hidden;
-  direction: ltr; /* Ensure container is LTR so animation works from left to right */
+  direction: rtl; /* Back to RTL for Arabic alignment */
+  display: flex;
+  justify-content: flex-start;
 }
 
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
   will-change: transform;
-  direction: rtl;
+  text-align: right;
 }
 
 .is-scrolling .animate-marquee {
   animation: marquee-scroll-rtl 18s linear infinite;
-  padding-left: 2rem;
+  padding-right: 2rem; /* Space between repeated text */
 }
 
 /* Pause on hover/touch */
