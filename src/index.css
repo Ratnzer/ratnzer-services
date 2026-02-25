@@ -98,3 +98,27 @@ button:active {
   transform: scale(0.97);
   transition: transform 0.1s;
 }
+
+/* Marquee / Ticker animation for announcement bar */
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 18s linear infinite;
+  will-change: transform;
+  padding-right: 2rem;
+}
+
+/* Pause on hover/touch */
+.marquee-container:hover .animate-marquee {
+  animation-play-state: paused;
+}
