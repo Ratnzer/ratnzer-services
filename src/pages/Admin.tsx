@@ -1620,11 +1620,13 @@ try {
                             {analytics.categoryStats.length === 0 ? (
                                 <p className="text-center text-gray-500 text-xs py-4">لا توجد منتجات مضافة بعد</p>
                             ) : (
-                                analytics.categoryStats.map((cat: { icon?: any; name: string; count: number; percentage: number }, idx: number) => (
+                                analytics.categoryStats.map((cat: { icon?: any; name: string; count: number; percentage: number }, idx: number) => {
+                                    const CatIcon = typeof cat.icon === 'function' || typeof cat.icon === 'object' ? cat.icon : Tags;
+                                    return (
                                     <div key={idx} className="space-y-1">
                                         <div className="flex justify-between text-xs font-bold">
                                             <span className="text-gray-300 flex items-center gap-2">
-                                                <cat.icon size={12} className="text-gray-500" /> {cat.name}
+                                                <CatIcon size={12} className="text-gray-500" /> {cat.name}
                                                 <span className="text-[9px] bg-gray-700 px-1 rounded text-gray-400 font-mono">({cat.count})</span>
                                             </span>
                                             <span className="text-white">{cat.percentage}%</span>
@@ -1636,7 +1638,8 @@ try {
                                             ></div>
                                         </div>
                                     </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                     </div>
