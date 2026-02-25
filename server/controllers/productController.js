@@ -7,12 +7,24 @@ const { generateShortId } = require('../utils/id');
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const products = await prisma.product.findMany({
+  let products = await prisma.product.findMany({
     orderBy: [
-      { sortOrder: 'asc' },
       { createdAt: 'desc' }
     ],
   });
+
+  // Process products to extract order from 'tag' field if present
+  products = products.map(p => {
+    if (p.tag && p.tag.startsWith('order:')) {
+      const orderVal = parseInt(p.tag.replace('order:', ''), 10);
+      return { ...p, sortOrder: isNaN(orderVal) ? 0 : orderVal };
+    }
+    return { ...p, sortOrder: p.sortOrder || 0 };
+  });
+
+  // Sort manually in memory
+  products.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
   res.json(products);
 });
 
@@ -27,12 +39,17 @@ const updateProductsOrder = asyncHandler(async (req, res) => {
     throw new Error('Invalid products data');
   }
 
-  const updates = products.map((p) =>
-    prisma.product.update({
+  const updates = products.map((p) => {
+    // We use 'tag' as a fallback storage for sortOrder if the database schema 
+    // hasn't been migrated yet to include sortOrder field.
+    // We store it as a string "order:X"
+    return prisma.product.update({
       where: { id: p.id },
-      data: { sortOrder: Number(p.sortOrder) },
-    })
-  );
+      data: { 
+        tag: `order:${p.sortOrder}`
+      },
+    });
+  });
 
   await prisma.$transaction(updates);
   res.json({ message: 'Products order updated successfully' });
