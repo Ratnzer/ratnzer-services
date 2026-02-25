@@ -114,10 +114,13 @@ button:active {
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee-scroll-rtl 18s linear infinite;
   will-change: transform;
+  direction: rtl;
+}
+
+.is-scrolling .animate-marquee {
+  animation: marquee-scroll-rtl 18s linear infinite;
   padding-left: 2rem;
-  direction: rtl; /* Keep text itself RTL for Arabic */
 }
 
 /* Pause on hover/touch */

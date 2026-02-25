@@ -153,6 +153,9 @@ const Home: React.FC<Props> = ({
   });
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const announcementTextRef = useRef<HTMLDivElement>(null);
+  const announcementContainerRef = useRef<HTMLDivElement>(null);
+  const [shouldScroll, setShouldScroll] = useState(false);
 
   const selectCategory = (id: string) => {
     setActiveCategory(id);
@@ -165,6 +168,15 @@ const Home: React.FC<Props> = ({
     localStorage.setItem(LOCAL_CATEGORY_STORAGE_KEY, LOCAL_LATEST_CATEGORY_ID);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Check if announcement text is longer than container
+  useEffect(() => {
+    if (announcementTextRef.current && announcementContainerRef.current) {
+      const textWidth = announcementTextRef.current.offsetWidth;
+      const containerWidth = announcementContainerRef.current.offsetWidth;
+      setShouldScroll(textWidth > containerWidth);
+    }
+  }, [viewAnnouncements]);
 
   // If stored category is no longer valid (category removed/changed), fallback to "latest"
   const isValidCategory = (id: string) => {
@@ -272,11 +284,21 @@ const Home: React.FC<Props> = ({
         <div className="px-4">
           <div className="bg-[#242636] border border-yellow-400/30 rounded-xl p-3 flex items-center gap-3 overflow-hidden shadow-sm">
             <Megaphone size={18} className="text-yellow-400 animate-pulse flex-shrink-0" />
-            <div className="marquee-container flex-1 overflow-hidden relative h-5">
-              <div className="animate-marquee text-xs font-bold text-white">
+            <div
+              ref={announcementContainerRef}
+              className={`marquee-container flex-1 overflow-hidden relative h-5 ${shouldScroll ? 'is-scrolling' : ''}`}
+            >
+              <div
+                ref={announcementTextRef}
+                className="animate-marquee text-xs font-bold text-white"
+              >
                 {viewAnnouncements[0].message}
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                {viewAnnouncements[0].message}
+                {shouldScroll && (
+                  <>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {viewAnnouncements[0].message}
+                  </>
+                )}
               </div>
             </div>
           </div>
