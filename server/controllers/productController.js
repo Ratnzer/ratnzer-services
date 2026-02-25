@@ -8,9 +8,34 @@ const { generateShortId } = require('../utils/id');
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
   const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: [
+      { sortOrder: 'asc' },
+      { createdAt: 'desc' }
+    ],
   });
   res.json(products);
+});
+
+// @desc    Update products order
+// @route   PUT /api/products/order
+// @access  Private/Admin
+const updateProductsOrder = asyncHandler(async (req, res) => {
+  const { products } = req.body; // Array of {id, sortOrder}
+
+  if (!Array.isArray(products)) {
+    res.status(400);
+    throw new Error('Invalid products data');
+  }
+
+  const updates = products.map((p) =>
+    prisma.product.update({
+      where: { id: p.id },
+      data: { sortOrder: Number(p.sortOrder) },
+    })
+  );
+
+  await prisma.$transaction(updates);
+  res.json({ message: 'Products order updated successfully' });
 });
 
 // @desc    Create a product
@@ -35,6 +60,7 @@ const createProduct = asyncHandler(async (req, res) => {
     price: (req.body && req.body.price !== undefined && req.body.price !== null && req.body.price !== '')
       ? Number(req.body.price)
       : 0,
+    sortOrder: req.body.sortOrder !== undefined ? Number(req.body.sortOrder) : 0,
   };
 
   const product = await prisma.product.create({
@@ -57,9 +83,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     throw new Error('Product not found');
   }
 
+  const data = { ...req.body };
+  if (data.sortOrder !== undefined) data.sortOrder = Number(data.sortOrder);
+  if (data.price !== undefined) data.price = Number(data.price);
+
   const updatedProduct = await prisma.product.update({
     where: { id },
-    data: req.body,
+    data,
   });
 
   res.json(updatedProduct);
@@ -97,4 +127,5 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  updateProductsOrder,
 };

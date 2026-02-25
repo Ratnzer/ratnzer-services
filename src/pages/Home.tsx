@@ -272,16 +272,28 @@ const Home: React.FC<Props> = ({
   };
 
   // Filter Products Logic
-  const filteredProducts =
-    effectiveCategory === 'all'
-      ? viewProducts
-      : effectiveCategory === LOCAL_LATEST_CATEGORY_ID
-        ? [...viewProducts].sort((a: any, b: any) => {
-            const da = new Date(a?.createdAt || a?.updatedAt || 0).getTime();
-            const db = new Date(b?.createdAt || b?.updatedAt || 0).getTime();
-            return db - da;
-          })
-        : viewProducts.filter((product: any) => product.category === effectiveCategory);
+  const filteredProducts = useMemo(() => {
+    let list = [...viewProducts];
+    
+    // 1. Filter by category
+    if (effectiveCategory !== 'all' && effectiveCategory !== LOCAL_LATEST_CATEGORY_ID) {
+      list = list.filter((product: any) => product.category === effectiveCategory);
+    }
+
+    // 2. Sort logic
+    return list.sort((a: any, b: any) => {
+      // Priority 1: sortOrder (if exists)
+      const posA = a.sortOrder !== undefined && a.sortOrder !== null ? a.sortOrder : 999999;
+      const posB = b.sortOrder !== undefined && b.sortOrder !== null ? b.sortOrder : 999999;
+      
+      if (posA !== posB) return posA - posB;
+      
+      // Priority 2: Date (Newest first)
+      const da = new Date(a?.createdAt || a?.updatedAt || 0).getTime();
+      const db = new Date(b?.createdAt || b?.updatedAt || 0).getTime();
+      return db - da;
+    });
+  }, [viewProducts, effectiveCategory]);
 
   // UI Categories: ensure local fixed category exists
   const uiCategories = (() => {

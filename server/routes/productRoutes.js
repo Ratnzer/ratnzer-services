@@ -7,6 +7,7 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  updateProductsOrder,
 } = require('../controllers/productController');
 
 // Validation Rules
@@ -19,6 +20,9 @@ const productValidation = [
     .withMessage('Price must be a positive number'),
   body('category').notEmpty().withMessage('Category is required'),
 ];
+
+router.route('/order')
+  .put(protect, admin, updateProductsOrder);
 
 router.route('/')
   .get(getProducts)

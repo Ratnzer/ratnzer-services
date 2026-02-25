@@ -26,6 +26,8 @@ import {
   LayoutGrid, Check, Settings2, LogOut
 } from 'lucide-react';
 import { View, Product, Category, AppTerms, AppPrivacy, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics } from '../types';
+import { ProductReorderModal } from '../components/ProductReorderModal';
+import { GripVertical } from 'lucide-react';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
 import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
@@ -158,7 +160,7 @@ const Admin: React.FC<Props> = ({
   onLogout
 }) => {
   // ============================================================
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
   const [settingsUpdateCounter, setSettingsUpdateCounter] = useState(0);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
@@ -235,6 +237,7 @@ const getOrderDate = (o: any) => {
   // Privacy State
   const [privacyLang, setPrivacyLang] = useState<'ar' | 'en'>('ar');
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
+  const [isSavingReorder, setIsSavingReorder] = useState(false);
 
   // Terms: Save to server
   const handleSaveTerms = async () => {
@@ -1478,6 +1481,7 @@ try {
           { id: 'orders', label: 'الطلبات', icon: ClipboardList },
           { id: 'inventory', label: 'المخزون', icon: PackageOpen },
           { id: 'products', label: 'المنتجات', icon: ShoppingBag },
+          { id: 'reorder', label: 'ترتيب المنتجات', icon: GripVertical },
           { id: 'users', label: 'المستخدمين', icon: Users },
           { id: 'categories', label: 'الفئات', icon: Layers },
           { id: 'announcements', label: 'الإشعارات', icon: Bell },
@@ -2122,6 +2126,40 @@ try {
                  </div>
                ))}
              </div>
+          </div>
+        )}
+
+        {activeTab === 'reorder' && (
+          <div className="bg-[#242636] rounded-2xl border border-gray-800 overflow-hidden animate-fadeIn">
+            <div className="p-6 border-b border-gray-700/50 bg-[#2a2d3e]">
+              <h3 className="font-bold text-white text-lg flex items-center gap-2">
+                <GripVertical className="text-yellow-400" />
+                ترتيب المنتجات على الواجهة الرئيسية
+              </h3>
+              <p className="text-xs text-gray-400 mt-1">اسحب المنتجات لترتيب ظهورها للمستخدمين. الترتيب يبدأ من الأعلى.</p>
+            </div>
+            <div className="p-0">
+              <ProductReorderModal
+                isOpen={true}
+                products={products}
+                onClose={() => setActiveTab('products')}
+                isSaving={isSavingReorder}
+                onSave={async (reordered) => {
+                  setIsSavingReorder(true);
+                  try {
+                    const payload = reordered.map((p, idx) => ({ id: p.id, sortOrder: idx }));
+                    await productService.updateOrder(payload);
+                    setProducts(reordered);
+                    alert('تم حفظ الترتيب الجديد بنجاح');
+                  } catch (err) {
+                    console.error('Failed to save order:', err);
+                    alert('فشل في حفظ الترتيب');
+                  } finally {
+                    setIsSavingReorder(false);
+                  }
+                }}
+              />
+            </div>
           </div>
         )}
 

@@ -123,6 +123,63 @@ export const ProductReorderModal: React.FC<ProductReorderModalProps> = ({
 
   if (!isOpen) return null;
 
+  const content = (
+    <div className="flex flex-col h-full">
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6 min-h-[400px]">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={items.map((p) => p.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {items.length === 0 ? (
+                <div className="text-center py-20 text-gray-500">لا توجد منتجات لترتيبها</div>
+              ) : (
+                items.map((product, index) => (
+                  <SortableProductItem
+                    key={product.id}
+                    product={product}
+                    index={index}
+                  />
+                ))
+              )}
+            </div>
+          </SortableContext>
+        </DndContext>
+      </div>
+
+      {/* Footer */}
+      <div className="flex gap-3 p-6 border-t border-gray-700 bg-[#242636]">
+        <button
+          onClick={onClose}
+          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-bold transition-colors"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={isSaving || items.length === 0}
+          className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Save size={18} />
+          {isSaving ? 'جاري الحفظ...' : 'حفظ الترتيب'}
+        </button>
+      </div>
+    </div>
+  );
+
+  // If used in Admin tab, don't show as modal
+  const isTabMode = true; 
+
+  if (isTabMode) {
+    return content;
+  }
+
   return (
     <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4">
       <div className="bg-[#1a1c2b] rounded-3xl border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
@@ -139,48 +196,7 @@ export const ProductReorderModal: React.FC<ProductReorderModalProps> = ({
             <X size={20} />
           </button>
         </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={items.map((p) => p.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-3">
-                {items.map((product, index) => (
-                  <SortableProductItem
-                    key={product.id}
-                    product={product}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
-
-        {/* Footer */}
-        <div className="flex gap-3 p-6 border-t border-gray-700 bg-[#242636]">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-bold transition-colors"
-          >
-            إلغاء
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save size={18} />
-            {isSaving ? 'جاري الحفظ...' : 'حفظ الترتيب'}
-          </button>
-        </div>
+        {content}
       </div>
     </div>
   );
