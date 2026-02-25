@@ -182,9 +182,14 @@ const Home: React.FC<Props> = ({
     // Check immediately
     checkScroll();
 
-    // Also check after a short delay to ensure DOM is fully rendered
-    const timer = setTimeout(checkScroll, 500);
-    return () => clearTimeout(timer);
+    // Multiple checks to ensure layout is stable (important for web/responsive)
+    const timers = [
+      setTimeout(checkScroll, 100),
+      setTimeout(checkScroll, 500),
+      setTimeout(checkScroll, 1000)
+    ];
+    
+    return () => timers.forEach(t => clearTimeout(t));
   }, [viewAnnouncements]);
 
   // If stored category is no longer valid (category removed/changed), fallback to "latest"

@@ -562,6 +562,17 @@ useEffect(() => {
       isRead: ann.isRead || (currentLastSeen && ann.id <= currentLastSeen)
     }));
   });
+
+  // ✅ Force refresh announcements when they change (e.g. from Admin)
+  useEffect(() => {
+    if (currentView === View.HOME) {
+      // Small delay to ensure server has processed the new announcement
+      const timer = setTimeout(() => {
+        void refreshAnnouncementsFromServer('silent');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [announcements.length]);
   const [announcementsHasMore, setAnnouncementsHasMore] = useState<boolean>(true);
   const [announcementsLoadingMore, setAnnouncementsLoadingMore] = useState<boolean>(false);
   const [announcementsRefreshing, setAnnouncementsRefreshing] = useState<boolean>(false);
