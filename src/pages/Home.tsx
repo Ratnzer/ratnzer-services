@@ -171,11 +171,20 @@ const Home: React.FC<Props> = ({
 
   // Check if announcement text is longer than container
   useEffect(() => {
-    if (announcementTextRef.current && announcementContainerRef.current) {
-      const textWidth = announcementTextRef.current.offsetWidth;
-      const containerWidth = announcementContainerRef.current.offsetWidth;
-      setShouldScroll(textWidth > containerWidth);
-    }
+    const checkScroll = () => {
+      if (announcementTextRef.current && announcementContainerRef.current) {
+        const textWidth = announcementTextRef.current.offsetWidth;
+        const containerWidth = announcementContainerRef.current.offsetWidth;
+        setShouldScroll(textWidth > containerWidth);
+      }
+    };
+
+    // Check immediately
+    checkScroll();
+
+    // Also check after a short delay to ensure DOM is fully rendered
+    const timer = setTimeout(checkScroll, 500);
+    return () => clearTimeout(timer);
   }, [viewAnnouncements]);
 
   // If stored category is no longer valid (category removed/changed), fallback to "latest"

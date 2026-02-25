@@ -627,11 +627,12 @@ useEffect(() => {
 		            setRateAppLink(res.data);
 		          }
 		        }).catch(() => {}),
-		        contentService.getTerms().then(res => res?.data && setTerms(res.data)).catch(() => {}),
-		        contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)).catch(() => {}),
-		      ];
-	
-	      await Promise.all([...essentialTasks]);
+			        contentService.getTerms().then(res => res?.data && setTerms(res.data)).catch(() => {}),
+			        contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)).catch(() => {}),
+			        refreshAnnouncementsFromServer('silent'), // ✅ Added to ensure announcements load on boot
+			      ];
+		
+		      await Promise.all([...essentialTasks]);
 	    };
 
     fetchInitialData();
@@ -930,12 +931,13 @@ useEffect(() => {
             setCategories(res.data.map((c: any) => ({
               ...c,
               icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Tags) : c.icon,
-	            })));
-		          }
-		        }),
-		        contentService.getTerms().then(res => res?.data && setTerms(res.data)),
-		        contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data))
-		      ]);
+            })));
+          }
+        }),
+        contentService.getTerms().then(res => res?.data && setTerms(res.data)),
+        contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)),
+        refreshAnnouncementsFromServer('silent') // ✅ Added to ensure announcements update on Home
+      ]);
     } catch (error) {
       console.warn('Failed to refresh home data from API', error);
     }
