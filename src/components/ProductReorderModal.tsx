@@ -3,7 +3,8 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -44,8 +45,8 @@ const SortableProductItem: React.FC<SortableProductItemProps> = ({ product, inde
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-[#242636] p-4 rounded-xl flex items-center gap-3 border border-gray-700 hover:border-gray-500 transition-all ${
-        isDragging ? 'shadow-lg shadow-yellow-400/50 border-yellow-400' : ''
+      className={`bg-[#242636] p-4 rounded-xl flex items-center gap-3 border border-gray-700 hover:border-gray-500 transition-all touch-none ${
+        isDragging ? 'shadow-lg shadow-yellow-400/50 border-yellow-400 z-50' : ''
       }`}
     >
       <button
@@ -98,9 +99,15 @@ export const ProductReorderModal: React.FC<ProductReorderModalProps> = ({
   }, [products]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
