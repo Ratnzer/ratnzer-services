@@ -21,6 +21,7 @@ const productValidation = [
   body('category').notEmpty().withMessage('Category is required'),
 ];
 
+// Order route MUST be before /:id to avoid conflict
 router.route('/order')
   .put(protect, admin, updateProductsOrder);
 

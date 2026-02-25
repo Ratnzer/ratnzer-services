@@ -2158,12 +2158,17 @@ try {
                   setIsSavingReorder(true);
                   try {
                     const payload = reordered.map((p, idx) => ({ id: p.id, sortOrder: idx }));
-                    await productService.updateOrder(payload);
-                    setProducts(reordered);
-                    alert('تم حفظ الترتيب الجديد بنجاح');
-                  } catch (err) {
+                    const response = await productService.updateOrder(payload);
+                    if (response.status === 200 || response.data?.message) {
+                      setProducts(reordered);
+                      alert('تم حفظ الترتيب الجديد بنجاح');
+                    } else {
+                      throw new Error('Server returned non-success status');
+                    }
+                  } catch (err: any) {
                     console.error('Failed to save order:', err);
-                    alert('فشل في حفظ الترتيب');
+                    const errorMsg = err.response?.data?.message || err.message || 'فشل في تعديل الترتيب';
+                    alert(`فشل في تعديل الترتيب: ${errorMsg}`);
                   } finally {
                     setIsSavingReorder(false);
                   }
