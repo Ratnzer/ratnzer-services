@@ -107,6 +107,17 @@ export const walletService = {
 };
 
 // ============================================================
+// Wallet Topup Services (Asiacell)
+// ============================================================
+export const walletTopupService = {
+  createRequest: (data: any) => api.post("/wallet-topup/request", data),
+  getMyRequests: (skip = 0, limit = 10) => api.get(`/wallet-topup/my-requests?skip=${skip}&limit=${limit}`),
+  getPendingRequests: (skip = 0, limit = 20, status = 'pending') => api.get(`/wallet-topup/requests?skip=${skip}&limit=${limit}&status=${status}`),
+  approveRequest: (requestId: string, amount: number) => api.post(`/wallet-topup/${requestId}/approve`, { amount }),
+  rejectRequest: (requestId: string, reason: string) => api.post(`/wallet-topup/${requestId}/reject`, { reason }),
+};
+
+// ============================================================
 // Payment Services
 // ============================================================
 export const paymentService = {

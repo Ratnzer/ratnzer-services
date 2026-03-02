@@ -56,6 +56,7 @@ app.use('/api/settings', require('./routes/settingsRoutes'));
 
 // New Features Routes
 app.use('/api/wallet', require('./routes/walletRoutes'));
+app.use('/api/wallet-topup', require('./routes/walletTopupRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 
 // ✅ PayTabs Custom Return URLs (Redirect to the standard return handler)

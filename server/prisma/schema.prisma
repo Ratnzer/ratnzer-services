@@ -32,6 +32,9 @@ model User {
 
   // ✅ Cart relation (added)
   cartItems     CartItem[]
+
+  // ✅ Asiacell topup requests
+  walletTopupRequests WalletTopupRequest[]
 }
 
 // --- المنتجات ---
@@ -224,6 +227,21 @@ model AppPrivacy {
   contentEn String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// --- طلبات شحن المحفظة عبر أسياسيل ---
+model WalletTopupRequest {
+  id          String   @id @db.VarChar(8)
+  userId      String   @db.VarChar(8)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cardNumber  String   // رقم كارت أسياسيل (8-18 رقم)
+  amount      Float?   // الرصيد المراد شحنه (يحدده الأدمن عند القبول)
+  status      String   @default("pending") // pending, approved, rejected
+  rejectionReason String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // --- السلة (Cart) ---

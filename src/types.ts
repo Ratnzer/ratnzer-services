@@ -190,6 +190,18 @@ export interface Announcement {
 
 export interface Notification extends Announcement {}
 
+export interface WalletTopupRequest {
+  id: string;
+  userId: string;
+  user?: UserProfile;
+  cardNumber: string;
+  amount?: number;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export enum View {
   HOME = 'home',
   SEARCH = 'search',

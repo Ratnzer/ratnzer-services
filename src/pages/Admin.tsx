@@ -25,11 +25,12 @@ import {
   GraduationCap, School, BookOpen, Library,
   LayoutGrid, Check, Settings2, LogOut
 } from 'lucide-react';
-import { View, Product, Category, AppTerms, AppPrivacy, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics } from '../types';
+import { View, Product, Category, AppTerms, AppPrivacy, Banner, UserProfile, Announcement, Region, Denomination, Currency, Order, InventoryCode, CustomInputConfig, Transaction, AdminAnalytics, WalletTopupRequest } from '../types';
 import { ProductReorderModal } from '../components/ProductReorderModal';
+import WalletTopupRequestsTab from '../components/WalletTopupRequestsTab';
 import { GripVertical } from 'lucide-react';
 import { PREDEFINED_REGIONS, INITIAL_CURRENCIES } from '../constants';
-import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService } from '../services/api';
+import { contentService, productService, orderService, inventoryService, userService, settingsService, pushService, analyticsService, walletTopupService } from '../services/api';
 import InvoiceModal from '../components/InvoiceModal';
 import { extractOrdersFromResponse } from '../utils/orders';
 import { generateShortId } from '../utils/id';
@@ -160,7 +161,7 @@ const Admin: React.FC<Props> = ({
   onLogout
 }) => {
   // ============================================================
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings' | 'wallet_topup_requests'>('dashboard');
   const [settingsUpdateCounter, setSettingsUpdateCounter] = useState(0);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
@@ -183,6 +184,17 @@ const getOrderDate = (o: any) => {
   const [serverAnalytics, setServerAnalytics] = useState<any | null>(null);
   const [fulfillmentOrder, setFulfillmentOrder] = useState<Order | null>(null);
   const [fulfillmentCode, setFulfillmentCode] = useState('');
+
+  // Wallet Topup Requests State
+  const [walletTopupRequests, setWalletTopupRequests] = useState<WalletTopupRequest[]>([]);
+  const [topupRequestsLoading, setTopupRequestsLoading] = useState(false);
+  const [topupRequestsHasMore, setTopupRequestsHasMore] = useState(false);
+  const [topupRequestsPage, setTopupRequestsPage] = useState(0);
+  const [selectedTopupRequest, setSelectedTopupRequest] = useState<WalletTopupRequest | null>(null);
+  const [topupApprovalAmount, setTopupApprovalAmount] = useState('');
+  const [topupApprovalError, setTopupApprovalError] = useState('');
+  const [topupRejectionReason, setTopupRejectionReason] = useState('');
+  const [isProcessingTopup, setIsProcessingTopup] = useState(false);
 
   // ✅ Auto refresh admin data when opening Admin panel
   // ============================================================
@@ -228,6 +240,30 @@ const getOrderDate = (o: any) => {
       loadInventory();
     }
   }, [activeTab, setInventory]);
+
+  // ✅ Lazy load wallet topup requests when tab is active
+  useEffect(() => {
+    if (activeTab === 'wallet_topup_requests') {
+      loadWalletTopupRequests('replace');
+    }
+  }, [activeTab]);
+
+  const loadWalletTopupRequests = async (mode: 'replace' | 'append' = 'replace') => {
+    setTopupRequestsLoading(true);
+    try {
+      const page = mode === 'replace' ? 0 : topupRequestsPage + 1;
+      const res = await walletTopupService.getPendingRequests(page * 20, 20, 'pending');
+      if (res?.data) {
+        setWalletTopupRequests(mode === 'replace' ? res.data.items : [...walletTopupRequests, ...res.data.items]);
+        setTopupRequestsHasMore(res.data.hasMore || false);
+        setTopupRequestsPage(page);
+      }
+    } catch (e) {
+      console.warn('Failed to load wallet topup requests', e);
+    } finally {
+      setTopupRequestsLoading(false);
+    }
+  };
   
   // Invoice Viewer State
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
@@ -1494,9 +1530,10 @@ try {
           { id: 'announcements', label: 'الإشعارات', icon: Bell },
           { id: 'banners', label: 'البانرات', icon: ImageIcon },
           { id: 'currencies', label: 'العملات', icon: CircleDollarSign },
+          { id: 'wallet_topup_requests', label: 'طلبات المحفظة المعلقة', icon: CreditCard },
           { id: 'terms', label: 'الشروط والأحكام', icon: FileText },
           { id: 'privacy', label: 'سياسة الخصوصية', icon: ShieldCheck },
-          { id: 'settings', label: 'الإعدادات العامة', icon: Settings },
+          { id: 'settings', label: 'الإعدادات العامة', icon: Settings }
         ].map(tab => (
           <button
             key={tab.id}
@@ -2555,6 +2592,18 @@ try {
                     ))}
                 </div>
             </div>
+        )}
+
+        {/* WALLET TOPUP REQUESTS TAB */}
+        {activeTab === 'wallet_topup_requests' && (
+          <WalletTopupRequestsTab
+            requests={walletTopupRequests}
+            loading={topupRequestsLoading}
+            hasMore={topupRequestsHasMore}
+            onLoadMore={() => loadWalletTopupRequests('append')}
+            onRefresh={() => loadWalletTopupRequests('replace')}
+            onRequestsUpdate={setWalletTopupRequests}
+          />
         )}
 
         {/* SETTINGS TAB */}
