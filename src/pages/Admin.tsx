@@ -258,7 +258,7 @@ const getOrderDate = (o: any) => {
     
     try {
       const page = mode === 'replace' ? 0 : topupRequestsPage + 1;
-      const res = await walletTopupService.getPendingRequests(page * 20, 20, targetStatus);
+      const res = await walletTopupService.getPendingRequests(page * 10, 10, targetStatus);
       if (res?.data) {
         setWalletTopupRequests(mode === 'replace' ? res.data.items : [...walletTopupRequests, ...res.data.items]);
         setTopupRequestsHasMore(res.data.hasMore || false);
