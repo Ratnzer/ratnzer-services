@@ -40,8 +40,6 @@ const Wallet: React.FC<Props> = ({
   const [cardNumber, setCardNumber] = useState('');
   const [cardNumberError, setCardNumberError] = useState('');
   const [topupSuccess, setTopupSuccess] = useState(false);
-
-  // Protection system state
   const [banTimeLeft, setBanTimeLeft] = useState<number>(0);
   const [isBanned, setIsBanned] = useState(false);
 
@@ -92,7 +90,7 @@ const Wallet: React.FC<Props> = ({
     }
   }, [modalStep]);
 
-  useEffect(() {
+  useEffect(() => {
     const syncPaymentSettings = async () => {
       const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer'];
       try {
@@ -615,37 +613,22 @@ const Wallet: React.FC<Props> = ({
                       </div>
                     ) : (
                       <>
-                        <div className="mb-6">
-                          <label className="text-xs font-bold text-gray-400 mb-3 block text-right flex items-center gap-2 justify-end">
-                            <span>رقم كارت أسياسيل</span>
-                            <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500">
-                              <CreditCard size={16} />
-                            </div>
-                          </label>
-                          <div className="relative">
-                            <input 
-                              type="text" 
-                              placeholder="أدخل رقم الكارت (8-18 رقم)"
-                              className={`w-full bg-[#13141f] border-2 rounded-2xl py-4 px-4 text-white text-lg font-bold focus:outline-none transition-all text-right dir-ltr touch-manipulation placeholder-gray-600 ${cardNumberError ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-gray-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20'}`}
-                              value={cardNumber}
-                              onChange={(e) => {
-                                setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 18));
-                                setCardNumberError('');
-                              }}
-                              maxLength={18}
-                            />
-                            {cardNumber && (
-                              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-bold">
-                                {cardNumber.length}/18
-                              </div>
-                            )}
-                          </div>
+                        <label className="text-xs font-bold text-gray-400 mb-2 block text-right">رقم كارت أسياسيل</label>
+                        <div className="mb-4">
+                          <input 
+                            type="text" 
+                            placeholder="أدخل رقم الكارت (8-18 رقم)"
+                            className={`w-full bg-[#13141f] border rounded-xl py-3 px-4 text-white text-lg font-bold focus:outline-none transition-colors text-right dir-ltr touch-manipulation ${cardNumberError ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-yellow-400'}`}
+                            value={cardNumber}
+                            onChange={(e) => {
+                              setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 18));
+                              setCardNumberError('');
+                            }}
+                            maxLength={18}
+                          />
                         </div>
                         {cardNumberError && (
-                          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4 flex items-center gap-2">
-                            <AlertTriangle size={14} className="text-red-500 shrink-0" />
-                            <p className="text-red-400 text-xs font-bold text-right">{cardNumberError}</p>
-                          </div>
+                          <p className="text-red-400 text-xs mb-4 text-right">{cardNumberError}</p>
                         )}
                         <div className="mb-4 text-sm text-gray-300 text-right leading-relaxed bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
                           <p className="font-bold text-blue-400 mb-1">ملاحظة مهمة:</p>
