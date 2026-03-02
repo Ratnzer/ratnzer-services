@@ -20,7 +20,9 @@ app.set('trust proxy', 1);
 
 // الأمن والأداء
 app.use(helmet({
-  contentSecurityPolicy: false, // تعطيله لتجنب مشاكل مع الواجهة الأمامية إذا كانت في نفس النطاق
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  frameguard: false, // تعطيل X-Frame-Options
 }));
 app.use(compression());
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] }));
