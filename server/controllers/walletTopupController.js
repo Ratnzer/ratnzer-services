@@ -94,11 +94,12 @@ const createTopupRequest = asyncHandler(async (req, res) => {
 const getPendingRequests = asyncHandler(async (req, res) => {
   const skip = parseInt(req.query.skip, 10) || 0;
   const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
-  const status = req.query.status || 'pending'; // pending, approved, rejected
+  const status = req.query.status || 'pending'; // all, pending, approved, rejected
+  const where = status === 'all' ? {} : { status };
 
   const [items, total] = await Promise.all([
     prisma.walletTopupRequest.findMany({
-      where: { status },
+      where,
       include: {
         user: {
           select: {
@@ -115,7 +116,7 @@ const getPendingRequests = asyncHandler(async (req, res) => {
       skip,
       take: limit,
     }),
-    prisma.walletTopupRequest.count({ where: { status } }),
+    prisma.walletTopupRequest.count({ where }),
   ]);
 
   res.json({
