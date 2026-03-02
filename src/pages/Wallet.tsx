@@ -337,213 +337,254 @@ const Wallet: React.FC<Props> = ({
                       <p className="text-[10px] text-gray-500 dir-ltr text-right">{tx.date}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className={`font-bold text-sm ${tx.type === 'credit' ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {tx.type === 'credit' ? '+' : '-'}{formatPrice(tx.amount)}
+                  <div className="flex flex-col items-end">
+                    <span className={`font-bold text-sm dir-ltr ${tx.type === 'credit' ? 'text-green-500' : 'text-red-500'}`}>
+                      {tx.type === 'credit' ? '+' : ''} {formatPrice(tx.amount)}
                     </span>
+                    <p className="text-[10px] text-gray-500 mt-1">الحالة</p>
+                    <p className={`text-[10px] font-bold ${tx.status === 'completed' ? 'text-green-500' : 'text-yellow-500'}`}>
+                        {tx.status === 'completed' ? 'مكتملة' : 'قيد الانتظار'}
+                    </p>
                   </div>
                 </div>
               );
               })
             ) : (
-              <div className="text-center py-12 text-gray-500">لا توجد عمليات</div>
+              <div className="text-center py-8 text-gray-500 text-sm bg-[#1e1f2b] rounded-xl border border-dashed border-gray-800">
+                لا توجد عمليات {activeFilter !== 'All' ? `بواسطة ${activeFilter}` : ''}
+              </div>
+            )}
+            {hasMore && (
+              <div className="flex justify-center pt-3">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="px-4 py-2 rounded-xl bg-[#242636] border border-gray-700 text-gray-200 text-sm font-bold hover:bg-[#2f3245] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                      جاري التحميل...
+                    </>
+                  ) : (
+                    'عرض المزيد'
+                  )}
+                </button>
+              </div>
             )}
           </div>
-
-          {hasMore && (
-            <div className="flex justify-center pt-4">
-              <button 
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="bg-yellow-400 text-black px-6 py-2 rounded-xl font-bold hover:opacity-90 disabled:opacity-50"
-              >
-                {loadingMore ? 'جاري التحميل...' : 'عرض المزيد'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Add Balance Modal */}
       {showAddBalanceModal && (
-        <div 
-          className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-          onClick={() => !isDragging && setShowAddBalanceModal(false)}
-        >
-          <div 
-            className={`w-full bg-[#13141f] rounded-t-3xl border-t border-gray-700 shadow-2xl transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
-            style={{ transform: `translateY(${translateY}px)` }}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6 max-h-[90vh] overflow-y-auto">
-              {/* Close Button */}
-              <div className="flex justify-between items-center mb-6">
-                <button 
-                  onClick={() => setShowAddBalanceModal(false)}
-                  className="text-gray-400 hover:text-white transition-colors"
+        <div className="fixed inset-0 z-[110] flex items-end justify-center">
+           {/* Backdrop */}
+           <div 
+             className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`} 
+             onClick={() => setShowAddBalanceModal(false)}
+           ></div>
+           
+           {/* Modal Content */}
+           <div 
+             className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-24 relative z-10 border-t border-gray-800 max-h-[85vh] flex flex-col transform transition-all duration-300 cubic-bezier(0.2, 0.8, 0.2, 1) ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
+             style={{ 
+               transform: translateY > 0 ? `translate3d(0, ${translateY}px, 0)` : 'translate3d(0, 0, 0)',
+               willChange: 'transform, opacity'
+             }}
+           >
+              {/* Handle Bar & Close Button */}
+              <div className="relative mb-6">
+                <div 
+                  className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
                 >
-                  <X size={24} />
-                </button>
-                <h2 className="text-xl font-bold text-white">إضافة رصيد</h2>
-                <div className="w-6"></div>
+                  <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+                </div>
+                
+                {modalStep === 'select' ? (
+                    <button 
+                      onClick={() => setShowAddBalanceModal(false)} 
+                      className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+                    >
+                        <X size={20} strokeWidth={2} />
+                    </button>
+                ) : (
+                    <button 
+                      onClick={() => setModalStep('select')} 
+                      className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95 flex items-center gap-1 text-xs font-bold"
+                    >
+                        <ChevronLeft size={16} /> رجوع
+                    </button>
+                )}
+                
+                <h2 className="text-center text-lg font-bold text-white">
+                    {modalStep === 'select' ? 'طريقة الدفع' : modalStep === 'card' ? 'الدفع عبر البطاقة' : modalStep === 'asiacell' ? 'شحن كارت أسياسيل' : 'تواصل مع الدعم'}
+                </h2>
               </div>
 
-              {/* STEP 1: SELECT METHOD */}
-              {modalStep === 'select' && (
-                <div className="space-y-3 animate-fadeIn">
-                  {paymentMethods.map(method => (
-                    <button
-                      key={method.id}
-                      onClick={() => handleMethodSelect(method)}
-                      className={`w-full p-4 rounded-2xl border-2 transition-all bg-gradient-to-br ${method.bg} ${method.border} hover:border-yellow-400 active:scale-95`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-3 rounded-xl bg-black/20 ${method.color}`}>
-                          {React.createElement(method.icon, { size: 24 })}
-                        </div>
-                        <div className="text-right flex-1">
-                          <h3 className="font-bold text-white">{method.name}</h3>
-                          <p className="text-xs text-gray-400">{method.desc}</p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* STEP 2: SUPPORT MESSAGE (WhatsApp & Telegram) */}
-              {modalStep === 'support' && (
-                <div className="flex flex-col items-center justify-center py-6 animate-fadeIn text-center">
-                  <div className="w-24 h-24 bg-[#242636] rounded-full flex items-center justify-center mb-6 border border-gray-700 shadow-xl relative">
-                    {selectedMethodIcon ? 
-                      React.createElement(selectedMethodIcon, { size: 40, className: "text-yellow-400" }) : 
-                      <Headset size={40} className="text-yellow-400" />
-                    }
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-white mb-2">إيداع عبر {selectedMethodName}</h3>
-                  <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-xs mx-auto">
-                    لإتمام عملية شحن الرصيد عبر <span className="text-yellow-400 font-bold">{selectedMethodName}</span>، يرجى التواصل مباشرة مع فريق الدعم الفني لتزويدك بالتفاصيل اللازمة.
-                  </p>
-                  
-                  <div className="w-full space-y-3">
-                    <button 
-                      onClick={openWhatsApp}
-                      className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95 group"
-                    >
-                      <Smartphone size={22} className="group-hover:rotate-12 transition-transform" />
-                      <span className="text-base">تواصل عبر واتساب</span>
-                    </button>
-                    <button 
-                      onClick={openTelegram}
-                      className="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95 group"
-                    >
-                      <Send size={22} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                      <span className="text-base">تواصل عبر تيليجرام</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: CARD (PayTabs Redirect) */}
-              {modalStep === 'card' && (
-                <div className="animate-fadeIn">
-                  <div className="mb-4">
-                    <label className="text-xs font-bold text-gray-400 mb-2 block text-right">المبلغ المراد شحنه</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        placeholder="0.00"
-                        className="w-full bg-[#13141f] border border-gray-700 rounded-xl py-3 pr-4 pl-12 text-white text-xl font-bold focus:border-yellow-400 focus:outline-none transition-colors text-right dir-ltr touch-manipulation"
-                        value={amountToAdd}
-                        onChange={(e) => setAmountToAdd(e.target.value)}
-                      />
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">$</div>
+              <div className="overflow-y-auto no-scrollbar">
+                {/* STEP 1: SELECT METHOD */}
+                {modalStep === 'select' && (
+                    <div className="space-y-3 animate-fadeIn pb-4">
+                        {paymentMethods.map((method) => (
+                            <button
+                                key={method.id}
+                                onClick={() => handleMethodSelect(method)}
+                                className={`w-full bg-gradient-to-r ${method.bg} p-4 rounded-2xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.color}`}>
+                                        <method.icon size={24} strokeWidth={1.5} />
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="font-bold text-sm text-white block">{method.name}</span>
+                                        <span className="text-[10px] text-gray-400 font-bold">{method.desc}</span>
+                                    </div>
+                                </div>
+                                <div className="bg-[#242636]/50 p-2 rounded-lg text-gray-400 group-hover:text-white transition-colors">
+                                   <ChevronLeft size={18} />
+                                </div>
+                            </button>
+                        ))}
                     </div>
-                  </div>
-                  <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
-                    سيتم تحويلك إلى صفحة الدفع الآمنة لإدخال بيانات البطاقة (Visa / Mastercard).
-                  </div>
-                  <button 
-                    className={`w-full bg-emerald-500 text-white font-bold py-4 rounded-xl mt-8 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    onClick={handleConfirmAddBalance}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>جاري المعالجة...</span>
-                      </>
-                    ) : (
-                      'متابعة الدفع'
-                    )}
-                  </button>
-                </div>
-              )}
+                )}
 
-              {/* STEP 4: ASIACELL CARD */}
-              {modalStep === 'asiacell' && (
-                <div className="animate-fadeIn">
-                  {topupSuccess ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border-2 border-emerald-500">
-                        <CheckCircle size={40} className="text-emerald-500" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">تم إرسال الطلب بنجاح!</h3>
-                      <p className="text-gray-400 text-sm">سيتم مراجعة طلبك من قبل الأدمن قريباً</p>
+                {/* STEP 2: SUPPORT MESSAGE (WhatsApp & Telegram) */}
+                {modalStep === 'support' && (
+                    <div className="flex flex-col items-center justify-center py-6 animate-fadeIn text-center">
+                        <div className="w-24 h-24 bg-[#242636] rounded-full flex items-center justify-center mb-6 border border-gray-700 shadow-xl relative">
+                            {selectedMethodIcon ? 
+                              React.createElement(selectedMethodIcon, { size: 40, className: "text-yellow-400" }) : 
+                              <Headset size={40} className="text-yellow-400" />
+                            }
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-white mb-2">إيداع عبر {selectedMethodName}</h3>
+                        <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-xs mx-auto">
+                            لإتمام عملية شحن الرصيد عبر <span className="text-yellow-400 font-bold">{selectedMethodName}</span>، يرجى التواصل مباشرة مع فريق الدعم الفني لتزويدك بالتفاصيل اللازمة.
+                        </p>
+                        
+                        <div className="w-full space-y-3">
+                            <button 
+                                onClick={openWhatsApp}
+                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95 group"
+                            >
+                                <Smartphone size={22} className="group-hover:rotate-12 transition-transform" />
+                                <span className="text-base">تواصل عبر واتساب</span>
+                            </button>
+
+                            <button 
+                                onClick={openTelegram}
+                                className="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95 group"
+                            >
+                                <Send size={22} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                                <span className="text-base">تواصل عبر تيليجرام</span>
+                            </button>
+                        </div>
                     </div>
-                  ) : (
-                    <>
-                      <label className="text-xs font-bold text-gray-400 mb-2 block text-right">رقم كارت أسياسيل</label>
+                )}
+
+                {/* STEP 3: CARD (PayTabs Redirect) */}
+                {modalStep === 'card' && (
+                    <div className="animate-fadeIn">
                       <div className="mb-4">
-                        <input 
-                          type="text" 
-                          placeholder="أدخل رقم الكارت (8-18 رقم)"
-                          className={`w-full bg-[#13141f] border rounded-xl py-3 px-4 text-white text-lg font-bold focus:outline-none transition-colors text-right dir-ltr touch-manipulation ${cardNumberError ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-yellow-400'}`}
-                          value={cardNumber}
-                          onChange={(e) => {
-                            setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 18));
-                            setCardNumberError('');
-                          }}
-                          maxLength={18}
-                        />
+                          <label className="text-xs font-bold text-gray-400 mb-2 block text-right">المبلغ المراد شحنه</label>
+                          <div className="relative">
+                              <input 
+                              type="number" 
+                              placeholder="0.00"
+                              className="w-full bg-[#13141f] border border-gray-700 rounded-xl py-3 pr-4 pl-12 text-white text-xl font-bold focus:border-yellow-400 focus:outline-none transition-colors text-right dir-ltr touch-manipulation"
+                              value={amountToAdd}
+                              onChange={(e) => setAmountToAdd(e.target.value)}
+                              />
+                              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">$</div>
+                          </div>
                       </div>
-                      {cardNumberError && (
-                        <p className="text-red-400 text-xs mb-4 text-right">{cardNumberError}</p>
-                      )}
-                      <div className="mb-4 text-sm text-gray-300 text-right leading-relaxed bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
-                        <p className="font-bold text-blue-400 mb-1">ملاحظة مهمة:</p>
-                        <p>سيتم إرسال طلبك للأدمن للمراجعة والموافقة. بعد الموافقة، سيتم إضافة الرصيد مباشرة إلى محفظتك.</p>
+
+                      <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
+                        سيتم تحويلك إلى صفحة الدفع الآمنة لإدخال بيانات البطاقة (Visa / Mastercard).
                       </div>
+
                       <button 
-                        className={`w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing || !cardNumber ? 'opacity-70 cursor-not-allowed' : ''}`}
-                        onClick={handleAsiacellCardSubmit}
-                        disabled={isProcessing || !cardNumber}
+                          className={`w-full bg-emerald-500 text-white font-bold py-4 rounded-xl mt-8 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                          onClick={handleConfirmAddBalance}
+                          disabled={isProcessing}
                       >
-                        {isProcessing ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>جاري الإرسال...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Send size={18} />
-                            <span>إرسال الطلب</span>
-                          </>
-                        )}
+                          {isProcessing ? (
+                               <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  <span>جاري المعالجة...</span>
+                               </>
+                          ) : (
+                               'متابعة الدفع'
+                          )}
                       </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+                    </div>
+                )}
+
+                {/* STEP 4: ASIACELL CARD */}
+                {modalStep === 'asiacell' && (
+                  <div className="animate-fadeIn">
+                    {topupSuccess ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border-2 border-emerald-500">
+                          <CheckCircle size={40} className="text-emerald-500" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">تم إرسال الطلب بنجاح!</h3>
+                        <p className="text-gray-400 text-sm">سيتم مراجعة طلبك من قبل الأدمن قريباً</p>
+                      </div>
+                    ) : (
+                      <>
+                        <label className="text-xs font-bold text-gray-400 mb-2 block text-right">رقم كارت أسياسيل</label>
+                        <div className="mb-4">
+                          <input 
+                            type="text" 
+                            placeholder="أدخل رقم الكارت (8-18 رقم)"
+                            className={`w-full bg-[#13141f] border rounded-xl py-3 px-4 text-white text-lg font-bold focus:outline-none transition-colors text-right dir-ltr touch-manipulation ${cardNumberError ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-yellow-400'}`}
+                            value={cardNumber}
+                            onChange={(e) => {
+                              setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 18));
+                              setCardNumberError('');
+                            }}
+                            maxLength={18}
+                          />
+                        </div>
+                        {cardNumberError && (
+                          <p className="text-red-400 text-xs mb-4 text-right">{cardNumberError}</p>
+                        )}
+                        <div className="mb-4 text-sm text-gray-300 text-right leading-relaxed bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
+                          <p className="font-bold text-blue-400 mb-1">ملاحظة مهمة:</p>
+                          <p>سيتم إرسال طلبك للأدمن للمراجعة والموافقة. بعد الموافقة، سيتم إضافة الرصيد مباشرة إلى محفظتك.</p>
+                        </div>
+                        <button 
+                          className={`w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing || !cardNumber ? 'opacity-70 cursor-not-allowed' : ''}`}
+                          onClick={handleAsiacellCardSubmit}
+                          disabled={isProcessing || !cardNumber}
+                        >
+                          {isProcessing ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>جاري الإرسال...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send size={18} />
+                              <span>إرسال الطلب</span>
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+           </div>
         </div>
       )}
     </div>
   );
 };
+
 export default Wallet;
