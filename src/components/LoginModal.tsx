@@ -58,19 +58,11 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
   const [showFullPrivacy, setShowFullPrivacy] = useState(false);
 
   const handleOpenTerms = () => {
-    if (terms.useExternalUrl && terms.externalUrl) {
-      window.open(terms.externalUrl, '_blank');
-    } else {
-      setShowFullTerms(true);
-    }
+    setShowFullTerms(true);
   };
 
   const handleOpenPrivacy = () => {
-    if (privacy.useExternalUrl && privacy.externalUrl) {
-      window.open(privacy.externalUrl, '_blank');
-    } else {
-      setShowFullPrivacy(true);
-    }
+    setShowFullPrivacy(true);
   };
   const [isLoading, setIsLoading] = useState(false);
 
@@ -434,57 +426,81 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
             </div>
         </div>
         
-        {/* Full Terms Modal */}
-        {showFullTerms && (
-           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
-                   <button onClick={() => setShowFullTerms(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
-                   <h2 className="text-lg font-bold text-white">الشروط والأحكام</h2>
-                   <div className="w-9"></div>
-               </div>
-               <div className="flex-1 overflow-y-auto p-6 text-gray-300">
-                   <div className="space-y-6 text-right">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">سياسة الاستخدام</h3></div>
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
-                           {terms.contentAr}
-                       </div>
-                   </div>
-                   <div className="my-8 border-t border-gray-700/50"></div>
-                   <div className="space-y-6 text-left dir-ltr">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">Terms of Service</h3></div>
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
-                           {terms.contentEn}
-                       </div>
-                   </div>
-               </div>
-           </div>
-       )}
+	        {/* Full Terms Modal */}
+	        {showFullTerms && (
+	           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
+	               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
+	                   <button onClick={() => setShowFullTerms(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
+	                   <h2 className="text-lg font-bold text-white">الشروط والأحكام</h2>
+	                   <div className="w-9"></div>
+	               </div>
+	               <div className="flex-1 overflow-hidden relative">
+	                    {terms.useExternalUrl && terms.externalUrl ? (
+	                        <div className="w-full h-full pb-20 bg-white">
+	                            <iframe 
+	                                src={terms.externalUrl} 
+	                                className="w-full h-full border-0"
+	                                title="Terms and Conditions"
+	                            />
+	                        </div>
+	                    ) : (
+	                       <div className="h-full overflow-y-auto p-6 text-gray-300">
+	                           <div className="space-y-6 text-right">
+	                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">الشروط والأحكام</h3></div>
+	                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
+	                                   {terms.contentAr}
+	                               </div>
+	                           </div>
+	                           <div className="my-8 border-t border-gray-700/50"></div>
+	                           <div className="space-y-6 text-left dir-ltr">
+	                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">Terms and Conditions</h3></div>
+	                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
+	                                   {terms.contentEn}
+	                               </div>
+	                           </div>
+	                       </div>
+	                   )}
+	               </div>
+	           </div>
+	       )}
 
-       {/* Full Privacy Modal */}
-       {showFullPrivacy && (
-           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
-                   <button onClick={() => setShowFullPrivacy(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
-                   <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2>
-                   <div className="w-9"></div>
-               </div>
-               <div className="flex-1 overflow-y-auto p-6 text-gray-300">
-                   <div className="space-y-6 text-right">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
-                           {privacy.contentAr}
-                       </div>
-                   </div>
-                   <div className="my-8 border-t border-gray-700/50"></div>
-                   <div className="space-y-6 text-left dir-ltr">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
-                           {privacy.contentEn}
-                       </div>
-                   </div>
-               </div>
-           </div>
-       )}
+	       {/* Full Privacy Modal */}
+	       {showFullPrivacy && (
+	           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
+	               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
+	                   <button onClick={() => setShowFullPrivacy(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
+	                   <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2>
+	                   <div className="w-9"></div>
+	               </div>
+	               <div className="flex-1 overflow-hidden relative">
+	                    {privacy.useExternalUrl && privacy.externalUrl ? (
+	                        <div className="w-full h-full pb-20 bg-white">
+	                            <iframe 
+	                                src={privacy.externalUrl} 
+	                                className="w-full h-full border-0"
+	                                title="Privacy Policy"
+	                            />
+	                        </div>
+	                    ) : (
+	                       <div className="h-full overflow-y-auto p-6 text-gray-300">
+	                           <div className="space-y-6 text-right">
+	                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
+	                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
+	                                   {privacy.contentAr}
+	                               </div>
+	                           </div>
+	                           <div className="my-8 border-t border-gray-700/50"></div>
+	                           <div className="space-y-6 text-left dir-ltr">
+	                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
+	                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-5 rounded-2xl border border-gray-700/50 shadow-sm">
+	                                   {privacy.contentEn}
+	                               </div>
+	                           </div>
+	                       </div>
+	                   )}
+	               </div>
+	           </div>
+	       )}
     </>
   );
 };
