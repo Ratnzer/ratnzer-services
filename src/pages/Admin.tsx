@@ -190,6 +190,7 @@ const getOrderDate = (o: any) => {
   const [topupRequestsLoading, setTopupRequestsLoading] = useState(false);
   const [topupRequestsHasMore, setTopupRequestsHasMore] = useState(false);
   const [topupRequestsPage, setTopupRequestsPage] = useState(0);
+  const [topupRequestsStatus, setTopupRequestsStatus] = useState('pending');
   const [selectedTopupRequest, setSelectedTopupRequest] = useState<WalletTopupRequest | null>(null);
   const [topupApprovalAmount, setTopupApprovalAmount] = useState('');
   const [topupApprovalError, setTopupApprovalError] = useState('');
@@ -248,11 +249,16 @@ const getOrderDate = (o: any) => {
     }
   }, [activeTab]);
 
-  const loadWalletTopupRequests = async (mode: 'replace' | 'append' = 'replace') => {
+  const loadWalletTopupRequests = async (mode: 'replace' | 'append' = 'replace', status?: string) => {
     setTopupRequestsLoading(true);
+    const targetStatus = status || topupRequestsStatus;
+    if (status && status !== topupRequestsStatus) {
+      setTopupRequestsStatus(status);
+    }
+    
     try {
       const page = mode === 'replace' ? 0 : topupRequestsPage + 1;
-      const res = await walletTopupService.getPendingRequests(page * 20, 20, 'pending');
+      const res = await walletTopupService.getPendingRequests(page * 20, 20, targetStatus);
       if (res?.data) {
         setWalletTopupRequests(mode === 'replace' ? res.data.items : [...walletTopupRequests, ...res.data.items]);
         setTopupRequestsHasMore(res.data.hasMore || false);
@@ -2601,7 +2607,7 @@ try {
             loading={topupRequestsLoading}
             hasMore={topupRequestsHasMore}
             onLoadMore={() => loadWalletTopupRequests('append')}
-            onRefresh={() => loadWalletTopupRequests('replace')}
+            onRefresh={(status) => loadWalletTopupRequests('replace', status)}
             onRequestsUpdate={setWalletTopupRequests}
           />
         )}
