@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, CreditCard, X, Calendar, Lock, User, ChevronLeft, Smartphone, Zap, Gem, Headset, Send, Wallet as WalletIcon, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Plus, CreditCard, X, Calendar, Lock, User, ChevronLeft, Smartphone, Zap, Gem, Headset, Send, Wallet as WalletIcon, ArrowLeft, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { View, Transaction } from '../types';
 import { settingsService, walletTopupService } from '../services/api';
 
@@ -41,6 +41,10 @@ const Wallet: React.FC<Props> = ({
   const [cardNumberError, setCardNumberError] = useState('');
   const [topupSuccess, setTopupSuccess] = useState(false);
 
+  // Protection system state
+  const [banTimeLeft, setBanTimeLeft] = useState<number>(0);
+  const [isBanned, setIsBanned] = useState(false);
+
   // Drag to dismiss state
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -54,7 +58,41 @@ const Wallet: React.FC<Props> = ({
 
   const minSwipeDistance = 100;
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   useEffect(() => {
+    if (banTimeLeft <= 0) {
+      setIsBanned(false);
+      return;
+    }
+    const timer = setInterval(() => {
+      setBanTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [banTimeLeft]);
+
+  useEffect(() => {
+    if (modalStep === 'asiacell') {
+      const banUntil = localStorage.getItem('asiacell_ban_until');
+      if (banUntil) {
+        const remaining = Math.ceil((parseInt(banUntil) - Date.now()) / 1000);
+        if (remaining > 0) {
+          setBanTimeLeft(remaining);
+          setIsBanned(true);
+        } else {
+          localStorage.removeItem('asiacell_ban_until');
+          setIsBanned(false);
+          setBanTimeLeft(0);
+        }
+      }
+    }
+  }, [modalStep]);
+
+  useEffect(() {
     const syncPaymentSettings = async () => {
       const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer'];
       try {
@@ -172,15 +210,40 @@ const Wallet: React.FC<Props> = ({
   };
 
   const handleAsiacellCardSubmit = async () => {
+    if (isBanned) return;
     setCardNumberError('');
-    
-    // Validate card number
     const cleanCardNumber = cardNumber.replace(/\D/g, '');
     if (cleanCardNumber.length < 8 || cleanCardNumber.length > 18) {
       setCardNumberError('رقم الكارت يجب أن يكون بين 8 و 18 رقم');
       return;
     }
-
+    const now = Date.now();
+    const lastRequestTime = parseInt(localStorage.getItem('asiacell_last_request_time') || '0');
+    const requestCountInMinute = parseInt(localStorage.getItem('asiacell_request_count') || '0');
+    const lastCardNumber = localStorage.getItem('asiacell_last_card_number');
+    if (cleanCardNumber === lastCardNumber) {
+      const banUntil = now + 30 * 60 * 1000;
+      localStorage.setItem('asiacell_ban_until', banUntil.toString());
+      setIsBanned(true);
+      setBanTimeLeft(30 * 60);
+      setCardNumberError('تم حظرك لمدة 30 دقيقة بسبب محاولة إرسال نفس الرقم مكرراً');
+      return;
+    }
+    let newCount = 1;
+    if (now - lastRequestTime < 60000) {
+      newCount = requestCountInMinute + 1;
+    }
+    if (newCount > 2) {
+      const banUntil = now + 30 * 60 * 1000;
+      localStorage.setItem('asiacell_ban_until', banUntil.toString());
+      setIsBanned(true);
+      setBanTimeLeft(30 * 60);
+      setCardNumberError('تم حظرك لمدة 30 دقيقة بسبب إرسال الطلبات بسرعة كبيرة');
+      return;
+    }
+    localStorage.setItem('asiacell_last_request_time', now.toString());
+    localStorage.setItem('asiacell_request_count', newCount.toString());
+    localStorage.setItem('asiacell_last_card_number', cleanCardNumber);
     setIsProcessing(true);
     try {
       await walletTopupService.createRequest({ cardNumber: cleanCardNumber });
@@ -527,7 +590,22 @@ const Wallet: React.FC<Props> = ({
                 {/* STEP 4: ASIACELL CARD */}
                 {modalStep === 'asiacell' && (
                   <div className="animate-fadeIn">
-                    {topupSuccess ? (
+                    {isBanned ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-center bg-red-500/5 border border-red-500/20 rounded-3xl">
+                        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+                          <Lock size={30} className="text-red-500" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-2">ميزة الشحن مقيدة مؤقتاً</h3>
+                        <p className="text-gray-400 text-xs mb-6 px-6">
+                          تم تقييد حسابك من إرسال طلبات شحن أسياسيل بسبب نشاط مشبوه.
+                        </p>
+                        <div className="flex items-center gap-2 bg-[#13141f] px-6 py-3 rounded-2xl border border-gray-800">
+                          <Clock size={18} className="text-yellow-400" />
+                          <span className="text-xl font-black text-white font-mono">{formatTime(banTimeLeft)}</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 mt-4 font-bold">يرجى المحاولة مرة أخرى بعد انتهاء الوقت</p>
+                      </div>
+                    ) : topupSuccess ? (
                       <div className="flex flex-col items-center justify-center py-12 text-center">
                         <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border-2 border-emerald-500">
                           <CheckCircle size={40} className="text-emerald-500" />
