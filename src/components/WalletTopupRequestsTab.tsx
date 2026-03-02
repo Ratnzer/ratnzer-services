@@ -125,17 +125,33 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
         ))}
       </div>
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
           {statusTabs.find(t => t.id === activeStatus)?.label} ({requests.length})
         </h3>
-        <button
-          onClick={() => onRefresh(activeStatus)}
-          className="text-[10px] bg-[#242636] text-gray-400 px-3 py-1.5 rounded-lg border border-gray-700 hover:bg-[#2f3245] transition-colors font-bold"
-          disabled={loading}
-        >
-          {loading ? 'جاري التحديث...' : 'تحديث القائمة'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              if (confirm('هل أنت متأكد من تصفير سجلات الحماية لميزة الأسياسيل لجميع المستخدمين؟')) {
+                localStorage.removeItem('asiacell_ban_until');
+                localStorage.removeItem('asiacell_last_request_time');
+                localStorage.removeItem('asiacell_request_count');
+                localStorage.removeItem('asiacell_last_card_number');
+                alert('تم تصفير سجلات الحماية بنجاح. سيتمكن المستخدمون من استخدام ميزة الأسياسيل مرة أخرى');
+              }
+            }}
+            className="text-[10px] bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors font-bold"
+          >
+            🔄 تصفير الحماية
+          </button>
+          <button
+            onClick={() => onRefresh(activeStatus)}
+            className="text-[10px] bg-[#242636] text-gray-400 px-3 py-1.5 rounded-lg border border-gray-700 hover:bg-[#2f3245] transition-colors font-bold"
+            disabled={loading}
+          >
+            {loading ? 'جاري التحديث...' : 'تحديث القائمة'}
+          </button>
+        </div>
       </div>
 
       {loading && requests.length === 0 ? (
