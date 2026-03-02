@@ -190,7 +190,7 @@ const getOrderDate = (o: any) => {
   const [topupRequestsLoading, setTopupRequestsLoading] = useState(false);
   const [topupRequestsHasMore, setTopupRequestsHasMore] = useState(false);
   const [topupRequestsPage, setTopupRequestsPage] = useState(0);
-  const [topupRequestsStatus, setTopupRequestsStatus] = useState('pending');
+  const [topupRequestsStatus, setTopupRequestsStatus] = useState('all');
   const [selectedTopupRequest, setSelectedTopupRequest] = useState<WalletTopupRequest | null>(null);
   const [topupApprovalAmount, setTopupApprovalAmount] = useState('');
   const [topupApprovalError, setTopupApprovalError] = useState('');
@@ -1528,6 +1528,7 @@ try {
         {[
           { id: 'dashboard', label: 'الرئيسية', icon: Activity },
           { id: 'orders', label: 'الطلبات', icon: ClipboardList },
+          { id: 'wallet_topup_requests', label: 'طلبات المحفظة', icon: CreditCard },
           { id: 'inventory', label: 'المخزون', icon: PackageOpen },
           { id: 'products', label: 'المنتجات', icon: ShoppingBag },
           { id: 'reorder', label: 'ترتيب المنتجات', icon: GripVertical },
@@ -1536,7 +1537,6 @@ try {
           { id: 'announcements', label: 'الإشعارات', icon: Bell },
           { id: 'banners', label: 'البانرات', icon: ImageIcon },
           { id: 'currencies', label: 'العملات', icon: CircleDollarSign },
-          { id: 'wallet_topup_requests', label: 'طلبات المحفظة المعلقة', icon: CreditCard },
           { id: 'terms', label: 'الشروط والأحكام', icon: FileText },
           { id: 'privacy', label: 'سياسة الخصوصية', icon: ShieldCheck },
           { id: 'settings', label: 'الإعدادات العامة', icon: Settings }
