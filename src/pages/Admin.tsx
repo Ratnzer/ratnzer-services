@@ -305,6 +305,8 @@ const getOrderDate = (o: any) => {
       const res = await contentService.updateTerms({
         contentAr: terms?.contentAr ?? '',
         contentEn: terms?.contentEn ?? '',
+        externalUrl: terms?.externalUrl ?? '',
+        useExternalUrl: !!terms?.useExternalUrl,
       });
 
       // Sync UI with server response if available
@@ -313,6 +315,8 @@ const getOrderDate = (o: any) => {
           ...terms,
           contentAr: typeof res.data.contentAr === 'string' ? res.data.contentAr : (terms?.contentAr ?? ''),
           contentEn: typeof res.data.contentEn === 'string' ? res.data.contentEn : (terms?.contentEn ?? ''),
+          externalUrl: typeof res.data.externalUrl === 'string' ? res.data.externalUrl : (terms?.externalUrl ?? ''),
+          useExternalUrl: typeof res.data.useExternalUrl === 'boolean' ? res.data.useExternalUrl : !!terms?.useExternalUrl,
         });
       }
 
@@ -342,13 +346,18 @@ const getOrderDate = (o: any) => {
       const res = await contentService.updatePrivacy({
         contentAr: privacy?.contentAr ?? '',
         contentEn: privacy?.contentEn ?? '',
+        externalUrl: privacy?.externalUrl ?? '',
+        useExternalUrl: !!privacy?.useExternalUrl,
       });
 
       // Sync UI with server response if available
       if (res?.data) {
         setPrivacy({
+          ...privacy,
           contentAr: typeof res.data.contentAr === 'string' ? res.data.contentAr : (privacy?.contentAr ?? ''),
           contentEn: typeof res.data.contentEn === 'string' ? res.data.contentEn : (privacy?.contentEn ?? ''),
+          externalUrl: typeof res.data.externalUrl === 'string' ? res.data.externalUrl : (privacy?.externalUrl ?? ''),
+          useExternalUrl: typeof res.data.useExternalUrl === 'boolean' ? res.data.useExternalUrl : !!privacy?.useExternalUrl,
         });
       }
 
@@ -2695,9 +2704,40 @@ try {
         {activeTab === 'terms' && (
           <div className="space-y-6">
              <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                     <h3 className="font-bold text-white flex items-center gap-2"><FileText size={20} className="text-yellow-400" /> تعديل الشروط والأحكام</h3>
+                </div>
+
+                {/* External URL Option */}
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Link size={18} className="text-blue-400" />
+                            <span className="text-sm font-bold text-white">استخدام رابط خارجي (WebView)</span>
+                        </div>
+                        <button 
+                            onClick={() => setTerms({ ...terms, useExternalUrl: !terms.useExternalUrl })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${terms.useExternalUrl ? 'bg-emerald-500' : 'bg-gray-600'}`}
+                        >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${terms.useExternalUrl ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                    </div>
                     
+                    <div className={`transition-all duration-300 ${terms.useExternalUrl ? 'opacity-100 max-h-40' : 'opacity-50 max-h-0 overflow-hidden'}`}>
+                        <label className="text-[10px] text-gray-400 font-bold mb-1 block text-right">رابط الشروط والأحكام</label>
+                        <input 
+                            type="text"
+                            className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
+                            placeholder="https://example.com/terms"
+                            value={terms.externalUrl || ''}
+                            onChange={(e) => setTerms({ ...terms, externalUrl: e.target.value })}
+                        />
+                        <p className="text-[9px] text-gray-500 mt-2 text-right">عند التفعيل، سيتم فتح هذا الرابط داخل التطبيق بدلاً من عرض النص المكتوب بالأسفل.</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-xs font-bold text-gray-400">النص المكتوب (الخيار البديل)</h4>
                     {/* Language Switcher */}
                     <div className="bg-[#13141f] p-1 rounded-lg flex gap-1">
                         <button 
@@ -2716,12 +2756,8 @@ try {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs text-gray-400 font-bold block text-right">
-                        {termsLang === 'ar' ? 'نص الشروط (بالعربية)' : 'Terms Content (English)'}
-                    </label>
-                    
                     <textarea 
-                        className={`w-full bg-[#13141f] p-4 rounded-xl text-sm text-gray-300 min-h-[400px] border border-gray-700 focus:border-yellow-400 outline-none leading-relaxed font-mono ${termsLang === 'ar' ? 'text-right' : 'text-left dir-ltr'}`}
+                        className={`w-full bg-[#13141f] p-4 rounded-xl text-sm text-gray-300 min-h-[300px] border border-gray-700 focus:border-yellow-400 outline-none leading-relaxed font-mono ${termsLang === 'ar' ? 'text-right' : 'text-left dir-ltr'}`}
                         value={termsLang === 'ar' ? terms.contentAr : terms.contentEn}
                         onChange={(e) => {
                             if (termsLang === 'ar') {
@@ -2731,6 +2767,7 @@ try {
                             }
                         }}
                         spellCheck={false}
+                        disabled={terms.useExternalUrl}
                     />
                 </div>
 
@@ -2748,9 +2785,40 @@ try {
         {activeTab === 'privacy' && (
           <div className="space-y-6">
              <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                     <h3 className="font-bold text-white flex items-center gap-2"><ShieldCheck size={20} className="text-blue-400" /> تعديل سياسة الخصوصية</h3>
+                </div>
+
+                {/* External URL Option */}
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Link size={18} className="text-blue-400" />
+                            <span className="text-sm font-bold text-white">استخدام رابط خارجي (WebView)</span>
+                        </div>
+                        <button 
+                            onClick={() => setPrivacy({ ...privacy, useExternalUrl: !privacy.useExternalUrl })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${privacy.useExternalUrl ? 'bg-emerald-500' : 'bg-gray-600'}`}
+                        >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${privacy.useExternalUrl ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                    </div>
                     
+                    <div className={`transition-all duration-300 ${privacy.useExternalUrl ? 'opacity-100 max-h-40' : 'opacity-50 max-h-0 overflow-hidden'}`}>
+                        <label className="text-[10px] text-gray-400 font-bold mb-1 block text-right">رابط سياسة الخصوصية</label>
+                        <input 
+                            type="text"
+                            className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
+                            placeholder="https://example.com/privacy"
+                            value={privacy.externalUrl || ''}
+                            onChange={(e) => setPrivacy({ ...privacy, externalUrl: e.target.value })}
+                        />
+                        <p className="text-[9px] text-gray-500 mt-2 text-right">عند التفعيل، سيتم فتح هذا الرابط داخل التطبيق بدلاً من عرض النص المكتوب بالأسفل.</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-xs font-bold text-gray-400">النص المكتوب (الخيار البديل)</h4>
                     {/* Language Switcher */}
                     <div className="bg-[#13141f] p-1 rounded-lg flex gap-1">
                         <button 
@@ -2769,12 +2837,8 @@ try {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs text-gray-400 font-bold block text-right">
-                        {privacyLang === 'ar' ? 'نص سياسة الخصوصية (بالعربية)' : 'Privacy Policy Content (English)'}
-                    </label>
-                    
                     <textarea 
-                        className={`w-full bg-[#13141f] p-4 rounded-xl text-sm text-gray-300 min-h-[400px] border border-gray-700 focus:border-blue-400 outline-none leading-relaxed font-mono ${privacyLang === 'ar' ? 'text-right' : 'text-left dir-ltr'}`}
+                        className={`w-full bg-[#13141f] p-4 rounded-xl text-sm text-gray-300 min-h-[300px] border border-gray-700 focus:border-blue-400 outline-none leading-relaxed font-mono ${privacyLang === 'ar' ? 'text-right' : 'text-left dir-ltr'}`}
                         value={privacyLang === 'ar' ? privacy.contentAr : privacy.contentEn}
                         onChange={(e) => {
                             if (privacyLang === 'ar') {
@@ -2784,6 +2848,7 @@ try {
                             }
                         }}
                         spellCheck={false}
+                        disabled={privacy.useExternalUrl}
                     />
                 </div>
 

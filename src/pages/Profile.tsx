@@ -827,24 +827,32 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <button onClick={() => setShowTermsModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
                    <h2 className="text-lg font-bold text-white">الشروط والأحكام</h2><div className="w-9"></div>
                </div>
-               <div className="flex-1 overflow-y-auto p-6 text-gray-300 pb-24">
-                   <div className="space-y-6 text-right">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">الشروط والأحكام</h3></div>
-                       {/* Display Full Arabic Content with whitespace preserved */}
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                           {terms.contentAr}
+               <div className="flex-1 overflow-hidden relative">
+                   {terms.useExternalUrl && terms.externalUrl ? (
+                       <iframe 
+                           src={terms.externalUrl} 
+                           className="w-full h-full border-0 bg-white"
+                           title="Terms and Conditions"
+                       />
+                   ) : (
+                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24">
+                           <div className="space-y-6 text-right">
+                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">الشروط والأحكام</h3></div>
+                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
+                                   {terms.contentAr}
+                               </div>
+                           </div>
+                           
+                           <div className="my-8 border-t border-gray-700/50"></div>
+                           
+                           <div className="space-y-6 text-left dir-ltr">
+                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">Terms and Conditions</h3></div>
+                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
+                                   {terms.contentEn}
+                               </div>
+                           </div>
                        </div>
-                   </div>
-                   
-                   <div className="my-8 border-t border-gray-700/50"></div>
-                   
-                   <div className="space-y-6 text-left dir-ltr">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">Terms and Conditions</h3></div>
-                       {/* Display Full English Content with whitespace preserved */}
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                           {terms.contentEn}
-                       </div>
-                   </div>
+                   )}
                </div>
            </div>
        )}
@@ -856,24 +864,32 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <button onClick={() => setShowPrivacyModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
                    <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2><div className="w-9"></div>
                </div>
-               <div className="flex-1 overflow-y-auto p-6 text-gray-300 pb-24">
-                   <div className="space-y-6 text-right">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
-                       {/* Display Full Arabic Content with whitespace preserved */}
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                           {privacy.contentAr}
+               <div className="flex-1 overflow-hidden relative">
+                   {privacy.useExternalUrl && privacy.externalUrl ? (
+                       <iframe 
+                           src={privacy.externalUrl} 
+                           className="w-full h-full border-0 bg-white"
+                           title="Privacy Policy"
+                       />
+                   ) : (
+                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24">
+                           <div className="space-y-6 text-right">
+                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
+                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
+                                   {privacy.contentAr}
+                               </div>
+                           </div>
+                           
+                           <div className="my-8 border-t border-gray-700/50"></div>
+                           
+                           <div className="space-y-6 text-left dir-ltr">
+                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
+                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
+                                   {privacy.contentEn}
+                               </div>
+                           </div>
                        </div>
-                   </div>
-                   
-                   <div className="my-8 border-t border-gray-700/50"></div>
-                   
-                   <div className="space-y-6 text-left dir-ltr">
-                       <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
-                       {/* Display Full English Content with whitespace preserved */}
-                       <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                           {privacy.contentEn}
-                       </div>
-                   </div>
+                   )}
                </div>
            </div>
        )}

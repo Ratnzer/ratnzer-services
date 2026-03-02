@@ -140,11 +140,15 @@ export interface AppTerms {
   contentEn: string;
   contactWhatsapp?: string;
   contactTelegram?: string;
+  externalUrl?: string;
+  useExternalUrl?: boolean;
 }
 
 export interface AppPrivacy {
   contentAr: string;
   contentEn: string;
+  externalUrl?: string;
+  useExternalUrl?: boolean;
 }
 
 export interface Banner {
