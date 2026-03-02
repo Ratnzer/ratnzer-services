@@ -56,6 +56,22 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
   const [showPassword, setShowPassword] = useState(false);
   const [showFullTerms, setShowFullTerms] = useState(false);
   const [showFullPrivacy, setShowFullPrivacy] = useState(false);
+
+  const handleOpenTerms = () => {
+    if (terms.useExternalUrl && terms.externalUrl) {
+      window.open(terms.externalUrl, '_blank');
+    } else {
+      setShowFullTerms(true);
+    }
+  };
+
+  const handleOpenPrivacy = () => {
+    if (privacy.useExternalUrl && privacy.externalUrl) {
+      window.open(privacy.externalUrl, '_blank');
+    } else {
+      setShowFullPrivacy(true);
+    }
+  };
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -398,14 +414,14 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
                             <p className="text-[10px] text-gray-500 leading-relaxed font-medium">
                                 بإنشائك للحساب، أنت توافق على
                                 <button 
-                                    onClick={() => setShowFullTerms(true)} 
+                                    onClick={handleOpenTerms} 
                                     className="text-yellow-400 hover:text-yellow-300 mx-1 font-bold underline decoration-yellow-400/30 underline-offset-4 transition-colors"
                                 >
                                     الشروط والأحكام
                                 </button>
                                 و
                                 <button 
-                                    onClick={() => setShowFullPrivacy(true)} 
+                                    onClick={handleOpenPrivacy} 
                                     className="text-blue-400 hover:text-blue-300 mx-1 font-bold underline decoration-blue-400/30 underline-offset-4 transition-colors"
                                 >
                                     سياسة الخصوصية
