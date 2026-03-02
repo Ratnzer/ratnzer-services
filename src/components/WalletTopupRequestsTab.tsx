@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, AlertTriangle, DollarSign, Phone, Mail, Calendar, CreditCard, Copy, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { X, Check, CreditCard, Copy, Clock, CheckCircle, XCircle, User } from 'lucide-react';
 import { WalletTopupRequest } from '../types';
 import { walletTopupService } from '../services/api';
 
@@ -24,7 +24,6 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
   const [selectedRequest, setSelectedRequest] = useState<WalletTopupRequest | null>(null);
   const [approvalAmount, setApprovalAmount] = useState('');
   const [approvalError, setApprovalError] = useState('');
-  const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Sync with parent when tab changes
@@ -58,7 +57,7 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
 
   const handleReject = async (request: WalletTopupRequest) => {
     const reason = prompt('يرجى كتابة سبب الرفض:');
-    if (reason === null) return; // Cancelled prompt
+    if (reason === null) return;
     if (!reason.trim()) {
       alert('يجب كتابة سبب للرفض');
       return;
@@ -130,25 +129,25 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
           {requests.map(request => (
             <div key={request.id} className="bg-[#242636] p-5 rounded-2xl border border-gray-800 shadow-sm hover:border-gray-700 transition-colors relative overflow-hidden group">
               {/* Status Indicator Stripe */}
-              <div className={`absolute top-0 right-0 w-1 h-full ${statusTabs.find(t => t.id === request.status)?.bg}`}></div>
+              <div className={`absolute top-0 right-0 w-1.5 h-full ${statusTabs.find(t => t.id === request.status)?.bg}`}></div>
               
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#1a1b26] flex items-center justify-center border border-gray-700">
-                    <User size={24} className="text-gray-400" />
+                  <div className="w-10 h-10 rounded-full bg-[#1a1b26] flex items-center justify-center border border-gray-700">
+                    <User size={20} className="text-gray-400" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm">{request.user?.name || 'مستخدم غير معروف'}</h4>
+                    <h4 className="font-bold text-white text-sm">{request.user?.name || 'مستخدم'}</h4>
                     <p className="text-[10px] text-gray-500 font-mono">ID: {request.id}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-gray-500">{new Date(request.createdAt || '').toLocaleString('ar-EG')}</p>
+                  <p className="text-[10px] text-gray-500 font-bold">{new Date(request.createdAt || '').toLocaleString('ar-EG')}</p>
                 </div>
               </div>
 
               {/* Card Number Box */}
-              <div className="bg-[#13141f] p-3 rounded-xl border border-gray-700/50 mb-4 flex items-center justify-between group/card">
+              <div className="bg-[#13141f] p-3 rounded-xl border border-gray-700/50 mb-4 flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-1">رقم كارت أسياسيل</span>
                   <span className="text-sm text-yellow-400 font-mono font-bold tracking-widest">{request.cardNumber}</span>
@@ -164,23 +163,11 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
                 </button>
               </div>
 
-              {/* User Details Grid */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="bg-[#1a1b26] p-2 rounded-lg border border-gray-800/50">
-                  <span className="text-[9px] text-gray-500 block mb-0.5">رقم الهاتف</span>
-                  <span className="text-[11px] text-gray-300 font-bold dir-ltr block">{request.user?.phone || 'غير متوفر'}</span>
-                </div>
-                <div className="bg-[#1a1b26] p-2 rounded-lg border border-gray-800/50">
-                  <span className="text-[9px] text-gray-500 block mb-0.5">الرصيد الحالي</span>
-                  <span className="text-[11px] text-emerald-400 font-bold block">${request.user?.balance || 0}</span>
-                </div>
-              </div>
-
               {/* Status Specific Info */}
               {request.status === 'approved' && (
                 <div className="bg-emerald-500/5 border border-emerald-500/20 p-2 rounded-lg mb-4">
                   <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                    <Check size={12} /> تم شحن مبلغ: ${request.amount}
+                    <CheckCircle size={12} /> تم شحن مبلغ: ${request.amount}
                   </p>
                 </div>
               )}
@@ -203,7 +190,7 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
                     onClick={() => handleReject(request)}
                     className="flex-1 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95 border border-red-500/20"
                   >
-                    <X size={14} /> رفض الطلب
+                    <X size={14} /> رفض
                   </button>
                 </div>
               )}
@@ -217,9 +204,9 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
           <button
             onClick={onLoadMore}
             disabled={loading}
-            className="bg-yellow-400 text-black px-8 py-3 rounded-2xl font-bold hover:bg-yellow-500 transition-all active:scale-95 shadow-xl shadow-yellow-400/20 disabled:opacity-50 flex items-center gap-2"
+            className="bg-yellow-400 text-black px-8 py-3 rounded-2xl font-bold hover:bg-yellow-500 transition-all active:scale-95 shadow-xl shadow-yellow-400/20 disabled:opacity-50"
           >
-            {loading ? 'جاري التحميل...' : 'عرض المزيد من الطلبات'}
+            {loading ? 'جاري التحميل...' : 'عرض المزيد'}
           </button>
         </div>
       )}
@@ -255,7 +242,7 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
             </div>
 
             <div className="mb-6">
-              <label className="text-xs font-bold text-gray-400 mb-2 block text-right">المبلغ المراد إضافته للمحفظة ($)</label>
+              <label className="text-xs font-bold text-gray-400 mb-2 block text-right">المبلغ المراد إضافته ($)</label>
               <div className="relative">
                 <input
                   type="number"
