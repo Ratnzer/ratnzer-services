@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, AlertTriangle, DollarSign, Phone, Mail, Calendar, CreditCard } from 'lucide-react';
+import { X, Check, AlertTriangle, DollarSign, Phone, Mail, Calendar, CreditCard, Copy } from 'lucide-react';
 import { WalletTopupRequest } from '../types';
 import { walletTopupService } from '../services/api';
 
@@ -98,7 +98,20 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
                   <div className="flex-1">
                     <h4 className="font-bold text-white">{request.user?.name || 'مستخدم'}</h4>
                     <p className="text-xs text-gray-400">رقم الطلب: {request.id}</p>
-                    <p className="text-xs text-gray-500 mt-1">رقم الكارت: ***{request.cardNumber.slice(-4)}</p>
+                    <div className="mt-2 flex items-center gap-2 bg-[#13141f] p-2 rounded-lg border border-gray-700 w-fit">
+                      <span className="text-xs text-gray-400 font-bold">رقم الكارت:</span>
+                      <span className="text-sm text-yellow-400 font-mono font-bold select-all">{request.cardNumber}</span>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(request.cardNumber);
+                          alert('تم نسخ رقم الكارت');
+                        }}
+                        className="text-gray-500 hover:text-white transition-colors p-1"
+                        title="نسخ رقم الكارت"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
@@ -175,7 +188,15 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
             
             <div className="bg-[#242636] rounded-lg p-4 mb-4 text-sm">
               <p className="text-gray-300 mb-2"><span className="font-bold">المستخدم:</span> {selectedRequest.user?.name}</p>
-              <p className="text-gray-300 mb-2"><span className="font-bold">رقم الكارت:</span> ***{selectedRequest.cardNumber.slice(-4)}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-gray-300"><span className="font-bold">رقم الكارت:</span> <span className="text-yellow-400 font-mono font-bold">{selectedRequest.cardNumber}</span></p>
+                <button 
+                  onClick={() => navigator.clipboard.writeText(selectedRequest.cardNumber)}
+                  className="text-gray-500 hover:text-white transition-colors"
+                >
+                  <Copy size={12} />
+                </button>
+              </div>
               <p className="text-gray-300"><span className="font-bold">الرصيد الحالي:</span> ${selectedRequest.user?.balance}</p>
             </div>
 
