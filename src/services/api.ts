@@ -167,12 +167,12 @@ export const contentService = {
 
   // ✅ Terms
   getTerms: () => api.get("/content/terms"),
-  updateTerms: (data: { contentAr: string; contentEn: string }) =>
+  updateTerms: (data: { contentAr: string; contentEn: string; externalUrl?: string; useExternalUrl?: boolean }) =>
     api.put("/content/terms", data),
 
   // ✅ Privacy Policy
   getPrivacy: () => api.get("/content/privacy"),
-  updatePrivacy: (data: { contentAr: string; contentEn: string }) =>
+  updatePrivacy: (data: { contentAr: string; contentEn: string; externalUrl?: string; useExternalUrl?: boolean }) =>
     api.put("/content/privacy", data),
 };
 
