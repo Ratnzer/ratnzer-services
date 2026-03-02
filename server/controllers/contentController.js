@@ -193,15 +193,17 @@ const getTerms = asyncHandler(async (req, res) => {
 
 // PUT /api/content/terms (admin)
 const updateTerms = asyncHandler(async (req, res) => {
-  const { contentAr, contentEn } = req.body || {};
+  const { contentAr, contentEn, externalUrl, useExternalUrl } = req.body || {};
 
   const ar = typeof contentAr === 'string' ? contentAr : '';
   const en = typeof contentEn === 'string' ? contentEn : '';
+  const extUrl = typeof externalUrl === 'string' ? externalUrl : null;
+  const useExt = coerceBool(useExternalUrl, false);
 
   const terms = await prisma.appTerms.upsert({
     where: { id: 'singleton' },
-    update: { contentAr: ar, contentEn: en },
-    create: { id: 'singleton', contentAr: ar, contentEn: en },
+    update: { contentAr: ar, contentEn: en, externalUrl: extUrl, useExternalUrl: useExt },
+    create: { id: 'singleton', contentAr: ar, contentEn: en, externalUrl: extUrl, useExternalUrl: useExt },
   });
 
   res.json(terms);
@@ -226,15 +228,17 @@ const getPrivacy = asyncHandler(async (req, res) => {
 
 // PUT /api/content/privacy (admin)
 const updatePrivacy = asyncHandler(async (req, res) => {
-  const { contentAr, contentEn } = req.body || {};
+  const { contentAr, contentEn, externalUrl, useExternalUrl } = req.body || {};
 
   const ar = typeof contentAr === 'string' ? contentAr : '';
   const en = typeof contentEn === 'string' ? contentEn : '';
+  const extUrl = typeof externalUrl === 'string' ? externalUrl : null;
+  const useExt = coerceBool(useExternalUrl, false);
 
   const privacy = await prisma.appPrivacy.upsert({
     where: { id: 'singleton' },
-    update: { contentAr: ar, contentEn: en },
-    create: { id: 'singleton', contentAr: ar, contentEn: en },
+    update: { contentAr: ar, contentEn: en, externalUrl: extUrl, useExternalUrl: useExt },
+    create: { id: 'singleton', contentAr: ar, contentEn: en, externalUrl: extUrl, useExternalUrl: useExt },
   });
 
   res.json(privacy);
