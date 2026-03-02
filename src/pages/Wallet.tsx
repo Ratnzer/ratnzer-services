@@ -508,7 +508,7 @@ const Wallet: React.FC<Props> = ({
                             setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 18));
                             setCardNumberError('');
                           }}
-                          maxLength="18"
+                          maxLength={18}
                         />
                       </div>
                       {cardNumberError && (
