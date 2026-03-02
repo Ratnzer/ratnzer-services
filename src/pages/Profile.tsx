@@ -827,14 +827,16 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <button onClick={() => setShowTermsModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
                    <h2 className="text-lg font-bold text-white">الشروط والأحكام</h2><div className="w-9"></div>
                </div>
-               <div className="flex-1 overflow-hidden relative">
-                   {terms.useExternalUrl && terms.externalUrl ? (
-                       <iframe 
-                           src={terms.externalUrl} 
-                           className="w-full h-full border-0 bg-white"
-                           title="Terms and Conditions"
-                       />
-                   ) : (
+                <div className="flex-1 overflow-hidden relative">
+                    {terms.useExternalUrl && terms.externalUrl ? (
+                        <div className="w-full h-full pb-20 bg-white">
+                            <iframe 
+                                src={terms.externalUrl} 
+                                className="w-full h-full border-0"
+                                title="Terms and Conditions"
+                            />
+                        </div>
+                    ) : (
                        <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24">
                            <div className="space-y-6 text-right">
                                <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">الشروط والأحكام</h3></div>
@@ -864,14 +866,16 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <button onClick={() => setShowPrivacyModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
                    <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2><div className="w-9"></div>
                </div>
-               <div className="flex-1 overflow-hidden relative">
-                   {privacy.useExternalUrl && privacy.externalUrl ? (
-                       <iframe 
-                           src={privacy.externalUrl} 
-                           className="w-full h-full border-0 bg-white"
-                           title="Privacy Policy"
-                       />
-                   ) : (
+                <div className="flex-1 overflow-hidden relative">
+                    {privacy.useExternalUrl && privacy.externalUrl ? (
+                        <div className="w-full h-full pb-20 bg-white">
+                            <iframe 
+                                src={privacy.externalUrl} 
+                                className="w-full h-full border-0"
+                                title="Privacy Policy"
+                            />
+                        </div>
+                    ) : (
                        <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24">
                            <div className="space-y-6 text-right">
                                <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
