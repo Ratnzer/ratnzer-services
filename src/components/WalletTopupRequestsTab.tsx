@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, CreditCard, Copy, Clock, CheckCircle, XCircle, User } from 'lucide-react';
+import { X, Check, CreditCard, Copy, Clock, CheckCircle, XCircle, User as UserIcon } from 'lucide-react';
 import { WalletTopupRequest } from '../types';
 import { walletTopupService } from '../services/api';
 
@@ -30,6 +30,11 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
   useEffect(() => {
     onRefresh(activeStatus);
   }, [activeStatus]);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    alert(`تم نسخ ${label} بنجاح`);
+  };
 
   const handleApprove = async () => {
     if (!selectedRequest) return;
@@ -131,18 +136,32 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
               {/* Status Indicator Stripe */}
               <div className={`absolute top-0 right-0 w-1.5 h-full ${statusTabs.find(t => t.id === request.status)?.bg}`}></div>
               
+              {/* Header: User Info & Date */}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#1a1b26] flex items-center justify-center border border-gray-700">
-                    <User size={20} className="text-gray-400" />
+                    <UserIcon size={20} className="text-gray-400" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm">{request.user?.name || 'مستخدم'}</h4>
-                    <p className="text-[10px] text-gray-500 font-mono">ID: {request.id}</p>
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="font-bold text-white text-sm">{request.user?.name || 'مستخدم'}</h4>
+                      <button onClick={() => copyToClipboard(request.user?.name || 'مستخدم', 'الاسم')} className="text-gray-600 hover:text-white transition-colors"><Copy size={10} /></button>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-[10px] text-gray-500 font-mono">User ID: {request.userId}</p>
+                      <button onClick={() => copyToClipboard(request.userId, 'User ID')} className="text-gray-600 hover:text-white transition-colors"><Copy size={10} /></button>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-gray-500 font-bold">{new Date(request.createdAt || '').toLocaleString('ar-EG')}</p>
+                  <div className="flex items-center gap-1.5 justify-end">
+                    <p className="text-[10px] text-gray-500 font-bold">{new Date(request.createdAt || '').toLocaleString('ar-EG')}</p>
+                    <button onClick={() => copyToClipboard(new Date(request.createdAt || '').toLocaleString('ar-EG'), 'التاريخ')} className="text-gray-600 hover:text-white transition-colors"><Copy size={10} /></button>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5 justify-end">
+                    <p className="text-[10px] text-gray-500 font-mono">Req ID: {request.id}</p>
+                    <button onClick={() => copyToClipboard(request.id, 'معرف الطلب')} className="text-gray-600 hover:text-white transition-colors"><Copy size={10} /></button>
+                  </div>
                 </div>
               </div>
 
@@ -153,27 +172,27 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
                   <span className="text-sm text-yellow-400 font-mono font-bold tracking-widest">{request.cardNumber}</span>
                 </div>
                 <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(request.cardNumber);
-                    alert('تم نسخ رقم الكارت بنجاح');
-                  }}
-                  className="p-2 bg-[#242636] text-gray-400 hover:text-white rounded-lg transition-all active:scale-90 border border-gray-700"
+                  onClick={() => copyToClipboard(request.cardNumber, 'رقم الكارت')}
+                  className="p-2.5 bg-[#242636] text-gray-400 hover:text-white rounded-lg transition-all active:scale-90 border border-gray-700 flex items-center gap-1.5"
                 >
                   <Copy size={14} />
+                  <span className="text-[10px] font-bold">نسخ الكارت</span>
                 </button>
               </div>
 
               {/* Status Specific Info */}
               {request.status === 'approved' && (
-                <div className="bg-emerald-500/5 border border-emerald-500/20 p-2 rounded-lg mb-4">
+                <div className="bg-emerald-500/5 border border-emerald-500/20 p-2 rounded-lg mb-4 flex items-center justify-between">
                   <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
                     <CheckCircle size={12} /> تم شحن مبلغ: ${request.amount}
                   </p>
+                  <button onClick={() => copyToClipboard(request.amount?.toString() || '0', 'المبلغ')} className="text-emerald-500/50 hover:text-emerald-400"><Copy size={10} /></button>
                 </div>
               )}
               {request.status === 'rejected' && (
-                <div className="bg-red-500/5 border border-red-500/20 p-2 rounded-lg mb-4">
+                <div className="bg-red-500/5 border border-red-500/20 p-2 rounded-lg mb-4 flex items-center justify-between">
                   <p className="text-[10px] text-red-400 font-bold">سبب الرفض: {request.rejectionReason || 'بدون سبب'}</p>
+                  <button onClick={() => copyToClipboard(request.rejectionReason || 'بدون سبب', 'سبب الرفض')} className="text-red-500/50 hover:text-red-400"><Copy size={10} /></button>
                 </div>
               )}
 
@@ -223,7 +242,7 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
             <div className="bg-[#242636] rounded-2xl p-5 mb-6 border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-yellow-400/10 flex items-center justify-center text-yellow-400">
-                  <User size={20} />
+                  <UserIcon size={20} />
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase">المستخدم</p>
