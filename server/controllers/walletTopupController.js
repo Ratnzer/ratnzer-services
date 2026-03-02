@@ -192,8 +192,8 @@ const approveTopupRequest = asyncHandler(async (req, res) => {
   });
 
   // Send notification to user
-  const title = 'تم قبول طلب شحن المحفظة';
-  const message = `تم إضافة ${amount}$ إلى محفظتك. رصيدك الحالي: ${result.updatedUser.balance}$`;
+  const title = 'تم قبول طلب شحن المحفظة عبر الاسياسيل';
+  const message = `تم إضافة ${amount}$ إلى محفظتك بنجاح. رصيدك الحالي الآن هو ${result.updatedUser.balance}$`;
 
   await sendNotification(topupRequest.userId, title, message, 'wallet_credit');
 
@@ -249,8 +249,8 @@ const rejectTopupRequest = asyncHandler(async (req, res) => {
   });
 
   // Send notification to user
-  const title = 'تم رفض طلب شحن المحفظة';
-  const message = `تم رفض طلبك للشحن. السبب: ${reason}`;
+  const title = 'تم رفض طلب شحن المحفظة عبر الاسياسيل';
+  const message = `عذراً، تم رفض طلبك لشحن المحفظة. السبب: ${reason}`;
 
   await sendNotification(topupRequest.userId, title, message, 'wallet_debit');
 
