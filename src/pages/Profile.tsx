@@ -271,14 +271,26 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       return `${day} ${monthNames[parsed.getMonth()]} ${yearVal}`;
     };
 
-    // Note: 'year' is not defined in the scope above, let's fix the date logic inside the component
-    const parsedDate = new Date((user as any)?.bannedAt || (user as any)?.banned_at || user?.createdAt || "");
+    // Fix: Use a more robust date parsing and fallback logic
+    const banDateRaw = (user as any)?.bannedAt || (user as any)?.banned_at || (user as any)?.updatedAt || user?.createdAt;
+    const parsedDate = banDateRaw ? new Date(banDateRaw) : new Date();
     const formattedBanDate = !isNaN(parsedDate.getTime()) 
       ? `${parsedDate.getDate()} ${["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"][parsedDate.getMonth()]} ${parsedDate.getFullYear()}`
       : "—";
 
+    const handleBanLogout = () => {
+      // Force clear everything to ensure user can log out even if state is stuck
+      localStorage.removeItem('token');
+      localStorage.removeItem('cache_user_v1');
+      onLogout();
+      // Small delay to ensure state updates before reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    };
+
     return (
-      <div className="fixed inset-0 z-[500] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn">
+      <div className="fixed inset-0 z-[500] bg-[#13141f] flex flex-col items-center justify-center px-8 text-center animate-fadeIn overflow-y-auto py-10">
         {/* Shield Icon with Glow */}
         <div className="relative mb-10">
           <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full"></div>
@@ -330,7 +342,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
           </button>
           
           <button
-            onClick={onLogout}
+            onClick={handleBanLogout}
             className="w-full bg-[#1c1e2d] hover:bg-[#25283a] text-white font-black py-5 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg border border-gray-800/50"
           >
             <LogOut size={24} />
