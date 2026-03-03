@@ -1752,6 +1752,7 @@ useEffect(() => {
                 cartMode: 'bulk',
                 returnView: View.CART,
                 orderPayload: items.map(item => ({
+                  cartItemId: item.id, // ✅ CRITICAL: Pass unique cart item ID to distinguish between similar products
                   productId: item.productId,
                   productName: item.name,
                   productCategory: item.category,

@@ -700,12 +700,14 @@ const createPaytabs = asyncHandler(async (req, res) => {
     }
 
     const mapped = items.map((i) => {
-      // ✅ CRITICAL FIX: Find the matching payload for THIS specific product to avoid data overlap
-      // We search by productId to ensure Google Play data doesn't leak into Roblox, etc.
+      // ✅ CRITICAL FIX: Find the matching payload for THIS specific cart item to avoid data overlap
+      // We search by cartItemId first (most accurate), then fallback to productId
+      // This ensures that two different Google Play cards (same productId) keep their unique prices/quantities
       let p = {};
       if (Array.isArray(orderPayload)) {
-        p = orderPayload.find(x => String(x.productId) === String(i.productId)) || {};
-      } else if (orderPayload && String(orderPayload.productId) === String(i.productId)) {
+        p = orderPayload.find(x => String(x.cartItemId) === String(i.id)) || 
+            orderPayload.find(x => String(x.productId) === String(i.productId)) || {};
+      } else if (orderPayload && (String(orderPayload.cartItemId) === String(i.id) || String(orderPayload.productId) === String(i.productId))) {
         p = orderPayload;
       }
 
