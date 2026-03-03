@@ -95,7 +95,7 @@ export const userService = {
   search: (q: string) => api.get("/users", { params: { q } }),
   updateBalance: (id: string, amount: number, type: "add" | "deduct") =>
     api.put("/users/" + id + "/balance", { amount, type }),
-  updateStatus: (id: string) => api.put("/users/" + id + "/status", {}),
+  updateStatus: (id: string, data: any = {}) => api.put("/users/" + id + "/status", data),
 };
 
 // ============================================================

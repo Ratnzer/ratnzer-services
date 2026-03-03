@@ -1298,7 +1298,14 @@ try {
       let newStatus: 'active' | 'banned' = foundUser.status === 'active' ? 'banned' : 'active';
 
       try {
-          const res = await userService.updateStatus(foundUser.id);
+          const payload: any = {};
+          if (newStatus === 'banned') {
+              payload.bannedAt = new Date().toISOString();
+          } else {
+              payload.bannedAt = null;
+          }
+          
+          const res = await userService.updateStatus(foundUser.id, payload);
           if (res?.data && res.data.status) {
               newStatus = res.data.status;
           }
