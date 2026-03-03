@@ -299,7 +299,7 @@ const notifyAdminsPush = async ({ order, title, message, extraData } = {}) => {
         adminId,
         pushPayload.title || 'طلب جديد',
         pushPayload.body || (order?.id ? `تم إنشاء طلب جديد رقم ${order.id}` : 'تم إنشاء طلب جديد'),
-        'order_pending'
+        order?.status === 'completed' ? 'order_completed' : 'order_pending'
       )
     )
   );
