@@ -287,6 +287,11 @@ const notifyAdminsPush = async ({ order, title, message, extraData } = {}) => {
     return { success: false, reason: 'no-admin-users', adminIds: [] };
   }
 
+  // ✅ Skip notifying admins if the order is already completed (e.g., auto-delivered from stock)
+  if (order?.status === 'completed') {
+    return { success: true, reason: 'order-already-completed-skipping-admin-notify' };
+  }
+
   const pushPayload = buildOrderPushPayload(order, {
     title: title || undefined,
     body: message || undefined,
