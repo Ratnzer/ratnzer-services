@@ -63,8 +63,8 @@ const createTopupRequest = asyncHandler(async (req, res) => {
   const adminIds = admins.map((a) => a.id);
 
   if (adminIds.length > 0) {
-    const title = 'طلب شحن محفظة جديد';
-    const message = `المستخدم ${request.user.name} طلب شحن محفظة برقم كارت أسياسيل`;
+    const title = 'طلب شحن المحفضة عبر الاسياسيل';
+    const message = `المستخدم ${request.user.name} طلب شحن محفضتة عبر الاسياسيل`;
 
     await Promise.all(
       adminIds.map((adminId) =>
