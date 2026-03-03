@@ -1741,7 +1741,7 @@ useEffect(() => {
           return;
       }
 
-      // ✅ Card payment via PayTabs (one payment for cart)
+      // ✅ Card payment via PayTabs (Bulk payment with sequential server execution)
       if (method === 'card') {
           if (isBulkCheckout) {
               const items = [...cartItems];
@@ -1751,14 +1751,19 @@ useEffect(() => {
                 type: 'cart',
                 cartMode: 'bulk',
                 returnView: View.CART,
-                // Pass order data structure similar to wallet checkout
                 orderPayload: items.map(item => ({
                   productId: item.productId,
                   productName: item.name,
-                  quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
-                  denominationId: item.selectedRegion?.id,
+                  productCategory: item.category,
+                  amount: item.price,
+                  price: item.price,
+                  fulfillmentType: item.apiConfig?.type || 'manual',
+                  regionName: item.selectedRegion?.name,
                   regionId: item.selectedRegion?.id,
+                  denominationId: item.selectedDenomination?.id,
+                  quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
                   customInputValue: item.customInputValue,
+                  customInputLabel: item.customInputLabel,
                 }))
               });
               return;

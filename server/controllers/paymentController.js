@@ -514,34 +514,41 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
     return { payment: updatedPayment, type: innerType, createdOrders };
   });
 
-  // Dispatch provider orders (KD1S) after payment success
-  for (const job of apiDispatchQueue) {
-    try {
-      const providerOrder = await placeKd1sOrder({
-        serviceId: job.serviceId,
-        link: job.link,
-        quantity: job.quantity,
-      });
+    // ✅ PROFESSIONAL FIX: Dispatch provider orders (KD1S) SEQUENTIALLY with delay
+    // This matches the wallet checkout behavior (one by one)
+    for (let i = 0; i < apiDispatchQueue.length; i++) {
+      const job = apiDispatchQueue[i];
+      try {
+        // Small delay between API calls (0.5s) to ensure provider stability
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
 
-      await prisma.order.update({
-        where: { id: job.orderId },
-        data: {
-          providerOrderId: providerOrder.orderId,
-          providerName: job.providerName,
-          fulfillmentType: 'api',
-          status: 'pending',
-        },
-      });
-    } catch (err) {
-      await prisma.order.update({
-        where: { id: job.orderId },
-        data: {
-          status: 'cancelled',
-          rejectionReason: `KD1S: ${err?.message || err}`,
-        },
-      });
+        const providerOrder = await placeKd1sOrder({
+          serviceId: job.serviceId,
+          link: job.link,
+          quantity: job.quantity,
+        });
+
+        await prisma.order.update({
+          where: { id: job.orderId },
+          data: {
+            providerOrderId: providerOrder.orderId,
+            providerName: job.providerName,
+            fulfillmentType: 'api',
+            status: 'pending',
+          },
+        });
+      } catch (err) {
+        await prisma.order.update({
+          where: { id: job.orderId },
+          data: {
+            status: 'cancelled',
+            rejectionReason: `KD1S: ${err?.message || err}`,
+          },
+        });
+      }
     }
-  }
 
   // Fire-and-forget admin push for any created orders (card purchases)
   if (Array.isArray(result.createdOrders) && result.createdOrders.length > 0) {
@@ -692,18 +699,24 @@ const createPaytabs = asyncHandler(async (req, res) => {
       }
     }
 
-    const mapped = items.map((i, index) => {
+    const mapped = items.map((i) => {
+      // ✅ CRITICAL FIX: Find the matching payload for THIS specific product to avoid data overlap
+      // We search by productId to ensure Google Play data doesn't leak into Roblox, etc.
+      let p = {};
+      if (Array.isArray(orderPayload)) {
+        p = orderPayload.find(x => String(x.productId) === String(i.productId)) || {};
+      } else if (orderPayload && String(orderPayload.productId) === String(i.productId)) {
+        p = orderPayload;
+      }
+
       const normalizedQuantity = parseQuantity(
-        i?.quantity ?? i?.selectedDenomination?.amount ?? i?.quantityLabel ?? 1
+        p?.quantityLabel || i?.quantityLabel || i?.quantity || 1
       );
 
       const trimmedCustomInputValue =
-        i?.customInputValue && typeof i.customInputValue === 'string'
-          ? i.customInputValue.trim()
-          : i?.customInputValue;
-
-      // Priority: use frontend provided payload if available to match wallet checkout logic
-      const p = Array.isArray(orderPayload) ? orderPayload[index] : (orderPayload || {});
+        (p?.customInputValue || i?.customInputValue || "") && typeof (p?.customInputValue || i?.customInputValue) === 'string'
+          ? (p?.customInputValue || i?.customInputValue).trim()
+          : (p?.customInputValue || i?.customInputValue);
 
       return {
         productId: i.productId,
@@ -712,13 +725,13 @@ const createPaytabs = asyncHandler(async (req, res) => {
         amount: Number(i.price || 0),
         price: Number(i.price || 0),
         fulfillmentType: i.apiConfig?.type || 'manual',
-        regionName: i.selectedRegion?.name,
-        regionId: i.selectedRegion?.id,
-        denominationId: i.selectedDenomination?.id,
+        regionName: i.selectedRegion?.name || p?.regionName,
+        regionId: i.selectedRegion?.id || p?.regionId,
+        denominationId: i.selectedDenomination?.id || p?.denominationId,
         quantityLabel: p?.quantityLabel || i.selectedDenomination?.label || i.selectedDenomination?.name || i.selectedDenomination?.value || (i?.quantity ? String(normalizedQuantity) : undefined),
-        quantity: Number.isFinite(Number(i.quantity)) && Number(i.quantity) > 0 ? Number(i.quantity) : normalizedQuantity,
-        customInputValue: p?.customInputValue || trimmedCustomInputValue,
-        customInputLabel: i.customInputLabel,
+        quantity: normalizedQuantity,
+        customInputValue: trimmedCustomInputValue,
+        customInputLabel: p?.customInputLabel || i.customInputLabel,
       };
     });
 
