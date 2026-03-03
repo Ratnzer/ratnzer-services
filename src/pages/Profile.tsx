@@ -327,7 +327,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
           
           <div className="flex items-center justify-between">
             <span className="text-white font-bold text-lg">{formattedBanDate}</span>
-            <span className="text-gray-500 font-medium">تاريخ الإجراء</span>
+            <span className="text-gray-500 font-medium">تاريخ الحظر</span>
           </div>
         </div>
 
