@@ -2,7 +2,7 @@ const prisma = require('../config/db');
 const { getOrderStatus } = require('../utils/kd1sClient');
 const { sendUserOrderNotification } = require('../controllers/notificationController');
 
-const DEFAULT_INTERVAL_MS = 60_000;
+const DEFAULT_INTERVAL_MS = 300_000; // 5 minutes to reduce DB load
 const DEFAULT_BATCH_SIZE = 20;
 
 let timer = null;

@@ -1112,7 +1112,7 @@ useEffect(() => {
 
     const id = window.setInterval(() => {
       void refreshProfileFromServer();
-    }, 25000);
+    }, 120000); // Refresh balance every 2 minutes to reduce DB load
 
     return () => window.clearInterval(id);
   }, [currentUser?.id]);
