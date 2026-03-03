@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Facebook } from 'lucide-react';
 import { signInWithGoogle, signInWithFacebook } from '../services/firebase';
 import { AppTerms, AppPrivacy } from '../types';
@@ -10,9 +10,11 @@ interface Props {
   onLogin: (data: { name?: string; email?: string; phone?: string; password?: string; isRegister: boolean }) => void;
   terms: AppTerms;
   privacy: AppPrivacy;
+  onTermsModalToggle?: (isOpen: boolean) => void;
+  onPrivacyModalToggle?: (isOpen: boolean) => void;
 }
 
-const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy }) => {
+const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy, onTermsModalToggle, onPrivacyModalToggle }) => {
   const [mode, setMode] = useState<'login' | 'register'>('register'); // Changed default to 'register'
   const [method, setMethod] = useState<'email' | 'phone'>('email');
 
@@ -56,6 +58,14 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy 
   const [showPassword, setShowPassword] = useState(false);
   const [showFullTerms, setShowFullTerms] = useState(false);
   const [showFullPrivacy, setShowFullPrivacy] = useState(false);
+
+  useEffect(() => {
+    onTermsModalToggle?.(showFullTerms);
+  }, [showFullTerms]);
+
+  useEffect(() => {
+    onPrivacyModalToggle?.(showFullPrivacy);
+  }, [showFullPrivacy]);
 
   const handleOpenTerms = () => {
     setShowFullTerms(true);

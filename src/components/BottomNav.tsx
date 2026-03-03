@@ -6,9 +6,11 @@ import { View } from '../types';
 interface Props {
   currentView: View;
   setView: (view: View) => void;
+  isHidden?: boolean;
 }
 
-const BottomNav: React.FC<Props> = ({ currentView, setView }) => {
+const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
+  if (isHidden) return null;
   // Order from Right to Left as per Arabic layout in screenshot
   // Screenshot (Right -> Left): Home, Cart, Orders, Settings
   const navItems = [

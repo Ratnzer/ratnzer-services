@@ -612,6 +612,8 @@ useEffect(() => {
 
   // --- Auth State ---
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   // --- Admin Auth State ---
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => persistedAdminAuth);
@@ -1967,6 +1969,8 @@ useEffect(() => {
             rateAppLink={rateAppLink} // Pass link
             onLogout={handleUserLogout} // Pass Logout Handler
             onUpdateUser={handleUpdateProfile} // Pass Profile Update Handler
+            onTermsModalToggle={setIsTermsOpen}
+            onPrivacyModalToggle={setIsPrivacyOpen}
           />
         );
       case View.ADMIN:
@@ -2484,7 +2488,7 @@ useEffect(() => {
 
         {/* Persistent Bottom Nav (Hidden in Admin View or if Banned) */}
         {currentView !== View.ADMIN && !isUserBanned && (
-          <BottomNav currentView={currentView} setView={handleSetView} />
+          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen} />
         )}
 
         {/* Global Ban Overlay (Using the enhanced Profile Ban UI) */}
@@ -2546,6 +2550,8 @@ useEffect(() => {
         onLogin={handleLogin}
         terms={terms}
         privacy={privacy}
+        onTermsModalToggle={setIsTermsOpen}
+        onPrivacyModalToggle={setIsPrivacyOpen}
       />
 
       {/* Exit Confirmation Modal */}

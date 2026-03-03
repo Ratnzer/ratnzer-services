@@ -25,9 +25,11 @@ interface Props {
   rateAppLink: string;
   onLogout: () => void; 
   onUpdateUser: (updatedUser: UserProfile) => void; // New prop for updating user data
+  onTermsModalToggle?: (isOpen: boolean) => void;
+  onPrivacyModalToggle?: (isOpen: boolean) => void;
 }
 
-const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser }) => {
+const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser, onTermsModalToggle, onPrivacyModalToggle }) => {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [currencyTranslateY, setCurrencyTranslateY] = useState(0);
   const [isCurrencyDragging, setIsCurrencyDragging] = useState(false);
@@ -35,6 +37,14 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+
+  useEffect(() => {
+    onTermsModalToggle?.(showTermsModal);
+  }, [showTermsModal]);
+
+  useEffect(() => {
+    onPrivacyModalToggle?.(showPrivacyModal);
+  }, [showPrivacyModal]);
   const [showFaqModal, setShowFaqModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
