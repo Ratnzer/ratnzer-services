@@ -828,7 +828,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <h2 className="text-lg font-bold text-white">الشروط والأحكام</h2><div className="w-9"></div>
                </div>
                 <div className="flex-1 overflow-hidden relative">
-                    {terms.useExternalUrl && terms.externalUrl ? (
+                    {terms.externalUrl ? (
                         <div className="w-full h-full pb-20 bg-white">
                             <iframe 
                                 src={terms.externalUrl} 
@@ -837,21 +837,9 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             />
                         </div>
                     ) : (
-                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24">
-                           <div className="space-y-6 text-right">
-                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">الشروط والأحكام</h3></div>
-                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                                   {terms.contentAr}
-                               </div>
-                           </div>
-                           
-                           <div className="my-8 border-t border-gray-700/50"></div>
-                           
-                           <div className="space-y-6 text-left dir-ltr">
-                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-yellow-400 mb-2">Terms and Conditions</h3></div>
-                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                                   {terms.contentEn}
-                               </div>
+                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24 flex items-center justify-center">
+                           <div className="text-center">
+                               <p className="text-gray-400">لم يتم تعيين رابط للشروط والأحكام</p>
                            </div>
                        </div>
                    )}
@@ -867,7 +855,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2><div className="w-9"></div>
                </div>
                 <div className="flex-1 overflow-hidden relative">
-                    {privacy.useExternalUrl && privacy.externalUrl ? (
+                    {privacy.externalUrl ? (
                         <div className="w-full h-full pb-20 bg-white">
                             <iframe 
                                 src={privacy.externalUrl} 
@@ -876,21 +864,9 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             />
                         </div>
                     ) : (
-                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24">
-                           <div className="space-y-6 text-right">
-                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">سياسة الخصوصية</h3></div>
-                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                                   {privacy.contentAr}
-                               </div>
-                           </div>
-                           
-                           <div className="my-8 border-t border-gray-700/50"></div>
-                           
-                           <div className="space-y-6 text-left dir-ltr">
-                               <div className="text-center mb-6"><h3 className="text-xl font-bold text-blue-400 mb-2">Privacy Policy</h3></div>
-                               <div className="whitespace-pre-line leading-relaxed text-sm bg-[#242636] p-4 rounded-xl border border-gray-700/50">
-                                   {privacy.contentEn}
-                               </div>
+                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24 flex items-center justify-center">
+                           <div className="text-center">
+                               <p className="text-gray-400">لم يتم تعيين رابط لسياسة الخصوصية</p>
                            </div>
                        </div>
                    )}
