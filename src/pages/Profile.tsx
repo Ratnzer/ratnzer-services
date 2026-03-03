@@ -839,7 +839,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                </div>
                 <div className="flex-1 overflow-hidden relative">
                     {terms.externalUrl ? (
-                        <div className="w-full h-full pb-20 bg-white">
+                        <div className="w-full h-full bg-white">
                             <iframe 
                                 src={terms.externalUrl} 
                                 className="w-full h-full border-0"
@@ -847,7 +847,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             />
                         </div>
                     ) : (
-                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24 flex items-center justify-center">
+                       <div className="h-full overflow-y-auto p-6 text-gray-300 flex items-center justify-center">
                            <div className="text-center">
                                <p className="text-gray-400">لم يتم تعيين رابط للشروط والأحكام</p>
                            </div>
@@ -866,7 +866,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                </div>
                 <div className="flex-1 overflow-hidden relative">
                     {privacy.externalUrl ? (
-                        <div className="w-full h-full pb-20 bg-white">
+                        <div className="w-full h-full bg-white">
                             <iframe 
                                 src={privacy.externalUrl} 
                                 className="w-full h-full border-0"
@@ -874,7 +874,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             />
                         </div>
                     ) : (
-                       <div className="h-full overflow-y-auto p-6 text-gray-300 pb-24 flex items-center justify-center">
+                       <div className="h-full overflow-y-auto p-6 text-gray-300 flex items-center justify-center">
                            <div className="text-center">
                                <p className="text-gray-400">لم يتم تعيين رابط لسياسة الخصوصية</p>
                            </div>

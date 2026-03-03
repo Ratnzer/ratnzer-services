@@ -446,7 +446,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
 	               </div>
                <div className="flex-1 overflow-hidden relative">
                     {terms.externalUrl ? (
-                        <div className="w-full h-full pb-20 bg-white">
+                        <div className="w-full h-full bg-white">
                             <iframe 
                                 src={terms.externalUrl} 
                                 className="w-full h-full border-0"
@@ -474,7 +474,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
 	               </div>
                <div className="flex-1 overflow-hidden relative">
                     {privacy.externalUrl ? (
-                        <div className="w-full h-full pb-20 bg-white">
+                        <div className="w-full h-full bg-white">
                             <iframe 
                                 src={privacy.externalUrl} 
                                 className="w-full h-full border-0"
