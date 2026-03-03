@@ -67,6 +67,8 @@ model Product {
 
   // ✅ Cart relation (added)
   cartItems        CartItem[]
+
+  @@index([category, isAvailable])
 }
 
 // --- المخزون (الأكواد) ---
@@ -122,6 +124,9 @@ model Order {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([providerName, status])
 }
 
 // --- المعاملات المالية (السجل) ---
@@ -138,6 +143,9 @@ model Transaction {
   paymentId   String?  // لربط العملية بجدول المدفوعات إذا وجد
 
   createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, type])
 }
 
 // --- عمليات الدفع (البوابة) ---
@@ -202,6 +210,9 @@ model Notification {
   date      String?  // نص التاريخ للعرض (مثل "منذ 5 دقائق")
 
   createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
 }
 
 // --- الإعدادات العامة ---
