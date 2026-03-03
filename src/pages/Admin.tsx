@@ -292,12 +292,7 @@ const getOrderDate = (o: any) => {
   const handleSaveTerms = async () => {
     if (isSavingTerms) return;
 
-    const url = (terms?.externalUrl ?? '').trim();
 
-    if (!url) {
-      alert('يرجى إدخال رابط الشروط والأحكام قبل الحفظ');
-      return;
-    }
 
     setIsSavingTerms(true);
     try {
@@ -332,12 +327,7 @@ const getOrderDate = (o: any) => {
   const handleSavePrivacy = async () => {
     if (isSavingPrivacy) return;
 
-    const url = (privacy?.externalUrl ?? '').trim();
 
-    if (!url) {
-      alert('يرجى إدخال رابط سياسة الخصوصية قبل الحفظ');
-      return;
-    }
 
     setIsSavingPrivacy(true);
     try {
