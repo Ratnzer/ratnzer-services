@@ -377,6 +377,19 @@ const createOrder = asyncHandler(async (req, res) => {
     }
   }
 
+  // ✅ Notify user if order was auto-delivered from stock (to show green notification)
+  if (result.status === 'completed' && result.fulfillmentType === 'stock') {
+    try {
+      await sendUserOrderNotification({
+        orderId: result.id,
+        status: 'completed',
+        userId: result.userId,
+      });
+    } catch (notifyErr) {
+      console.warn('Failed to notify user about auto-delivered order', notifyErr);
+    }
+  }
+
   res.status(201).json(result);
 });
 
