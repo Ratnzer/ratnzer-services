@@ -17,16 +17,33 @@
     }
     .language-switch {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        color: #0d47a1;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 5px;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 10px 18px;
+        border-radius: 50px;
         cursor: pointer;
-        font-weight: bold;
-        z-index: 1000;
+        font-weight: 800;
+        font-size: 14px;
+        z-index: 9999;
+        box-shadow: 0 4px 15px rgba(13, 71, 161, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(4px);
+    }
+    .language-switch:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 20px rgba(13, 71, 161, 0.5);
+        background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);
+    }
+    .language-switch:active {
+        transform: translateY(1px) scale(0.98);
     }
     .container {
         max-width: 900px;
