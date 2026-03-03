@@ -49,10 +49,8 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
     setApprovalError('');
     try {
       await walletTopupService.approveRequest(selectedRequest.id, amount);
-      // If we are in 'all' or 'pending', we need to update the item status locally or refresh
-      if (activeStatus === 'all' || activeStatus === 'pending') {
-        onRefresh(activeStatus);
-      }
+      // Always refresh to get the updated list from server with correct amounts
+      onRefresh(activeStatus);
       setSelectedRequest(null);
       setApprovalAmount('');
     } catch (error: any) {
@@ -222,9 +220,9 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
                   <span className="text-[10px] text-gray-400 font-bold">{getStatusLabel(request.status)}</span>
                 </div>
                 {request.status === 'approved' && (
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-[10px] text-emerald-400 font-bold">المبلغ: ${request.amount}</p>
-                    <button onClick={() => copyToClipboard(request.amount?.toString() || '0', 'المبلغ')} className="text-emerald-500/50 hover:text-emerald-400"><Copy size={10} /></button>
+                  <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                    <p className="text-[11px] text-emerald-400 font-black">المبلغ: ${Number(request.amount).toFixed(2)}</p>
+                    <button onClick={() => copyToClipboard(request.amount?.toString() || '0', 'المبلغ')} className="text-emerald-500/50 hover:text-emerald-400 ml-1"><Copy size={12} /></button>
                   </div>
                 )}
               </div>
