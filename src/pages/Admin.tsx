@@ -379,6 +379,15 @@ const getOrderDate = (o: any) => {
   const [tempRegionDenomLabel, setTempRegionDenomLabel] = useState('');
   const [tempRegionDenomPrice, setTempRegionDenomPrice] = useState('');
 
+  // Edit State for denominations
+  const [editingDenomId, setEditingDenomId] = useState<string | null>(null);
+  const [editDenomLabel, setEditDenomLabel] = useState('');
+  const [editDenomPrice, setEditDenomPrice] = useState('');
+
+  const [editingRegionDenomId, setEditingRegionDenomId] = useState<{regionId: string, denomId: string} | null>(null);
+  const [editRegionDenomLabel, setEditRegionDenomLabel] = useState('');
+  const [editRegionDenomPrice, setEditRegionDenomPrice] = useState('');
+
   // Temp State for adding CUSTOM REGIONS/TYPES inside modal
   const [tempRegionName, setTempRegionName] = useState('');
   const [tempRegionFlag, setTempRegionFlag] = useState('');
@@ -940,6 +949,48 @@ try {
 
   const removeDenomination = (id: string) => {
       setProdForm({ ...prodForm, denominations: (prodForm.denominations || []).filter(d => d.id !== id) });
+  };
+
+  const startEditDenomination = (denom: Denomination) => {
+      setEditingDenomId(denom.id);
+      setEditDenomLabel(denom.label);
+      setEditDenomPrice(denom.price.toString());
+  };
+
+  const saveEditDenomination = () => {
+      if (!editingDenomId || !editDenomLabel || !editDenomPrice) return;
+      setProdForm(prev => ({
+          ...prev,
+          denominations: (prev.denominations || []).map(d => 
+              d.id === editingDenomId ? { ...d, label: editDenomLabel, price: parseFloat(editDenomPrice) } : d
+          )
+      }));
+      setEditingDenomId(null);
+  };
+
+  const startEditRegionDenomination = (regionId: string, denom: Denomination) => {
+      setEditingRegionDenomId({ regionId, denomId: denom.id });
+      setEditRegionDenomLabel(denom.label);
+      setEditRegionDenomPrice(denom.price.toString());
+  };
+
+  const saveEditRegionDenomination = () => {
+      if (!editingRegionDenomId || !editRegionDenomLabel || !editRegionDenomPrice) return;
+      const { regionId, denomId } = editingRegionDenomId;
+      setProdForm(prev => ({
+          ...prev,
+          regions: (prev.regions || []).map(r => 
+              r.id === regionId 
+                ? { 
+                    ...r, 
+                    denominations: (r.denominations || []).map(d => 
+                        d.id === denomId ? { ...d, label: editRegionDenomLabel, price: parseFloat(editRegionDenomPrice) } : d
+                    )
+                  } 
+                : r
+          )
+      }));
+      setEditingRegionDenomId(null);
   };
 
   // --- Inventory Logic ---
@@ -3323,24 +3374,40 @@ try {
 
                                                         <div className="space-y-2 max-h-28 overflow-y-auto pr-1 custom-scrollbar">
                                                             {(r.denominations && r.denominations.length > 0) ? (
-                                                                r.denominations.map(d => (
-                                                                    <div key={d.id} className={`p-2.5 rounded-lg flex justify-between items-center border ${d.isAvailable !== false ? 'bg-[#13141f] border-gray-700' : 'bg-red-900/20 border-red-700/50'}`}>
-                                                                        <div className="min-w-0">
-                                                                            <span className={`font-bold text-[11px] block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
-                                                                            <span className={`text-[10px] font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
-                                                                        </div>
-                                                                        <div className="flex gap-2 items-center">
-                                                                            <button 
-                                                                                onClick={() => updateRegionDenominationAvailability(r.id, d.id, d.isAvailable !== false ? false : true)}
-                                                                                className={`p-1.5 rounded-lg transition-colors border ${d.isAvailable !== false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
-                                                                                title={d.isAvailable !== false ? 'تعطيل توفر هذه الكمية' : 'تفعيل توفر هذه الكمية'}
-                                                                            >
-                                                                                {d.isAvailable !== false ? <CheckSquare size={14} /> : <XCircle size={14} />}
-                                                                            </button>
-                                                                            <button onClick={() => removeRegionDenomination(r.id, d.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14} /></button>
-                                                                        </div>
-                                                                    </div>
-                                                                ))
+	                                                                r.denominations.map(d => (
+	                                                                    <div key={d.id} className={`p-2.5 rounded-lg border ${d.isAvailable !== false ? 'bg-[#13141f] border-gray-700' : 'bg-red-900/20 border-red-700/50'}`}>
+	                                                                        {editingRegionDenomId?.denomId === d.id ? (
+	                                                                            <div className="space-y-2">
+	                                                                                <div className="flex gap-2">
+	                                                                                    <input className="flex-[2] bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
+	                                                                                    <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" type="number" step="0.01" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
+	                                                                                </div>
+	                                                                                <div className="flex gap-2">
+	                                                                                    <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-1 rounded text-[10px] font-bold">حفظ</button>
+	                                                                                    <button onClick={() => setEditingRegionDenomId(null)} className="flex-1 bg-gray-600 text-white py-1 rounded text-[10px] font-bold">إلغاء</button>
+	                                                                                </div>
+	                                                                            </div>
+	                                                                        ) : (
+	                                                                            <div className="flex justify-between items-center">
+	                                                                                <div className="min-w-0">
+	                                                                                    <span className={`font-bold text-[11px] block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
+	                                                                                    <span className={`text-[10px] font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
+	                                                                                </div>
+	                                                                                <div className="flex gap-2 items-center">
+	                                                                                    <button onClick={() => startEditRegionDenomination(r.id, d)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
+	                                                                                    <button 
+	                                                                                        onClick={() => updateRegionDenominationAvailability(r.id, d.id, d.isAvailable !== false ? false : true)}
+	                                                                                        className={`p-1.5 rounded-lg transition-colors border ${d.isAvailable !== false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
+	                                                                                        title={d.isAvailable !== false ? 'تعطيل توفر هذه الكمية' : 'تفعيل توفر هذه الكمية'}
+	                                                                                    >
+	                                                                                        {d.isAvailable !== false ? <CheckSquare size={14} /> : <XCircle size={14} />}
+	                                                                                    </button>
+	                                                                                    <button onClick={() => removeRegionDenomination(r.id, d.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14} /></button>
+	                                                                                </div>
+	                                                                            </div>
+	                                                                        )}
+	                                                                    </div>
+	                                                                ))
                                                             ) : (
                                                                 <div className="text-center text-gray-500 text-[10px] py-3 border border-dashed border-gray-700 rounded-lg">لا توجد فئات لهذا النوع</div>
                                                             )}
@@ -3366,17 +3433,35 @@ try {
                             
                             {/* List */}
                             <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
-                                {prodForm.denominations && prodForm.denominations.length > 0 ? (
-                                    prodForm.denominations.map(denom => (
-                                        <div key={denom.id} className="bg-[#13141f] p-3 rounded-lg flex justify-between items-center border border-gray-700">
-                                            <div>
-                                                <span className="text-white font-bold text-sm block">{denom.label}</span>
-                                                <span className="text-yellow-400 text-xs font-mono">${denom.price}</span>
-                                            </div>
-                                            <button onClick={() => removeDenomination(denom.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors"><X size={14}/></button>
-                                        </div>
-                                    ))
-                                ) : (
+	                                {prodForm.denominations && prodForm.denominations.length > 0 ? (
+	                                    prodForm.denominations.map(denom => (
+	                                        <div key={denom.id} className="bg-[#13141f] p-3 rounded-lg border border-gray-700">
+	                                            {editingDenomId === denom.id ? (
+	                                                <div className="space-y-3">
+	                                                    <div className="flex gap-2">
+	                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
+	                                                        <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
+	                                                    </div>
+	                                                    <div className="flex gap-2">
+	                                                        <button onClick={saveEditDenomination} className="flex-1 bg-green-600 text-white py-2 rounded-lg text-xs font-bold">حفظ التعديل</button>
+	                                                        <button onClick={() => setEditingDenomId(null)} className="flex-1 bg-gray-600 text-white py-2 rounded-lg text-xs font-bold">إلغاء</button>
+	                                                    </div>
+	                                                </div>
+	                                            ) : (
+	                                                <div className="flex justify-between items-center">
+	                                                    <div>
+	                                                        <span className="text-white font-bold text-sm block">{denom.label}</span>
+	                                                        <span className="text-yellow-400 text-xs font-mono">${denom.price}</span>
+	                                                    </div>
+	                                                    <div className="flex gap-2">
+	                                                        <button onClick={() => startEditDenomination(denom)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
+	                                                        <button onClick={() => removeDenomination(denom.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14}/></button>
+	                                                    </div>
+	                                                </div>
+	                                            )}
+	                                        </div>
+	                                    ))
+	                                ) : (
                                     <div className="text-center text-gray-500 text-xs py-4 border border-dashed border-gray-700 rounded-lg">لا توجد فئات مضافة</div>
                                 )}
                             </div>
