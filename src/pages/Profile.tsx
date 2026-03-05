@@ -6,11 +6,11 @@ import {
   LogOut, Star, Trash2, Bell, Wallet, ClipboardList, Headset,
   CircleDollarSign, Check, Camera, User as UserIcon, Phone, Mail, X, Save, Edit2,
   Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle,
-  ShieldCheck
+  ShieldCheck, Info, MapPin, Globe, Smartphone
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
 import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
-import { authService } from '../services/api';
+import { authService, settingsService } from '../services/api';
 import { auth } from '../services/firebase';
 import versionData from '../version.json';
 
@@ -47,7 +47,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   }, [showPrivacyModal]);
   const [showFaqModal, setShowFaqModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showAboutUsModal, setShowAboutUsModal] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
+  const [aboutUsData, setAboutUsData] = useState<any>(null);
+  const [aboutUsLoading, setAboutUsLoading] = useState(false);
   
   // New Modals State
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -117,6 +120,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
         }
     } },
     { icon: Headset, label: 'الدعم الفني', action: () => setShowSupportModal(true) },
+    { icon: Info, label: 'من نحن', action: () => handleOpenAboutUs() },
   ];
 
   const faqList = [
@@ -247,6 +251,34 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
 
   const toggleFaq = (index: number) => {
       setExpandedFaq(expandedFaq === index ? null : index);
+  };
+
+  const handleOpenAboutUs = async () => {
+    setShowAboutUsModal(true);
+    setAboutUsLoading(true);
+    try {
+      const res = await settingsService.getAboutUs();
+      if (res?.data) {
+        setAboutUsData(res.data);
+      }
+    } catch (error) {
+      console.warn('Failed to load About Us data', error);
+      setAboutUsData({
+        title: 'من نحن',
+        description: '',
+        address: '',
+        imageUrl: '',
+        socialLinks: {}
+      });
+    } finally {
+      setAboutUsLoading(false);
+    }
+  };
+
+  const openSocialLink = (url: string) => {
+    if (url && url.trim()) {
+      window.open(url, '_blank');
+    }
   };
 
   const handleCopyId = (e: React.MouseEvent) => {
@@ -896,6 +928,137 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
            </div>
        )}
     </div>
+  );
+};
+
+export default Profile;
+
+      {/* About Us Modal */}
+      {showAboutUsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-end z-50 animate-fadeIn">
+          <div className="w-full bg-[#1a1a2e] rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <button onClick={() => setShowAboutUsModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
+              <h2 className="text-lg font-bold text-white">{aboutUsData?.title || 'من نحن'}</h2>
+              <div className="w-9"></div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              {aboutUsLoading ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-gray-400">جاري التحميل...</div>
+                </div>
+              ) : aboutUsData ? (
+                <div className="space-y-6">
+                  {/* Image */}
+                  {aboutUsData.imageUrl && (
+                    <div className="w-full h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                      <img 
+                        src={aboutUsData.imageUrl} 
+                        alt="About Us" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Description */}
+                  {aboutUsData.description && (
+                    <div>
+                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                        {aboutUsData.description}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Address */}
+                  {aboutUsData.address && (
+                    <div className="flex items-start gap-3 p-4 bg-[#242636] rounded-xl">
+                      <MapPin size={20} className="text-blue-400 flex-shrink-0 mt-1" />
+                      <div>
+                        <p className="text-gray-400 text-xs mb-1">العنوان</p>
+                        <p className="text-gray-200 text-sm">{aboutUsData.address}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Social Links */}
+                  {aboutUsData.socialLinks && Object.keys(aboutUsData.socialLinks).length > 0 && (
+                    <div>
+                      <p className="text-gray-400 text-xs mb-3 font-semibold">تواصل معنا</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {aboutUsData.socialLinks.whatsapp && (
+                          <button
+                            onClick={() => openSocialLink(aboutUsData.socialLinks.whatsapp)}
+                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-green-400"
+                          >
+                            <Smartphone size={18} />
+                            <span className="text-xs font-medium">WhatsApp</span>
+                          </button>
+                        )}
+                        {aboutUsData.socialLinks.telegram && (
+                          <button
+                            onClick={() => openSocialLink(aboutUsData.socialLinks.telegram)}
+                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-400"
+                          >
+                            <Globe size={18} />
+                            <span className="text-xs font-medium">Telegram</span>
+                          </button>
+                        )}
+                        {aboutUsData.socialLinks.instagram && (
+                          <button
+                            onClick={() => openSocialLink(aboutUsData.socialLinks.instagram)}
+                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-pink-400"
+                          >
+                            <Globe size={18} />
+                            <span className="text-xs font-medium">Instagram</span>
+                          </button>
+                        )}
+                        {aboutUsData.socialLinks.twitter && (
+                          <button
+                            onClick={() => openSocialLink(aboutUsData.socialLinks.twitter)}
+                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-sky-400"
+                          >
+                            <Globe size={18} />
+                            <span className="text-xs font-medium">Twitter</span>
+                          </button>
+                        )}
+                        {aboutUsData.socialLinks.facebook && (
+                          <button
+                            onClick={() => openSocialLink(aboutUsData.socialLinks.facebook)}
+                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-600"
+                          >
+                            <Globe size={18} />
+                            <span className="text-xs font-medium">Facebook</span>
+                          </button>
+                        )}
+                        {aboutUsData.socialLinks.email && (
+                          <button
+                            onClick={() => openSocialLink(`mailto:${aboutUsData.socialLinks.email}`)}
+                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-gray-300"
+                          >
+                            <Mail size={18} />
+                            <span className="text-xs font-medium">Email</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-gray-400 text-center">
+                    <p>لم يتم تعيين معلومات "من نحن" حتى الآن</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

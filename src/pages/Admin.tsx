@@ -161,7 +161,7 @@ const Admin: React.FC<Props> = ({
   onLogout
 }) => {
   // ============================================================
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings' | 'wallet_topup_requests'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings' | 'wallet_topup_requests' | 'about_us'>('dashboard');
   const [settingsUpdateCounter, setSettingsUpdateCounter] = useState(0);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
@@ -196,6 +196,24 @@ const getOrderDate = (o: any) => {
   const [topupApprovalError, setTopupApprovalError] = useState('');
   const [topupRejectionReason, setTopupRejectionReason] = useState('');
   const [isProcessingTopup, setIsProcessingTopup] = useState(false);
+
+  // About Us State
+  const [aboutUsData, setAboutUsData] = useState<any>({
+    title: 'من نحن',
+    description: '',
+    address: '',
+    imageUrl: '',
+    socialLinks: {
+      whatsapp: '',
+      telegram: '',
+      instagram: '',
+      twitter: '',
+      facebook: '',
+      email: ''
+    }
+  });
+  const [aboutUsLoading, setAboutUsLoading] = useState(false);
+  const [aboutUsSaving, setAboutUsSaving] = useState(false);
 
   // ✅ Auto refresh admin data when opening Admin panel
   // ============================================================
@@ -248,6 +266,40 @@ const getOrderDate = (o: any) => {
       loadWalletTopupRequests('replace');
     }
   }, [activeTab]);
+
+  // ✅ Lazy load About Us data when tab is active
+  useEffect(() => {
+    if (activeTab === 'about_us') {
+      loadAboutUsData();
+    }
+  }, [activeTab]);
+
+  const loadAboutUsData = async () => {
+    setAboutUsLoading(true);
+    try {
+      const res = await settingsService.getAboutUs();
+      if (res?.data) {
+        setAboutUsData(res.data);
+      }
+    } catch (error) {
+      console.warn('Failed to load About Us data', error);
+    } finally {
+      setAboutUsLoading(false);
+    }
+  };
+
+  const handleSaveAboutUs = async () => {
+    setAboutUsSaving(true);
+    try {
+      await settingsService.updateAboutUs(aboutUsData);
+      alert('تم حفظ بيانات "من نحن" بنجاح');
+    } catch (error: any) {
+      console.error('Failed to save About Us data', error);
+      alert(error?.response?.data?.message || 'فشل حفظ بيانات "من نحن"');
+    } finally {
+      setAboutUsSaving(false);
+    }
+  };
 
   const loadWalletTopupRequests = async (mode: 'replace' | 'append' = 'replace', status?: string) => {
     setTopupRequestsLoading(true);
@@ -2820,6 +2872,140 @@ try {
                     {isSavingPrivacy ? (<><RefreshCw size={18} className="animate-spin" /> جارِ الحفظ...</>) : (<><Save size={18} /> حفظ التعديلات</>)}
                 </button>
              </div>
+          </div>
+        )}
+
+        {activeTab === 'about_us' && (
+          <div className="space-y-6">
+            {aboutUsLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-gray-400">جاري التحميل...</div>
+              </div>
+            ) : (
+              <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold text-white flex items-center gap-2"><Info size={20} className="text-purple-400" /> تعديل من نحن</h3>
+                </div>
+
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
+                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">العنوان</label>
+                  <input 
+                    type="text"
+                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none"
+                    placeholder="من نحن"
+                    value={aboutUsData.title || ''}
+                    onChange={(e) => setAboutUsData({ ...aboutUsData, title: e.target.value })}
+                  />
+                </div>
+
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
+                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">الوصف</label>
+                  <textarea 
+                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none resize-none"
+                    placeholder="أدخل وصف الشركة أو المتجر"
+                    rows={5}
+                    value={aboutUsData.description || ''}
+                    onChange={(e) => setAboutUsData({ ...aboutUsData, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
+                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">العنوان الفيزيائي</label>
+                  <input 
+                    type="text"
+                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none"
+                    placeholder="مثال: الرياض، المملكة العربية السعودية"
+                    value={aboutUsData.address || ''}
+                    onChange={(e) => setAboutUsData({ ...aboutUsData, address: e.target.value })}
+                  />
+                </div>
+
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
+                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">رابط الصورة</label>
+                  <input 
+                    type="text"
+                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none dir-ltr"
+                    placeholder="https://example.com/image.jpg"
+                    value={aboutUsData.imageUrl || ''}
+                    onChange={(e) => setAboutUsData({ ...aboutUsData, imageUrl: e.target.value })}
+                  />
+                </div>
+
+                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
+                  <p className="text-[10px] text-gray-400 font-bold mb-4 block text-right">روابط التواصل الاجتماعي</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[9px] text-gray-500 mb-1 block text-right">WhatsApp</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-green-400 outline-none dir-ltr"
+                        placeholder="https://wa.me/..."
+                        value={aboutUsData.socialLinks?.whatsapp || ''}
+                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsapp: e.target.value } })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Telegram</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
+                        placeholder="https://t.me/..."
+                        value={aboutUsData.socialLinks?.telegram || ''}
+                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegram: e.target.value } })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Instagram</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-pink-400 outline-none dir-ltr"
+                        placeholder="https://instagram.com/..."
+                        value={aboutUsData.socialLinks?.instagram || ''}
+                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagram: e.target.value } })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Twitter</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-sky-400 outline-none dir-ltr"
+                        placeholder="https://twitter.com/..."
+                        value={aboutUsData.socialLinks?.twitter || ''}
+                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitter: e.target.value } })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Facebook</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-600 outline-none dir-ltr"
+                        placeholder="https://facebook.com/..."
+                        value={aboutUsData.socialLinks?.facebook || ''}
+                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebook: e.target.value } })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-gray-500 mb-1 block text-right">البريد الإلكتروني</label>
+                      <input 
+                        type="email"
+                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-gray-400 outline-none dir-ltr"
+                        placeholder="info@example.com"
+                        value={aboutUsData.socialLinks?.email || ''}
+                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, email: e.target.value } })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-xl font-bold mt-6 shadow-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={handleSaveAboutUs}
+                  disabled={aboutUsSaving}
+                >
+                  {aboutUsSaving ? (<><RefreshCw size={18} className="animate-spin" /> جارِ الحفظ...</>) : (<><Save size={18} /> حفظ التعديلات</>)}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

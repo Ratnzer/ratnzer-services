@@ -145,6 +145,8 @@ export const cartService = {
 export const settingsService = {
   get: (key: string) => api.get('/settings/' + encodeURIComponent(key)),
   set: (key: string, value: any) => api.post('/settings', { key, value }),
+  getAboutUs: () => api.get('/settings/about-us'),
+  updateAboutUs: (data: any) => api.put('/settings/about-us', data),
 };
 
 // ============================================================
