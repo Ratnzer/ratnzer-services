@@ -46,11 +46,17 @@ const getAboutUs = asyncHandler(async (req, res) => {
     imageUrl: '',
     socialLinks: {
       whatsapp: '',
+      whatsappIcon: '',
       telegram: '',
+      telegramIcon: '',
       instagram: '',
+      instagramIcon: '',
       twitter: '',
+      twitterIcon: '',
       facebook: '',
-      email: ''
+      facebookIcon: '',
+      email: '',
+      emailIcon: ''
     }
   };
   

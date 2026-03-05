@@ -1016,7 +1016,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             onClick={() => openSocialLink(aboutUsData.socialLinks.whatsapp)}
                             className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-green-400"
                           >
-                            <Smartphone size={18} />
+                            {aboutUsData.socialLinks.whatsappIcon ? (
+                              <img src={aboutUsData.socialLinks.whatsappIcon} alt="WhatsApp" className="w-5 h-5 object-contain" />
+                            ) : (
+                              <Smartphone size={18} />
+                            )}
                             <span className="text-xs font-medium">WhatsApp</span>
                           </button>
                         )}
@@ -1025,7 +1029,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             onClick={() => openSocialLink(aboutUsData.socialLinks.telegram)}
                             className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-400"
                           >
-                            <Globe size={18} />
+                            {aboutUsData.socialLinks.telegramIcon ? (
+                              <img src={aboutUsData.socialLinks.telegramIcon} alt="Telegram" className="w-5 h-5 object-contain" />
+                            ) : (
+                              <Globe size={18} />
+                            )}
                             <span className="text-xs font-medium">Telegram</span>
                           </button>
                         )}
@@ -1034,7 +1042,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             onClick={() => openSocialLink(aboutUsData.socialLinks.instagram)}
                             className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-pink-400"
                           >
-                            <Globe size={18} />
+                            {aboutUsData.socialLinks.instagramIcon ? (
+                              <img src={aboutUsData.socialLinks.instagramIcon} alt="Instagram" className="w-5 h-5 object-contain" />
+                            ) : (
+                              <Globe size={18} />
+                            )}
                             <span className="text-xs font-medium">Instagram</span>
                           </button>
                         )}
@@ -1043,7 +1055,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             onClick={() => openSocialLink(aboutUsData.socialLinks.twitter)}
                             className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-sky-400"
                           >
-                            <Globe size={18} />
+                            {aboutUsData.socialLinks.twitterIcon ? (
+                              <img src={aboutUsData.socialLinks.twitterIcon} alt="Twitter" className="w-5 h-5 object-contain" />
+                            ) : (
+                              <Globe size={18} />
+                            )}
                             <span className="text-xs font-medium">Twitter</span>
                           </button>
                         )}
@@ -1052,7 +1068,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             onClick={() => openSocialLink(aboutUsData.socialLinks.facebook)}
                             className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-600"
                           >
-                            <Globe size={18} />
+                            {aboutUsData.socialLinks.facebookIcon ? (
+                              <img src={aboutUsData.socialLinks.facebookIcon} alt="Facebook" className="w-5 h-5 object-contain" />
+                            ) : (
+                              <Globe size={18} />
+                            )}
                             <span className="text-xs font-medium">Facebook</span>
                           </button>
                         )}
@@ -1061,7 +1081,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             onClick={() => openSocialLink(`mailto:${aboutUsData.socialLinks.email}`)}
                             className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-gray-300"
                           >
-                            <Mail size={18} />
+                            {aboutUsData.socialLinks.emailIcon ? (
+                              <img src={aboutUsData.socialLinks.emailIcon} alt="Email" className="w-5 h-5 object-contain" />
+                            ) : (
+                              <Mail size={18} />
+                            )}
                             <span className="text-xs font-medium">Email</span>
                           </button>
                         )}

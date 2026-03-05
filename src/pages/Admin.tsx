@@ -2935,65 +2935,137 @@ try {
                 <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
                   <p className="text-[10px] text-gray-400 font-bold mb-4 block text-right">روابط التواصل الاجتماعي</p>
                   <div className="space-y-3">
-                    <div>
-                      <label className="text-[9px] text-gray-500 mb-1 block text-right">WhatsApp</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-green-400 outline-none dir-ltr"
-                        placeholder="https://wa.me/..."
-                        value={aboutUsData.socialLinks?.whatsapp || ''}
-                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsapp: e.target.value } })}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">WhatsApp (رابط)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-green-400 outline-none dir-ltr"
+                          placeholder="https://wa.me/..."
+                          value={aboutUsData.socialLinks?.whatsapp || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsapp: e.target.value } })}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">WhatsApp (رابط الصورة)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-green-400 outline-none dir-ltr"
+                          placeholder="https://.../icon.png"
+                          value={aboutUsData.socialLinks?.whatsappIcon || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsappIcon: e.target.value } })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Telegram</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
-                        placeholder="https://t.me/..."
-                        value={aboutUsData.socialLinks?.telegram || ''}
-                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegram: e.target.value } })}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Telegram (رابط)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
+                          placeholder="https://t.me/..."
+                          value={aboutUsData.socialLinks?.telegram || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegram: e.target.value } })}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Telegram (رابط الصورة)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
+                          placeholder="https://.../icon.png"
+                          value={aboutUsData.socialLinks?.telegramIcon || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegramIcon: e.target.value } })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Instagram</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-pink-400 outline-none dir-ltr"
-                        placeholder="https://instagram.com/..."
-                        value={aboutUsData.socialLinks?.instagram || ''}
-                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagram: e.target.value } })}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Instagram (رابط)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-pink-400 outline-none dir-ltr"
+                          placeholder="https://instagram.com/..."
+                          value={aboutUsData.socialLinks?.instagram || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagram: e.target.value } })}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Instagram (رابط الصورة)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-pink-400 outline-none dir-ltr"
+                          placeholder="https://.../icon.png"
+                          value={aboutUsData.socialLinks?.instagramIcon || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagramIcon: e.target.value } })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Twitter</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-sky-400 outline-none dir-ltr"
-                        placeholder="https://twitter.com/..."
-                        value={aboutUsData.socialLinks?.twitter || ''}
-                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitter: e.target.value } })}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Twitter (رابط)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-sky-400 outline-none dir-ltr"
+                          placeholder="https://twitter.com/..."
+                          value={aboutUsData.socialLinks?.twitter || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitter: e.target.value } })}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Twitter (رابط الصورة)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-sky-400 outline-none dir-ltr"
+                          placeholder="https://.../icon.png"
+                          value={aboutUsData.socialLinks?.twitterIcon || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitterIcon: e.target.value } })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Facebook</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-600 outline-none dir-ltr"
-                        placeholder="https://facebook.com/..."
-                        value={aboutUsData.socialLinks?.facebook || ''}
-                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebook: e.target.value } })}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Facebook (رابط)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-600 outline-none dir-ltr"
+                          placeholder="https://facebook.com/..."
+                          value={aboutUsData.socialLinks?.facebook || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebook: e.target.value } })}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Facebook (رابط الصورة)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-600 outline-none dir-ltr"
+                          placeholder="https://.../icon.png"
+                          value={aboutUsData.socialLinks?.facebookIcon || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebookIcon: e.target.value } })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[9px] text-gray-500 mb-1 block text-right">البريد الإلكتروني</label>
-                      <input 
-                        type="email"
-                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-gray-400 outline-none dir-ltr"
-                        placeholder="info@example.com"
-                        value={aboutUsData.socialLinks?.email || ''}
-                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, email: e.target.value } })}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">البريد الإلكتروني</label>
+                        <input 
+                          type="email"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-gray-400 outline-none dir-ltr"
+                          placeholder="info@example.com"
+                          value={aboutUsData.socialLinks?.email || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, email: e.target.value } })}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-gray-500 mb-1 block text-right">البريد (رابط الصورة)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-gray-400 outline-none dir-ltr"
+                          placeholder="https://.../icon.png"
+                          value={aboutUsData.socialLinks?.emailIcon || ''}
+                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, emailIcon: e.target.value } })}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
