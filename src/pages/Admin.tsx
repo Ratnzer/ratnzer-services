@@ -1650,7 +1650,8 @@ try {
           { id: 'currencies', label: 'العملات', icon: CircleDollarSign },
           { id: 'terms', label: 'الشروط والأحكام', icon: FileText },
           { id: 'privacy', label: 'سياسة الخصوصية', icon: ShieldCheck },
-          { id: 'settings', label: 'الإعدادات العامة', icon: Settings }
+          { id: 'settings', label: 'الإعدادات العامة', icon: Settings },
+          { id: 'about_us', label: 'من نحن', icon: Info }
         ].map(tab => (
           <button
             key={tab.id}
