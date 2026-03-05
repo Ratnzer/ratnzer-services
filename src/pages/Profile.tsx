@@ -710,7 +710,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <div className="w-9"></div>
                </div>
 
-               <div className="flex-1 overflow-y-auto p-6">
+               <div className="flex-1 overflow-y-auto p-6 pb-24">
                    <div className="flex flex-col items-center mb-8">
                        <div className="relative mb-3">
                            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-yellow-400">
@@ -965,7 +965,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
               <div className="w-9"></div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 pb-24">
               {aboutUsLoading ? (
                 <div className="flex items-center justify-center h-32">
                   <div className="text-gray-400">جاري التحميل...</div>
