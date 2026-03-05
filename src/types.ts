@@ -4,6 +4,7 @@ export interface Region {
   id: string;
   name: string;
   flag: string;
+  apiServiceId?: string; // NEW: Specific API service ID for this region
   customInput?: CustomInputConfig; // NEW: Allow custom input override per region
   denominations?: Denomination[]; // NEW: Allow custom quantities/prices per product type
   isAvailable?: boolean; // NEW: Availability status for this region

@@ -865,13 +865,17 @@ try {
       setProdForm({ ...prodForm, regions: (prodForm.regions || []).filter(r => r.id !== id) });
   };
 
+  const updateRegionConfig = (regionId: string, updates: Partial<Region>) => {
+    setProdForm(prev => ({
+      ...prev,
+      regions: prev.regions?.map(r => 
+        r.id === regionId ? { ...r, ...updates } : r
+      )
+    }));
+  };
+
   const updateRegionCustomInput = (regionId: string, inputConfig: CustomInputConfig) => {
-      setProdForm(prev => ({
-          ...prev,
-          regions: prev.regions?.map(r => 
-              r.id === regionId ? { ...r, customInput: inputConfig } : r
-          )
-      }));
+    updateRegionConfig(regionId, { customInput: inputConfig });
   };
 
   // --- Region-specific Denominations (per product type) ---
@@ -3319,6 +3323,28 @@ try {
                                             {/* Expandable Config for Region */}
                                             {editingRegionCustomInput === r.id && (
                                                 <div className="mt-3 pt-3 border-t border-gray-700 space-y-3 animate-fadeIn">
+                                                    {/* NEW: Edit Region Name and API ID */}
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] text-gray-400 font-bold">اسم النوع</label>
+                                                            <input 
+                                                                className="w-full bg-[#13141f] p-2 rounded-lg border border-gray-600 text-white text-[10px]" 
+                                                                placeholder="اسم النوع (مثال: عالمي)" 
+                                                                value={r.name}
+                                                                onChange={e => updateRegionConfig(r.id, { name: e.target.value })}
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] text-gray-400 font-bold">رقم المنتج في API (اختياري)</label>
+                                                            <input 
+                                                                className="w-full bg-[#13141f] p-2 rounded-lg border border-gray-600 text-white text-[10px]" 
+                                                                placeholder="ID الخدمة عند المزود" 
+                                                                value={r.apiServiceId || ''}
+                                                                onChange={e => updateRegionConfig(r.id, { apiServiceId: e.target.value })}
+                                                            />
+                                                        </div>
+                                                    </div>
+
                                                     <div className="flex justify-between items-center">
                                                         <label className="text-[10px] text-gray-400 font-bold">تفعيل الحقل المخصص لهذا النوع</label>
                                                         <button 

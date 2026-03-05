@@ -329,13 +329,21 @@ const createOrder = asyncHandler(async (req, res) => {
     return order;
   });
 
+  // NEW: Check if the selected region has a specific API service ID
+  const regions = parseJsonField(product?.regions, []);
+  const selectedRegion = Array.isArray(regions) 
+    ? regions.find(r => String(r.id) === String(regionIdNorm))
+    : null;
+  
+  const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
+
   const shouldUseProvider =
-    apiConfig?.type === 'api' && apiConfig?.serviceId && result.status !== 'completed';
+    apiConfig?.type === 'api' && effectiveServiceId && result.status !== 'completed';
 
   if (shouldUseProvider) {
     try {
       const providerOrder = await placeKd1sOrder({
-        serviceId: apiConfig.serviceId,
+        serviceId: effectiveServiceId,
         link: trimmedCustomInputValue || regionName || productName,
         quantity: normalizedQuantity,
       });
