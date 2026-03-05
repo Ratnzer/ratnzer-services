@@ -12,6 +12,7 @@ import SupportModal from '../components/SupportModal';
 import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
 import { authService, settingsService } from '../services/api';
 import { auth } from '../services/firebase';
+import { localCache } from '../services/localCache';
 import versionData from '../version.json';
 
 interface Props {
@@ -49,7 +50,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showAboutUsModal, setShowAboutUsModal] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
-  const [aboutUsData, setAboutUsData] = useState<any>(null);
+  const [aboutUsData, setAboutUsData] = useState<any>(() => localCache.get('about_us', null));
   const [aboutUsLoading, setAboutUsLoading] = useState(false);
   
   // New Modals State
@@ -252,32 +253,40 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const toggleFaq = (index: number) => {
       setExpandedFaq(expandedFaq === index ? null : index);
   };
-
   const handleOpenAboutUs = async () => {
     setShowAboutUsModal(true);
-    setAboutUsLoading(true);
+    
+    // If we don't have cached data, show loading
+    if (!aboutUsData) {
+      setAboutUsLoading(true);
+    }
+
     try {
       const res = await settingsService.getAboutUs();
       if (res?.data) {
         setAboutUsData(res.data);
+        localCache.set('about_us', res.data);
       }
     } catch (error) {
       console.warn('Failed to load About Us data', error);
-      setAboutUsData({
-        title: 'من نحن',
-        description: '',
-        address: '',
-        imageUrl: '',
-        socialLinks: {}
-      });
+      if (!aboutUsData) {
+        setAboutUsData({
+          title: 'من نحن',
+          description: '',
+          address: '',
+          imageUrl: '',
+          socialLinks: {
+            whatsapp: '',
+            telegram: '',
+            instagram: '',
+            twitter: '',
+            facebook: '',
+            email: ''
+          }
+        });
+      }
     } finally {
       setAboutUsLoading(false);
-    }
-  };
-
-  const openSocialLink = (url: string) => {
-    if (url && url.trim()) {
-      window.open(url, '_blank');
     }
   };
 
