@@ -1,0 +1,518 @@
+diff --git a/server/controllers/settingsController.js b/server/controllers/settingsController.js
+index f9c9681..93b1d95 100644
+--- a/server/controllers/settingsController.js
++++ b/server/controllers/settingsController.js
+@@ -31,4 +31,53 @@ const updateSetting = asyncHandler(async (req, res) => {
+   res.json(setting);
+ });
+ 
+-module.exports = { getSetting, updateSetting };
+\ No newline at end of file
++// @desc    Get About Us settings
++// @route   GET /api/settings/about-us
++// @access  Public
++const getAboutUs = asyncHandler(async (req, res) => {
++  const setting = await prisma.setting.findUnique({
++    where: { key: 'aboutUs' },
++  });
++  
++  const defaultAboutUs = {
++    title: 'من نحن',
++    description: '',
++    address: '',
++    imageUrl: '',
++    socialLinks: {
++      whatsapp: '',
++      telegram: '',
++      instagram: '',
++      twitter: '',
++      facebook: '',
++      email: ''
++    }
++  };
++  
++  res.json(setting ? setting.value : defaultAboutUs);
++});
++
++// @desc    Update About Us settings
++// @route   PUT /api/settings/about-us
++// @access  Private/Admin
++const updateAboutUs = asyncHandler(async (req, res) => {
++  const { title, description, address, imageUrl, socialLinks } = req.body;
++
++  const aboutUsData = {
++    title: title || 'من نحن',
++    description: description || '',
++    address: address || '',
++    imageUrl: imageUrl || '',
++    socialLinks: socialLinks || {}
++  };
++
++  const setting = await prisma.setting.upsert({
++    where: { key: 'aboutUs' },
++    update: { value: aboutUsData },
++    create: { key: 'aboutUs', value: aboutUsData },
++  });
++
++  res.json(setting);
++});
++
++module.exports = { getSetting, updateSetting, getAboutUs, updateAboutUs };
+\ No newline at end of file
+diff --git a/server/routes/settingsRoutes.js b/server/routes/settingsRoutes.js
+index 74e3a41..6eaa4a7 100644
+--- a/server/routes/settingsRoutes.js
++++ b/server/routes/settingsRoutes.js
+@@ -1,7 +1,10 @@
+ const express = require('express');
+ const router = express.Router();
+ const { protect, admin } = require('../middleware/authMiddleware');
+-const { getSetting, updateSetting } = require('../controllers/settingsController');
++const { getSetting, updateSetting, getAboutUs, updateAboutUs } = require('../controllers/settingsController');
++
++router.get('/about-us', getAboutUs);
++router.put('/about-us', protect, admin, updateAboutUs);
+ 
+ router.get('/:key', getSetting);
+ router.post('/', protect, admin, updateSetting);
+diff --git a/src/pages/Admin.tsx b/src/pages/Admin.tsx
+index db4682d..a643770 100644
+--- a/src/pages/Admin.tsx
++++ b/src/pages/Admin.tsx
+@@ -161,7 +161,7 @@ const Admin: React.FC<Props> = ({
+   onLogout
+ }) => {
+   // ============================================================
+-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings' | 'wallet_topup_requests'>('dashboard');
++  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings' | 'wallet_topup_requests' | 'about_us'>('dashboard');
+   const [settingsUpdateCounter, setSettingsUpdateCounter] = useState(0);
+ 
+ // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
+@@ -197,6 +197,24 @@ const getOrderDate = (o: any) => {
+   const [topupRejectionReason, setTopupRejectionReason] = useState('');
+   const [isProcessingTopup, setIsProcessingTopup] = useState(false);
+ 
++  // About Us State
++  const [aboutUsData, setAboutUsData] = useState<any>({
++    title: 'من نحن',
++    description: '',
++    address: '',
++    imageUrl: '',
++    socialLinks: {
++      whatsapp: '',
++      telegram: '',
++      instagram: '',
++      twitter: '',
++      facebook: '',
++      email: ''
++    }
++  });
++  const [aboutUsLoading, setAboutUsLoading] = useState(false);
++  const [aboutUsSaving, setAboutUsSaving] = useState(false);
++
+   // ✅ Auto refresh admin data when opening Admin panel
+   // ============================================================
+   useEffect(() => {
+@@ -249,6 +267,40 @@ const getOrderDate = (o: any) => {
+     }
+   }, [activeTab]);
+ 
++  // ✅ Lazy load About Us data when tab is active
++  useEffect(() => {
++    if (activeTab === 'about_us') {
++      loadAboutUsData();
++    }
++  }, [activeTab]);
++
++  const loadAboutUsData = async () => {
++    setAboutUsLoading(true);
++    try {
++      const res = await settingsService.getAboutUs();
++      if (res?.data) {
++        setAboutUsData(res.data);
++      }
++    } catch (error) {
++      console.warn('Failed to load About Us data', error);
++    } finally {
++      setAboutUsLoading(false);
++    }
++  };
++
++  const handleSaveAboutUs = async () => {
++    setAboutUsSaving(true);
++    try {
++      await settingsService.updateAboutUs(aboutUsData);
++      alert('تم حفظ بيانات "من نحن" بنجاح');
++    } catch (error: any) {
++      console.error('Failed to save About Us data', error);
++      alert(error?.response?.data?.message || 'فشل حفظ بيانات "من نحن"');
++    } finally {
++      setAboutUsSaving(false);
++    }
++  };
++
+   const loadWalletTopupRequests = async (mode: 'replace' | 'append' = 'replace', status?: string) => {
+     setTopupRequestsLoading(true);
+     const targetStatus = status || topupRequestsStatus;
+@@ -2823,6 +2875,140 @@ try {
+           </div>
+         )}
+ 
++        {activeTab === 'about_us' && (
++          <div className="space-y-6">
++            {aboutUsLoading ? (
++              <div className="flex items-center justify-center h-32">
++                <div className="text-gray-400">جاري التحميل...</div>
++              </div>
++            ) : (
++              <div className="bg-[#242636] p-5 rounded-2xl border border-gray-700">
++                <div className="flex items-center justify-between mb-6">
++                  <h3 className="font-bold text-white flex items-center gap-2"><Info size={20} className="text-purple-400" /> تعديل من نحن</h3>
++                </div>
++
++                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
++                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">العنوان</label>
++                  <input 
++                    type="text"
++                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none"
++                    placeholder="من نحن"
++                    value={aboutUsData.title || ''}
++                    onChange={(e) => setAboutUsData({ ...aboutUsData, title: e.target.value })}
++                  />
++                </div>
++
++                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
++                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">الوصف</label>
++                  <textarea 
++                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none resize-none"
++                    placeholder="أدخل وصف الشركة أو المتجر"
++                    rows={5}
++                    value={aboutUsData.description || ''}
++                    onChange={(e) => setAboutUsData({ ...aboutUsData, description: e.target.value })}
++                  />
++                </div>
++
++                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
++                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">العنوان الفيزيائي</label>
++                  <input 
++                    type="text"
++                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none"
++                    placeholder="مثال: الرياض، المملكة العربية السعودية"
++                    value={aboutUsData.address || ''}
++                    onChange={(e) => setAboutUsData({ ...aboutUsData, address: e.target.value })}
++                  />
++                </div>
++
++                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
++                  <label className="text-[10px] text-gray-400 font-bold mb-2 block text-right">رابط الصورة</label>
++                  <input 
++                    type="text"
++                    className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-3 text-xs text-white focus:border-purple-400 outline-none dir-ltr"
++                    placeholder="https://example.com/image.jpg"
++                    value={aboutUsData.imageUrl || ''}
++                    onChange={(e) => setAboutUsData({ ...aboutUsData, imageUrl: e.target.value })}
++                  />
++                </div>
++
++                <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
++                  <p className="text-[10px] text-gray-400 font-bold mb-4 block text-right">روابط التواصل الاجتماعي</p>
++                  <div className="space-y-3">
++                    <div>
++                      <label className="text-[9px] text-gray-500 mb-1 block text-right">WhatsApp</label>
++                      <input 
++                        type="text"
++                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-green-400 outline-none dir-ltr"
++                        placeholder="https://wa.me/..."
++                        value={aboutUsData.socialLinks?.whatsapp || ''}
++                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsapp: e.target.value } })}
++                      />
++                    </div>
++                    <div>
++                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Telegram</label>
++                      <input 
++                        type="text"
++                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-400 outline-none dir-ltr"
++                        placeholder="https://t.me/..."
++                        value={aboutUsData.socialLinks?.telegram || ''}
++                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegram: e.target.value } })}
++                      />
++                    </div>
++                    <div>
++                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Instagram</label>
++                      <input 
++                        type="text"
++                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-pink-400 outline-none dir-ltr"
++                        placeholder="https://instagram.com/..."
++                        value={aboutUsData.socialLinks?.instagram || ''}
++                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagram: e.target.value } })}
++                      />
++                    </div>
++                    <div>
++                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Twitter</label>
++                      <input 
++                        type="text"
++                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-sky-400 outline-none dir-ltr"
++                        placeholder="https://twitter.com/..."
++                        value={aboutUsData.socialLinks?.twitter || ''}
++                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitter: e.target.value } })}
++                      />
++                    </div>
++                    <div>
++                      <label className="text-[9px] text-gray-500 mb-1 block text-right">Facebook</label>
++                      <input 
++                        type="text"
++                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-blue-600 outline-none dir-ltr"
++                        placeholder="https://facebook.com/..."
++                        value={aboutUsData.socialLinks?.facebook || ''}
++                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebook: e.target.value } })}
++                      />
++                    </div>
++                    <div>
++                      <label className="text-[9px] text-gray-500 mb-1 block text-right">البريد الإلكتروني</label>
++                      <input 
++                        type="email"
++                        className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-xs text-white focus:border-gray-400 outline-none dir-ltr"
++                        placeholder="info@example.com"
++                        value={aboutUsData.socialLinks?.email || ''}
++                        onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, email: e.target.value } })}
++                      />
++                    </div>
++                  </div>
++                </div>
++
++                <button
++                  className="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-xl font-bold mt-6 shadow-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
++                  onClick={handleSaveAboutUs}
++                  disabled={aboutUsSaving}
++                >
++                  {aboutUsSaving ? (<><RefreshCw size={18} className="animate-spin" /> جارِ الحفظ...</>) : (<><Save size={18} /> حفظ التعديلات</>)}
++                </button>
++              </div>
++            )}
++          </div>
++        )}
++
+       </div>
+ 
+       {/* --- ADDED MISSING MODALS HERE --- */}
+diff --git a/src/pages/Profile.tsx b/src/pages/Profile.tsx
+index fc67344..534ac05 100644
+--- a/src/pages/Profile.tsx
++++ b/src/pages/Profile.tsx
+@@ -6,11 +6,11 @@ import {
+   LogOut, Star, Trash2, Bell, Wallet, ClipboardList, Headset,
+   CircleDollarSign, Check, Camera, User as UserIcon, Phone, Mail, X, Save, Edit2,
+   Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle,
+-  ShieldCheck
++  ShieldCheck, Info, MapPin, Globe, Smartphone
+ } from 'lucide-react';
+ import SupportModal from '../components/SupportModal';
+ import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
+-import { authService } from '../services/api';
++import { authService, settingsService } from '../services/api';
+ import { auth } from '../services/firebase';
+ import versionData from '../version.json';
+ 
+@@ -47,7 +47,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange,
+   }, [showPrivacyModal]);
+   const [showFaqModal, setShowFaqModal] = useState(false);
+   const [showPasswordModal, setShowPasswordModal] = useState(false);
++  const [showAboutUsModal, setShowAboutUsModal] = useState(false);
+   const [copiedId, setCopiedId] = useState(false);
++  const [aboutUsData, setAboutUsData] = useState<any>(null);
++  const [aboutUsLoading, setAboutUsLoading] = useState(false);
+   
+   // New Modals State
+   const [showLogoutModal, setShowLogoutModal] = useState(false);
+@@ -117,6 +120,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange,
+         }
+     } },
+     { icon: Headset, label: 'الدعم الفني', action: () => setShowSupportModal(true) },
++    { icon: Info, label: 'من نحن', action: () => handleOpenAboutUs() },
+   ];
+ 
+   const faqList = [
+@@ -249,6 +253,34 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange,
+       setExpandedFaq(expandedFaq === index ? null : index);
+   };
+ 
++  const handleOpenAboutUs = async () => {
++    setShowAboutUsModal(true);
++    setAboutUsLoading(true);
++    try {
++      const res = await settingsService.getAboutUs();
++      if (res?.data) {
++        setAboutUsData(res.data);
++      }
++    } catch (error) {
++      console.warn('Failed to load About Us data', error);
++      setAboutUsData({
++        title: 'من نحن',
++        description: '',
++        address: '',
++        imageUrl: '',
++        socialLinks: {}
++      });
++    } finally {
++      setAboutUsLoading(false);
++    }
++  };
++
++  const openSocialLink = (url: string) => {
++    if (url && url.trim()) {
++      window.open(url, '_blank');
++    }
++  };
++
+   const handleCopyId = (e: React.MouseEvent) => {
+       e.stopPropagation();
+       if (!user?.id) return;
+@@ -899,4 +931,135 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange,
+   );
+ };
+ 
++export default Profile;
++
++      {/* About Us Modal */}
++      {showAboutUsModal && (
++        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-end z-50 animate-fadeIn">
++          <div className="w-full bg-[#1a1a2e] rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh]">
++            <div className="flex items-center justify-between p-6 border-b border-gray-700">
++              <button onClick={() => setShowAboutUsModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
++              <h2 className="text-lg font-bold text-white">{aboutUsData?.title || 'من نحن'}</h2>
++              <div className="w-9"></div>
++            </div>
++            
++            <div className="flex-1 overflow-y-auto p-6">
++              {aboutUsLoading ? (
++                <div className="flex items-center justify-center h-32">
++                  <div className="text-gray-400">جاري التحميل...</div>
++                </div>
++              ) : aboutUsData ? (
++                <div className="space-y-6">
++                  {/* Image */}
++                  {aboutUsData.imageUrl && (
++                    <div className="w-full h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
++                      <img 
++                        src={aboutUsData.imageUrl} 
++                        alt="About Us" 
++                        className="w-full h-full object-cover"
++                        onError={(e) => {
++                          e.currentTarget.style.display = 'none';
++                        }}
++                      />
++                    </div>
++                  )}
++                  
++                  {/* Description */}
++                  {aboutUsData.description && (
++                    <div>
++                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
++                        {aboutUsData.description}
++                      </p>
++                    </div>
++                  )}
++                  
++                  {/* Address */}
++                  {aboutUsData.address && (
++                    <div className="flex items-start gap-3 p-4 bg-[#242636] rounded-xl">
++                      <MapPin size={20} className="text-blue-400 flex-shrink-0 mt-1" />
++                      <div>
++                        <p className="text-gray-400 text-xs mb-1">العنوان</p>
++                        <p className="text-gray-200 text-sm">{aboutUsData.address}</p>
++                      </div>
++                    </div>
++                  )}
++                  
++                  {/* Social Links */}
++                  {aboutUsData.socialLinks && Object.keys(aboutUsData.socialLinks).length > 0 && (
++                    <div>
++                      <p className="text-gray-400 text-xs mb-3 font-semibold">تواصل معنا</p>
++                      <div className="grid grid-cols-2 gap-3">
++                        {aboutUsData.socialLinks.whatsapp && (
++                          <button
++                            onClick={() => openSocialLink(aboutUsData.socialLinks.whatsapp)}
++                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-green-400"
++                          >
++                            <Smartphone size={18} />
++                            <span className="text-xs font-medium">WhatsApp</span>
++                          </button>
++                        )}
++                        {aboutUsData.socialLinks.telegram && (
++                          <button
++                            onClick={() => openSocialLink(aboutUsData.socialLinks.telegram)}
++                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-400"
++                          >
++                            <Globe size={18} />
++                            <span className="text-xs font-medium">Telegram</span>
++                          </button>
++                        )}
++                        {aboutUsData.socialLinks.instagram && (
++                          <button
++                            onClick={() => openSocialLink(aboutUsData.socialLinks.instagram)}
++                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-pink-400"
++                          >
++                            <Globe size={18} />
++                            <span className="text-xs font-medium">Instagram</span>
++                          </button>
++                        )}
++                        {aboutUsData.socialLinks.twitter && (
++                          <button
++                            onClick={() => openSocialLink(aboutUsData.socialLinks.twitter)}
++                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-sky-400"
++                          >
++                            <Globe size={18} />
++                            <span className="text-xs font-medium">Twitter</span>
++                          </button>
++                        )}
++                        {aboutUsData.socialLinks.facebook && (
++                          <button
++                            onClick={() => openSocialLink(aboutUsData.socialLinks.facebook)}
++                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-600"
++                          >
++                            <Globe size={18} />
++                            <span className="text-xs font-medium">Facebook</span>
++                          </button>
++                        )}
++                        {aboutUsData.socialLinks.email && (
++                          <button
++                            onClick={() => openSocialLink(`mailto:${aboutUsData.socialLinks.email}`)}
++                            className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-gray-300"
++                          >
++                            <Mail size={18} />
++                            <span className="text-xs font-medium">Email</span>
++                          </button>
++                        )}
++                      </div>
++                    </div>
++                  )}
++                </div>
++              ) : (
++                <div className="flex items-center justify-center h-32">
++                  <div className="text-gray-400 text-center">
++                    <p>لم يتم تعيين معلومات "من نحن" حتى الآن</p>
++                  </div>
++                </div>
++              )}
++            </div>
++          </div>
++        </div>
++      )}
++    </>
++  );
++};
++
+ export default Profile;
+diff --git a/src/services/api.ts b/src/services/api.ts
+index d084253..f596669 100644
+--- a/src/services/api.ts
++++ b/src/services/api.ts
+@@ -145,6 +145,8 @@ export const cartService = {
+ export const settingsService = {
+   get: (key: string) => api.get('/settings/' + encodeURIComponent(key)),
+   set: (key: string, value: any) => api.post('/settings', { key, value }),
++  getAboutUs: () => api.get('/settings/about-us'),
++  updateAboutUs: (data: any) => api.put('/settings/about-us', data),
+ };
+ 
+ // ============================================================
