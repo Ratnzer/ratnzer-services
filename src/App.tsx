@@ -394,12 +394,6 @@ const App: React.FC = () => {
       void checkRedirect();
     }
   }, []);
-  useEffect(() => {
-    if (navigationHistory.current[navigationHistory.current.length - 1] !== currentView) {
-      navigationHistory.current.push(currentView);
-    }
-  }, [currentView]);
-
   // --- Pi Network SDK Initialization ---
   useEffect(() => {
     if ((window as any).Pi) {
@@ -419,7 +413,11 @@ const App: React.FC = () => {
         console.error("Error initializing Pi SDK in App:", e);
       }
     }
-  }, []);sonable
+  }, []);
+
+  useEffect(() => {
+    if (navigationHistory.current[navigationHistory.current.length - 1] !== currentView) {
+      navigationHistory.current.push(currentView);
       if (navigationHistory.current.length > 10) {
         navigationHistory.current.shift();
       }
