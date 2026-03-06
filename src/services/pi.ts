@@ -44,6 +44,7 @@ export const initPiSDK = () => {
       version: '2.0',
       sandbox: false,
     });
+    // App ID: -b33d8f279a2d5d02
     console.log('✅ تم تهيئة Pi SDK بنجاح');
   } catch (error) {
     console.error('❌ خطأ في تهيئة Pi SDK:', error);
