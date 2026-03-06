@@ -689,15 +689,19 @@ const Wallet: React.FC<Props> = ({
 	                          </div>
 	                      </div>
 	
-	                      {amountToAdd && parseFloat(amountToAdd) > 0 && (
-	                        <div className="bg-[#593B8B]/10 border border-[#593B8B]/30 rounded-xl p-4 mb-6 animate-slideUp">
-	                          <div className="flex justify-between items-center mb-2">
-	                            <span className="text-[#593B8B] font-bold text-sm">المبلغ المطلوب بـ Pi:</span>
-	                            <span className="text-white font-black text-lg">{(parseFloat(amountToAdd) * 3).toFixed(2)} π</span>
-	                          </div>
-	                          <p className="text-[10px] text-gray-400 text-right">معدل التحويل الثابت: 1 دولار = 3 Pi</p>
-	                        </div>
-	                      )}
+                      {amountToAdd && parseFloat(amountToAdd) > 0 && (() => {
+                        const piCurrency = currencies.find(c => c.code === 'PI');
+                        const piRate = piCurrency?.rate || 3;
+                        return (
+                          <div className="bg-[#593B8B]/10 border border-[#593B8B]/30 rounded-xl p-4 mb-6 animate-slideUp">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-[#593B8B] font-bold text-sm">المبلغ المطلوب بـ Pi:</span>
+                              <span className="text-white font-black text-lg">{(parseFloat(amountToAdd) * piRate).toFixed(2)} π</span>
+                            </div>
+                            <p className="text-[10px] text-gray-400 text-right">معدل التحويل: 1 دولار = {piRate} Pi</p>
+                          </div>
+                        );
+                      })()}
 	
 	                      <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
 	                        سيتم فتح متصفح Pi Network لإتمام عملية الدفع بشكل آمن ومباشر.
