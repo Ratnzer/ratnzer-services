@@ -4,6 +4,7 @@ const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
 const axios = require('axios');
+const { generateShortId } = require('../utils/id');
 
 // Pi Network API Key (تم تزويده من المستخدم)
 const PI_API_KEY = '38xubrn3ffjlva7azqmzg29q6s7xynoug8ix0rt2am2ewmnlgjfoqodrzm0kqzr5';
@@ -30,15 +31,35 @@ router.post('/approve', protect, asyncHandler(async (req, res) => {
       headers: {
         'Authorization': `Key ${PI_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      timeout: 10000 // إضافة مهلة زمنية
     });
 
     console.log(`[Pi Payment] Approved successfully: ${paymentId}`);
     res.status(200).json({ message: 'تمت الموافقة على الدفعة من السيرفر بنجاح', data: response.data });
   } catch (error) {
     console.error('❌ خطأ في الموافقة على دفعة Pi:', error.response?.data || error.message);
-    res.status(error.response?.status || 500);
-    throw new Error(error.response?.data?.message || 'فشل التواصل مع خوادم Pi للموافقة');
+    
+    // معالجة الأخطاء المختلفة
+    let errorMessage = 'فشل التواصل مع خوادم Pi للموافقة';
+    let statusCode = 500;
+    
+    if (error.code === 'ECONNABORTED') {
+      errorMessage = 'انقطع الاتصال بخوادم Pi Network. يرجى المحاولة لاحقاً';
+      statusCode = 503;
+    } else if (error.response?.status === 401) {
+      errorMessage = 'خطأ في المصادقة مع Pi Network';
+      statusCode = 401;
+    } else if (error.response?.status === 400) {
+      errorMessage = error.response?.data?.message || 'بيانات الموافقة غير صحيحة';
+      statusCode = 400;
+    } else if (error.response?.status === 404) {
+      errorMessage = 'معرف الدفع غير موجود';
+      statusCode = 404;
+    }
+    
+    res.status(statusCode);
+    throw new Error(errorMessage);
   }
 }));
 
@@ -63,7 +84,8 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
       headers: {
         'Authorization': `Key ${PI_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      timeout: 10000 // إضافة مهلة زمنية
     });
 
     console.log(`[Pi Payment] Completed successfully: ${paymentId}`);
@@ -79,14 +101,17 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     });
 
     // 3. تسجيل المعاملة في سجل المحفظة
+    const transactionId = generateShortId();
     await prisma.transaction.create({
       data: {
+        id: transactionId,
         userId: req.user.id,
         amount: parseFloat(amountUSD),
         type: 'deposit',
         status: 'completed',
         title: 'شحن رصيد عبر Pi Network',
         description: `رقم المعاملة: ${txid}`,
+        paymentId: paymentId
       }
     });
 
@@ -97,8 +122,27 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error('❌ خطأ في إكمال دفعة Pi:', error.response?.data || error.message);
-    res.status(error.response?.status || 500);
-    throw new Error(error.response?.data?.message || 'فشل تأكيد الدفع في شبكة Pi، يرجى التواصل مع الدعم');
+    
+    // معالجة الأخطاء المختلفة
+    let errorMessage = 'فشل تأكيد الدفع في شبكة Pi، يرجى التواصل مع الدعم';
+    let statusCode = 500;
+    
+    if (error.code === 'ECONNABORTED') {
+      errorMessage = 'انقطع الاتصال بخوادم Pi Network. يرجى المحاولة لاحقاً';
+      statusCode = 503;
+    } else if (error.response?.status === 401) {
+      errorMessage = 'خطأ في المصادقة مع Pi Network. يرجى التحقق من مفتاح API';
+      statusCode = 401;
+    } else if (error.response?.status === 400) {
+      errorMessage = error.response?.data?.message || 'بيانات الدفع غير صحيحة';
+      statusCode = 400;
+    } else if (error.response?.status === 404) {
+      errorMessage = 'معرف الدفع غير موجود في نظام Pi';
+      statusCode = 404;
+    }
+    
+    res.status(statusCode);
+    throw new Error(errorMessage);
   }
 }));
 
