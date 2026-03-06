@@ -54,6 +54,7 @@ const Wallet: React.FC<Props> = ({
   const [topupSuccess, setTopupSuccess] = useState(false);
   const [banTimeLeft, setBanTimeLeft] = useState<number>(0);
   const [isBanned, setIsBanned] = useState(false);
+  const [piAuthenticated, setPiAuthenticated] = useState(false);
 
   // Drag to dismiss state
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -86,6 +87,20 @@ const Wallet: React.FC<Props> = ({
   }, [banTimeLeft]);
 
   useEffect(() => {
+    // Re-authenticate Pi SDK when Pi modal opens to ensure scope
+    if (modalStep === 'pi' && window.Pi) {
+      const onIncompletePaymentFound = (payment: any) => console.log("Incomplete payment found in Wallet:", payment);
+      window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
+        .then(() => {
+          console.log("Pi Authenticated in Wallet Modal");
+          setPiAuthenticated(true);
+        })
+        .catch(err => {
+          console.error("Pi Auth error in Wallet Modal:", err);
+          setPiAuthenticated(false);
+        });
+    }
+
     if (modalStep === 'asiacell') {
       const banUntil = localStorage.getItem('asiacell_ban_until');
       if (banUntil) {
@@ -216,6 +231,19 @@ const Wallet: React.FC<Props> = ({
       if (modalStep === 'pi') {
           try {
               if (!window.Pi) throw new Error('Pi SDK غير متاح');
+
+              // Ensure authenticated before payment
+              if (!piAuthenticated) {
+                const onIncompletePaymentFound = (payment: any) => console.log("Incomplete payment found:", payment);
+                try {
+                  await window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound);
+                  setPiAuthenticated(true);
+                } catch (authErr) {
+                  alert('يرجى تسجيل الدخول إلى Pi أولاً للمتابعة');
+                  setIsProcessing(false);
+                  return;
+                }
+              }
               
               // Get Pi rate from currencies, fallback to 3 if not found
               const piCurrency = currencies.find(c => c.code === 'PI');

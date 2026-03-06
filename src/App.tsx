@@ -275,6 +275,7 @@ const App: React.FC = () => {
   const [isPurchaseProcessing, setIsPurchaseProcessing] = useState<boolean>(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [piAuthenticated, setPiAuthenticated] = useState(false);
 
   const getFormattedBanDate = () => {
     const rawDate =
@@ -406,8 +407,14 @@ const App: React.FC = () => {
         };
         
         (window as any).Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
-          .then((auth: any) => console.log("Pi Authenticated in App"))
-          .catch((err: any) => console.error("Pi Auth error in App:", err));
+          .then((auth: any) => {
+            console.log("Pi Authenticated in App", auth);
+            setPiAuthenticated(true);
+          })
+          .catch((err: any) => {
+            console.error("Pi Auth error in App:", err);
+            setPiAuthenticated(false);
+          });
           
       } catch (e) {
         console.error("Error initializing Pi SDK in App:", e);
@@ -1593,6 +1600,19 @@ useEffect(() => {
               alert('Pi SDK غير متاح حالياً');
               setIsPurchaseProcessing(false);
               return;
+            }
+
+            // Ensure authenticated before payment
+            if (!piAuthenticated) {
+              const onIncompletePaymentFound = (payment: any) => console.log("Incomplete payment found:", payment);
+              try {
+                await (window as any).Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound);
+                setPiAuthenticated(true);
+              } catch (authErr) {
+                alert('يرجى تسجيل الدخول إلى Pi أولاً للمتابعة');
+                setIsPurchaseProcessing(false);
+                return;
+              }
             }
 
             // Get Pi rate from currencies
