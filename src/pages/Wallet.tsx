@@ -87,7 +87,7 @@ const Wallet: React.FC<Props> = ({
     // Initialize Pi SDK when Wallet loads
     if (window.Pi) {
       try {
-        window.Pi.init({ version: "2.0", sandbox: true });
+        window.Pi.init({ version: "2.0", sandbox: false });
         console.log("Pi SDK initialized in Wallet");
         
         // Re-authenticate if necessary to ensure payment scope is active

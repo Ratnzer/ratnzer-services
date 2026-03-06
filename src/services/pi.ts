@@ -42,7 +42,7 @@ export const initPiSDK = () => {
     // تهيئة SDK مع تفعيل وضع الرمل (Sandbox) للاختبار
     window.Pi.init({
       version: '2.0',
-      sandbox: true, // تغيير إلى false عند النشر على الإنتاج
+      sandbox: false,
     });
     console.log('✅ تم تهيئة Pi SDK بنجاح');
   } catch (error) {
