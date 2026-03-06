@@ -73,7 +73,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
 
   useEffect(() => {
     onPrivacyModalToggle?.(showFullPrivacy);
-  }, [showFullPrivacy]);}
+  }, [showFullPrivacy]);
 
   const handleOpenTerms = () => {
     setShowFullTerms(true);
@@ -323,17 +323,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                             <Facebook size={18} fill="currentColor" />
                             <span>فيسبوك</span>
                         </button>
-                        <button 
-                            onClick={handlePiLogin}
-                            disabled={isLoading}
-                            className={`bg-[#6C63FF] hover:bg-[#5a52d5] text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-                                <text x="12" y="14" textAnchor="middle" fontSize="10" fontWeight="bold" fill="currentColor">π</text>
-                            </svg>
-                            <span>باي</span>
-                        </button>
+                        
                     </div>
 
                     <div className="flex items-center gap-3 mb-4 shrink-0">
@@ -355,17 +345,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                         >
                             <Phone size={14} /> رقم الهاتف
                         </button>
-                        <button 
-                            onClick={handlePiLogin}
-                            disabled={isLoading}
-                            className={`bg-[#6C63FF] hover:bg-[#5a52d5] text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-                                <text x="12" y="14" textAnchor="middle" fontSize="10" fontWeight="bold" fill="currentColor">π</text>
-                            </svg>
-                            <span>باي</span>
-                        </button>
+                        
                     </div>
 
                     <div className="space-y-4">
