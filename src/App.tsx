@@ -394,11 +394,32 @@ const App: React.FC = () => {
       void checkRedirect();
     }
   }, []);
-
   useEffect(() => {
     if (navigationHistory.current[navigationHistory.current.length - 1] !== currentView) {
       navigationHistory.current.push(currentView);
-      // Keep history reasonable
+    }
+  }, [currentView]);
+
+  // --- Pi Network SDK Initialization ---
+  useEffect(() => {
+    if ((window as any).Pi) {
+      try {
+        (window as any).Pi.init({ version: "2.0", sandbox: false });
+        console.log("Pi SDK initialized in App");
+        
+        const onIncompletePaymentFound = (payment: any) => {
+          console.log("Incomplete payment found in App:", payment);
+        };
+        
+        (window as any).Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
+          .then((auth: any) => console.log("Pi Authenticated in App"))
+          .catch((err: any) => console.error("Pi Auth error in App:", err));
+          
+      } catch (e) {
+        console.error("Error initializing Pi SDK in App:", e);
+      }
+    }
+  }, []);sonable
       if (navigationHistory.current.length > 10) {
         navigationHistory.current.shift();
       }

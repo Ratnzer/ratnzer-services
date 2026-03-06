@@ -86,28 +86,6 @@ const Wallet: React.FC<Props> = ({
   }, [banTimeLeft]);
 
   useEffect(() => {
-    // Initialize Pi SDK when Wallet loads
-    if (window.Pi) {
-      try {
-        window.Pi.init({ version: "2.0", sandbox: false });
-        // App ID: -b33d8f279a2d5d02
-        console.log("Pi SDK initialized in Wallet");
-        
-        // Re-authenticate if necessary to ensure payment scope is active
-        // This helps if the user didn't login via Pi initially
-        const onIncompletePaymentFound = (payment: any) => {
-          console.log("Incomplete payment found in Wallet:", payment);
-        };
-        
-        window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
-          .then(auth => console.log("Pi Authenticated in Wallet"))
-          .catch(err => console.error("Pi Auth error in Wallet:", err));
-          
-      } catch (e) {
-        console.error("Error initializing Pi SDK:", e);
-      }
-    }
-
     if (modalStep === 'asiacell') {
       const banUntil = localStorage.getItem('asiacell_ban_until');
       if (banUntil) {
