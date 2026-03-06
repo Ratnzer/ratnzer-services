@@ -29,7 +29,7 @@ const Wallet: React.FC<Props> = ({
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Modal Step State
-  const [modalStep, setModalStep] = useState<'select' | 'card' | 'support' | 'asiacell'>('select');
+  const [modalStep, setModalStep] = useState<'select' | 'card' | 'support' | 'asiacell' | 'pi'>('select');
   const [selectedMethodName, setSelectedMethodName] = useState('');
   const [selectedMethodIcon, setSelectedMethodIcon] = useState<any>(null); 
 
@@ -199,6 +199,53 @@ const Wallet: React.FC<Props> = ({
 
       if (!onAddBalance) return;
       setIsProcessing(true);
+
+      // ✅ Handle Pi Network Payment
+      if (modalStep === 'pi') {
+          try {
+              if (!window.Pi) throw new Error('Pi SDK غير متاح');
+              
+              const piAmount = value * 3; // 1 USD = 3 Pi
+              
+              const paymentData = {
+                  amount: piAmount,
+                  memo: `شحن رصيد المحفظة بمبلغ ${value}$`,
+                  metadata: { amountUSD: value, type: 'wallet_topup' }
+              };
+
+              const callbacks = {
+                  onReadyForServerApproval: async (paymentId: string) => {
+                      // في بيئة حقيقية، يجب إرسال paymentId للخلفية للتحقق
+                      console.log('Payment ready for approval:', paymentId);
+                  },
+                  onReadyForServerCompletion: async (paymentId: string, txid: string) => {
+                      // تأكيد العملية في الخلفية وإضافة الرصيد
+                      const success = await onAddBalance(value, 'pi', { paymentId, txid });
+                      if (success) {
+                          setAmountToAdd('');
+                          setShowAddBalanceModal(false);
+                      }
+                  },
+                  onCancel: (paymentId: string) => {
+                      console.log('Payment cancelled:', paymentId);
+                      setIsProcessing(false);
+                  },
+                  onError: (error: any, paymentId?: string) => {
+                      console.error('Payment error:', error, paymentId);
+                      alert('حدث خطأ أثناء الدفع عبر Pi');
+                      setIsProcessing(false);
+                  }
+              };
+
+              window.Pi.createPayment(paymentData, callbacks);
+              return; // Do not proceed to standard onAddBalance yet
+          } catch (error: any) {
+              alert(error.message || 'فشل الاتصال بـ Pi Network');
+              setIsProcessing(false);
+              return;
+          }
+      }
+
       const success = await onAddBalance(value, 'card');
       setIsProcessing(false);
       if (success) {
@@ -305,15 +352,34 @@ const Wallet: React.FC<Props> = ({
         border: 'border-red-600/30',
         desc: 'تحويل رصيد مباشر' 
       },
-  ].filter(method => activeMethods.includes(method.id));
+      { 
+        id: 'pi', 
+        name: 'شحن عبر Pi Network', 
+        icon: () => (
+          <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
+            <g fill="#593B8B">
+              <path d="M441.6 47.4c-146.6 0-265.4 118.8-265.4 265.4S295 578.1 441.6 578.1 707 459.3 707 312.7 588.1 47.4 441.6 47.4zm0 492.8c-125.6 0-227.4-101.8-227.4-227.4S316 85.4 441.6 85.4 669 187.2 669 312.8 567.2 540.2 441.6 540.2z"/>
+              <path d="M412 214h-34.5c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5H412c2.8 0 5 2.3 5 5V209c.1 2.7-2.2 5-5 5zM493.5 214H459c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5h34.5c2.8 0 5 2.3 5 5V209c0 2.7-2.2 5-5 5zM340.5 313.7h-45.4v-32.3s1.8-44.6 43.7-45.2h191.4v-26.3h45.6v25.4s-1.2 45.9-43.4 46.5l-33.8.9.5 156.2s.5 2.6-2.6 4.3l-35.2 12.5s-7.8 3.2-8.1-4.7V282H418v155.3s1 4.6-4.1 6.8l-32.3 11.4s-10.1 3.8-10-6.3V281.7h-30.9z"/>
+            </g>
+          </svg>
+        ), 
+        color: 'text-[#593B8B]', 
+        bg: 'from-[#593B8B]/20 to-[#593B8B]/5', 
+        border: 'border-[#593B8B]/30',
+        desc: 'الدفع عبر Pi SDK' 
+      },
+  ].filter(method => method.id === 'pi' || activeMethods.includes(method.id));
 
-  const handleMethodSelect = (method: typeof paymentMethods[0]) => {
-      if (method.id === 'card') {
+  const handleMethodSelect = (method: typeof paymentMethods[0])      if (method.id === 'card') {
           setModalStep('card');
+      } else if (method.id === 'pi') {
+          setModalStep('pi');
       } else if (method.id === 'asiacell_transfer') {
           setModalStep('asiacell');
-          setCardNumber('');
-          setCardNumberError('');
+      } else {
+          setModalStep('support');
+      }rError('');
           setTopupSuccess(false);
       } else {
           setSelectedMethodName(method.name);
@@ -496,9 +562,13 @@ const Wallet: React.FC<Props> = ({
                                 className={`w-full bg-gradient-to-r ${method.bg} p-4 rounded-2xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.color}`}>
-                                        <method.icon size={24} strokeWidth={1.5} />
-                                    </div>
+	                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.color}`}>
+	                                        {typeof method.icon === 'function' ? (
+	                                          <method.icon />
+	                                        ) : (
+	                                          <method.icon size={24} strokeWidth={1.5} />
+	                                        )}
+	                                    </div>
                                     <div className="text-right">
                                         <span className="font-bold text-sm text-white block">{method.name}</span>
                                         <span className="text-[10px] text-gray-400 font-bold">{method.desc}</span>
@@ -514,13 +584,16 @@ const Wallet: React.FC<Props> = ({
 
                 {/* STEP 2: SUPPORT MESSAGE (WhatsApp & Telegram) */}
                 {modalStep === 'support' && (
-                    <div className="flex flex-col items-center justify-center py-6 animate-fadeIn text-center">
-                        <div className="w-24 h-24 bg-[#242636] rounded-full flex items-center justify-center mb-6 border border-gray-700 shadow-xl relative">
-                            {selectedMethodIcon ? 
-                              React.createElement(selectedMethodIcon, { size: 40, className: "text-yellow-400" }) : 
-                              <Headset size={40} className="text-yellow-400" />
-                            }
-                        </div>
+	                    <div className="flex flex-col items-center justify-center py-6 animate-fadeIn text-center">
+	                        <div className="w-24 h-24 bg-[#242636] rounded-full flex items-center justify-center mb-6 border border-gray-700 shadow-xl relative">
+	                            {selectedMethodIcon ? 
+	                              (typeof selectedMethodIcon === 'function' ? 
+	                                <div className="scale-[2]">{React.createElement(selectedMethodIcon)}</div> : 
+	                                React.createElement(selectedMethodIcon, { size: 40, className: "text-yellow-400" })
+	                              ) : 
+	                              <Headset size={40} className="text-yellow-400" />
+	                            }
+	                        </div>
                         
                         <h3 className="text-xl font-bold text-white mb-2">إيداع عبر {selectedMethodName}</h3>
                         <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-xs mx-auto">
@@ -544,10 +617,58 @@ const Wallet: React.FC<Props> = ({
                                 <span className="text-base">تواصل عبر تيليجرام</span>
                             </button>
                         </div>
-                    </div>
-                )}
-
-                {/* STEP 3: CARD (PayTabs Redirect) */}
+	                    </div>
+	                )}
+	
+	                {/* STEP 5: PI NETWORK PAYMENT */}
+	                {modalStep === 'pi' && (
+	                    <div className="animate-fadeIn">
+	                      <div className="mb-4">
+	                          <label className="text-xs font-bold text-gray-400 mb-2 block text-right">المبلغ المراد شحنه (بالدولار)</label>
+	                          <div className="relative">
+	                              <input 
+	                              type="number" 
+	                              placeholder="0.00"
+	                              className="w-full bg-[#13141f] border border-gray-700 rounded-xl py-3 pr-4 pl-12 text-white text-xl font-bold focus:border-yellow-400 focus:outline-none transition-colors text-right dir-ltr touch-manipulation"
+	                              value={amountToAdd}
+	                              onChange={(e) => setAmountToAdd(e.target.value)}
+	                              />
+	                              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">$</div>
+	                          </div>
+	                      </div>
+	
+	                      {amountToAdd && parseFloat(amountToAdd) > 0 && (
+	                        <div className="bg-[#593B8B]/10 border border-[#593B8B]/30 rounded-xl p-4 mb-6 animate-slideUp">
+	                          <div className="flex justify-between items-center mb-2">
+	                            <span className="text-[#593B8B] font-bold text-sm">المبلغ المطلوب بـ Pi:</span>
+	                            <span className="text-white font-black text-lg">{(parseFloat(amountToAdd) * 3).toFixed(2)} π</span>
+	                          </div>
+	                          <p className="text-[10px] text-gray-400 text-right">معدل التحويل الثابت: 1 دولار = 3 Pi</p>
+	                        </div>
+	                      )}
+	
+	                      <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
+	                        سيتم فتح متصفح Pi Network لإتمام عملية الدفع بشكل آمن ومباشر.
+	                      </div>
+	
+	                      <button 
+	                          className={`w-full bg-[#593B8B] text-white font-bold py-4 rounded-xl mt-8 hover:bg-[#4a3174] transition-all shadow-lg shadow-[#593B8B]/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+	                          onClick={handleConfirmAddBalance}
+	                          disabled={isProcessing}
+	                      >
+	                          {isProcessing ? (
+	                               <>
+	                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+	                                  <span>جاري الاتصال بـ Pi SDK...</span>
+	                               </>
+	                          ) : (
+	                               'شحن الآن عبر Pi'
+	                          )}
+	                      </button>
+	                    </div>
+	                )}
+	
+	                {/* STEP 3: CARD (PayTabs Redirect) */}
                 {modalStep === 'card' && (
                     <div className="animate-fadeIn">
                       <div className="mb-4">
