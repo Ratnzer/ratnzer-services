@@ -206,7 +206,7 @@ export const paymentService = {
 export const piPaymentService = {
   create: (data: any) => api.post("/pi-payments/create", data),
   approve: (paymentId: string) => api.post("/pi-payments/approve", { paymentId }),
-  complete: (data: { paymentId: string; txid: string; amountUSD: number }) => api.post("/pi-payments/complete", data),
+  complete: (data: { paymentId: string; txid: string; amountUSD: number; [key: string]: any }) => api.post("/pi-payments/complete", data),
 };
 
 // ============================================================
