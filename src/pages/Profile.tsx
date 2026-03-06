@@ -299,6 +299,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       setTimeout(() => setCopiedId(false), 2000);
   };
 
+  const openSocialLink = (url: string) => {
+    if (!url) return;
+    window.open(url, '_blank');
+  };
+
   // If user is banned, show the enhanced ban UI (matches the requested design)
   if (user?.status === 'banned') {
     const getFormattedBanDate = () => {
