@@ -124,7 +124,7 @@ const Wallet: React.FC<Props> = ({
 
   useEffect(() => {
     const syncPaymentSettings = async () => {
-      const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer'];
+      const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
       try {
         const results = await Promise.all(methods.map(async (id) => {
           const key = `payment_method_${id}_enabled`;
