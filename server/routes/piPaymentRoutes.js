@@ -5,6 +5,7 @@ const prisma = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
 const axios = require('axios');
 const { generateShortId } = require('../utils/id');
+const { sendNotification } = require('../controllers/notificationController');
 
 // Pi Network API Key (تم تزويده من المستخدم)
 const PI_API_KEY = '38xubrn3ffjlva7azqmzg29q6s7xynoug8ix0rt2am2ewmnlgjfoqodrzm0kqzr5';
@@ -114,6 +115,14 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
         paymentId: paymentId
       }
     });
+
+    // 4. إرسال إشعار للمستخدم
+    await sendNotification(
+      req.user.id,
+      'تم شحن الرصيد بنجاح ✅',
+      `تم شحن رصيدك بمبلغ ${amountUSD} عبر Pi Network`,
+      'wallet_topup'
+    );
 
     res.status(200).json({
       message: 'تم شحن الرصيد بنجاح وتم تأكيد العملية في شبكة Pi',
