@@ -1524,7 +1524,7 @@ useEffect(() => {
       denominationId?: string,
       customInputValue?: string,
       customInputLabel?: string,
-      paymentMethod: 'wallet' | 'card' = 'wallet',
+      paymentMethod: 'wallet' | 'card' | 'pi' = 'wallet',
       selectedRegionObj?: any,
       selectedDenominationObj?: any
   ) => {
@@ -1565,6 +1565,82 @@ useEffect(() => {
             returnView: currentView,
           });
           return;
+        }
+
+        // ✅ Pi Network Direct Payment
+        if (paymentMethod === 'pi') {
+          try {
+            if (!(window as any).Pi) {
+              alert('Pi SDK غير متاح حالياً');
+              setIsPurchaseProcessing(false);
+              return;
+            }
+
+            // Get Pi rate from currencies
+            const piCurrency = currencies.find(c => c.code === 'PI');
+            const piRate = piCurrency?.rate || 1; // Default to 1 if not set
+            const piAmount = price * piRate;
+
+            const paymentData = {
+              amount: piAmount,
+              memo: `شراء ${itemName}`,
+              metadata: { 
+                productId, 
+                amountUSD: price, 
+                type: 'direct_purchase',
+                orderPayload: payload 
+              }
+            };
+
+            const callbacks = {
+              onReadyForServerApproval: async (paymentId: string) => {
+                try {
+                  await piPaymentService.approve(paymentId);
+                } catch (err) {
+                  console.error('Pi Approval Error:', err);
+                }
+              },
+              onReadyForServerCompletion: async (paymentId: string, txid: string) => {
+                try {
+                  // This is where the order is actually created on server
+                  const res = await piPaymentService.complete({ 
+                    paymentId, 
+                    txid, 
+                    amountUSD: price,
+                    // Pass payload to indicate it's a direct purchase
+                    ...payload,
+                    isDirectPurchase: true
+                  });
+                  
+                  if (res.data?.order) {
+                    const newOrder = normalizeOrderFromApi(res.data.order);
+                    setOrders(prev => [newOrder, ...prev]);
+                    showActionToast('تمت عملية الشراء', 'تم الدفع بنجاح عبر Pi Network');
+                    void syncAfterOrder();
+                  }
+                } catch (err: any) {
+                  alert(err?.response?.data?.message || 'فشل إكمال الدفع عبر Pi');
+                } finally {
+                  setIsPurchaseProcessing(false);
+                }
+              },
+              onCancel: (paymentId: string) => {
+                setIsPurchaseProcessing(false);
+              },
+              onError: (error: Error, payment?: any) => {
+                console.error('Pi Payment Error:', error);
+                setIsPurchaseProcessing(false);
+                alert('حدث خطأ أثناء الدفع عبر Pi Network');
+              }
+            };
+
+            (window as any).Pi.createPayment(paymentData, callbacks);
+            return;
+          } catch (err) {
+            console.error('Pi Payment Init Error:', err);
+            setIsPurchaseProcessing(false);
+            return;
+          }
         }
 
         // 🔥 Instant UX: show success and stage a temporary order before network calls
