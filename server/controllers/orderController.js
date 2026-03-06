@@ -360,6 +360,19 @@ const createOrder = asyncHandler(async (req, res) => {
           fulfillmentType: 'api',
         },
       });
+
+      // ✅ NEW: Notify user immediately that their API order is being processed
+      try {
+        await sendUserOrderNotification({
+          orderId: result.id,
+          status: 'pending',
+          userId: result.userId,
+          title: `طلب جديد: ${productName}`,
+          message: `تم استلام طلبك رقم ${result.id} وهو قيد المعالجة الآن.`
+        });
+      } catch (notifyErr) {
+        console.warn('Failed to notify user about new API order', notifyErr);
+      }
     } catch (err) {
       await prisma.$transaction(async (tx) => {
         await tx.user.update({
