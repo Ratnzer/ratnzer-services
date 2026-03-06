@@ -61,6 +61,7 @@ app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/wallet', require('./routes/walletRoutes'));
 app.use('/api/wallet-topup', require('./routes/walletTopupRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/pi-payments', require('./routes/piPaymentRoutes')); // Pi Payments integration
 
 // ✅ PayTabs Custom Return URLs (Redirect to the standard return handler)
 const { paytabsReturn } = require('./controllers/paymentController');

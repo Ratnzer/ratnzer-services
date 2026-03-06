@@ -129,6 +129,15 @@ export const paymentService = {
 };
 
 // ============================================================
+// Pi Payment Services
+// ============================================================
+export const piPaymentService = {
+  create: (data: any) => api.post("/pi-payments/create", data),
+  approve: (paymentId: string) => api.post("/pi-payments/approve", { paymentId }),
+  complete: (data: { paymentId: string; txid: string; amountUSD: number }) => api.post("/pi-payments/complete", data),
+};
+
+// ============================================================
 // Cart Services (Server-side Cart)
 // ============================================================
 export const cartService = {

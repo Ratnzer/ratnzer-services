@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, CreditCard, X, Calendar, Lock, User, ChevronLeft, Smartphone, Zap, Gem, Headset, Send, Wallet as WalletIcon, ArrowLeft, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { View, Transaction } from '../types';
-import { settingsService, walletTopupService } from '../services/api';
+import { settingsService, walletTopupService, piPaymentService } from '../services/api';
 
 interface Props {
   setView: (view: View) => void;
@@ -246,15 +246,31 @@ const Wallet: React.FC<Props> = ({
 
               const callbacks = {
                   onReadyForServerApproval: async (paymentId: string) => {
-                      // في بيئة حقيقية، يجب إرسال paymentId للخلفية للتحقق
                       console.log('Payment ready for approval:', paymentId);
+                      try {
+                          await piPaymentService.approve(paymentId);
+                      } catch (err) {
+                          console.error('Error in server approval:', err);
+                      }
                   },
                   onReadyForServerCompletion: async (paymentId: string, txid: string) => {
-                      // تأكيد العملية في الخلفية وإضافة الرصيد
-                      const success = await onAddBalance(value, 'pi', { paymentId, txid });
-                      if (success) {
+                      console.log('Payment ready for completion:', paymentId, txid);
+                      try {
+                          // تأكيد العملية في الخلفية وإضافة الرصيد
+                          await piPaymentService.complete({ paymentId, txid, amountUSD: value });
+                          
+                          // تحديث الواجهة
                           setAmountToAdd('');
                           setShowAddBalanceModal(false);
+                          
+                          // إعادة تحميل البيانات
+                          if (onRefreshTransactions) onRefreshTransactions('replace');
+                          alert('تم شحن الرصيد بنجاح!');
+                      } catch (err) {
+                          console.error('Error in server completion:', err);
+                          alert('حدث خطأ أثناء تأكيد الدفع في السيرفر');
+                      } finally {
+                          setIsProcessing(false);
                       }
                   },
                   onCancel: (paymentId: string) => {
