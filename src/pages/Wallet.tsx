@@ -272,6 +272,11 @@ const Wallet: React.FC<Props> = ({
                           // إعادة تحميل البيانات
                           if (onRefreshTransactions) onRefreshTransactions('replace');
                           alert('تم شحن الرصيد بنجاح! 🎉');
+                          
+                          // ✅ توجيه المستخدم لصفحة الملف الشخصي لرؤية الرصيد الجديد
+                          setTimeout(() => {
+                              setView(View.PROFILE);
+                          }, 1500);
                       } catch (err: any) {
                           console.error('❌ Error in server completion:', err);
                           // عرض رسالة الخطأ من السيرفر أو رسالة عامة
