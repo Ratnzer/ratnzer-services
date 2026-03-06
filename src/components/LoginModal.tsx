@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Facebook } from 'lucide-react';
 import { signInWithGoogle, signInWithFacebook } from '../services/firebase';
+import { authenticateWithPi, initPiSDK } from '../services/pi';
 import { AppTerms, AppPrivacy } from '../types';
 import { authService } from '../services/api'; // ✅ هذا هو المسار الصحيح
 
@@ -60,12 +61,19 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
   const [showFullPrivacy, setShowFullPrivacy] = useState(false);
 
   useEffect(() => {
+    // تهيئة Pi SDK عند تحميل المكون
+    if (isOpen) {
+      initPiSDK();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     onTermsModalToggle?.(showFullTerms);
   }, [showFullTerms]);
 
   useEffect(() => {
     onPrivacyModalToggle?.(showFullPrivacy);
-  }, [showFullPrivacy]);
+  }, [showFullPrivacy]);}
 
   const handleOpenTerms = () => {
     setShowFullTerms(true);
@@ -128,6 +136,36 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
     } catch (error: any) {
       console.error('Facebook Login Error:', error);
       const errorMsg = error.message || 'فشل تسجيل الدخول عبر فيسبوك';
+      alert(error?.response?.data?.message || errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const handlePiLogin = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const piUser = await authenticateWithPi();
+      if (!piUser) throw new Error('فشل الحصول على بيانات المستخدم من Pi');
+      
+      const res = await authService.piLogin({
+        username: piUser.username,
+        uid: piUser.uid,
+        accessToken: piUser.accessToken,
+      });
+      const token = (res as any)?.data?.token;
+      
+      if (token) {
+        localStorage.setItem('token', token);
+        onLogin({ isRegister: false });
+      } else {
+        alert('فشل الحصول على رمز الدخول من السيرفر');
+      }
+    } catch (error: any) {
+      console.error('خطأ Pi Login:', error);
+      const errorMsg = error.message || 'فشل تسجيل الدخول عبر Pi Network';
       alert(error?.response?.data?.message || errorMsg);
     } finally {
       setIsLoading(false);
@@ -263,7 +301,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                     </div>
 
                     {/* Social Login Buttons */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="grid grid-cols-3 gap-3 mb-4">
                         <button 
                             onClick={handleGoogleLogin}
                             disabled={isLoading}
@@ -285,6 +323,17 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                             <Facebook size={18} fill="currentColor" />
                             <span>فيسبوك</span>
                         </button>
+                        <button 
+                            onClick={handlePiLogin}
+                            disabled={isLoading}
+                            className={`bg-[#6C63FF] hover:bg-[#5a52d5] text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                <text x="12" y="14" textAnchor="middle" fontSize="10" fontWeight="bold" fill="currentColor">π</text>
+                            </svg>
+                            <span>باي</span>
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-3 mb-4 shrink-0">
@@ -305,6 +354,17 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                             className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${method === 'phone' ? 'bg-[#242636] text-white shadow-md border border-gray-600' : 'text-gray-500 hover:text-gray-300'}`}
                         >
                             <Phone size={14} /> رقم الهاتف
+                        </button>
+                        <button 
+                            onClick={handlePiLogin}
+                            disabled={isLoading}
+                            className={`bg-[#6C63FF] hover:bg-[#5a52d5] text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                <text x="12" y="14" textAnchor="middle" fontSize="10" fontWeight="bold" fill="currentColor">π</text>
+                            </svg>
+                            <span>باي</span>
                         </button>
                     </div>
 

@@ -44,6 +44,7 @@ export const authService = {
   register: (data: any) => api.post("/auth/register", data),
   googleLogin: (idToken: string) => api.post("/auth/google", { idToken }),
   facebookLogin: (idToken: string) => api.post("/auth/facebook", { idToken }),
+  piLogin: (piData: any) => api.post("/auth/pi", piData),
   getProfile: () => api.get("/auth/profile"),
   updateProfile: (data: any) => api.put("/auth/profile", data),
   // ✅ Change/Set password (server-side)

@@ -48,6 +48,7 @@ app.get('/health', (req, res) => {
 // Routes
 // ---------------------------------------------
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', require('./routes/piAuthRoutes')); // Pi Network Authentication
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
