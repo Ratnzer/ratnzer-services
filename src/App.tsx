@@ -641,9 +641,14 @@ useEffect(() => {
 		          }
 		        }).catch(() => {}),
 			        contentService.getTerms().then(res => res?.data && setTerms(res.data)).catch(() => {}),
-			        contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)).catch(() => {}),
-			        refreshAnnouncementsFromServer('silent'), // ✅ Added to ensure announcements load on boot
-			      ];
+				        contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)).catch(() => {}),
+				        settingsService.get('currencies').then(res => {
+				          if (Array.isArray(res?.data)) {
+				            setCurrencies(res.data);
+				          }
+				        }).catch(() => {}),
+				        refreshAnnouncementsFromServer('silent'), // ✅ Added to ensure announcements load on boot
+				      ];
 		
 		      await Promise.all([...essentialTasks]);
 	    };
@@ -1260,6 +1265,16 @@ useEffect(() => {
     const symbol = (currency as any)?.symbol || '$';
 
     const convertedAmount = amountInUSD * rate;
+    
+    // For Pi Network, we might want more precision or different formatting
+    if (currencyCode === 'PI') {
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4, // Pi often needs more decimals
+      });
+      return `${formatter.format(convertedAmount)} ${symbol}`;
+    }
+
     const formatter = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,

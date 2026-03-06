@@ -34,6 +34,13 @@ export const INITIAL_CURRENCIES: Currency[] = [
     symbol: '$',
     rate: 1,
   },
+  {
+    code: 'PI',
+    name: 'Pi Network',
+    symbol: 'π',
+    rate: 1,
+    flag: '🥧',
+  },
 ] as Currency[];
 
 // البانرات – تترك فاضية، ويتم جلبها من /api/content/banners مثلاً

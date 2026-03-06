@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, CreditCard, X, Calendar, Lock, User, ChevronLeft, Smartphone, Zap, Gem, Headset, Send, Wallet as WalletIcon, ArrowLeft, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
-import { View, Transaction } from '../types';
+import { View, Transaction, Currency } from '../types';
 import { settingsService, walletTopupService, piPaymentService } from '../services/api';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
   onRefreshTransactions?: (mode?: 'replace' | 'append') => Promise<void> | void;
   hasMore?: boolean;
   loadingMore?: boolean;
+  currencies?: Currency[];
 }
 
 const PiIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
@@ -32,7 +33,8 @@ const Wallet: React.FC<Props> = ({
   transactions, 
   onRefreshTransactions,
   hasMore = false,
-  loadingMore = false
+  loadingMore = false,
+  currencies = []
 }) => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
@@ -237,7 +239,10 @@ const Wallet: React.FC<Props> = ({
           try {
               if (!window.Pi) throw new Error('Pi SDK غير متاح');
               
-              const piAmount = value * 3; // 1 USD = 3 Pi
+              // Get Pi rate from currencies, fallback to 3 if not found
+              const piCurrency = currencies.find(c => c.code === 'PI');
+              const piRate = piCurrency?.rate || 3;
+              const piAmount = value * piRate;
               
               const paymentData = {
                   amount: piAmount,
