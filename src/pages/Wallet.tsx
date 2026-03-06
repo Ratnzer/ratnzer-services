@@ -84,6 +84,16 @@ const Wallet: React.FC<Props> = ({
   }, [banTimeLeft]);
 
   useEffect(() => {
+    // Initialize Pi SDK when Wallet loads
+    if (window.Pi) {
+      try {
+        window.Pi.init({ version: "2.0", sandbox: true });
+        console.log("Pi SDK initialized in Wallet");
+      } catch (e) {
+        console.error("Error initializing Pi SDK:", e);
+      }
+    }
+
     if (modalStep === 'asiacell') {
       const banUntil = localStorage.getItem('asiacell_ban_until');
       if (banUntil) {
