@@ -1,5 +1,5 @@
 const prisma = require('../config/db');
-const { getOrderStatus } = require('../utils/kd1sClient');
+const { getProvider, getSupportedProviders } = require('../utils/providerManager');
 const { sendUserOrderNotification } = require('../controllers/notificationController');
 
 const DEFAULT_INTERVAL_MS = 300_000; // 5 minutes to reduce DB load
@@ -11,11 +11,12 @@ let isSyncing = false;
 const isKd1sConfigured = () => Boolean(process.env.KD1S_API_KEY);
 
 const findPendingProviderOrders = async (batchSize) => {
+  const supportedProviders = getSupportedProviders();
   return prisma.order.findMany({
     where: {
       providerOrderId: { not: null },
       status: { in: ['pending', 'processing', 'inprogress', 'in_progress'] },
-      providerName: { in: ['KD1S', 'kd1s'] },
+      providerName: { in: supportedProviders },
     },
     orderBy: { createdAt: 'desc' },
     take: batchSize,
@@ -33,7 +34,8 @@ const syncOnce = async () => {
 
     for (const order of pendingOrders) {
       try {
-        const statusResult = await getOrderStatus(order.providerOrderId);
+        const provider = getProvider(order.providerName);
+        const statusResult = await provider.getOrderStatus(order.providerOrderId);
         const nextStatus = statusResult.normalizedStatus;
         const providerStatus = statusResult.providerStatus;
 
@@ -84,7 +86,7 @@ const syncOnce = async () => {
               status: nextStatus,
               rejectionReason:
                 nextStatus === 'cancelled' && statusResult.providerStatus
-                  ? `KD1S: ${statusResult.providerStatus}`
+                  ? `${order.providerName}: ${statusResult.providerStatus}`
                   : undefined,
             },
           });

@@ -1,7 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { generateShortId } = require('../utils/id');
-const { placeOrder: placeKd1sOrder, parseQuantity } = require('../utils/kd1sClient');
+const { parseQuantity } = require('../utils/kd1sClient');
+const { getProvider } = require('../utils/providerManager');
 const { sendUserOrderNotification } = require('./notificationController');
 
 // Helpers shared with the payment controller
@@ -342,7 +343,10 @@ const createOrder = asyncHandler(async (req, res) => {
 
   if (shouldUseProvider) {
     try {
-      const providerOrder = await placeKd1sOrder({
+      const providerName = apiConfig?.providerName || 'KD1S';
+      const provider = getProvider(providerName);
+
+      const providerOrder = await provider.placeOrder({
         serviceId: effectiveServiceId,
         link: trimmedCustomInputValue || regionName || productName,
         quantity: normalizedQuantity,
@@ -352,7 +356,7 @@ const createOrder = asyncHandler(async (req, res) => {
         where: { id: result.id },
         data: {
           providerOrderId: providerOrder.orderId,
-          providerName: apiConfig?.providerName || 'KD1S',
+          providerName: providerOrder.providerName,
           fulfillmentType: 'api',
         },
       });
