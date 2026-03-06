@@ -1576,12 +1576,21 @@ try {
 
   // --- Currency Logic ---
   const handleUpdateRate = (code: string, newRate: string) => {
-      const rate = parseFloat(newRate);
-      if (isNaN(rate) || rate <= 0) return;
+      // Allow empty string during input (for deletion)
+      if (newRate === '') {
+          setCurrencies(prev => prev.map(c => 
+              c.code === code ? { ...c, rate: 0 } : c
+          ));
+          return;
+      }
       
-      setCurrencies(prev => prev.map(c => 
-          c.code === code ? { ...c, rate: rate } : c
-      ));
+      const rate = parseFloat(newRate);
+      // Only update if it's a valid positive number
+      if (!isNaN(rate) && rate > 0) {
+          setCurrencies(prev => prev.map(c => 
+              c.code === code ? { ...c, rate: rate } : c
+          ));
+      }
   };
 
   const handleResetCurrencies = () => {
@@ -2731,11 +2740,17 @@ try {
                                         <input 
                                             type="number" 
                                             className="w-24 bg-transparent text-center text-white text-base font-bold focus:outline-none px-3 py-2.5 placeholder-gray-600"
-                                            value={currency.rate}
+                                            value={currency.rate || ''}
                                             onChange={(e) => handleUpdateRate(currency.code, e.target.value)}
                                             step="0.01"
                                             min="0"
                                             placeholder="0.00"
+                                            onBlur={(e) => {
+                                                // Set to 0 if empty when losing focus
+                                                if (e.target.value === '') {
+                                                    handleUpdateRate(currency.code, '0');
+                                                }
+                                            }}
                                         />
                                         <div className="flex items-center gap-2 px-3 py-2.5 bg-[#1f212e] border-l border-gray-700">
                                             <span className="text-gray-500 text-xs font-bold">=</span>
