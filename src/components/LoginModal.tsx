@@ -323,7 +323,14 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                             <Facebook size={18} fill="currentColor" />
                             <span>فيسبوك</span>
                         </button>
-                        
+                        <button 
+                            onClick={handlePiLogin}
+                            disabled={isLoading}
+                            className={`bg-[#ffcc00] hover:bg-[#e6b800] text-black font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            <div className="w-5 h-5 bg-purple-900 rounded-full flex items-center justify-center text-[10px] text-white font-bold">π</div>
+                            <span>Pi Network</span>
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-3 mb-4 shrink-0">
