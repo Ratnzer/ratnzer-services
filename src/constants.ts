@@ -39,7 +39,7 @@ export const INITIAL_CURRENCIES: Currency[] = [
     name: 'Pi Network',
     symbol: 'π',
     rate: 1,
-    flag: '🥧',
+    flag: 'π',
   },
 ] as Currency[];
 
