@@ -60,7 +60,7 @@ const Wallet: React.FC<Props> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeMethods, setActiveMethods] = useState<string[]>(() => {
-    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer'];
+    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
     return all.filter(id => localStorage.getItem(`payment_method_${id}_enabled`) !== 'false');
   });
 
@@ -419,7 +419,7 @@ const Wallet: React.FC<Props> = ({
         border: 'border-[#593B8B]/30',
         desc: 'الدفع عبر Pi SDK' 
       },
-  ].filter(method => method.id === 'pi' || activeMethods.includes(method.id));
+  ].filter(method => activeMethods.includes(method.id));
 
   const handleMethodSelect = (method: typeof paymentMethods[0]) => {
       if (method.id === 'card') {

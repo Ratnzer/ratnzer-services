@@ -2734,7 +2734,8 @@ try {
                            { id: 'card', name: 'بطاقة الماستر أو الفيزا' },
                            { id: 'superkey', name: 'سوبركي' },
                            { id: 'zaincash', name: 'زين كاش' },
-                           { id: 'asiacell_transfer', name: 'الشحن عبر اسياسيل' }
+                           { id: 'asiacell_transfer', name: 'الشحن عبر اسياسيل' },
+                           { id: 'pi', name: 'Pi Network' }
                        ].map(method => (
                            <div key={method.id} className="flex items-center justify-between p-3 bg-[#13141f] rounded-xl border border-gray-700">
                                <span className="text-sm text-gray-200 font-bold">{method.name}</span>
