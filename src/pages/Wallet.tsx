@@ -599,7 +599,7 @@ const Wallet: React.FC<Props> = ({
                 )}
                 
                 <h2 className="text-center text-lg font-bold text-white">
-                    {modalStep === 'select' ? 'طريقة الدفع' : modalStep === 'card' ? 'الدفع عبر البطاقة' : modalStep === 'asiacell' ? 'شحن كارت أسياسيل' : 'تواصل مع الدعم'}
+                    {modalStep === 'select' ? 'طريقة الدفع' : modalStep === 'card' ? 'الدفع عبر البطاقة' : modalStep === 'asiacell' ? 'شحن كارت أسياسيل' : modalStep === 'pi' ? 'الشحن عبر Pi Network' : 'تواصل مع الدعم'}
                 </h2>
               </div>
 
