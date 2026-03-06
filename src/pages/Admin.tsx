@@ -3549,7 +3549,8 @@ try {
                                         <div key={r.id} className="bg-[#1f212e] border border-gray-700 rounded-xl p-3">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-2">
-                                                   <span className={`text-2xl ${currency.code === 'PI' ? 'text-[#9b59b6] font-bold' : ''}`}>{currency.flag}</span>                                              <span className="text-xs font-bold text-white">{r.name}</span>
+                                                   <span className="text-2xl">{r.flag}</span>
+                                                    <span className="text-xs font-bold text-white">{r.name}</span>
                                                     {r.customInput?.enabled && (
                                                         <span className="text-[9px] bg-blue-500/10 text-blue-400 px-1.5 rounded border border-blue-500/20">
                                                             حقل مخصص
