@@ -293,25 +293,25 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
             alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
         }
       } else {
-          // ✅ PayTabs flow (redirect handled by parent)
+          // ✅ PayTabs or Pi Network flow (handled by parent)
           if (onPurchase) {
                 onPurchase(
                     product.name, 
                     currentPrice, 
                     product.apiConfig?.type || 'manual',
                     regionObj?.name,
-                  denomObj?.label,
-                  product.category,
-                  product.id,
-                  selectedRegion,
-                  selectedDenomId,
-                  customInputValue.trim(),
-                  activeCustomInput?.label,
-                  'card',
+                    denomObj?.label,
+                    product.category,
+                    product.id,
+                    selectedRegion,
+                    selectedDenomId,
+                    customInputValue.trim(),
+                    activeCustomInput?.label,
+                    paymentMethod, // ✅ Pass 'card' or 'pi' correctly
                     regionObj,
                     denomObj
                 );
-onClose();
+                onClose();
           } else {
               alert('Error: Purchase function not connected');
           }
