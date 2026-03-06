@@ -120,8 +120,8 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     await sendNotification(
       req.user.id,
       'تم شحن الرصيد بنجاح ✅',
-      `تم شحن رصيدك بمبلغ ${amountUSD} عبر Pi Network`,
-      'wallet_topup'
+      `تم شحن رصيدك بمبلغ ${amountUSD} عبر Pi Network | طريقة الدفع: Pi Network`,
+      'wallet_credit'
     );
 
     res.status(200).json({
