@@ -89,6 +89,17 @@ const Wallet: React.FC<Props> = ({
       try {
         window.Pi.init({ version: "2.0", sandbox: true });
         console.log("Pi SDK initialized in Wallet");
+        
+        // Re-authenticate if necessary to ensure payment scope is active
+        // This helps if the user didn't login via Pi initially
+        const onIncompletePaymentFound = (payment: any) => {
+          console.log("Incomplete payment found in Wallet:", payment);
+        };
+        
+        window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
+          .then(auth => console.log("Pi Authenticated in Wallet"))
+          .catch(err => console.error("Pi Auth error in Wallet:", err));
+          
       } catch (e) {
         console.error("Error initializing Pi SDK:", e);
       }

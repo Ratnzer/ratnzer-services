@@ -64,12 +64,14 @@ export const authenticateWithPi = async (): Promise<{
   }
 
   try {
+    const onIncompletePaymentFound = (payment: any) => {
+      console.log('Incomplete payment found:', payment);
+      // في بيئة حقيقية، يجب إرسال الـ payment.identifier للخلفية لإكمال أو إلغاء العملية
+    };
+
     const result = await window.Pi.authenticate(
-      ['payments', 'username'], // الصلاحيات المطلوبة
-      (payment) => {
-        // معالجة الدفعات غير المكتملة إن وجدت
-        console.log('دفعة غير مكتملة:', payment);
-      }
+      ['payments', 'username', 'wallet_address'], // الصلاحيات المطلوبة
+      onIncompletePaymentFound
     );
 
     return {
