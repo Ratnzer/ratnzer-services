@@ -1975,6 +1975,7 @@ useEffect(() => {
                 onRefreshTransactions={refreshTransactionsFromServer}
                 hasMore={transactionsHasMore}
                 loadingMore={transactionsLoadingMore}
+                currencies={currencies}
             />
         );
       case View.PROFILE:
