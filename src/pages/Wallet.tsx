@@ -371,16 +371,13 @@ const Wallet: React.FC<Props> = ({
       },
   ].filter(method => method.id === 'pi' || activeMethods.includes(method.id));
 
-  const handleMethodSelect = (method: typeof paymentMethods[0])      if (method.id === 'card') {
+  const handleMethodSelect = (method: typeof paymentMethods[0]) => {
+      if (method.id === 'card') {
           setModalStep('card');
       } else if (method.id === 'pi') {
           setModalStep('pi');
       } else if (method.id === 'asiacell_transfer') {
           setModalStep('asiacell');
-      } else {
-          setModalStep('support');
-      }rError('');
-          setTopupSuccess(false);
       } else {
           setSelectedMethodName(method.name);
           setSelectedMethodIcon(method.icon);
