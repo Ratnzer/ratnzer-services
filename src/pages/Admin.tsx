@@ -2675,39 +2675,77 @@ try {
 
         {/* CURRENCIES TAB */}
         {activeTab === 'currencies' && (
-            <div className="space-y-4 animate-fadeIn">
-                <div className="flex justify-between items-center bg-[#242636] p-4 rounded-xl border border-gray-700">
-                    <h3 className="text-white font-bold">أسعار الصرف (مقابل 1 USD)</h3>
-                    <div className="flex items-center gap-2">
-                        <button onClick={loadCurrenciesFromServer} className="text-[11px] px-3 py-1.5 rounded-lg bg-[#13141f] border border-gray-700 hover:border-yellow-400 transition-colors">تحديث</button>
-                        <button onClick={saveCurrenciesToServer} className="text-[11px] px-3 py-1.5 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30 transition-colors">حفظ</button>
-                        <button onClick={handleResetCurrencies} className="text-xs bg-red-500/10 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors">استعادة الافتراضي</button>
+            <div className="space-y-5 animate-fadeIn">
+                {/* Header Section */}
+                <div className="bg-gradient-to-r from-[#242636] to-[#2f3245] rounded-2xl border border-gray-700 p-6 shadow-lg">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-1">أسعار الصرف</h2>
+                            <p className="text-gray-400 text-sm">إدارة وتحديث أسعار صرف العملات مقابل 1 USD</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
+                            <button onClick={loadCurrenciesFromServer} className="px-4 py-2 rounded-lg bg-[#13141f] border border-gray-600 text-gray-300 hover:border-blue-400 hover:text-blue-400 hover:bg-blue-400/5 transition-all active:scale-95 font-medium text-sm">↻ تحديث</button>
+                            <button onClick={saveCurrenciesToServer} className="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/30 hover:border-yellow-500/60 transition-all active:scale-95 font-bold text-sm">💾 حفظ</button>
+                            <button onClick={handleResetCurrencies} className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-all active:scale-95 font-medium text-sm">↺ استعادة</button>
+                        </div>
                     </div>
                 </div>
-                
-                <div className="bg-[#242636] rounded-xl border border-gray-700 overflow-hidden">
+
+                {/* Currencies Grid */}
+                <div className="grid grid-cols-1 gap-3">
                     {currencies.map((currency) => (
-                        <div key={currency.code} className="p-4 border-b border-gray-700/50 flex items-center justify-between last:border-0 hover:bg-[#2f3245] transition-colors">
-                            <div className="flex items-center gap-3">
-                                <span className={`text-2xl ${currency.code === 'PI' ? 'text-[#593B8B] font-bold' : ''}`}>{currency.flag}</span>
-                                <div>
-                                    <p className="text-sm font-bold text-white">{currency.name}</p>
-                                    <p className="text-[10px] text-gray-500 dir-ltr">{currency.code}</p>
+                        <div key={currency.code} className="bg-[#242636] rounded-xl border border-gray-700 p-5 hover:border-gray-600 hover:shadow-lg hover:shadow-yellow-400/5 transition-all duration-200">
+                            <div className="flex items-center justify-between gap-4">
+                                {/* Left: Currency Info */}
+                                <div className="flex items-center gap-4 flex-1 min-w-0">
+                                    <div className="flex-shrink-0">
+                                        <span className={`text-4xl block transition-transform hover:scale-110 ${currency.code === 'PI' ? 'text-[#9b59b6] font-bold drop-shadow-lg' : ''}`}>
+                                            {currency.flag}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-base font-bold text-white truncate">{currency.name}</p>
+                                        <p className="text-xs text-gray-500 dir-ltr font-mono mt-1">{currency.code}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-gray-500 text-xs font-bold">=</span>
-                                <input 
-                                    type="number" 
-                                    className="w-24 bg-[#13141f] border border-gray-600 rounded-lg py-1 px-2 text-center text-white text-sm font-bold focus:border-yellow-400 outline-none dir-ltr"
-                                    value={currency.rate}
-                                    onChange={(e) => handleUpdateRate(currency.code, e.target.value)}
-                                    step="0.01"
-                                />
-                                <span className="text-[10px] text-yellow-400 font-bold w-8 text-center">{currency.symbol}</span>
+
+                                {/* Right: Exchange Rate Input */}
+                                <div className="flex items-center gap-3 flex-shrink-0">
+                                    <div className="flex items-center bg-[#13141f] rounded-lg border border-gray-600 hover:border-gray-500 focus-within:border-yellow-400 focus-within:shadow-lg focus-within:shadow-yellow-400/10 transition-all">
+                                        <input 
+                                            type="number" 
+                                            className="w-24 bg-transparent text-center text-white text-base font-bold focus:outline-none px-3 py-2.5 placeholder-gray-600"
+                                            value={currency.rate}
+                                            onChange={(e) => handleUpdateRate(currency.code, e.target.value)}
+                                            step="0.01"
+                                            min="0"
+                                            placeholder="0.00"
+                                        />
+                                        <div className="flex items-center gap-2 px-3 py-2.5 bg-[#1f212e] border-l border-gray-700">
+                                            <span className="text-gray-500 text-xs font-bold">=</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 min-w-fit">
+                                        <span className={`text-lg font-bold ${currency.code === 'PI' ? 'text-[#9b59b6]' : 'text-yellow-400'}`}>
+                                            {currency.symbol}
+                                        </span>
+                                        <span className="text-xs text-gray-500 font-mono">USD</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Info Box */}
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-sm text-blue-300">
+                    <p className="font-bold mb-2">💡 نصيحة مهمة:</p>
+                    <ul className="space-y-1 text-xs leading-relaxed">
+                        <li>• يمكنك تعديل أسعار الصرف مباشرة في الحقول أعلاه</li>
+                        <li>• اضغط على 'حفظ' لحفظ التغييرات على السيرفر</li>
+                        <li>• ستنعكس الأسعار الجديدة فوراً على جميع المستخدمين</li>
+                        <li>• استخدم 'استعادة' لإعادة الأسعار الافتراضية</li>
+                    </ul>
                 </div>
             </div>
         )}

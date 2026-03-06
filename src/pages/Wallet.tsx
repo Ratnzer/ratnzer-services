@@ -614,9 +614,9 @@ const Wallet: React.FC<Props> = ({
                                 className={`w-full bg-gradient-to-r ${method.bg} p-4 rounded-2xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
                             >
                                 <div className="flex items-center gap-4">
-	                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.color}`}>
+	                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.id === 'pi' ? 'text-[#9b59b6]' : method.color}`}>
 	                                        {method.id === 'pi' ? (
-	                                          <PiIcon size={24} />
+	                                          <span className="text-3xl font-bold">π</span>
 	                                        ) : (
 	                                          React.createElement(method.icon as any, { size: 24, strokeWidth: 1.5 })
 	                                        )}
