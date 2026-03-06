@@ -249,16 +249,21 @@ const Wallet: React.FC<Props> = ({
                   onReadyForServerApproval: async (paymentId: string) => {
                       console.log('Payment ready for approval:', paymentId);
                       try {
-                          await piPaymentService.approve(paymentId);
-                      } catch (err) {
-                          console.error('Error in server approval:', err);
+                          const response = await piPaymentService.approve(paymentId);
+                          console.log('✅ Server approval response:', response.data);
+                      } catch (err: any) {
+                          console.error('❌ Error in server approval:', err);
+                          // لا نعرض alert للموافقة لأنها تحدث في الخلفية
+                          // لكن نسجل الخطأ للمراقبة
                       }
                   },
                   onReadyForServerCompletion: async (paymentId: string, txid: string) => {
                       console.log('Payment ready for completion:', paymentId, txid);
                       try {
                           // تأكيد العملية في الخلفية وإضافة الرصيد
-                          await piPaymentService.complete({ paymentId, txid, amountUSD: value });
+                          const response = await piPaymentService.complete({ paymentId, txid, amountUSD: value });
+                          
+                          console.log('✅ Server completion response:', response.data);
                           
                           // تحديث الواجهة
                           setAmountToAdd('');
@@ -266,10 +271,12 @@ const Wallet: React.FC<Props> = ({
                           
                           // إعادة تحميل البيانات
                           if (onRefreshTransactions) onRefreshTransactions('replace');
-                          alert('تم شحن الرصيد بنجاح!');
-                      } catch (err) {
-                          console.error('Error in server completion:', err);
-                          alert('حدث خطأ أثناء تأكيد الدفع في السيرفر');
+                          alert('تم شحن الرصيد بنجاح! 🎉');
+                      } catch (err: any) {
+                          console.error('❌ Error in server completion:', err);
+                          // عرض رسالة الخطأ من السيرفر أو رسالة عامة
+                          const errorMessage = err.message || 'حدث خطأ أثناء تأكيد الدفع في السيرفر';
+                          alert(errorMessage);
                       } finally {
                           setIsProcessing(false);
                       }

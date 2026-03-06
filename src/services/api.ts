@@ -37,6 +37,70 @@ api.interceptors.request.use(
 );
 
 // ============================================================
+// Handle API Responses and Errors
+// ============================================================
+api.interceptors.response.use(
+  (response) => {
+    // ✅ Success response
+    return response;
+  },
+  (error: AxiosError) => {
+    // ❌ Error response handling
+    let errorMessage = 'حدث خطأ في الاتصال بالسيرفر';
+    let statusCode = error.response?.status || 0;
+
+    // معالجة الأخطاء المختلفة
+    if (!error.response) {
+      // Network error (no response from server)
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'انقطع الاتصال بالسيرفر. يرجى التحقق من اتصالك بالإنترنت';
+      } else if (error.code === 'ERR_NETWORK') {
+        errorMessage = 'خطأ في الاتصال بالشبكة. تأكد من اتصالك بالإنترنت';
+      } else {
+        errorMessage = 'فشل الاتصال بالسيرفر';
+      }
+    } else if (statusCode === 400) {
+      // Bad request
+      errorMessage = (error.response.data as any)?.message || 'بيانات غير صحيحة';
+    } else if (statusCode === 401) {
+      // Unauthorized
+      errorMessage = 'جلستك انتهت. يرجى تسجيل الدخول مرة أخرى';
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    } else if (statusCode === 403) {
+      // Forbidden
+      errorMessage = 'ليس لديك صلاحية للقيام بهذا الإجراء';
+    } else if (statusCode === 404) {
+      // Not found
+      errorMessage = 'المورد المطلوب غير موجود';
+    } else if (statusCode === 409) {
+      // Conflict
+      errorMessage = (error.response.data as any)?.message || 'تضارب في البيانات';
+    } else if (statusCode === 500) {
+      // Server error
+      errorMessage = (error.response.data as any)?.message || 'حدث خطأ في السيرفر';
+    } else if (statusCode === 503) {
+      // Service unavailable
+      errorMessage = 'الخدمة غير متاحة حالياً. يرجى المحاولة لاحقاً';
+    } else if (statusCode >= 400 && statusCode < 500) {
+      // Other 4xx errors
+      errorMessage = (error.response.data as any)?.message || `خطأ في الطلب (${statusCode})`;
+    } else if (statusCode >= 500) {
+      // Other 5xx errors
+      errorMessage = (error.response.data as any)?.message || `خطأ في السيرفر (${statusCode})`;
+    }
+
+    // إضافة رسالة الخطأ إلى كائن الخطأ
+    const enhancedError = new Error(errorMessage) as any;
+    enhancedError.statusCode = statusCode;
+    enhancedError.originalError = error;
+    enhancedError.response = error.response;
+
+    return Promise.reject(enhancedError);
+  }
+);
+
+// ============================================================
 // Auth Services
 // ============================================================
 export const authService = {
@@ -211,4 +275,7 @@ export const analyticsService = {
   getDashboard: () => api.get("/analytics/dashboard"),
 };
 
+// ============================================================
+// Export API Instance
+// ============================================================
 export default api;
