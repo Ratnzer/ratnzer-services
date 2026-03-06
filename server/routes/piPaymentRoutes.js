@@ -5,25 +5,9 @@ const prisma = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
 const axios = require('axios');
 
-/**
- * @desc    إنشاء سجل دفع Pi جديد (Server-side)
- * @route   POST /api/pi-payments/create
- * @access  Private
- */
-router.post('/create', protect, asyncHandler(async (req, res) => {
-  const { payment } = req.body;
-
-  if (!payment) {
-    res.status(400);
-    throw new Error('بيانات الدفع مطلوبة');
-  }
-
-  // في Pi SDK، يتم إرسال معرف الدفع (paymentId) بعد أن ينشئه الـ SDK
-  // ولكن هنا يمكننا تسجيل المحاولة في قاعدة البيانات إذا أردنا تتبعها
-  console.log(`[Pi Payment] Creating record for user ${req.user.id}, amount: ${payment.amount}`);
-  
-  res.status(200).json({ message: 'تم استلام طلب الدفع بنجاح' });
-}));
+// Pi Network API Key (تم تزويده من المستخدم)
+const PI_API_KEY = '38xubrn3ffjlva7azqmzg29q6s7xynoug8ix0rt2am2ewmnlgjfoqodrzm0kqzr5';
+const PI_API_URL = 'https://api.minepi.com';
 
 /**
  * @desc    الموافقة على الدفع (Approve)
@@ -38,11 +22,24 @@ router.post('/approve', protect, asyncHandler(async (req, res) => {
     throw new Error('paymentId مطلوب');
   }
 
-  console.log(`[Pi Payment] Approving payment: ${paymentId}`);
+  console.log(`[Pi Payment] Attempting to approve payment: ${paymentId}`);
   
-  // هنا يجب إرسال طلب لـ Pi API للتحقق من الدفعة (اختياري في مرحلة الـ Sandbox)
-  // ولكن لإكمال العملية في المتصفح، يجب أن نرد بـ 200 OK
-  res.status(200).json({ message: 'تمت الموافقة على الدفعة من السيرفر' });
+  try {
+    // إرسال طلب لـ Pi API للموافقة على الدفعة (Server-to-Server)
+    const response = await axios.post(`${PI_API_URL}/v2/payments/${paymentId}/approve`, {}, {
+      headers: {
+        'Authorization': `Key ${PI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log(`[Pi Payment] Approved successfully: ${paymentId}`);
+    res.status(200).json({ message: 'تمت الموافقة على الدفعة من السيرفر بنجاح', data: response.data });
+  } catch (error) {
+    console.error('❌ خطأ في الموافقة على دفعة Pi:', error.response?.data || error.message);
+    res.status(error.response?.status || 500);
+    throw new Error(error.response?.data?.message || 'فشل التواصل مع خوادم Pi للموافقة');
+  }
 }));
 
 /**
@@ -58,10 +55,20 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     throw new Error('بيانات الإكمال غير مكتملة');
   }
 
-  console.log(`[Pi Payment] Completing payment: ${paymentId}, TXID: ${txid}`);
+  console.log(`[Pi Payment] Attempting to complete payment: ${paymentId}, TXID: ${txid}`);
 
   try {
-    // تحديث رصيد المستخدم في قاعدة البيانات
+    // 1. إرسال طلب لـ Pi API لإكمال الدفعة نهائياً (Server-to-Server)
+    const response = await axios.post(`${PI_API_URL}/v2/payments/${paymentId}/complete`, { txid }, {
+      headers: {
+        'Authorization': `Key ${PI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log(`[Pi Payment] Completed successfully: ${paymentId}`);
+
+    // 2. تحديث رصيد المستخدم في قاعدة البيانات
     const updatedUser = await prisma.user.update({
       where: { id: req.user.id },
       data: {
@@ -71,7 +78,7 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
       }
     });
 
-    // تسجيل المعاملة في سجل المحفظة
+    // 3. تسجيل المعاملة في سجل المحفظة
     await prisma.transaction.create({
       data: {
         userId: req.user.id,
@@ -84,13 +91,14 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     });
 
     res.status(200).json({
-      message: 'تم شحن الرصيد بنجاح',
-      balance: updatedUser.balance
+      message: 'تم شحن الرصيد بنجاح وتم تأكيد العملية في شبكة Pi',
+      balance: updatedUser.balance,
+      piPayment: response.data
     });
   } catch (error) {
-    console.error('Error completing Pi payment:', error);
-    res.status(500);
-    throw new Error('فشل تحديث الرصيد في قاعدة البيانات');
+    console.error('❌ خطأ في إكمال دفعة Pi:', error.response?.data || error.message);
+    res.status(error.response?.status || 500);
+    throw new Error(error.response?.data?.message || 'فشل تأكيد الدفع في شبكة Pi، يرجى التواصل مع الدعم');
   }
 }));
 
