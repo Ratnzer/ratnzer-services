@@ -15,6 +15,16 @@ import { auth } from '../services/firebase';
 import { localCache } from '../services/localCache';
 import versionData from '../version.json';
 
+const PiIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
+  <svg viewBox="176.2 47.4 530.8 530.7" width={size} height={size} xmlns="http://www.w3.org/2000/svg">
+    <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
+    <g fill="#593B8B">
+      <path d="M441.6 47.4c-146.6 0-265.4 118.8-265.4 265.4S295 578.1 441.6 578.1 707 459.3 707 312.7 588.1 47.4 441.6 47.4zm0 492.8c-125.6 0-227.4-101.8-227.4-227.4S316 85.4 441.6 85.4 669 187.2 669 312.8 567.2 540.2 441.6 540.2z"/>
+      <path d="M412 214h-34.5c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5H412c2.8 0 5 2.3 5 5V209c.1 2.7-2.2 5-5 5zM493.5 214H459c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5h34.5c2.8 0 5 2.3 5 5V209c0 2.7-2.2 5-5 5zM340.5 313.7h-45.4v-32.3s1.8-44.6 43.7-45.2h191.4v-26.3h45.6v25.4s-1.2 45.9-43.4 46.5l-33.8.9.5 156.2s.5 2.6-2.6 4.3l-35.2 12.5s-7.8 3.2-8.1-4.7V282H418v155.3s1 4.6-4.1 6.8l-32.3 11.4s-10.1 3.8-10-6.3V281.7h-30.9z"/>
+    </g>
+  </svg>
+);
+
 interface Props {
   setView: (view: View) => void;
   currentCurrency: string;
@@ -823,7 +833,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                <div className="overflow-y-auto no-scrollbar space-y-2 mb-4 flex-1">
                  {currencies.map((currency) => (
                     <button key={currency.code} onClick={() => handleCurrencySelect(currency.code)} className={`w-full bg-[#13141f] rounded-xl border p-3 flex items-center justify-between transition-all ${currentCurrency === currency.code ? 'border-yellow-400 bg-yellow-400/5' : 'border-gray-700 hover:border-gray-500'}`}>
-                        <div className="flex items-center gap-3"><span className={`text-2xl ${currency.code === 'PI' ? 'text-[#9b59b6] font-bold' : ''}`}>{currency.flag}</span><div className="text-right"><p className={`font-bold text-sm ${currentCurrency === currency.code ? 'text-yellow-400' : 'text-white'}`}>{currency.name}</p><p className="text-[10px] text-gray-500 text-right dir-ltr uppercase">{currency.code}</p></div></div>
+                        <div className="flex items-center gap-3">{currency.code === 'PI' ? <PiIcon size={28} /> : <span className="text-2xl">{currency.flag}</span>}<div className="text-right"><p className={`font-bold text-sm ${currentCurrency === currency.code ? 'text-yellow-400' : 'text-white'}`}>{currency.name}</p><p className="text-[10px] text-gray-500 text-right dir-ltr uppercase">{currency.code}</p></div></div>
                         {currentCurrency === currency.code && <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"><Check size={14} className="text-black" strokeWidth={3} /></div>}
                     </button>
                  ))}
