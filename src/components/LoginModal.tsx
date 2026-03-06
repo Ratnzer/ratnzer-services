@@ -328,7 +328,11 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
                             disabled={isLoading}
                             className={`bg-[#ffcc00] hover:bg-[#e6b800] text-black font-bold py-3 rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 text-xs ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            <div className="w-5 h-5 bg-purple-900 rounded-full flex items-center justify-center text-[10px] text-white font-bold">π</div>
+                            <svg viewBox="0 0 100 100" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="45" fill="#593B8B" />
+                                <path d="M35 35h30v8H57v22h-8V43h-6v22h-8V43h-3v-8z" fill="white" />
+                                <path d="M35 35c0-5 5-10 15-10s15 5 15 10" fill="none" stroke="white" strokeWidth="2" />
+                            </svg>
                             <span>Pi Network</span>
                         </button>
                     </div>
