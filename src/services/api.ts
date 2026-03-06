@@ -64,9 +64,17 @@ api.interceptors.response.use(
       errorMessage = (error.response.data as any)?.message || 'بيانات غير صحيحة';
     } else if (statusCode === 401) {
       // Unauthorized
-      errorMessage = 'جلستك انتهت. يرجى تسجيل الدخول مرة أخرى';
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Check if it's an admin activation attempt
+      const isAdminActivation = error.config?.url?.includes('/auth/admin/activate');
+      
+      if (!isAdminActivation) {
+        errorMessage = 'جلستك انتهت. يرجى تسجيل الدخول مرة أخرى';
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      } else {
+        // Just return the specific error message from server for admin login
+        errorMessage = (error.response?.data as any)?.message || 'كلمة مرور المسؤول غير صحيحة';
+      }
     } else if (statusCode === 403) {
       // Forbidden
       errorMessage = 'ليس لديك صلاحية للقيام بهذا الإجراء';
