@@ -598,7 +598,22 @@ const createPaytabs = asyncHandler(async (req, res) => {
   }
 
   const paytabsCurrency = process.env.PAYTABS_CURRENCY || 'IQD';
-  const usdToIqdRate = Number(process.env.PAYTABS_USD_TO_IQD_RATE || 1320);
+  
+  // ✅ DYNAMIC RATE FETCH: Get IQD rate from settings database
+  let usdToIqdRate = Number(process.env.PAYTABS_USD_TO_IQD_RATE || 1320);
+  try {
+    const currencySetting = await prisma.setting.findUnique({ where: { key: 'currencies' } });
+    if (currencySetting && Array.isArray(currencySetting.value)) {
+      const iqd = currencySetting.value.find(c => c.code === 'IQD');
+      if (iqd && typeof iqd.rate === 'number' && iqd.rate > 0) {
+        usdToIqdRate = iqd.rate;
+        console.log(`[PayTabs] Using dynamic IQD rate from DB: ${usdToIqdRate}`);
+      }
+    }
+  } catch (err) {
+    console.warn('[PayTabs] Failed to fetch dynamic rate, using fallback:', err?.message);
+  }
+
   const profileId = String(process.env.PAYTABS_PROFILE_ID || '').trim();
   if (!profileId) {
     res.status(500);

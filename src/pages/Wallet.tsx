@@ -795,8 +795,28 @@ const Wallet: React.FC<Props> = ({
                           </div>
                       </div>
 
+                      {amountToAdd && parseFloat(amountToAdd) > 0 && (() => {
+                        const iqdCurrency = currencies.find(c => c.code === 'IQD');
+                        const iqdRate = iqdCurrency?.rate || 1310;
+                        const iqdAmount = parseFloat(amountToAdd) * iqdRate;
+                        return (
+                          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4 animate-slideUp">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-blue-400 font-bold text-xs">المبلغ بالدينار العراقي</span>
+                              <span className="text-white font-black text-sm dir-ltr">
+                                {new Intl.NumberFormat('en-US').format(Math.round(iqdAmount))} د.ع
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-500 text-[10px] font-bold">سعر الصرف الحالي</span>
+                              <span className="text-gray-400 text-[10px] font-mono">1$ = {iqdRate} د.ع</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
-                        سيتم تحويلك إلى صفحة الدفع الآمنة لإدخال بيانات البطاقة.
+                        سيتم تحويلك إلى صفحة الدفع الآمنة لإتمام العملية بالدينار العراقي.
                       </div>
 
                       <button 
