@@ -516,10 +516,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                       </div>
                       <div className="text-right">
                           <h3 className={`font-bold text-sm ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-                          <div className="flex gap-1 mt-1 opacity-80">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4 bg-white rounded px-1" />
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-4 bg-white rounded px-1" />
-                          </div>
+
                       </div>
                   </div>
 	                  {paymentMethod === 'card' && <div className="absolute top-5 left-5 text-yellow-400"><CheckCircle size={20} /></div>}

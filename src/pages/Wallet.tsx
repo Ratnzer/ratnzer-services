@@ -748,7 +748,7 @@ const Wallet: React.FC<Props> = ({
                       </div>
 
                       <div className="mt-2 text-sm text-gray-300 text-right leading-relaxed">
-                        سيتم تحويلك إلى صفحة الدفع الآمنة لإدخال بيانات البطاقة (Visa / Mastercard).
+                        سيتم تحويلك إلى صفحة الدفع الآمنة لإدخال بيانات البطاقة.
                       </div>
 
                       <button 

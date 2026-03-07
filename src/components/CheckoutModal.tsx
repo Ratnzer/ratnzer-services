@@ -192,10 +192,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                         </div>
                         <div className="text-right">
                             <h3 className={`font-bold text-sm ${selectedMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-                            <div className="flex gap-1 mt-1 opacity-80">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4 bg-white rounded px-1" />
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-4 bg-white rounded px-1" />
-                            </div>
+
                         </div>
                     </div>
                     {selectedMethod === 'card' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={20} /></div>}
