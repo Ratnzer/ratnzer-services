@@ -10,24 +10,19 @@ const syncAvailability = async () => {
   console.log('[Availability Sync] Starting sync process...');
   
   try {
-    // 1. Get all products that have autoSyncAvailability enabled (either globally or for specific regions)
-    const products = await prisma.product.findMany({
-      where: {
-        OR: [
-          { autoSyncAvailability: true },
-          { 
-            regions: { 
-              not: prisma.JsonNull,
-              path: '$[*].autoSyncAvailability',
-              array_contains: true
-            } 
-          }
-        ]
-      }
+    // 1. Get all products to check them manually (more reliable than complex JSON queries in some DBs)
+    const products = await prisma.product.findMany();
+    
+    // Filter products that need sync (either global or any region)
+    const productsToSync = products.filter(p => {
+      if (p.autoSyncAvailability) return true;
+      const regions = typeof p.regions === 'string' ? JSON.parse(p.regions) : p.regions;
+      return Array.isArray(regions) && regions.some(r => r.autoSyncAvailability);
     });
 
-    if (products.length === 0) {
-      console.log('[Availability Sync] No products found for sync.');
+    console.log(`[Availability Sync] Found ${productsToSync.length} products to sync out of ${products.length} total.`);
+
+    if (productsToSync.length === 0) {
       return;
     }
 
@@ -35,15 +30,16 @@ const syncAvailability = async () => {
     // Note: We'll implement a simple fetch for KD1S services here
     const kd1sServices = await fetchKD1SServices();
     
-    for (const product of products) {
+    for (const product of productsToSync) {
       let productChanged = false;
       let regions = product.regions;
       const apiConfig = typeof product.apiConfig === 'string' ? JSON.parse(product.apiConfig) : product.apiConfig;
 
       // Case A: Sync for specific regions
-      if (Array.isArray(regions)) {
-        for (let i = 0; i < regions.length; i++) {
-          const region = regions[i];
+      let currentRegions = typeof regions === 'string' ? JSON.parse(regions) : regions;
+      if (Array.isArray(currentRegions)) {
+        for (let i = 0; i < currentRegions.length; i++) {
+          const region = currentRegions[i];
           if (region.autoSyncAvailability && region.apiServiceId) {
             const service = kd1sServices.find(s => String(s.service) === String(region.apiServiceId));
             const isAvailable = !!service; // If service exists in provider list, it's available
@@ -51,7 +47,7 @@ const syncAvailability = async () => {
             // ✅ Match manual behavior: If service is missing, set isAvailable to false
             if (region.isAvailable !== isAvailable) {
               console.log(`[Availability Sync] Updating Region ${region.name} in Product ${product.name}: ${isAvailable ? 'Available' : 'Unavailable'}`);
-              regions[i].isAvailable = isAvailable;
+              currentRegions[i].isAvailable = isAvailable;
               productChanged = true;
             }
           }
@@ -77,7 +73,7 @@ const syncAvailability = async () => {
       if (productChanged) {
         await prisma.product.update({
           where: { id: product.id },
-          data: { regions }
+          data: { regions: currentRegions }
         });
       }
     }
