@@ -1961,42 +1961,63 @@ useEffect(() => {
             },
             onReadyForServerCompletion: async (paymentId: string, txid: string) => {
               try {
-                const itemsSnapshot = isBulkCheckout ? [...cartItems] : [activeCheckoutItem!];
-                
+                // 1. First, complete the Pi payment on server to mark it as paid
                 const res = await piPaymentService.complete({ 
                   paymentId, 
                   txid, 
                   amountUSD: price,
                   isCartPurchase: true,
                   isBulk: isBulkCheckout,
-                  cartItems: itemsSnapshot,
-                  ...(isBulkCheckout ? {} : {
-                    productId: activeCheckoutItem?.productId,
-                    productName: activeCheckoutItem?.name,
-                    productCategory: activeCheckoutItem?.category,
-                    amount: activeCheckoutItem?.price,
-                    regionId: activeCheckoutItem?.selectedRegion?.id,
-                    regionName: activeCheckoutItem?.selectedRegion?.name,
-                    denominationId: activeCheckoutItem?.selectedDenomination?.id,
-                    quantityLabel: activeCheckoutItem?.selectedDenomination?.label || (activeCheckoutItem?.selectedDenomination as any)?.name || (activeCheckoutItem?.selectedDenomination as any)?.value || String(activeCheckoutItem?.quantity),
-                    customInputValue: activeCheckoutItem?.customInputValue,
-                    customInputLabel: activeCheckoutItem?.customInputLabel,
-                  })
+                  // We send minimal info first just to verify the payment
+                  justVerify: true 
                 });
                 
                 if (res.data?.success) {
-                  showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+                  // 2. Now process orders sequentially EXACTLY like wallet checkout
+                  const itemsToProcess = isBulkCheckout ? [...cartItems] : [activeCheckoutItem!];
                   
                   if (isBulkCheckout) {
                     setCartItems([]);
                     setIsBulkCheckout(false);
-                    try { await cartService.clear(); } catch (e) {}
-                  } else if (activeCheckoutItem) {
-                    removeFromCart(activeCheckoutItem.id);
+                  } else {
+                    removeFromCart(activeCheckoutItem!.id);
                     setActiveCheckoutItem(null);
                   }
-                  
-                  void syncAfterOrder();
+
+                  showActionToast('تم استلام طلبك', 'يتم تأكيد الشراء خلال ثوانٍ دون انتظار');
+
+                  for (const item of itemsToProcess) {
+                    const payload = {
+                      productId: item.productId,
+                      productName: item.name,
+                      productCategory: item.category,
+                      amount: item.price,
+                      price: item.price,
+                      fulfillmentType: item.apiConfig?.type || 'manual',
+                      regionName: item.selectedRegion?.name,
+                      regionId: item.selectedRegion?.id,
+                      denominationId: item.selectedDenomination?.id,
+                      quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
+                      customInputValue: item.customInputValue,
+                      customInputLabel: item.customInputLabel,
+                      paymentMethod: 'pi',
+                      piPaymentId: paymentId // Link to the Pi payment
+                    };
+
+                    const result = await createOrderOnServer(payload);
+                    if (result.ok && result.order) {
+                      void pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
+                    }
+                    // Small delay like wallet bulk
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                  }
+
+                  if (isBulkCheckout) {
+                    try { await cartService.clear(); } catch (e) {}
+                  }
+
+                  await syncAfterOrder();
+                  showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
                 }
               } catch (err: any) {
                 alert(err?.response?.data?.message || 'فشل إكمال الدفع عبر Pi');

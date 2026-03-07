@@ -141,10 +141,21 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     const finalPrice = parseFloat(amountUSD);
     let createdOrder = null;
 
-    const { isCartPurchase, isBulk, cartItems } = req.body;
+    const { isCartPurchase, isBulk, cartItems, justVerify } = req.body;
 
     if (isDirectPurchase || isCartPurchase) {
       // --- PURCHASE LOGIC (Direct or Cart) ---
+      
+      // If justVerify is true, we only complete the Pi payment and return success
+      // The actual orders will be created via separate calls to createOrder
+      if (justVerify) {
+        return res.status(200).json({
+          success: true,
+          message: 'تم التحقق من دفع Pi بنجاح',
+          piPayment: response.data
+        });
+      }
+
       const itemsToProcess = isBulk && Array.isArray(cartItems) ? cartItems : [req.body];
       const createdOrders = [];
 

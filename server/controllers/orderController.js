@@ -136,6 +136,8 @@ const createOrder = asyncHandler(async (req, res) => {
     quantityLabel,
     customInputValue,
     customInputLabel,
+    paymentMethod,
+    piPaymentId,
   } = req.body;
 
   const userId = req.user?.id;
@@ -158,9 +160,13 @@ const createOrder = asyncHandler(async (req, res) => {
 
   // 1. Get Fresh User Data
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || Number(user.balance) < priceNumber) {
-    res.status(400);
-    throw new Error('رصيد المحفظة غير كافي');
+  const isPiPayment = paymentMethod === 'pi' && piPaymentId;
+
+  if (!isPiPayment) {
+    if (!user || Number(user.balance) < priceNumber) {
+      res.status(400);
+      throw new Error('رصيد المحفظة غير كافي');
+    }
   }
 
   // 2. Check Product Settings
@@ -178,9 +184,11 @@ const createOrder = asyncHandler(async (req, res) => {
   const trustedPrice = computePrice(product, denominationIdNorm, { id: denominationIdNorm, label: quantityLabel }, priceNumber);
   const finalPrice = trustedPrice > 0 ? trustedPrice : priceNumber;
 
-  if (Number(user.balance) < finalPrice) {
-    res.status(400);
-    throw new Error('رصيد المحفظة غير كافي');
+  if (!isPiPayment) {
+    if (Number(user.balance) < finalPrice) {
+      res.status(400);
+      throw new Error('رصيد المحفظة غير كافي');
+    }
   }
 
   const activeCustomInput = resolveCustomInputConfig(product, regionIdNorm);
@@ -227,15 +235,18 @@ const createOrder = asyncHandler(async (req, res) => {
 
     // Re-fetch user inside transaction to get latest balance
     const currentUser = await tx.user.findUnique({ where: { id: userId } });
-    if (!currentUser || Number(currentUser.balance) < finalPrice) {
-      throw new Error('رصيد المحفظة غير كافي');
-    }
+    
+    if (!isPiPayment) {
+      if (!currentUser || Number(currentUser.balance) < finalPrice) {
+        throw new Error('رصيد المحفظة غير كافي');
+      }
 
-    // Deduct Balance
-    await tx.user.update({
-      where: { id: userId },
-      data: { balance: { decrement: finalPrice } },
-    });
+      // Deduct Balance
+      await tx.user.update({
+        where: { id: userId },
+        data: { balance: { decrement: finalPrice } },
+      });
+    }
 
     // --- AUTO-DELIVERY LOGIC (INSIDE TRANSACTION TO PREVENT RACE CONDITIONS) ---
     let deliveredCode = null;
@@ -314,23 +325,19 @@ const createOrder = asyncHandler(async (req, res) => {
         data: { usedByOrderId: String(order.id) }
       });
     }
-
     // Log Transaction
     await tx.transaction.create({
       data: {
         id: generateShortId(),
         userId,
-        title: `شراء: ${productName}`,
+        title: isPiPayment ? `شراء عبر Pi: ${productName || product.name}` : `شراء: ${productName || product.name}`,
         amount: finalPrice,
         type: 'debit',
         status: 'completed',
+        description: isPiPayment ? `رقم معاملة Pi: ${piPaymentId}` : `رقم الطلب: ${order.id}`,
+        paymentId: isPiPayment ? piPaymentId : undefined,
       },
-    });
-
-    return order;
-  });
-
-  // NEW: Check if the selected region has a specific API service ID
+    });ion has a specific API service ID
   const regions = parseJsonField(product?.regions, []);
   const selectedRegion = Array.isArray(regions) 
     ? regions.find(r => String(r.id) === String(regionIdNorm))
