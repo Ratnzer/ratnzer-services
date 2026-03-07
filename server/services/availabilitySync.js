@@ -10,12 +10,18 @@ const syncAvailability = async () => {
   console.log('[Availability Sync] Starting sync process...');
   
   try {
-    // 1. Get all products that have autoSyncAvailability enabled
+    // 1. Get all products that have autoSyncAvailability enabled (either globally or for specific regions)
     const products = await prisma.product.findMany({
       where: {
         OR: [
           { autoSyncAvailability: true },
-          { regions: { not: null } } // Check regions too as they might have sync enabled
+          { 
+            regions: { 
+              not: prisma.JsonNull,
+              path: '$[*].autoSyncAvailability',
+              array_contains: true
+            } 
+          }
         ]
       }
     });
