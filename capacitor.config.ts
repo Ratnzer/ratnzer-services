@@ -11,7 +11,12 @@ const config: CapacitorConfig = {
       'ratnzer-services-bb0a0cce4837.herokuapp.com',
       '*.paytabs.com',
       '*.paytabs.com.sa',
-      '*.paytabs.io'
+      '*.paytabs.io',
+      '*.imgur.com',
+      '*.cloudinary.com',
+      '*.postimg.cc',
+      '*.ibb.co',
+      '*.googleusercontent.com'
     ]
   },
   plugins: {

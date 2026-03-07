@@ -122,22 +122,36 @@ const Wallet: React.FC<Props> = ({
       const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
       try {
         const results = await Promise.all(methods.map(async (id) => {
-          const key = `payment_method_${id}_enabled`;
+          const enabledKey = `payment_method_${id}_enabled`;
+          const iconKey = `payment_method_${id}_icon`;
+          
           try {
-            const res = await settingsService.get(key);
-            const val = res?.data !== undefined ? res.data : res;
-            if (val !== null && val !== undefined) {
-              const isEnabled = String(val) !== 'false';
-              localStorage.setItem(key, String(isEnabled));
-              return isEnabled ? id : null;
+            // 1. Sync Enabled Status
+            const resEnabled = await settingsService.get(enabledKey);
+            const valEnabled = resEnabled?.data !== undefined ? resEnabled.data : resEnabled;
+            if (valEnabled !== null && valEnabled !== undefined) {
+              const isEnabled = String(valEnabled) !== 'false';
+              localStorage.setItem(enabledKey, String(isEnabled));
             }
-          } catch (e) {}
-          return localStorage.getItem(key) !== 'false' ? id : null;
+
+            // 2. Sync Icon URL
+            const resIcon = await settingsService.get(iconKey);
+            const valIcon = resIcon?.data !== undefined ? resIcon.data : resIcon;
+            if (valIcon && typeof valIcon === 'string') {
+              localStorage.setItem(iconKey, valIcon);
+            }
+          } catch (e) {
+            console.warn(`Failed to sync settings for ${id}:`, e);
+          }
+          
+          return localStorage.getItem(enabledKey) !== 'false' ? id : null;
         }));
         
         const enabledIds = results.filter((id): id is string => id !== null);
         setActiveMethods(enabledIds);
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error syncing payment settings:', e);
+      }
     };
     
     if (showAddBalanceModal) {
