@@ -3693,6 +3693,15 @@ try {
                                                                 onChange={e => updateRegionConfig(r.id, { apiServiceId: e.target.value })}
                                                             />
                                                         </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] text-gray-400 font-bold">اسم المزود (اختياري)</label>
+                                                            <input 
+                                                                className="w-full bg-[#13141f] p-2 rounded-lg border border-gray-600 text-white text-[10px]" 
+                                                                placeholder="مثال: KD1S" 
+                                                                value={r.apiProviderName || ''}
+                                                                onChange={e => updateRegionConfig(r.id, { apiProviderName: e.target.value })}
+                                                            />
+                                                        </div>
                                                     </div>
 
                                                     <div className="flex justify-between items-center">

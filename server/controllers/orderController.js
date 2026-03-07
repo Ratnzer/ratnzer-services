@@ -346,14 +346,14 @@ const createOrder = asyncHandler(async (req, res) => {
     : null;
   
   const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
+  const effectiveProviderName = selectedRegion?.apiProviderName || apiConfig?.providerName || 'KD1S';
 
   const shouldUseProvider =
     apiConfig?.type === 'api' && effectiveServiceId && result.status !== 'completed';
 
   if (shouldUseProvider) {
     try {
-      const providerName = apiConfig?.providerName || 'KD1S';
-      const provider = getProvider(providerName);
+      const provider = getProvider(effectiveProviderName);
 
       const providerOrder = await provider.placeOrder({
         serviceId: effectiveServiceId,
