@@ -196,26 +196,36 @@ const Wallet: React.FC<Props> = ({
 
   const filteredTransactions = transactions.filter((tx) => {
     if (activeFilter === 'All') return true;
-    const title = tx.title.toLowerCase();
+    
+    // Convert everything to lowercase for comparison
+    const title = (tx.title || '').toLowerCase();
+    const desc = (tx.description || '').toLowerCase();
     const filterId = activeFilter.toLowerCase();
     
+    // Check if either title or description contains the keywords
+    const matches = (keywords: string[]) => 
+      keywords.some(k => title.includes(k) || desc.includes(k));
+
     if (filterId === 'card') {
-      return title.includes('card') || title.includes('visa') || title.includes('mastercard') || title.includes('بطاقة') || title.includes('ماستر') || title.includes('فيزا');
+      return matches(['card', 'visa', 'mastercard', 'بطاقة', 'ماستر', 'فيزا', 'paytabs', 'paytab']);
     }
     if (filterId === 'asiacell') {
-      return title.includes('asiacell') || title.includes('اسياسيل');
+      return matches(['asiacell', 'اسياسيل', 'آسياسيل']);
     }
     if (filterId === 'superqi') {
-      return title.includes('superqi') || title.includes('سوبركي') || title.includes('superkey');
+      return matches(['superqi', 'سوبركي', 'superkey', 'سوبر كي']);
     }
     if (filterId === 'zaincash') {
-      return title.includes('zaincash') || title.includes('زين كاش');
+      return matches(['zaincash', 'زين كاش', 'زينكاش']);
     }
     if (filterId === 'pi') {
-      return title.includes('pi network') || title.includes('pi');
+      // Avoid matching 'api' when searching for 'pi'
+      return title.includes('pi network') || title.includes('شبكة pi') || 
+             (/\bpi\b/.test(title)) || (/\bpi\b/.test(desc)) ||
+             title.includes('عملة pi');
     }
     
-    return title.includes(filterId);
+    return title.includes(filterId) || desc.includes(filterId);
   });
 
   const handleRefresh = async () => {
