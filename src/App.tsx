@@ -1941,7 +1941,20 @@ useEffect(() => {
                   amountUSD: price,
                   isCartPurchase: true,
                   isBulk: isBulkCheckout,
-                  cartItems: isBulkCheckout ? cartItems : [activeCheckoutItem]
+                  cartItems: isBulkCheckout ? cartItems : [activeCheckoutItem],
+                  // For single item, also pass individual fields for backward compatibility
+                  ...(isBulkCheckout ? {} : {
+                    productId: activeCheckoutItem?.productId,
+                    productName: activeCheckoutItem?.name,
+                    productCategory: activeCheckoutItem?.category,
+                    amount: activeCheckoutItem?.price,
+                    regionId: activeCheckoutItem?.selectedRegion?.id,
+                    regionName: activeCheckoutItem?.selectedRegion?.name,
+                    denominationId: activeCheckoutItem?.selectedDenomination?.id,
+                    quantityLabel: activeCheckoutItem?.selectedDenomination?.label || (activeCheckoutItem?.selectedDenomination as any)?.name || (activeCheckoutItem?.selectedDenomination as any)?.value || String(activeCheckoutItem?.quantity),
+                    customInputValue: activeCheckoutItem?.customInputValue,
+                    customInputLabel: activeCheckoutItem?.customInputLabel,
+                  })
                 });
                 
                 if (res.data?.success) {

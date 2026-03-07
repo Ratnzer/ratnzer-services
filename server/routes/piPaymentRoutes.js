@@ -141,83 +141,87 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     const finalPrice = parseFloat(amountUSD);
     let createdOrder = null;
 
-    if (isDirectPurchase) {
-      // --- DIRECT PURCHASE LOGIC ---
-      const productIdNorm = normalizeId(productId);
-      const regionIdNorm = normalizeId(regionId);
-      const denominationIdNorm = normalizeId(denominationId);
+    const { isCartPurchase, isBulk, cartItems } = req.body;
 
-      const product = await prisma.product.findUnique({ where: { id: productIdNorm } });
-      if (!product) {
-        throw new Error('المنتج غير موجود');
-      }
+    if (isDirectPurchase || isCartPurchase) {
+      // --- PURCHASE LOGIC (Direct or Cart) ---
+      const itemsToProcess = isBulk && Array.isArray(cartItems) ? cartItems : [req.body];
+      const createdOrders = [];
 
-      const activeCustomInput = resolveCustomInputConfig(product, regionIdNorm);
-      const resolvedCustomInputLabel = customInputLabel || activeCustomInput?.label;
-      const normalizedQuantity = parseQuantity(quantity ?? quantityLabel ?? 1);
-      const normalizedQuantityLabel = quantityLabel || (quantity ? String(normalizedQuantity) : undefined);
-      const apiConfig = parseApiConfig(product?.apiConfig);
+      await prisma.$transaction(async (tx) => {
+        for (const item of itemsToProcess) {
+          const productIdNorm = normalizeId(item.productId);
+          const regionIdNorm = normalizeId(item.regionId);
+          const denominationIdNorm = normalizeId(item.denominationId);
 
-      // Create Order & Transaction
-      createdOrder = await prisma.$transaction(async (tx) => {
-        const orderRef = generateShortId();
-        
-        // Check for auto-delivery
-        let deliveredCode = null;
-        let status = 'pending';
-        let fulfillmentType = apiConfig?.type || 'manual';
+          const product = await prisma.product.findUnique({ where: { id: productIdNorm } });
+          if (!product) continue;
 
-        if (product.autoDeliverStock) {
-          const stockItem = await tx.inventory.findFirst({
-            where: {
-              productId: productIdNorm,
-              isUsed: false,
-              AND: [
-                { OR: [{ regionId: regionIdNorm }, { regionId: null }] },
-                { OR: [{ denominationId: denominationIdNorm }, { denominationId: null }] },
-              ],
-            },
-            orderBy: { createdAt: 'asc' },
-          });
+          const activeCustomInput = resolveCustomInputConfig(product, regionIdNorm);
+          const resolvedCustomInputLabel = item.customInputLabel || activeCustomInput?.label;
+          const normalizedQuantity = parseQuantity(item.quantity ?? item.quantityLabel ?? 1);
+          const normalizedQuantityLabel = item.quantityLabel || (item.quantity ? String(normalizedQuantity) : undefined);
+          const apiConfig = parseApiConfig(product?.apiConfig);
 
-          if (stockItem) {
-            deliveredCode = stockItem.code;
-            status = 'completed';
-            fulfillmentType = 'stock';
-            await tx.inventory.update({
-              where: { id: stockItem.id },
-              data: { isUsed: true, dateUsed: new Date(), usedByOrderId: orderRef }
+          const orderRef = generateShortId();
+          let deliveredCode = null;
+          let status = 'pending';
+          let fulfillmentType = apiConfig?.type || 'manual';
+
+          if (product.autoDeliverStock) {
+            const stockItem = await tx.inventory.findFirst({
+              where: {
+                productId: productIdNorm,
+                isUsed: false,
+                AND: [
+                  { OR: [{ regionId: regionIdNorm }, { regionId: null }] },
+                  { OR: [{ denominationId: denominationIdNorm }, { denominationId: null }] },
+                ],
+              },
+              orderBy: { createdAt: 'asc' },
             });
+
+            if (stockItem) {
+              deliveredCode = stockItem.code;
+              status = 'completed';
+              fulfillmentType = 'stock';
+              await tx.inventory.update({
+                where: { id: stockItem.id },
+                data: { isUsed: true, dateUsed: new Date(), usedByOrderId: orderRef }
+              });
+            }
           }
+
+          const order = await tx.order.create({
+            data: {
+              id: orderRef,
+              userId: req.user.id,
+              userName: req.user.name,
+              productName: item.productName || item.name || product.name,
+              productId: productIdNorm,
+              productCategory: item.productCategory || item.category || product.category,
+              regionName: item.regionName,
+              regionId: regionIdNorm,
+              quantityLabel: normalizedQuantityLabel,
+              denominationId: denominationIdNorm,
+              customInputValue: item.customInputValue,
+              customInputLabel: resolvedCustomInputLabel,
+              amount: parseFloat(item.amount || item.price || 0),
+              status,
+              fulfillmentType,
+              deliveredCode,
+              providerName: apiConfig?.providerName,
+            }
+          });
+          createdOrders.push(order);
         }
 
-        const order = await tx.order.create({
-          data: {
-            id: orderRef,
-            userId: req.user.id,
-            userName: req.user.name,
-            productName: productName || product.name,
-            productId: productIdNorm,
-            productCategory: productCategory || product.category,
-            regionName,
-            regionId: regionIdNorm,
-            quantityLabel: normalizedQuantityLabel,
-            denominationId: denominationIdNorm,
-            customInputValue,
-            customInputLabel: resolvedCustomInputLabel,
-            amount: finalPrice,
-            status,
-            fulfillmentType,
-            deliveredCode,
-            providerName: apiConfig?.providerName,
-          }
-        });
-
+        // Create a single transaction for the total amount
         await tx.transaction.create({
           data: {
             id: generateShortId(),
             userId: req.user.id,
-            title: `شراء عبر Pi: ${productName || product.name}`,
+            title: isBulk ? `شراء سلة عبر Pi (${createdOrders.length} منتجات)` : `شراء عبر Pi: ${createdOrders[0]?.productName}`,
             amount: finalPrice,
             type: 'debit',
             status: 'completed',
@@ -225,18 +229,19 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
             paymentId: paymentId
           }
         });
-
-        return order;
       });
 
-      // Notify Admins
-      notifyAdminsPush({ order: createdOrder, extraData: { source: 'pi-direct' } }).catch(() => {});
+      createdOrder = createdOrders[0]; // For backward compatibility in response
+
+      // Notifications
+      for (const order of createdOrders) {
+        notifyAdminsPush({ order, extraData: { source: isCartPurchase ? 'pi-cart' : 'pi-direct' } }).catch(() => {});
+      }
       
-      // Notify User
       await sendNotification(
         req.user.id,
         'تم استلام طلبك بنجاح ✅',
-        `تم شراء ${productName} بمبلغ ${finalPrice} عبر Pi Network`,
+        isBulk ? `تم شراء ${createdOrders.length} منتجات بنجاح عبر Pi Network` : `تم شراء ${createdOrders[0]?.productName} بنجاح عبر Pi Network`,
         'order_pending'
       );
 
@@ -269,7 +274,8 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
     }
 
     res.status(200).json({
-      message: isDirectPurchase ? 'تمت عملية الشراء بنجاح' : 'تم شحن الرصيد بنجاح',
+      success: true,
+      message: (isDirectPurchase || isCartPurchase) ? 'تمت عملية الشراء بنجاح' : 'تم شحن الرصيد بنجاح',
       order: createdOrder,
       piPayment: response.data
     });
