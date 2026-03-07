@@ -980,7 +980,21 @@ useEffect(() => {
         }),
         contentService.getTerms().then(res => res?.data && setTerms(res.data)),
         contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)),
-        refreshAnnouncementsFromServer('silent') // ✅ Added to ensure announcements update on Home
+        refreshAnnouncementsFromServer('silent'), // ✅ Added to ensure announcements update on Home
+        // ✅ PRE-FETCH PAYMENT ICONS: Load icons for Card and Pi immediately so they appear in CheckoutModal
+        (async () => {
+          const methods = ['card', 'pi'];
+          for (const id of methods) {
+            try {
+              const iconKey = `payment_method_${id}_icon`;
+              const resIcon = await settingsService.get(iconKey);
+              const valIcon = resIcon?.data !== undefined ? resIcon.data : resIcon;
+              if (valIcon && typeof valIcon === 'string') {
+                localStorage.setItem(iconKey, valIcon);
+              }
+            } catch (e) {}
+          }
+        })()
       ]);
     } catch (error) {
       console.warn('Failed to refresh home data from API', error);
