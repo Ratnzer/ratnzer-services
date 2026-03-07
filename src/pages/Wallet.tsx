@@ -465,7 +465,7 @@ const Wallet: React.FC<Props> = ({
         color: 'text-red-600', 
         bg: 'from-red-600/20 to-red-700/5', 
         border: 'border-red-600/30',
-        desc: 'شحن عبر الكارتات فقط' 
+        desc: 'شحن عبر الكارتات' 
       },
       { 
         id: 'pi', 
