@@ -108,6 +108,7 @@ export interface Category {
 export interface Transaction {
   id: string;
   title: string;
+  description?: string;
   date: string;
   amount: number;
   type: 'credit' | 'debit';
