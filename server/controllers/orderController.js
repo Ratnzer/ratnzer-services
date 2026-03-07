@@ -337,7 +337,9 @@ const createOrder = asyncHandler(async (req, res) => {
         description: isPiPayment ? `رقم معاملة Pi: ${piPaymentId}` : `رقم الطلب: ${order.id}`,
         paymentId: isPiPayment ? piPaymentId : undefined,
       },
-    });ion has a specific API service ID
+    });
+    return order;
+  });
   const regions = parseJsonField(product?.regions, []);
   const selectedRegion = Array.isArray(regions) 
     ? regions.find(r => String(r.id) === String(regionIdNorm))
