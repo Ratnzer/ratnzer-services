@@ -474,7 +474,7 @@ const Wallet: React.FC<Props> = ({
 	        color: 'text-[#593B8B]', 
 	        bg: 'from-[#593B8B]/20 to-[#593B8B]/5', 
 	        border: 'border-[#593B8B]/30',
-	        desc: 'الدفع عبر شبكة Pi' 
+	        desc: 'طريقة الدفع هذه متوفرة فقط داخل Pi Browser' 
 	      },
   ].filter(method => activeMethods.includes(method.id));
 
