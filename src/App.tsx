@@ -1663,40 +1663,38 @@ useEffect(() => {
                 }
               },
               onReadyForServerCompletion: async (paymentId: string, txid: string) => {
-                // 🔥 INSTANT UX: Show success immediately like wallet purchase
-                showActionToast('تمت عملية الشراء', 'تم الدفع بنجاح عبر Pi Network');
-                setIsPurchaseProcessing(false);
-                
-                // Optimistically add to orders list
-                const optimisticOrder: Order = {
-                  id: generateShortId(),
-                  userId: currentUser.id,
-                  userName: currentUser.name,
-                  productName: itemName,
-                  productCategory: category,
-                  amount: price,
-                  date: new Date().toISOString(),
-                  status: 'pending',
-                  fulfillmentType: fulfillmentType || 'manual',
-                  regionName,
-                  quantityLabel,
-                  customInputValue,
-                  customInputLabel,
-                };
-                setOrders(prev => [optimisticOrder, ...prev]);
-
                 try {
-                  // Process completion in background
-                  await piPaymentService.complete({ 
+                  // 1. First, complete the Pi payment on server to mark it as paid
+                  const res = await piPaymentService.complete({ 
                     paymentId, 
                     txid, 
                     amountUSD: price,
-                    ...payload,
-                    isDirectPurchase: true
+                    isDirectPurchase: true,
+                    // We send minimal info first just to verify the payment
+                    justVerify: true 
                   });
-                  void syncAfterOrder();
+                  
+                  if (res.data?.success) {
+                    // 2. Now process order on server exactly like wallet checkout
+                    setIsPurchaseProcessing(false);
+                    showActionToast('تم استلام طلبك', 'يتم تأكيد الشراء خلال ثوانٍ دون انتظار');
+
+                    const result = await createOrderOnServer({
+                      ...payload,
+                      paymentMethod: 'pi',
+                      piPaymentId: paymentId
+                    });
+
+                    if (result.ok && result.order) {
+                      void pushService.notifyAdminOrder({ orderId: String(result.order.id || '') });
+                    }
+
+                    await syncAfterOrder();
+                    showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+                  }
                 } catch (err: any) {
-                  console.error('Pi Background Completion Error:', err);
+                  setIsPurchaseProcessing(false);
+                  alert(err?.response?.data?.message || 'فشل إكمال الدفع عبر Pi');
                 }
               },
               onCancel: (paymentId: string) => {

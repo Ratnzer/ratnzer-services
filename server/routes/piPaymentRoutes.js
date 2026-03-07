@@ -5,8 +5,9 @@ const prisma = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
 const axios = require('axios');
 const { generateShortId } = require('../utils/id');
-const { sendNotification, notifyAdminsPush } = require('../controllers/notificationController');
+const { sendNotification, notifyAdminsPush, sendUserOrderNotification } = require('../controllers/notificationController');
 const { parseQuantity } = require('../utils/kd1sClient');
+const { getProvider } = require('../utils/providerManager');
 
 // Helpers for order creation (copied from orderController to avoid circular dependency or missing exports)
 const parseJsonField = (raw, fallback = null) => {
@@ -158,6 +159,7 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
 
       const itemsToProcess = isBulk && Array.isArray(cartItems) ? cartItems : [req.body];
       const createdOrders = [];
+      const apiDispatchQueue = [];
 
       await prisma.$transaction(async (tx) => {
         for (const item of itemsToProcess) {
@@ -165,7 +167,7 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
           const regionIdNorm = normalizeId(item.regionId);
           const denominationIdNorm = normalizeId(item.denominationId);
 
-          const product = await prisma.product.findUnique({ where: { id: productIdNorm } });
+          const product = await tx.product.findUnique({ where: { id: productIdNorm } });
           if (!product) continue;
 
           const activeCustomInput = resolveCustomInputConfig(product, regionIdNorm);
@@ -224,6 +226,31 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
               providerName: apiConfig?.providerName,
             }
           });
+
+          // ✅ API Dispatch Logic
+          if (apiConfig?.type === 'api' && !deliveredCode) {
+            const regions = parseJsonField(product?.regions, []);
+            const selectedRegion = Array.isArray(regions) 
+              ? regions.find(r => String(r.id) === String(regionIdNorm))
+              : null;
+            
+            const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
+            const effectiveProviderName = selectedRegion?.apiProviderName || apiConfig?.providerName || 'KD1S';
+
+            if (effectiveServiceId) {
+              const providerQuantity = parseQuantity(item.quantityLabel || normalizedQuantity);
+              apiDispatchQueue.push({
+                orderId: order.id,
+                serviceId: effectiveServiceId,
+                providerName: effectiveProviderName,
+                link: item.customInputValue || item.regionName || order.productName,
+                quantity: providerQuantity,
+                userId: req.user.id,
+                productName: order.productName,
+              });
+            }
+          }
+
           createdOrders.push(order);
         }
 
@@ -241,6 +268,40 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
           }
         });
       });
+
+      // ✅ Process API Dispatch Queue (Outside Transaction)
+      for (const apiTask of apiDispatchQueue) {
+        setImmediate(async () => {
+          try {
+            const provider = getProvider(apiTask.providerName);
+            const providerOrder = await provider.placeOrder({
+              serviceId: apiTask.serviceId,
+              link: apiTask.link,
+              quantity: apiTask.quantity,
+            });
+
+            await prisma.order.update({
+              where: { id: apiTask.orderId },
+              data: {
+                providerOrderId: providerOrder.orderId,
+                providerName: providerOrder.providerName,
+                fulfillmentType: 'api',
+              },
+            });
+
+            await sendUserOrderNotification({
+              orderId: apiTask.orderId,
+              status: 'pending',
+              userId: apiTask.userId,
+              title: `طلب جديد: ${apiTask.productName}`,
+              message: `تم استلام طلبك رقم ${apiTask.orderId} وهو قيد المعالجة الآن.`
+            }).catch(() => {});
+          } catch (err) {
+            console.error(`[Pi API Dispatch Error] Order ${apiTask.orderId}:`, err.message);
+            // We don't refund automatically here for Pi as it's complex, admin will handle it
+          }
+        });
+      }
 
       createdOrder = createdOrders[0]; // For backward compatibility in response
 

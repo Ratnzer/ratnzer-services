@@ -486,18 +486,27 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         },
       });
 
-      if (apiConfig?.type === 'api' && apiConfig?.serviceId && !deliveredCode) {
-        // ✅ CRITICAL FIX: Use quantityLabel as the primary source for the provider quantity
-        // This ensures that values like "100" (from label) are used instead of "1" (from numeric quantity)
-        const providerQuantity = parseQuantity(it?.quantityLabel || normalizedQuantity);
+      if (apiConfig?.type === 'api' && !deliveredCode) {
+        const regions = parseJsonField(product?.regions, []);
+        const selectedRegion = Array.isArray(regions) 
+          ? regions.find(r => String(r.id) === String(normalizeId(it?.regionId)))
+          : null;
         
-        apiDispatchQueue.push({
-          orderId: order.id,
-          serviceId: apiConfig.serviceId,
-          providerName: apiConfig.providerName || 'KD1S',
-          link: it?.customInputValue || it?.regionName || baseOrderData.productName,
-          quantity: providerQuantity,
-        });
+        const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
+        const effectiveProviderName = selectedRegion?.apiProviderName || apiConfig?.providerName || 'KD1S';
+
+        if (effectiveServiceId) {
+          // ✅ CRITICAL FIX: Use quantityLabel as the primary source for the provider quantity
+          const providerQuantity = parseQuantity(it?.quantityLabel || normalizedQuantity);
+          
+          apiDispatchQueue.push({
+            orderId: order.id,
+            serviceId: effectiveServiceId,
+            providerName: effectiveProviderName,
+            link: it?.customInputValue || it?.regionName || baseOrderData.productName,
+            quantity: providerQuantity,
+          });
+        }
       }
 
       createdOrders.push(order);
