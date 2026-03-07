@@ -1890,24 +1890,37 @@ useEffect(() => {
         const itemName = isBulkCheckout ? `شراء الكل (${cartCount} منتجات)` : activeCheckoutItem?.name || '';
         const productId = isBulkCheckout ? 'bulk_cart' : activeCheckoutItem?.productId;
         
-        // Prepare payload for Pi metadata
+        // Prepare payload for Pi metadata - EXACT SAME STRUCTURE AS CARD PAYMENTS
         const payload = isBulkCheckout ? {
           type: 'bulk_cart',
           items: cartItems.map(item => ({
+            cartItemId: item.id,
             productId: item.productId,
             productName: item.name,
+            productCategory: item.category,
             amount: item.price,
+            price: item.price,
+            fulfillmentType: item.apiConfig?.type || 'manual',
+            regionName: item.selectedRegion?.name,
             regionId: item.selectedRegion?.id,
             denominationId: item.selectedDenomination?.id,
+            quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
             customInputValue: item.customInputValue,
+            customInputLabel: item.customInputLabel,
           }))
         } : {
           productId: activeCheckoutItem?.productId,
           productName: activeCheckoutItem?.name,
+          productCategory: activeCheckoutItem?.category,
           amount: activeCheckoutItem?.price,
+          price: activeCheckoutItem?.price,
+          fulfillmentType: activeCheckoutItem?.apiConfig?.type || 'manual',
+          regionName: activeCheckoutItem?.selectedRegion?.name,
           regionId: activeCheckoutItem?.selectedRegion?.id,
           denominationId: activeCheckoutItem?.selectedDenomination?.id,
+          quantityLabel: activeCheckoutItem?.selectedDenomination?.label || (activeCheckoutItem?.selectedDenomination as any)?.name || (activeCheckoutItem?.selectedDenomination as any)?.value || String(activeCheckoutItem?.quantity),
           customInputValue: activeCheckoutItem?.customInputValue,
+          customInputLabel: activeCheckoutItem?.customInputLabel,
         };
 
         try {
