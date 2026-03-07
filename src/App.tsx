@@ -1865,10 +1865,114 @@ useEffect(() => {
       if (cartItems.length === 0) return;
       setIsBulkCheckout(true);
   };
-  const handleCheckoutSuccess = async (method: 'wallet' | 'card') => {
+  const handleCheckoutSuccess = async (method: 'wallet' | 'card' | 'pi') => {
       if (!currentUser) {
           setShowLoginModal(true);
           return;
+      }
+
+      // ✅ Pi Network Direct Payment from Cart
+      if (method === 'pi') {
+        const price = isBulkCheckout ? cartTotal : activeCheckoutItem?.price || 0;
+        const itemName = isBulkCheckout ? `شراء الكل (${cartCount} منتجات)` : activeCheckoutItem?.name || '';
+        const productId = isBulkCheckout ? 'bulk_cart' : activeCheckoutItem?.productId;
+        
+        // Prepare payload for Pi metadata
+        const payload = isBulkCheckout ? {
+          type: 'bulk_cart',
+          items: cartItems.map(item => ({
+            productId: item.productId,
+            productName: item.name,
+            amount: item.price,
+            regionId: item.selectedRegion?.id,
+            denominationId: item.selectedDenomination?.id,
+            customInputValue: item.customInputValue,
+          }))
+        } : {
+          productId: activeCheckoutItem?.productId,
+          productName: activeCheckoutItem?.name,
+          amount: activeCheckoutItem?.price,
+          regionId: activeCheckoutItem?.selectedRegion?.id,
+          denominationId: activeCheckoutItem?.selectedDenomination?.id,
+          customInputValue: activeCheckoutItem?.customInputValue,
+        };
+
+        try {
+          if (!(window as any).Pi) {
+            alert('Pi SDK غير متاح حالياً');
+            return;
+          }
+
+          if (!piAuthenticated) {
+            const onIncompletePaymentFound = (payment: any) => console.log("Incomplete payment found:", payment);
+            try {
+              await (window as any).Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound);
+              setPiAuthenticated(true);
+            } catch (authErr) {
+              alert('يرجى تسجيل الدخول إلى Pi أولاً للمتابعة');
+              return;
+            }
+          }
+
+          const piCurrency = currencies.find(c => c.code === 'PI');
+          const piRate = piCurrency?.rate || 1;
+          const piAmount = price * piRate;
+
+          const paymentData = {
+            amount: piAmount,
+            memo: `شراء من السلة: ${itemName}`,
+            metadata: { 
+              productId, 
+              amountUSD: price, 
+              type: isBulkCheckout ? 'bulk_cart_purchase' : 'cart_purchase',
+              orderPayload: payload 
+            }
+          };
+
+          const callbacks = {
+            onReadyForServerApproval: async (paymentId: string) => {
+              try { await piPaymentService.approve(paymentId); } catch (err) { console.error('Pi Approval Error:', err); }
+            },
+            onReadyForServerCompletion: async (paymentId: string, txid: string) => {
+              try {
+                const res = await piPaymentService.complete({ 
+                  paymentId, 
+                  txid, 
+                  amountUSD: price,
+                  isCartPurchase: true,
+                  isBulk: isBulkCheckout,
+                  cartItems: isBulkCheckout ? cartItems : [activeCheckoutItem]
+                });
+                
+                if (res.data?.success) {
+                  showActionToast('تمت عملية الشراء', 'تم الدفع بنجاح عبر Pi Network');
+                  if (isBulkCheckout) {
+                    setCartItems([]);
+                    try { await cartService.clear(); } catch (e) {}
+                  } else if (activeCheckoutItem) {
+                    removeFromCart(activeCheckoutItem.id);
+                  }
+                  setActiveCheckoutItem(null);
+                  setIsBulkCheckout(false);
+                  void syncAfterOrder();
+                }
+              } catch (err: any) {
+                alert(err?.response?.data?.message || 'فشل إكمال الدفع عبر Pi');
+              }
+            },
+            onCancel: (paymentId: string) => {},
+            onError: (error: Error, payment?: any) => {
+              console.error('Pi Payment Error:', error);
+              alert('حدث خطأ أثناء الدفع عبر Pi Network');
+            }
+          };
+
+          (window as any).Pi.createPayment(paymentData, callbacks);
+          return;
+        } catch (err) {
+          console.error('Pi Payment Init Error:', err);
+          return;
+        }
       }
 
       // ✅ Card payment via PayTabs (Bulk payment with sequential server execution)

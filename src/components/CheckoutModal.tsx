@@ -8,13 +8,13 @@ interface Props {
   itemName: string;
   price: number;
   userBalance: number;
-  onSuccess: (method: 'wallet' | 'card') => void;
+  onSuccess: (method: 'wallet' | 'card' | 'pi') => void;
   formatPrice: (price: number) => string;
   onRequireLogin?: () => void; // Optional fallback
 }
 
 const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice }) => {
-  const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | 'pi' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Drag to dismiss state
@@ -89,6 +89,10 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
     } else if (selectedMethod === 'card') {
         // ✅ PayTabs flow (redirect handled by parent)
         onSuccess('card');
+        onClose();
+    } else if (selectedMethod === 'pi') {
+        // ✅ Pi Network flow (handled by parent)
+        onSuccess('pi');
         onClose();
     }
   };
@@ -200,6 +204,37 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                         </div>
                     </div>
                     {selectedMethod === 'card' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={20} /></div>}
+                 </button>
+
+                 {/* Pi Network Option */}
+                 <button 
+                   onClick={() => setSelectedMethod('pi')}
+                   className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+                       selectedMethod === 'pi' 
+                       ? 'bg-yellow-400/10 border-yellow-400' 
+                       : 'bg-[#242636] border-gray-700 hover:border-gray-500'
+                   }`}
+                 >
+                    <div className="flex items-center gap-4 relative z-10">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
+                            {localStorage.getItem('payment_method_pi_icon') ? (
+                                <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-contain p-2" />
+                            ) : (
+                                <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                                  <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
+                                  <g fill="#593B8B">
+                                    <path d="m441.6 142.2c-94.2 0-170.6 76.4-170.6 170.6s76.4 170.6 170.6 170.6 170.6-76.4 170.6-170.6-76.4-170.6-170.6-170.6zm0 312.8c-78.5 0-142.2-63.7-142.2-142.2s63.7-142.2 142.2-142.2 142.2 63.7 142.2 142.2-63.7 142.2-142.2 142.2z"/>
+                                    <path d="m491.3 234.7h-99.4c-11.8 0-21.3 9.5-21.3 21.3v113.7c0 11.8 9.5 21.3 21.3 21.3h99.4c11.8 0 21.3-9.5 21.3-21.3v-113.7c0-11.8-9.5-21.3-21.3-21.3zm-7.1 127.9h-85.2v-99.4h85.2z"/>
+                                  </g>
+                                </svg>
+                            )}
+                        </div>
+                        <div className="text-right">
+                            <h3 className={`font-bold text-sm ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>Pi Network</h3>
+                            <p className="text-gray-400 text-xs mt-1">الدفع المباشر عبر عملة Pi</p>
+                        </div>
+                    </div>
+                    {selectedMethod === 'pi' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={20} /></div>}
                  </button>
               </div>
 
