@@ -48,6 +48,7 @@ const syncAvailability = async () => {
             const service = kd1sServices.find(s => String(s.service) === String(region.apiServiceId));
             const isAvailable = !!service; // If service exists in provider list, it's available
             
+            // ✅ Match manual behavior: If service is missing, set isAvailable to false
             if (region.isAvailable !== isAvailable) {
               console.log(`[Availability Sync] Updating Region ${region.name} in Product ${product.name}: ${isAvailable ? 'Available' : 'Unavailable'}`);
               regions[i].isAvailable = isAvailable;
@@ -62,6 +63,7 @@ const syncAvailability = async () => {
         const service = kd1sServices.find(s => String(s.service) === String(apiConfig.serviceId));
         const isAvailable = !!service;
 
+        // ✅ Match manual behavior: If service is missing, set isAvailable to false
         if (product.isAvailable !== isAvailable) {
           console.log(`[Availability Sync] Updating Product ${product.name}: ${isAvailable ? 'Available' : 'Unavailable'}`);
           await prisma.product.update({
