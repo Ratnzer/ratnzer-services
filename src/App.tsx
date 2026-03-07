@@ -1640,27 +1640,40 @@ useEffect(() => {
                 }
               },
               onReadyForServerCompletion: async (paymentId: string, txid: string) => {
+                // 🔥 INSTANT UX: Show success immediately like wallet purchase
+                showActionToast('تمت عملية الشراء', 'تم الدفع بنجاح عبر Pi Network');
+                setIsPurchaseProcessing(false);
+                
+                // Optimistically add to orders list
+                const optimisticOrder: Order = {
+                  id: generateShortId(),
+                  userId: currentUser.id,
+                  userName: currentUser.name,
+                  productName: itemName,
+                  productCategory: category,
+                  amount: price,
+                  date: new Date().toISOString(),
+                  status: 'pending',
+                  fulfillmentType: fulfillmentType || 'manual',
+                  regionName,
+                  quantityLabel,
+                  customInputValue,
+                  customInputLabel,
+                };
+                setOrders(prev => [optimisticOrder, ...prev]);
+
                 try {
-                  // This is where the order is actually created on server
-                  const res = await piPaymentService.complete({ 
+                  // Process completion in background
+                  await piPaymentService.complete({ 
                     paymentId, 
                     txid, 
                     amountUSD: price,
-                    // Pass payload to indicate it's a direct purchase
                     ...payload,
                     isDirectPurchase: true
                   });
-                  
-                  if (res.data?.order) {
-                    const newOrder = normalizeOrderFromApi(res.data.order);
-                    setOrders(prev => [newOrder, ...prev]);
-                    showActionToast('تمت عملية الشراء', 'تم الدفع بنجاح عبر Pi Network');
-                    void syncAfterOrder();
-                  }
+                  void syncAfterOrder();
                 } catch (err: any) {
-                  alert(err?.response?.data?.message || 'فشل إكمال الدفع عبر Pi');
-                } finally {
-                  setIsPurchaseProcessing(false);
+                  console.error('Pi Background Completion Error:', err);
                 }
               },
               onCancel: (paymentId: string) => {
@@ -1935,14 +1948,15 @@ useEffect(() => {
             },
             onReadyForServerCompletion: async (paymentId: string, txid: string) => {
               try {
+                const itemsSnapshot = isBulkCheckout ? [...cartItems] : [activeCheckoutItem!];
+                
                 const res = await piPaymentService.complete({ 
                   paymentId, 
                   txid, 
                   amountUSD: price,
                   isCartPurchase: true,
                   isBulk: isBulkCheckout,
-                  cartItems: isBulkCheckout ? cartItems : [activeCheckoutItem],
-                  // For single item, also pass individual fields for backward compatibility
+                  cartItems: itemsSnapshot,
                   ...(isBulkCheckout ? {} : {
                     productId: activeCheckoutItem?.productId,
                     productName: activeCheckoutItem?.name,
@@ -1958,15 +1972,17 @@ useEffect(() => {
                 });
                 
                 if (res.data?.success) {
-                  showActionToast('تمت عملية الشراء', 'تم الدفع بنجاح عبر Pi Network');
+                  showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
+                  
                   if (isBulkCheckout) {
                     setCartItems([]);
+                    setIsBulkCheckout(false);
                     try { await cartService.clear(); } catch (e) {}
                   } else if (activeCheckoutItem) {
                     removeFromCart(activeCheckoutItem.id);
+                    setActiveCheckoutItem(null);
                   }
-                  setActiveCheckoutItem(null);
-                  setIsBulkCheckout(false);
+                  
                   void syncAfterOrder();
                 }
               } catch (err: any) {
