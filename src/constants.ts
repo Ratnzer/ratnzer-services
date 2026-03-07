@@ -41,6 +41,13 @@ export const INITIAL_CURRENCIES: Currency[] = [
     rate: 1,
     flag: 'π',
   },
+  {
+    code: 'IQD',
+    name: 'الدينار العراقي',
+    symbol: 'د.ع',
+    rate: 1310,
+    flag: '🇮🇶',
+  },
 ] as Currency[];
 
 // البانرات – تترك فاضية، ويتم جلبها من /api/content/banners مثلاً

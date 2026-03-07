@@ -1315,6 +1315,15 @@ useEffect(() => {
       return `${formatter.format(convertedAmount)} ${symbol}`;
     }
 
+    // For Iraqi Dinar, we usually don't need decimals
+    if (currencyCode === 'IQD') {
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+      return `${formatter.format(convertedAmount)} ${symbol}`;
+    }
+
     const formatter = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
