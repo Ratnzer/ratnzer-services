@@ -123,10 +123,10 @@ async function startServer() {
       // بدء مزامنة الطلبات فقط في البيئة المستمرة
       startKd1sStatusSync();
 
-      // ✅ Start Availability Sync (every 4 hours)
+      // ✅ Start Availability Sync (every 1 hour)
       setInterval(() => {
         syncAvailability().catch(err => console.error('Availability Sync Interval Error:', err));
-      }, 4 * 60 * 60 * 1000);
+      }, 1 * 60 * 60 * 1000);
       
       // Run once on startup
       syncAvailability().catch(err => console.error('Initial Availability Sync Error:', err));
