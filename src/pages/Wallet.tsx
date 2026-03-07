@@ -187,11 +187,11 @@ const Wallet: React.FC<Props> = ({
 
   const filters = [
     { id: 'All', label: 'الجميع' },
-    { id: 'card', label: 'Card' },
-    { id: 'asiacell', label: 'Asiacell' },
-    { id: 'superqi', label: 'SuperQi' },
-    { id: 'zaincash', label: 'ZainCash' },
-    { id: 'pi', label: 'Pi Network' }
+    { id: 'card', label: 'بطاقة مصرفية' },
+    { id: 'asiacell', label: 'آسياسيل' },
+    { id: 'superqi', label: 'سوبركي' },
+    { id: 'zaincash', label: 'زين كاش' },
+    { id: 'pi', label: 'شبكة Pi' }
   ];
 
   const filteredTransactions = transactions.filter((tx) => {
