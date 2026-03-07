@@ -6,6 +6,7 @@ export interface Region {
   flag: string;
   apiServiceId?: string; // NEW: Specific API service ID for this region
   apiProviderName?: string; // NEW: Specific API provider name for this region
+  autoSyncAvailability?: boolean; // NEW: Auto-sync availability for this region
   customInput?: CustomInputConfig; // NEW: Allow custom input override per region
   denominations?: Denomination[]; // NEW: Allow custom quantities/prices per product type
   isAvailable?: boolean; // NEW: Availability status for this region
@@ -49,6 +50,7 @@ export interface Product {
   denominations?: Denomination[]; // Available quantities/prices
   apiConfig?: ApiConfig; // Fulfillment settings
   autoDeliverStock?: boolean; // NEW: Flag to enable auto-delivery from inventory
+  autoSyncAvailability?: boolean; // NEW: Auto-sync availability from provider
   customInput?: CustomInputConfig; // NEW: Config for custom user input
   isAvailable?: boolean; // NEW: Product availability status
   sortOrder?: number; // NEW: Order of the product on the home page

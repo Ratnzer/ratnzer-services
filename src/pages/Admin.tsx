@@ -3702,6 +3702,15 @@ try {
                                                                 onChange={e => updateRegionConfig(r.id, { apiProviderName: e.target.value })}
                                                             />
                                                         </div>
+                                                        <div className="flex items-center justify-between pt-1">
+                                                            <label className="text-[10px] text-gray-400 font-bold">مزامنة التوفر</label>
+                                                            <button 
+                                                                onClick={() => updateRegionConfig(r.id, { autoSyncAvailability: !r.autoSyncAvailability })}
+                                                                className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${r.autoSyncAvailability ? 'bg-purple-500' : 'bg-gray-600'}`}
+                                                            >
+                                                                <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${r.autoSyncAvailability ? 'translate-x-0.5' : 'translate-x-4.5'}`} />
+                                                            </button>
+                                                        </div>
                                                     </div>
 
                                                     <div className="flex justify-between items-center">
@@ -3914,6 +3923,21 @@ try {
                                     </div>
                                 </div>
                                 
+                                <div className="pt-4 border-t border-gray-700/50">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h4 className="text-white text-sm font-bold">مزامنة التوفر تلقائياً</h4>
+                                            <p className="text-[10px] text-gray-400 mt-1">إيقاف المنتج تلقائياً إذا توقف عند المزود</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => setProdForm({...prodForm, autoSyncAvailability: !prodForm.autoSyncAvailability})}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${prodForm.autoSyncAvailability ? 'bg-purple-500' : 'bg-gray-600'}`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${prodForm.autoSyncAvailability ? 'translate-x-1' : 'translate-x-6'}`} />
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div className="pt-4 border-t border-gray-700/50">
                                     <div className="flex items-center justify-between">
                                         <div>

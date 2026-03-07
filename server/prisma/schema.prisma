@@ -55,6 +55,7 @@ model Product {
   customInput      Json?    // {enabled, label, placeholder, required}
 
   autoDeliverStock Boolean  @default(false)
+  autoSyncAvailability Boolean @default(false) // ✅ NEW: Auto-sync availability from provider
   isAvailable      Boolean  @default(true)
   position         Int      @default(0)
   sortOrder        Int      @default(0) // حقل الترتيب الجديد

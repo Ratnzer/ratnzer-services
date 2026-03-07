@@ -12,6 +12,7 @@ dotenv.config();
 const prisma = require('./config/db'); 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { startKd1sStatusSync } = require('./services/kd1sSync');
+const { syncAvailability } = require('./services/availabilitySync');
 
 const app = express();
 
@@ -121,6 +122,14 @@ async function startServer() {
       
       // بدء مزامنة الطلبات فقط في البيئة المستمرة
       startKd1sStatusSync();
+
+      // ✅ Start Availability Sync (every 15 minutes)
+      setInterval(() => {
+        syncAvailability().catch(err => console.error('Availability Sync Interval Error:', err));
+      }, 15 * 60 * 1000);
+      
+      // Run once on startup
+      syncAvailability().catch(err => console.error('Initial Availability Sync Error:', err));
     }
 
   } catch (error) {
