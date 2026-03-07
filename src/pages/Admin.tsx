@@ -2807,7 +2807,28 @@ try {
                            { id: 'pi', name: 'Pi Network' }
                        ].map(method => (
                            <div key={method.id} className="flex items-center justify-between p-3 bg-[#13141f] rounded-xl border border-gray-700">
-                               <span className="text-sm text-gray-200 font-bold">{method.name}</span>
+                               <div className="flex flex-col gap-2 flex-1 ml-4">
+                                   <span className="text-sm text-gray-200 font-bold">{method.name}</span>
+                                   <div className="flex items-center gap-2 bg-[#1a1b26] p-1.5 rounded-lg border border-gray-800">
+                                       <Link size={14} className="text-gray-500" />
+                                       <input 
+                                           type="text"
+                                           placeholder="رابط صورة الأيقونة (URL)"
+                                           className="bg-transparent border-none text-[10px] text-gray-300 focus:outline-none w-full"
+                                           defaultValue={localStorage.getItem(`payment_method_${method.id}_icon`) || ''}
+                                           onBlur={async (e) => {
+                                               const iconKey = `payment_method_${method.id}_icon`;
+                                               const newValue = e.target.value;
+                                               try {
+                                                   await settingsService.set(iconKey, newValue);
+                                                   localStorage.setItem(iconKey, newValue);
+                                               } catch (err) {
+                                                   console.error('Icon save error:', err);
+                                               }
+                                           }}
+                                       />
+                                   </div>
+                               </div>
                                <button 
                                    onClick={async () => {
                                        const key = `payment_method_${method.id}_enabled`;

@@ -511,8 +511,12 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                 }`}
               >
                   <div className="flex items-center gap-4 relative z-10">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
-                          <CreditCard size={24} />
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+                          {localStorage.getItem('payment_method_card_icon') ? (
+                              <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-contain p-2" />
+                          ) : (
+                              <CreditCard size={24} />
+                          )}
                       </div>
                       <div className="text-right">
                           <h3 className={`font-bold text-sm ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
@@ -532,15 +536,19 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                }`}
 	              >
 	                  <div className="flex items-center gap-4 relative z-10">
-	                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${paymentMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
-	                          <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-	                            <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
-	                            <g fill="#593B8B">
-	                              <path d="M441.6 47.4c-146.6 0-265.4 118.8-265.4 265.4S295 578.1 441.6 578.1 707 459.3 707 312.7 588.1 47.4 441.6 47.4zm0 492.8c-125.6 0-227.4-101.8-227.4-227.4S316 85.4 441.6 85.4 669 187.2 669 312.8 567.2 540.2 441.6 540.2z"/>
-	                              <path d="M412 214h-34.5c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5H412c2.8 0 5 2.3 5 5V209c.1 2.7-2.2 5-5 5zM493.5 214H459c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5h34.5c2.8 0 5 2.3 5 5V209c0 2.7-2.2 5-5 5zM340.5 313.7h-45.4v-32.3s1.8-44.6 43.7-45.2h191.4v-26.3h45.6v25.4s-1.2 45.9-43.4 46.5l-33.8.9.5 156.2s.5 2.6-2.6 4.3l-35.2 12.5s-7.8 3.2-8.1-4.7V282H418v155.3s1 4.6-4.1 6.8l-32.3 11.4s-10.1 3.8-10-6.3V281.7h-30.9z"/>
-	                            </g>
-	                          </svg>
-	                      </div>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
+                          {localStorage.getItem('payment_method_pi_icon') ? (
+                              <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-contain p-2" />
+                          ) : (
+                              <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
+                                <g fill="#593B8B">
+                                  <path d="M441.6 47.4c-146.6 0-265.4 118.8-265.4 265.4S295 578.1 441.6 578.1 707 459.3 707 312.7 588.1 47.4 441.6 47.4zm0 492.8c-125.6 0-227.4-101.8-227.4-227.4S316 85.4 441.6 85.4 669 187.2 669 312.8 567.2 540.2 441.6 540.2z"/>
+                                  <path d="M412 214h-34.5c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5H412c2.8 0 5 2.3 5 5V209c.1 2.7-2.2 5-5 5zM493.5 214H459c-2.8 0-5-2.3-5-5v-25.2c0-2.8 2.3-5 5-5h34.5c2.8 0 5 2.3 5 5V209c0 2.7-2.2 5-5 5zM340.5 313.7h-45.4v-32.3s1.8-44.6 43.7-45.2h191.4v-26.3h45.6v25.4s-1.2 45.9-43.4 46.5l-33.8.9.5 156.2s.5 2.6-2.6 4.3l-35.2 12.5s-7.8 3.2-8.1-4.7V282H418v155.3s1 4.6-4.1 6.8l-32.3 11.4s-10.1 3.8-10-6.3V281.7h-30.9z"/>
+                                </g>
+                              </svg>
+                          )}
+                      </div>
 	                      <div className="text-right">
 	                          <h3 className={`font-bold text-sm ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>Pi Network</h3>
 	                          <p className="text-gray-400 text-xs mt-1">الدفع المباشر عبر عملة Pi</p>

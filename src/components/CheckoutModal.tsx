@@ -187,8 +187,12 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                    }`}
                  >
                     <div className="flex items-center gap-4 relative z-10">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
-                            <CreditCard size={24} />
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+                            {localStorage.getItem('payment_method_card_icon') ? (
+                                <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-contain p-2" />
+                            ) : (
+                                <CreditCard size={24} />
+                            )}
                         </div>
                         <div className="text-right">
                             <h3 className={`font-bold text-sm ${selectedMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>

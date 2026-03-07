@@ -652,13 +652,15 @@ const Wallet: React.FC<Props> = ({
                                 className={`w-full bg-gradient-to-r ${method.bg} p-4 rounded-2xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
                             >
                                 <div className="flex items-center gap-4">
-	                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.color}`}>
-	                                        {method.id === 'pi' ? (
-	                                          <PiIcon size={24} />
-	                                        ) : (
-	                                          React.createElement(method.icon as any, { size: 24, strokeWidth: 1.5 })
-	                                        )}
-	                                    </div>
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-[#242636] shadow-inner ${method.color} overflow-hidden`}>
+                                        {localStorage.getItem(`payment_method_${method.id}_icon`) ? (
+                                            <img src={localStorage.getItem(`payment_method_${method.id}_icon`) || ''} alt={method.name} className="w-full h-full object-contain p-2" />
+                                        ) : method.id === 'pi' ? (
+                                          <PiIcon size={24} />
+                                        ) : (
+                                          React.createElement(method.icon as any, { size: 24, strokeWidth: 1.5 })
+                                        )}
+                                    </div>
                                     <div className="text-right">
                                         <span className="font-bold text-sm text-white block">{method.name}</span>
                                         <span className="text-[10px] text-gray-400 font-bold">{method.desc}</span>
