@@ -520,7 +520,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                       </div>
                       <div className="text-right">
                           <h3 className={`font-bold text-sm ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-
+                          <p className="text-gray-400 text-xs mt-1">دفع فوري وآمن</p>
                       </div>
                   </div>
 	                  {paymentMethod === 'card' && <div className="absolute top-5 left-5 text-yellow-400"><CheckCircle size={20} /></div>}
@@ -549,10 +549,10 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                               </svg>
                           )}
                       </div>
-	                      <div className="text-right">
-	                          <h3 className={`font-bold text-sm ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>Pi Network</h3>
-	                          <p className="text-gray-400 text-xs mt-1">الدفع المباشر عبر عملة Pi</p>
-	                      </div>
+		                      <div className="text-right">
+		                          <h3 className={`font-bold text-sm ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>Pi Network</h3>
+		                          <p className="text-gray-400 text-xs mt-1">الدفع عبر شبكة Pi</p>
+		                      </div>
 	                  </div>
 	                  {paymentMethod === 'pi' && <div className="absolute top-5 left-5 text-yellow-400"><CheckCircle size={20} /></div>}
 	              </button>
