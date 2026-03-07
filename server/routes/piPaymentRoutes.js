@@ -254,7 +254,7 @@ router.post('/complete', protect, asyncHandler(async (req, res) => {
           amount: finalPrice,
           type: 'deposit',
           status: 'completed',
-          title: 'شحن رصيد عبر Pi Network',
+          title: 'شحن رصيد عبر شبكة Pi',
           description: `رقم المعاملة: ${txid}`,
           paymentId: paymentId
         }

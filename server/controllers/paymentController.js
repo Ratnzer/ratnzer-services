@@ -305,7 +305,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         data: {
           id: generateShortId(),
           userId,
-          title: 'شحن رصيد',
+          title: 'شحن رصيد عبر بطاقة مصرفية',
           amount: amountNumber,
           type: 'credit',
           status: 'completed',

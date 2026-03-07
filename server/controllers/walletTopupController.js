@@ -181,11 +181,11 @@ const approveTopupRequest = asyncHandler(async (req, res) => {
       data: {
         id: generateShortId(),
         userId: topupRequest.userId,
-        title: 'شحن رصيد عبر أسياسيل',
+        title: 'شحن رصيد عبر آسياسيل',
         amount,
         type: 'credit',
         status: 'completed',
-        description: `شحن عبر أسياسيل | رقم الكارت: ${topupRequest.cardNumber.slice(-4)}`,
+        description: `شحن عبر آسياسيل | رقم الكارت: ${topupRequest.cardNumber.slice(-4)}`,
       },
     });
 
