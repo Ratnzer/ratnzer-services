@@ -192,9 +192,9 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                  >
                     <div className="flex items-center gap-4 relative z-10">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
-                            {localStorage.getItem('payment_method_card_icon') ? (
-                                <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-contain p-2" />
-                            ) : (
+	                            {localStorage.getItem('payment_method_card_icon') ? (
+	                                <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
+	                            ) : (
                                 <CreditCard size={24} />
                             )}
                         </div>
@@ -217,9 +217,9 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                  >
                     <div className="flex items-center gap-4 relative z-10">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
-                            {localStorage.getItem('payment_method_pi_icon') ? (
-                                <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-contain p-2" />
-                            ) : (
+	                            {localStorage.getItem('payment_method_pi_icon') ? (
+	                                <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-cover rounded-full" />
+	                            ) : (
                                 <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                                   <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
                                   <g fill="#593B8B">
