@@ -170,9 +170,9 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                         </div>
                         <div className="text-right">
                             <h3 className={`font-bold text-sm ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
-                            <p className="text-gray-400 text-xs mt-1 dir-ltr text-right font-mono">
-                                Balance: {formatPrice(userBalance)}
-                            </p>
+	                            <p className="text-gray-400 text-xs mt-1 dir-ltr text-right font-mono">
+	                                الرصيد: {formatPrice(userBalance)}
+	                            </p>
                         </div>
                     </div>
                     {selectedMethod === 'wallet' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={20} /></div>}
@@ -230,7 +230,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                             )}
                         </div>
                         <div className="text-right">
-                            <h3 className={`font-bold text-sm ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>Pi Network</h3>
+	                            <h3 className={`font-bold text-sm ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>شبكة Pi</h3>
                             <p className="text-gray-400 text-xs mt-1">الدفع عبر شبكة Pi</p>
                         </div>
                     </div>
