@@ -431,15 +431,15 @@ const Wallet: React.FC<Props> = ({
   };
 
   const paymentMethods = [
-      { 
-        id: 'card', 
-        name: 'بطاقة الماستر أو الفيزا', 
-        icon: CreditCard, 
-        color: 'text-blue-400', 
-        bg: 'from-blue-500/20 to-blue-600/5', 
-        border: 'border-blue-500/30',
-        desc: 'دفع فوري وآمن'
-      },
+	      { 
+	        id: 'card', 
+	        name: 'الشحن عبر البطاقة المصرفية', 
+	        icon: CreditCard, 
+	        color: 'text-blue-400', 
+	        bg: 'from-blue-500/20 to-blue-600/5', 
+	        border: 'border-blue-500/30',
+	        desc: 'دفع فوري وآمن'
+	      },
       { 
         id: 'superkey', 
         name: 'سوبركي', 
@@ -467,15 +467,15 @@ const Wallet: React.FC<Props> = ({
         border: 'border-red-600/30',
         desc: 'شحن عبر الكارتات' 
       },
-      { 
-        id: 'pi', 
-        name: 'شحن عبر Pi Network', 
-        icon: 'pi-icon', 
-        color: 'text-[#593B8B]', 
-        bg: 'from-[#593B8B]/20 to-[#593B8B]/5', 
-        border: 'border-[#593B8B]/30',
-        desc: 'الدفع عبر Pi SDK' 
-      },
+	      { 
+	        id: 'pi', 
+	        name: 'الشحن عبر Pi Network', 
+	        icon: 'pi-icon', 
+	        color: 'text-[#593B8B]', 
+	        bg: 'from-[#593B8B]/20 to-[#593B8B]/5', 
+	        border: 'border-[#593B8B]/30',
+	        desc: 'الدفع عبر شبكة Pi' 
+	      },
   ].filter(method => activeMethods.includes(method.id));
 
   const handleMethodSelect = (method: typeof paymentMethods[0]) => {
