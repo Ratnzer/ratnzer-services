@@ -230,7 +230,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                             )}
                         </div>
                         <div className="text-right">
-	                            <h3 className={`font-bold text-sm ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>شبكة Pi</h3>
+	                            <h3 className={`font-bold text-sm ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi Network</h3>
                             <p className="text-gray-400 text-xs mt-1">طريقة الدفع هذه متوفرة فقط داخل Pi Browser</p>
                         </div>
                     </div>

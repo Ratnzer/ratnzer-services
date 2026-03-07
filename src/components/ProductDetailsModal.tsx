@@ -550,7 +550,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                           )}
                       </div>
 		                      <div className="text-right">
-		                          <h3 className={`font-bold text-sm ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>شبكة Pi</h3>
+		                          <h3 className={`font-bold text-sm ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi Network</h3>
 		                          <p className="text-gray-400 text-xs mt-1">طريقة الدفع هذه متوفرة فقط داخل Pi Browser</p>
 		                      </div>
 	                  </div>
