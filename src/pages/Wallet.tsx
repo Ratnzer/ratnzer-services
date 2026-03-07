@@ -187,13 +187,35 @@ const Wallet: React.FC<Props> = ({
 
   const filters = [
     { id: 'All', label: 'الجميع' },
-    { id: 'Visa', label: 'Visa' },
-    { id: 'Mastercard', label: 'Mastercard' }
+    { id: 'card', label: 'Card' },
+    { id: 'asiacell', label: 'Asiacell' },
+    { id: 'superqi', label: 'SuperQi' },
+    { id: 'zaincash', label: 'ZainCash' },
+    { id: 'pi', label: 'Pi Network' }
   ];
 
   const filteredTransactions = transactions.filter((tx) => {
     if (activeFilter === 'All') return true;
-    return tx.title.toLowerCase().includes(activeFilter.toLowerCase());
+    const title = tx.title.toLowerCase();
+    const filterId = activeFilter.toLowerCase();
+    
+    if (filterId === 'card') {
+      return title.includes('card') || title.includes('visa') || title.includes('mastercard') || title.includes('بطاقة') || title.includes('ماستر') || title.includes('فيزا');
+    }
+    if (filterId === 'asiacell') {
+      return title.includes('asiacell') || title.includes('اسياسيل');
+    }
+    if (filterId === 'superqi') {
+      return title.includes('superqi') || title.includes('سوبركي') || title.includes('superkey');
+    }
+    if (filterId === 'zaincash') {
+      return title.includes('zaincash') || title.includes('زين كاش');
+    }
+    if (filterId === 'pi') {
+      return title.includes('pi network') || title.includes('pi');
+    }
+    
+    return title.includes(filterId);
   });
 
   const handleRefresh = async () => {
