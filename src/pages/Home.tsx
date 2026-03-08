@@ -342,7 +342,7 @@ const Home: React.FC<Props> = ({
                 ref={scrollRef}
                 onScroll={handleScroll}
                 dir="rtl"
-                className="flex overflow-x-auto snap-x snap-mandatory h-full w-full no-scrollbar overscroll-x-contain"
+                className="flex overflow-x-auto snap-x snap-proximity h-full w-full no-scrollbar"
               >
                 {extendedBanners.map((banner: any, index: number) => (
                   <div
