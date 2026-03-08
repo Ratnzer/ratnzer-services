@@ -422,7 +422,7 @@ const Home: React.FC<Props> = ({
                 className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all duration-300 border shadow-md ${
                   effectiveCategory === cat.id
                     ? 'bg-yellow-400 text-black border-yellow-400'
-                    : 'bg-[#13141f] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
+                    : 'bg-[#242636] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
                 }`}
               >
                 {(() => {
