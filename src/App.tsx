@@ -640,6 +640,8 @@ useEffect(() => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isOtherModalOpen, setIsOtherModalOpen] = useState(false);
+  const [isAddBalanceOpen, setIsAddBalanceOpen] = useState(false);
 
   // --- Admin Auth State ---
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => persistedAdminAuth);
@@ -2310,6 +2312,7 @@ useEffect(() => {
                 hasMore={transactionsHasMore}
                 loadingMore={transactionsLoadingMore}
                 currencies={currencies}
+                onAddBalanceModalToggle={setIsAddBalanceOpen}
             />
         );
       case View.PROFILE:
@@ -2327,6 +2330,7 @@ useEffect(() => {
             onUpdateUser={handleUpdateProfile} // Pass Profile Update Handler
             onTermsModalToggle={setIsTermsOpen}
             onPrivacyModalToggle={setIsPrivacyOpen}
+            onOtherModalToggle={setIsOtherModalOpen}
           />
         );
       case View.ADMIN:
@@ -2844,7 +2848,7 @@ useEffect(() => {
 
         {/* Persistent Bottom Nav (Hidden in Admin View or if Banned) */}
         {currentView !== View.ADMIN && !isUserBanned && (
-          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen} />
+          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen || isOtherModalOpen || isAddBalanceOpen} />
         )}
 
         {/* Global Ban Overlay (Using the enhanced Profile Ban UI) */}
@@ -2863,6 +2867,9 @@ useEffect(() => {
               window.location.reload();
             }}
             onUpdateUser={setCurrentUser}
+            onTermsModalToggle={setIsTermsOpen}
+            onPrivacyModalToggle={setIsPrivacyOpen}
+            onOtherModalToggle={setIsOtherModalOpen}
           />
         )}
 

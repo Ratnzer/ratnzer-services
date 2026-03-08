@@ -38,9 +38,10 @@ interface Props {
   onUpdateUser: (updatedUser: UserProfile) => void; // New prop for updating user data
   onTermsModalToggle?: (isOpen: boolean) => void;
   onPrivacyModalToggle?: (isOpen: boolean) => void;
+  onOtherModalToggle?: (isOpen: boolean) => void;
 }
 
-const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser, onTermsModalToggle, onPrivacyModalToggle }) => {
+const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser, onTermsModalToggle, onPrivacyModalToggle, onOtherModalToggle }) => {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [currencyTranslateY, setCurrencyTranslateY] = useState(0);
   const [isCurrencyDragging, setIsCurrencyDragging] = useState(false);
@@ -55,18 +56,27 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
 
   useEffect(() => {
     onPrivacyModalToggle?.(showPrivacyModal);
-  }, [showPrivacyModal]);
+  }, [showPrivacyModal, onPrivacyModalToggle]);
+
+  useEffect(() => {
+    onOtherModalToggle?.(showCurrencyModal);
+  }, [showCurrencyModal, onOtherModalToggle]);
+
   const [showFaqModal, setShowFaqModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showAboutUsModal, setShowAboutUsModal] = useState(false);
-  const [copiedId, setCopiedId] = useState(false);
-  const [aboutUsData, setAboutUsData] = useState<any>(() => localCache.get('about_us', null));
-  const [aboutUsLoading, setAboutUsLoading] = useState(false);
-  
-  // New Modals State
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [showDeleteConfirmWithPassword, setShowDeleteConfirmWithPassword] = useState(false);
+
+  useEffect(() => {
+    const isAnyOtherModalOpen = showFaqModal || showPasswordModal || showAboutUsModal || showLogoutModal || showDeleteAccountModal || showDeleteConfirmWithPassword;
+    onOtherModalToggle?.(isAnyOtherModalOpen);
+  }, [showFaqModal, showPasswordModal, showAboutUsModal, showLogoutModal, showDeleteAccountModal, showDeleteConfirmWithPassword, onOtherModalToggle]);
+
+  const [copiedId, setCopiedId] = useState(false);
+  const [aboutUsData, setAboutUsData] = useState<any>(() => localCache.get('about_us', null));
+  const [aboutUsLoading, setAboutUsLoading] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeletePassword, setShowDeletePassword] = useState(false);

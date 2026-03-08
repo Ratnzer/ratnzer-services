@@ -13,6 +13,7 @@ interface Props {
   hasMore?: boolean;
   loadingMore?: boolean;
   currencies?: Currency[];
+  onAddBalanceModalToggle?: (isOpen: boolean) => void;
 }
 
 const PiIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
@@ -34,7 +35,8 @@ const Wallet: React.FC<Props> = ({
   onRefreshTransactions,
   hasMore = false,
   loadingMore = false,
-  currencies = []
+  currencies = [],
+  onAddBalanceModalToggle
 }) => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
@@ -157,11 +159,15 @@ const Wallet: React.FC<Props> = ({
     if (showAddBalanceModal) {
       syncPaymentSettings();
       const timer = setTimeout(() => setIsVisible(true), 10);
-      return () => clearTimeout(timer);
+      onAddBalanceModalToggle?.(true);
+      return () => {
+          clearTimeout(timer);
+      };
     } else {
       setIsVisible(false);
+      onAddBalanceModalToggle?.(false);
     }
-  }, [showAddBalanceModal]);
+  }, [showAddBalanceModal, onAddBalanceModalToggle]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
