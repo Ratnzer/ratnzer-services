@@ -414,7 +414,7 @@ const Home: React.FC<Props> = ({
       </div>
 
       {/* Categories (Scrollable) */}
-      <div className="px-4">
+      <div className="sticky top-0 z-40 px-4">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pr-1 touch-pan-x touch-pan-y pointer-events-auto" style={{ touchAction: 'pan-y' }}>
           {uiCategories.map((cat: any) => (
             <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group touch-manipulation active:scale-95 transition-transform duration-150">
