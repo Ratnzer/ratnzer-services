@@ -304,7 +304,7 @@ const Home: React.FC<Props> = ({
   })();
 
   return (
-    <div className="pb-24 pt-4 space-y-6 overflow-y-auto overflow-x-hidden touch-pan-y">
+    <div className="pb-24 pt-4 space-y-6 will-change-scroll">
       {/* Announcements / Alerts */}
       {viewAnnouncements.length > 0 && (
         <div className="px-4">
@@ -342,7 +342,7 @@ const Home: React.FC<Props> = ({
                 ref={scrollRef}
                 onScroll={handleScroll}
                 dir="rtl"
-                className="flex overflow-x-auto snap-x snap-proximity h-full w-full no-scrollbar touch-pan-y pointer-events-auto"
+                className="flex overflow-x-auto snap-x snap-proximity h-full w-full no-scrollbar touch-pan-x touch-pan-y"
               >
                 {extendedBanners.map((banner: any, index: number) => (
                   <div
@@ -415,7 +415,7 @@ const Home: React.FC<Props> = ({
 
       {/* Categories (Scrollable) */}
       <div className="px-4">
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pr-1 touch-pan-y pointer-events-auto">
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pr-1 touch-pan-x touch-pan-y">
           {uiCategories.map((cat: any) => (
             <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group touch-manipulation active:scale-95 transition-transform duration-150">
               <div
