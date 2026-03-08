@@ -1,25 +1,20 @@
-
 import React from 'react';
 import { Home, ShoppingCart, ClipboardList, Settings } from 'lucide-react';
 import { View } from '../types';
-
 interface Props {
   currentView: View;
   setView: (view: View) => void;
   isHidden?: boolean;
 }
-
 const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
   if (isHidden) return null;
-  // Order from Right to Left as per Arabic layout in screenshot
-  // Screenshot (Right -> Left): Home, Cart, Orders, Settings
+  // Order from Right to Left as per Arabic layout
   const navItems = [
-    { id: View.PROFILE, icon: Settings, label: 'الإعدادات' },
-    { id: View.ORDERS, icon: ClipboardList, label: 'طلباتي' },
-    { id: View.CART, icon: ShoppingCart, label: 'السلة' }, 
     { id: View.HOME, icon: Home, label: 'الرئيسية' },
+    { id: View.CART, icon: ShoppingCart, label: 'السلة' }, 
+    { id: View.ORDERS, icon: ClipboardList, label: 'طلباتي' },
+    { id: View.PROFILE, icon: Settings, label: 'الإعدادات' },
   ];
-
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#1a1b26] border-t border-gray-800 pb-safe pt-3 z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
       <div className="flex justify-around items-center px-4 pb-4 w-full max-w-6xl mx-auto">
@@ -43,5 +38,4 @@ const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
     </div>
   );
 };
-
 export default BottomNav;
