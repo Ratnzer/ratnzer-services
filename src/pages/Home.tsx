@@ -414,7 +414,7 @@ const Home: React.FC<Props> = ({
       </div>
 
       {/* Categories (Scrollable) */}
-      <div className="sticky top-0 z-40 px-4 bg-[#1a1c29] py-1">
+      <div className="sticky top-0 z-40 px-4 bg-[#13141f] py-1">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 pr-1 touch-pan-x touch-pan-y pointer-events-auto" style={{ touchAction: 'pan-x pan-y' }}>
           {uiCategories.map((cat: any) => (
             <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[65px] group touch-manipulation active:scale-95 transition-transform duration-150">
@@ -422,7 +422,7 @@ const Home: React.FC<Props> = ({
                 className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all duration-300 border shadow-md ${
                   effectiveCategory === cat.id
                     ? 'bg-yellow-400 text-black border-yellow-400'
-                    : 'bg-[#242636] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
+                    : 'bg-[#13141f] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
                 }`}
               >
                 {(() => {
