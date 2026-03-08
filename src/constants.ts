@@ -36,18 +36,18 @@ export const INITIAL_CURRENCIES: Currency[] = [
     flag: '🇺🇸',
   },
   {
-    code: 'PI',
-    name: 'Pi Network',
-    symbol: 'π',
-    rate: 1,
-    flag: 'π',
-  },
-  {
     code: 'IQD',
     name: 'الدينار العراقي',
     symbol: 'د.ع',
     rate: 1310,
     flag: '🇮🇶',
+  },
+  {
+    code: 'PI',
+    name: 'Pi Network',
+    symbol: 'π',
+    rate: 1,
+    flag: 'π',
   },
 ] as Currency[];
 
