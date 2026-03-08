@@ -1635,11 +1635,12 @@ useEffect(() => {
 
         // ✅ Card payment via PayTabs
         if (paymentMethod === 'card') {
-          await startPaytabsRedirect({
-            type: 'single',
-            orderPayload: payload,
-            returnView: currentView,
-          });
+      await startPaytabsRedirect({
+        type: 'single',
+        orderPayload: payload,
+        returnView: currentView,
+        is_app: Capacitor.isNativePlatform() ? 'true' : 'false',
+      });
           return;
         }
 
@@ -1815,6 +1816,7 @@ useEffect(() => {
                 type: 'topup',
                 amount,
                 returnView: View.WALLET,
+                is_app: Capacitor.isNativePlatform() ? 'true' : 'false',
               });
               return true;
           }
@@ -2096,6 +2098,7 @@ useEffect(() => {
                 type: 'cart',
                 cartMode: 'bulk',
                 returnView: View.CART,
+                is_app: Capacitor.isNativePlatform() ? 'true' : 'false',
                 orderPayload: items.map(item => ({
                   cartItemId: item.id, // ✅ CRITICAL: Pass unique cart item ID to distinguish between similar products
                   productId: item.productId,
@@ -2120,6 +2123,7 @@ useEffect(() => {
                 cartMode: 'single',
                 cartItemId: activeCheckoutItem.id,
                 returnView: View.CART,
+                is_app: Capacitor.isNativePlatform() ? 'true' : 'false',
                 // Pass exact same structure as wallet checkout
                 orderPayload: {
                   productId: activeCheckoutItem.productId,

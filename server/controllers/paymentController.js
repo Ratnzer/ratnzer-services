@@ -593,6 +593,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
     cartMode, // bulk | single
     cartItemId,
     returnView, // home | cart | wallet ... (frontend hint)
+    is_app, // true | false
   } = req.body || {};
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -624,7 +625,7 @@ const createPaytabs = asyncHandler(async (req, res) => {
     throw new Error('PAYTABS_PROFILE_ID is missing');
   }
 
-  let meta = { type, returnView };
+  let meta = { type, returnView, is_app };
   let cartAmount = 0;
 
   if (type === 'topup') {
@@ -936,11 +937,29 @@ const paytabsReturn = asyncHandler(async (req, res) => {
     } catch {}
   }
 
-  // ✅ IMPROVED APP DETECTION: 
-  // 1. PayTabs often strips custom headers, so we rely on UA and metadata.
-  // 2. We include Android/iPhone keywords which are common in mobile WebView User Agents.
+  // ✅ PRECISE APP DETECTION: 
+  // 1. We check for 'Capacitor' or 'wv' (WebView) which are specific to the mobile app.
+  // 2. We DO NOT use generic 'Android' or 'iPhone' to avoid forcing web users into the app.
+  // 3. We check for 'is_app' flag which can be passed from the app.
   const ua = req.headers['user-agent'] || '';
-  const isApp = ua.includes('Capacitor') || ua.includes('wv') || ua.includes('Android') || ua.includes('iPhone') || src.is_app === 'true';
+  // ✅ PRECISE APP DETECTION: 
+  // 1. We check if 'is_app' was stored in the payment metadata (most reliable).
+  // 2. Fallback to UA check for Capacitor/WebView.
+  let isApp = ua.includes('Capacitor') || ua.includes('wv') || src.is_app === 'true';
+  
+  if (paymentId) {
+    try {
+      const p = await prisma.payment.findUnique({ where: { id: String(paymentId) } });
+      if (p) {
+        const meta = safeJsonParse(p.cardLast4, {});
+        if (meta?.is_app === 'true') isApp = true;
+        else if (meta?.is_app === 'false') isApp = false;
+        
+        if (meta?.returnView) returnView = meta.returnView;
+        if (meta?.type === 'topup') returnView = 'wallet';
+      }
+    } catch {}
+  }
 
   const frontendUrl = getFrontendReturnUrl({
     pt_payment_id: paymentId || '',
