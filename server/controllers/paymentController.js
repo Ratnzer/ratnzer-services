@@ -159,13 +159,8 @@ const getReturnUrl = (type) => {
   const base = 'https://www.ratnzer.com';
   const cleanBase = base.replace(/\/$/, '');
   
-  // Custom return URLs based on transaction type
-  if (type === 'topup') {
-    return `${cleanBase}/payment/return/wallet`;
-  } else if (type === 'single' || type === 'cart') {
-    return `${cleanBase}/payment/return/service`;
-  }
-  
+  // ✅ FIX: Use the universal return path for ALL payment types
+  // This ensures that Cart and Wallet topups behave exactly like the Home page redirect
   return `${cleanBase}/api/payments/paytabs/return`;
 };
 
@@ -941,11 +936,11 @@ const paytabsReturn = asyncHandler(async (req, res) => {
     } catch {}
   }
 
-  // Detect if request is from the app (using a custom header or user agent hint if available)
-  // For now, we can check if the user agent contains "Capacitor" or similar, 
-  // or rely on the fact that the app might pass a specific flag.
+  // ✅ IMPROVED APP DETECTION: 
+  // 1. PayTabs often strips custom headers, so we rely on UA and metadata.
+  // 2. We include Android/iPhone keywords which are common in mobile WebView User Agents.
   const ua = req.headers['user-agent'] || '';
-  const isApp = ua.includes('Capacitor') || ua.includes('wv') || src.is_app === 'true';
+  const isApp = ua.includes('Capacitor') || ua.includes('wv') || ua.includes('Android') || ua.includes('iPhone') || src.is_app === 'true';
 
   const frontendUrl = getFrontendReturnUrl({
     pt_payment_id: paymentId || '',

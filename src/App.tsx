@@ -1494,23 +1494,24 @@ useEffect(() => {
 
   // Handle return from PayTabs (https://localhost/?pt_payment_id=...)
   const paytabsHandledRef = useRef(false);
-  useEffect(() => {
+
+  const handlePaytabsCallback = (searchStr: string) => {
     if (paytabsHandledRef.current) return;
 
-    const params = new URLSearchParams(window.location.search || '');
-    const paymentId = params.get('pt_payment_id') || params.get('paymentId') || params.get('cart_id');
+    const params = new URLSearchParams(searchStr || '');
+    const paymentId = params.get('pt_payment_id') || params.get('paymentId') || params.get('cart_id') || params.get('tran_ref');
     if (!paymentId) return;
 
     paytabsHandledRef.current = true;
-    const returnViewParam = (params.get('pt_return_view') || 'home').toLowerCase();
+    const returnViewParam = (params.get('pt_return_view') || params.get('return_view') || 'home').toLowerCase();
 
     // Clean URL (remove params to avoid repeating)
     window.history.replaceState({}, document.title, window.location.pathname);
 
     // Navigate to the view we came from (best effort)
-    if (returnViewParam === 'wallet') setCurrentView(View.WALLET);
-    else if (returnViewParam === 'cart') setCurrentView(View.CART);
-    else if (returnViewParam === 'orders') setCurrentView(View.ORDERS);
+    if (returnViewParam.includes('wallet')) setCurrentView(View.WALLET);
+    else if (returnViewParam.includes('cart')) setCurrentView(View.CART);
+    else if (returnViewParam.includes('orders') || returnViewParam.includes('service')) setCurrentView(View.ORDERS);
     else setCurrentView(View.HOME);
 
     // If user isn't logged in, we can't confirm status.
@@ -1542,9 +1543,9 @@ useEffect(() => {
             setCurrentView(View.WALLET);
           } else {
             showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
-            if (rv === 'cart') setCurrentView(View.CART);
-            else if (rv === 'wallet') setCurrentView(View.WALLET);
-            else if (rv === 'orders') setCurrentView(View.ORDERS);
+            if (rv.includes('cart')) setCurrentView(View.CART);
+            else if (rv.includes('wallet')) setCurrentView(View.WALLET);
+            else if (rv.includes('orders') || rv.includes('service')) setCurrentView(View.ORDERS);
             else setCurrentView(View.HOME);
           }
         } else if (st === 'failed') {
@@ -1559,6 +1560,32 @@ useEffect(() => {
         setPaytabsProcessingText('');
       }
     })();
+  };
+
+  useEffect(() => {
+    // 1. Check current URL (for web or initial app load)
+    handlePaytabsCallback(window.location.search);
+
+    // 2. Listen for Deep Links (for app return from browser)
+    if (Capacitor.isNativePlatform()) {
+      CapApp.addListener('appUrlOpen', (data: any) => {
+        try {
+          let searchStr = '';
+          if (data.url.includes('?')) {
+            searchStr = data.url.substring(data.url.indexOf('?'));
+          }
+          handlePaytabsCallback(searchStr);
+        } catch (e) {
+          console.error('Failed to parse appUrlOpen URL', e);
+        }
+      });
+    }
+
+    return () => {
+      if (Capacitor.isNativePlatform()) {
+        CapApp.removeAllListeners();
+      }
+    };
   }, [currentUser?.id]);
 
   const handlePurchase = (
