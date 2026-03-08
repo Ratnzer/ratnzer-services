@@ -33,6 +33,7 @@ export const INITIAL_CURRENCIES: Currency[] = [
     name: 'الدولار الأمريكي',
     symbol: '$',
     rate: 1,
+    flag: '🇺🇸',
   },
   {
     code: 'PI',
