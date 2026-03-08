@@ -70,7 +70,7 @@ router.post('/pi', asyncHandler(async (req, res) => {
           role: 'user',
           status: 'active',
           balance: 0.0,
-          preferredCurrency: 'Pi Network', // ✅ تعيين العملة الافتراضية لمستخدمي Pi
+          preferredCurrency: 'PI', // ✅ تعيين العملة الافتراضية لمستخدمي Pi (PI بدلاً من الاسم الكامل لضمان التوافق مع الواجهة)
           // يمكن إضافة حقول إضافية لتخزين بيانات Pi
           // piUid: uid,
           // piUsername: username,
@@ -83,7 +83,7 @@ router.post('/pi', asyncHandler(async (req, res) => {
       if (!user.preferredCurrency || user.preferredCurrency === 'USD') {
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { preferredCurrency: 'Pi Network' }
+          data: { preferredCurrency: 'PI' }
         });
       }
       console.log(`✅ تم تسجيل دخول مستخدم Pi موجود: ${username}`);
