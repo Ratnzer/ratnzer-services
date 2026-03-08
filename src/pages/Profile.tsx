@@ -39,9 +39,10 @@ interface Props {
   onTermsModalToggle?: (isOpen: boolean) => void;
   onPrivacyModalToggle?: (isOpen: boolean) => void;
   onOtherModalToggle?: (isOpen: boolean) => void;
+  onOrdersClickFromProfile?: () => void;
 }
 
-const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser, onTermsModalToggle, onPrivacyModalToggle, onOtherModalToggle }) => {
+const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, terms, privacy, user, currencies, rateAppLink, onLogout, onUpdateUser, onTermsModalToggle, onPrivacyModalToggle, onOtherModalToggle, onOrdersClickFromProfile }) => {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [currencyTranslateY, setCurrencyTranslateY] = useState(0);
   const [isCurrencyDragging, setIsCurrencyDragging] = useState(false);
@@ -128,7 +129,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },
     { icon: Lock, label: 'أمان الحساب', action: () => { setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' }); setShowPasswordModal(true); } },
     { icon: Bell, label: 'الإشعارات', action: () => setView(View.NOTIFICATIONS) },
-    { icon: ClipboardList, label: 'طلباتي', action: () => setView(View.ORDERS) },
+    { icon: ClipboardList, label: 'طلباتي', action: () => onOrdersClickFromProfile ? onOrdersClickFromProfile() : setView(View.ORDERS) },
     { icon: Wallet, label: 'محفظتي', action: () => setView(View.WALLET) },
     { icon: HelpCircle, label: 'الأسئلة الشائعة', action: () => setShowFaqModal(true) },
     { icon: FileText, label: 'الشروط والأحكام', action: () => setShowTermsModal(true) },

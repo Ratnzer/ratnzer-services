@@ -642,6 +642,7 @@ useEffect(() => {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isOtherModalOpen, setIsOtherModalOpen] = useState(false);
   const [isAddBalanceOpen, setIsAddBalanceOpen] = useState(false);
+  const [isOrdersFromProfile, setIsOrdersFromProfile] = useState(false);
 
   // --- Admin Auth State ---
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => persistedAdminAuth);
@@ -1278,6 +1279,9 @@ useEffect(() => {
     setSelectedInvoiceOrder(null);
     
     setCurrentView(view);
+    if (view !== View.ORDERS) {
+      setIsOrdersFromProfile(false);
+    }
     
     // Mark notifications as read when entering notifications view
     if (view === View.NOTIFICATIONS && announcements.length > 0) {
@@ -2331,6 +2335,10 @@ useEffect(() => {
             onTermsModalToggle={setIsTermsOpen}
             onPrivacyModalToggle={setIsPrivacyOpen}
             onOtherModalToggle={setIsOtherModalOpen}
+            onOrdersClickFromProfile={() => {
+              setIsOrdersFromProfile(true);
+              handleSetView(View.ORDERS);
+            }}
           />
         );
       case View.ADMIN:
@@ -2848,7 +2856,7 @@ useEffect(() => {
 
         {/* Persistent Bottom Nav (Hidden in Admin View or if Banned) */}
         {currentView !== View.ADMIN && !isUserBanned && (
-          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen || isOtherModalOpen || isAddBalanceOpen || currentView === View.NOTIFICATIONS} />
+          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen || isOtherModalOpen || isAddBalanceOpen || currentView === View.NOTIFICATIONS || (currentView === View.ORDERS && isOrdersFromProfile)} />
         )}
 
         {/* Global Ban Overlay (Using the enhanced Profile Ban UI) */}
@@ -2870,6 +2878,10 @@ useEffect(() => {
             onTermsModalToggle={setIsTermsOpen}
             onPrivacyModalToggle={setIsPrivacyOpen}
             onOtherModalToggle={setIsOtherModalOpen}
+            onOrdersClickFromProfile={() => {
+              setIsOrdersFromProfile(true);
+              handleSetView(View.ORDERS);
+            }}
           />
         )}
 
