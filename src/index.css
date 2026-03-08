@@ -24,8 +24,8 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
 
-  /* Disable touch actions globally, re-enable for specific elements */
-  touch-action: none;
+  /* Enable vertical scrolling globally to allow scrolling from any element */
+  touch-action: pan-y;
 
   /* Disable selection and highlights */
   user-select: none;
