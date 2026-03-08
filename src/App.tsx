@@ -1509,9 +1509,9 @@ useEffect(() => {
     window.history.replaceState({}, document.title, window.location.pathname);
 
     // Navigate to the view we came from (best effort)
-    if (returnViewParam.includes('wallet')) setCurrentView(View.WALLET);
+    if (returnViewParam.includes('wallet') || returnViewParam.includes('topup')) setCurrentView(View.WALLET);
     else if (returnViewParam.includes('cart')) setCurrentView(View.CART);
-    else if (returnViewParam.includes('orders') || returnViewParam.includes('service')) setCurrentView(View.ORDERS);
+    else if (returnViewParam.includes('orders') || returnViewParam.includes('service') || returnViewParam.includes('single')) setCurrentView(View.ORDERS);
     else setCurrentView(View.HOME);
 
     // If user isn't logged in, we can't confirm status.
@@ -1538,14 +1538,14 @@ useEffect(() => {
 
         if (st === 'succeeded') {
           const rv = String(last?.returnView || returnViewParam || 'home').toLowerCase();
-          if (String(last?.type) === 'topup') {
+          if (String(last?.type) === 'topup' || rv.includes('wallet') || rv.includes('topup')) {
             alert('تم شحن الرصيد بنجاح ✅');
             setCurrentView(View.WALLET);
           } else {
             showActionToast('تمت عملية الشراء', 'تمت عملية الشراء بنجاح يمكنك مراجعة طلبك داخل قائمة طلباتي');
             if (rv.includes('cart')) setCurrentView(View.CART);
-            else if (rv.includes('wallet')) setCurrentView(View.WALLET);
-            else if (rv.includes('orders') || rv.includes('service')) setCurrentView(View.ORDERS);
+            else if (rv.includes('wallet') || rv.includes('topup')) setCurrentView(View.WALLET);
+            else if (rv.includes('orders') || rv.includes('service') || rv.includes('single')) setCurrentView(View.ORDERS);
             else setCurrentView(View.HOME);
           }
         } else if (st === 'failed') {

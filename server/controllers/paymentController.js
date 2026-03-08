@@ -170,26 +170,22 @@ const getFrontendReturnUrl = (params, type, isApp = false) => {
   const cleanBase = base.replace(/\/$/, '');
   const qs = new URLSearchParams(params || {}).toString();
 
-  // Normalize type for wallet
+  if (isApp) {
+    // ✅ UNIFIED FIX FOR APP: 
+    // The Home page works because it likely uses 'https://localhost/' which Capacitor handles internally.
+    // We will now force ALL payment returns in the app to use this exact same origin.
+    // This ensures the WebView closes and returns to the app's internal state.
+    return `https://localhost/?${qs}&pt_return_view=${type}`;
+  }
+
+  // Web redirection (keep as is)
   const isWallet = type === 'topup' || type === 'wallet';
   const isService = type === 'single' || type === 'cart' || type === 'service';
 
-  if (isApp) {
-    // Deep links for Android app
-    if (isWallet) {
-      return `ratnzer://wallet?${qs}`;
-    } else if (isService) {
-      return `ratnzer://service?${qs}`;
-    }
-    // Fallback to Capacitor default local origin
-    return `https://localhost/?${qs}`;
-  }
-
-  // Web redirection
   if (isWallet) {
     return `${cleanBase}/wallet?${qs}`;
   } else if (isService) {
-    return `${cleanBase}/profile?${qs}`; // Or wherever orders are listed
+    return `${cleanBase}/profile?${qs}`;
   }
 
   return `${cleanBase}/?${qs}`;
