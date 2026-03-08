@@ -2848,7 +2848,7 @@ useEffect(() => {
 
         {/* Persistent Bottom Nav (Hidden in Admin View or if Banned) */}
         {currentView !== View.ADMIN && !isUserBanned && (
-          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen || isOtherModalOpen || isAddBalanceOpen} />
+          <BottomNav currentView={currentView} setView={handleSetView} isHidden={isTermsOpen || isPrivacyOpen || isOtherModalOpen || isAddBalanceOpen || currentView === View.NOTIFICATIONS} />
         )}
 
         {/* Global Ban Overlay (Using the enhanced Profile Ban UI) */}
