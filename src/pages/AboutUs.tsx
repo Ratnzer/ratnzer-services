@@ -14,7 +14,11 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
 
   useEffect(() => {
     const loadAboutUsData = async () => {
-      setAboutUsLoading(true);
+      // If we have cached data, don't show loading spinner (instant render)
+      if (!aboutUsData) {
+        setAboutUsLoading(true);
+      }
+      
       try {
         const res = await settingsService.getAboutUs();
         if (res?.data) {
