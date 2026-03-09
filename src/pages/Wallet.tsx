@@ -499,8 +499,8 @@ const Wallet: React.FC<Props> = ({
   };
 
   return (
-    <div className="min-h-screen pb-36 pt-4 relative will-change-scroll">
-      <div className="px-4 mb-4 flex items-center justify-between">
+    <div className="min-h-screen pb-36 pt-0 relative will-change-scroll">
+      <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
         {onRefreshTransactions ? (
           <button onClick={handleRefresh} className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" disabled={refreshing}>
             {refreshing ? "جاري التحديث..." : "تحديث"}
@@ -509,7 +509,7 @@ const Wallet: React.FC<Props> = ({
           <div className="w-10"></div>
         )}
         <h1 className="text-xl font-bold text-white">محفظتي</h1>
-        <button onClick={() => setView(View.HOME)} className="active:scale-95 transition-transform"><ArrowLeft className="text-white" /></button>
+        <button onClick={() => setView(View.HOME)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
       </div>
 
       <div className="px-4 space-y-5">

@@ -2834,8 +2834,8 @@ useEffect(() => {
           </div>
         )}
         
-        {/* Persistent Top Header (Hidden in Admin View) */}
-        {currentView !== View.ADMIN && !isUserBanned && (
+        {/* Persistent Top Header (Hidden in Admin View or Wallet View) */}
+        {currentView !== View.ADMIN && currentView !== View.WALLET && !isUserBanned && (
           <TopHeader 
             setView={handleSetView} 
             formattedBalance={formatPrice(balanceUSD)} 
@@ -2849,7 +2849,7 @@ useEffect(() => {
         {/* Scrollable Content Area */}
         <div 
           key={currentView} // Force scroll reset on view change
-          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth touch-pan-y ${currentView !== View.ADMIN ? (isTermsOpen || isPrivacyOpen ? 'pt-16' : 'pb-20 pt-16') : ''}`}
+          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth touch-pan-y ${currentView !== View.ADMIN ? (isTermsOpen || isPrivacyOpen ? 'pt-16' : currentView === View.WALLET ? 'pt-0 pb-20' : 'pb-20 pt-16') : ''}`}
         >
           <ErrorBoundary onReset={() => setCurrentView(View.HOME)}>{renderView()}</ErrorBoundary>
         </div>
