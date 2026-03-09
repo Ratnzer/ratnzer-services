@@ -965,32 +965,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
            </div>
        )}
 
-       {/* Privacy Modal */}
-       {showPrivacyModal && (
-           <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
-                   <button onClick={() => setShowPrivacyModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white"><X size={20} /></button>
-                   <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2><div className="w-9"></div>
-               </div>
-                <div className="flex-1 overflow-hidden relative">
-                    {privacy.externalUrl ? (
-                        <div className="w-full h-full bg-white">
-                            <iframe 
-                                src={privacy.externalUrl} 
-                                className="w-full h-full border-0"
-                                title="Privacy Policy"
-                            />
-                        </div>
-                    ) : (
-                       <div className="h-full overflow-y-auto p-6 text-gray-300 flex items-center justify-center">
-                           <div className="text-center">
-                               <p className="text-gray-400">لم يتم تعيين رابط لسياسة الخصوصية</p>
-                           </div>
-                       </div>
-                   )}
-               </div>
-           </div>
-       )}
+
 
       {/* About Us Modal */}
       {showAboutUsModal && (
