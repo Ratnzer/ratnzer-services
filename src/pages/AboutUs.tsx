@@ -10,7 +10,8 @@ interface Props {
 
 const AboutUs: React.FC<Props> = ({ setView }) => {
   const [aboutUsData, setAboutUsData] = useState<any>(() => localCache.get('about_us', null));
-  const [aboutUsLoading, setAboutUsLoading] = useState(false);
+  const [aboutUsLoading, setAboutUsLoading] = useState(!aboutUsData);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const loadAboutUsData = async () => {
@@ -22,8 +23,12 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
       try {
         const res = await settingsService.getAboutUs();
         if (res?.data) {
-          setAboutUsData(res.data);
-          localCache.set('about_us', res.data);
+          // Only update state if data is actually different to prevent unnecessary re-renders
+          const currentCache = localCache.get('about_us', null);
+          if (JSON.stringify(res.data) !== JSON.stringify(currentCache)) {
+            setAboutUsData(res.data);
+            localCache.set('about_us', res.data);
+          }
         }
       } catch (error) {
         console.warn('Failed to load About Us data', error);
@@ -59,21 +64,38 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
       </div>
 
       <div className="px-4 space-y-6">
-        {aboutUsLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="text-gray-400">جاري التحميل...</div>
+        {aboutUsLoading && !aboutUsData ? (
+          <div className="space-y-6 animate-pulse">
+            <div className="w-full h-48 bg-[#242636] rounded-2xl"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-[#242636] rounded w-3/4"></div>
+              <div className="h-4 bg-[#242636] rounded w-full"></div>
+              <div className="h-4 bg-[#242636] rounded w-5/6"></div>
+            </div>
+            <div className="h-20 bg-[#242636] rounded-xl"></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="h-12 bg-[#242636] rounded-lg"></div>
+              <div className="h-12 bg-[#242636] rounded-lg"></div>
+            </div>
           </div>
         ) : aboutUsData ? (
           <div className="space-y-6">
             {/* Image */}
             {aboutUsData.imageUrl && (
-              <div className="w-full h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+              <div className={`w-full h-48 rounded-2xl overflow-hidden bg-[#242636] flex items-center justify-center relative ${!imageLoaded ? 'animate-pulse' : ''}`}>
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                  </div>
+                )}
                 <img 
                   src={aboutUsData.imageUrl} 
                   alt="About Us" 
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setImageLoaded(true)}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
+                    setImageLoaded(true);
                   }}
                 />
               </div>
