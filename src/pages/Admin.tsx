@@ -3061,7 +3061,9 @@ try {
                     <p className="text-[10px] text-gray-400 font-bold text-right">روابط التواصل الاجتماعي</p>
                   </div>
                   <div className="space-y-3">
-                    {aboutUsData.socialLinks && Object.keys(aboutUsData.socialLinks).filter(key => !key.endsWith('_label') && !key.endsWith('_icon')).map((key) => (
+                    {aboutUsData.socialLinks && Object.keys(aboutUsData.socialLinks)
+                      .filter(key => !key.endsWith('_label') && !key.endsWith('_icon'))
+                      .map((key) => (
                       <div key={key} className="grid grid-cols-4 gap-2 p-3 bg-[#0a0b0e] rounded-lg border border-gray-700">
                         <div>
                           <label className="text-[9px] text-gray-500 mb-1 block text-right">الرابط</label>
