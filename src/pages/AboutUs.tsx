@@ -140,7 +140,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       ) : (
                         <Smartphone size={18} />
                       )}
-                      <span className="text-xs font-medium">WhatsApp</span>
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.whatsappLabel || 'WhatsApp'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.telegram && (
@@ -153,7 +153,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       ) : (
                         <Globe size={18} />
                       )}
-                      <span className="text-xs font-medium">Telegram</span>
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.telegramLabel || 'Telegram'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.instagram && (
@@ -166,7 +166,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       ) : (
                         <Globe size={18} />
                       )}
-                      <span className="text-xs font-medium">Instagram</span>
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.instagramLabel || 'Instagram'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.twitter && (
@@ -179,7 +179,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       ) : (
                         <Globe size={18} />
                       )}
-                      <span className="text-xs font-medium">Twitter</span>
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.twitterLabel || 'Twitter'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.facebook && (
@@ -192,7 +192,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       ) : (
                         <Globe size={18} />
                       )}
-                      <span className="text-xs font-medium">Facebook</span>
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.facebookLabel || 'Facebook'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.email && (
@@ -205,7 +205,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       ) : (
                         <Mail size={18} />
                       )}
-                      <span className="text-xs font-medium">Email</span>
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.emailLabel || 'Email'}</span>
                     </button>
                   )}
                 </div>
