@@ -2606,12 +2606,12 @@ useEffect(() => {
         );
       case View.ORDERS:
         return (
-          <div className="min-h-screen pb-24 bg-[#13141f] pt-4">
+          <div className={`min-h-screen pb-24 bg-[#13141f] ${isOrdersFromProfile ? 'pt-0' : 'pt-4'}`}>
                {/* Header */}
-               <div className="px-4 mb-4 flex items-center justify-between">
+               <div className={`${isOrdersFromProfile ? 'sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4' : 'px-4 mb-4 flex items-center justify-between'}`}>
                   <button onClick={() => loadMyOrdersPage('replace')} className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" disabled={myOrdersRefreshing}>{myOrdersRefreshing ? "جاري التحديث..." : "تحديث"}</button>
                   <h1 className="text-xl font-bold text-white">طلباتي</h1>
-                  <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
+                  <button onClick={() => handleSetView(isOrdersFromProfile ? View.PROFILE : View.HOME)} className={isOrdersFromProfile ? "active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm" : ""}><ArrowLeft className={isOrdersFromProfile ? "" : "text-white"} size={isOrdersFromProfile ? 22 : undefined} /></button>
                </div>
 
                {(myOrdersRefreshing ? false : myOrdersPage.length === 0) ? (
@@ -2842,7 +2842,7 @@ useEffect(() => {
         )}
         
         {/* Persistent Top Header (Hidden in Admin View or Wallet/Notifications/Search/AboutUs Views) */}
-        {currentView !== View.ADMIN && currentView !== View.WALLET && currentView !== View.NOTIFICATIONS && currentView !== View.SEARCH && currentView !== View.ABOUT_US && !isUserBanned && (
+        {currentView !== View.ADMIN && currentView !== View.WALLET && currentView !== View.NOTIFICATIONS && currentView !== View.SEARCH && currentView !== View.ABOUT_US && !(currentView === View.ORDERS && isOrdersFromProfile) && !isUserBanned && (
           <TopHeader 
             setView={handleSetView} 
             formattedBalance={formatPrice(balanceUSD)} 
@@ -2856,7 +2856,7 @@ useEffect(() => {
         {/* Scrollable Content Area */}
         <div 
           key={currentView} // Force scroll reset on view change
-          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth touch-pan-y ${currentView !== View.ADMIN ? (isTermsOpen || isPrivacyOpen ? 'pt-16' : (currentView === View.WALLET || currentView === View.NOTIFICATIONS || currentView === View.SEARCH || currentView === View.ABOUT_US) ? 'pt-0 pb-20' : 'pb-20 pt-16') : ''}`}
+          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth touch-pan-y ${currentView !== View.ADMIN ? (isTermsOpen || isPrivacyOpen ? 'pt-16' : (currentView === View.WALLET || currentView === View.NOTIFICATIONS || currentView === View.SEARCH || currentView === View.ABOUT_US || (currentView === View.ORDERS && isOrdersFromProfile)) ? 'pt-0 pb-20' : 'pb-20 pt-16') : ''}`}
         >
           <ErrorBoundary onReset={() => setCurrentView(View.HOME)}>{renderView()}</ErrorBoundary>
         </div>
