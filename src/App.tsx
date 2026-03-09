@@ -5,6 +5,7 @@ import SearchPage from './pages/Search';
 import Wallet from './pages/Wallet';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
+import AboutUs from './pages/AboutUs';
 import Admin from './pages/Admin';
 import BottomNav from './components/BottomNav';
 import TopHeader from './components/TopHeader';
@@ -2431,6 +2432,12 @@ useEffect(() => {
             onRefresh={() => refreshAnnouncementsFromServer('replace')}
           />
         );
+      case View.ABOUT_US:
+        return (
+          <AboutUs 
+            setView={handleSetView}
+          />
+        );
 		      case View.CART:
 		        return (
 		          <div className="pt-4 flex flex-col h-full overflow-hidden animate-fadeIn">
@@ -2834,8 +2841,8 @@ useEffect(() => {
           </div>
         )}
         
-        {/* Persistent Top Header (Hidden in Admin View or Wallet/Notifications/Search Views) */}
-        {currentView !== View.ADMIN && currentView !== View.WALLET && currentView !== View.NOTIFICATIONS && currentView !== View.SEARCH && !isUserBanned && (
+        {/* Persistent Top Header (Hidden in Admin View or Wallet/Notifications/Search/AboutUs Views) */}
+        {currentView !== View.ADMIN && currentView !== View.WALLET && currentView !== View.NOTIFICATIONS && currentView !== View.SEARCH && currentView !== View.ABOUT_US && !isUserBanned && (
           <TopHeader 
             setView={handleSetView} 
             formattedBalance={formatPrice(balanceUSD)} 
@@ -2849,7 +2856,7 @@ useEffect(() => {
         {/* Scrollable Content Area */}
         <div 
           key={currentView} // Force scroll reset on view change
-          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth touch-pan-y ${currentView !== View.ADMIN ? (isTermsOpen || isPrivacyOpen ? 'pt-16' : (currentView === View.WALLET || currentView === View.NOTIFICATIONS || currentView === View.SEARCH) ? 'pt-0 pb-20' : 'pb-20 pt-16') : ''}`}
+          className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth touch-pan-y ${currentView !== View.ADMIN ? (isTermsOpen || isPrivacyOpen ? 'pt-16' : (currentView === View.WALLET || currentView === View.NOTIFICATIONS || currentView === View.SEARCH || currentView === View.ABOUT_US) ? 'pt-0 pb-20' : 'pb-20 pt-16') : ''}`}
         >
           <ErrorBoundary onReset={() => setCurrentView(View.HOME)}>{renderView()}</ErrorBoundary>
         </div>

@@ -220,5 +220,6 @@ export enum View {
   PROFILE = 'profile',
   NOTIFICATIONS = 'notifications',
   CART = 'cart',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
+  ABOUT_US = 'about_us'
 }

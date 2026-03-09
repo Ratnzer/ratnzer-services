@@ -142,7 +142,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
         }
     } },
     { icon: Headset, label: 'الدعم الفني', action: () => setShowSupportModal(true) },
-    { icon: Info, label: 'من نحن', action: () => handleOpenAboutUs() },
+    { icon: Info, label: 'من نحن', action: () => setView(View.ABOUT_US) },
   ];
 
   const faqList = [
@@ -275,7 +275,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       setExpandedFaq(expandedFaq === index ? null : index);
   };
   const handleOpenAboutUs = async () => {
-    setShowAboutUsModal(true);
+    setView(View.ABOUT_US);
     
     // If we don't have cached data, show loading
     if (!aboutUsData) {
