@@ -59,6 +59,7 @@ model Product {
   isAvailable      Boolean  @default(true)
   position         Int      @default(0)
   sortOrder        Int      @default(0) // حقل الترتيب الجديد
+  isHidden         Boolean  @default(false) // حقل إخفاء المنتج
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

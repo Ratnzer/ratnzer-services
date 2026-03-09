@@ -54,6 +54,7 @@ export interface Product {
   customInput?: CustomInputConfig; // NEW: Config for custom user input
   isAvailable?: boolean; // NEW: Product availability status
   sortOrder?: number; // NEW: Order of the product on the home page
+  isHidden?: boolean; // NEW: Whether the product is hidden from users
 }
 
 export interface InventoryCode {

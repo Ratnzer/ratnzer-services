@@ -97,7 +97,10 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
       matchesPrice = product.price > 50;
     }
 
-    return matchesQuery && matchesCategory && matchesPrice;
+    // 4. Filter out hidden products
+    const isNotHidden = !product.isHidden;
+
+    return matchesQuery && matchesCategory && matchesPrice && isNotHidden;
   });
 
   return (

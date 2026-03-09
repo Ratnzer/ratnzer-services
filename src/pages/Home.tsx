@@ -280,6 +280,9 @@ const Home: React.FC<Props> = ({
       list = list.filter((product: any) => product.category === effectiveCategory);
     }
 
+    // 1.5 Filter out hidden products
+    list = list.filter((product: any) => !product.isHidden);
+
     // 2. Sort logic
     return list.sort((a: any, b: any) => {
       // Priority 1: sortOrder (if exists)

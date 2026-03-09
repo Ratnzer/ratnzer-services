@@ -13,6 +13,7 @@ import {
   Bell, Info, Star, ShoppingCart, ArrowUpRight, ArrowDownRight,
   PieChart, Calendar, Flag, Tags, CircleDollarSign, RefreshCw, ClipboardList, Send, Link, CheckSquare, CreditCard,
   MapPin, Mail, Phone, ShieldCheck, ArrowRight, Copy, PackageOpen, XCircle, Receipt, ToggleRight, ToggleLeft,
+  Eye, EyeOff,
   // New Icons for Categories
   Facebook, Instagram, Twitter, Linkedin, Youtube, Twitch, 
   Code, Terminal, Database, Cloud, Bitcoin, Coins,
@@ -2298,15 +2299,30 @@ try {
                         )}
                     </div>
                     
-                    {/* Always visible actions */}
-                    <div className="flex flex-col gap-2 pl-2">
-                      <button type="button" onClick={() => { setEditingProduct(p); setProdForm(p); setShowProductModal(true); }} className="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20">
-                          <Edit2 size={16} />
-                      </button>
-                      <button type="button" onClick={() => handleDeleteProduct(p.id)} className="p-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20">
-                          <Trash2 size={16} />
-                      </button>
-                    </div>
+	                    {/* Always visible actions */}
+	                    <div className="flex flex-col gap-2 pl-2">
+	                      <button 
+	                        type="button" 
+	                        onClick={async () => {
+	                          try {
+	                            const updated = await productService.update(p.id, { isHidden: !p.isHidden });
+	                            setProducts(prev => prev.map(item => item.id === p.id ? { ...item, isHidden: updated.data.isHidden } : item));
+	                          } catch (err) {
+	                            alert('فشل في تحديث حالة الظهور');
+	                          }
+	                        }} 
+	                        className={`p-1.5 rounded-lg transition-colors border ${p.isHidden ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500 hover:text-black' : 'bg-gray-500/10 text-gray-400 border-gray-500/20 hover:bg-gray-500 hover:text-white'}`}
+	                        title={p.isHidden ? "إظهار المنتج" : "إخفاء المنتج"}
+	                      >
+	                          {p.isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+	                      </button>
+	                      <button type="button" onClick={() => { setEditingProduct(p); setProdForm(p); setShowProductModal(true); }} className="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20">
+	                          <Edit2 size={16} />
+	                      </button>
+	                      <button type="button" onClick={() => handleDeleteProduct(p.id)} className="p-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20">
+	                          <Trash2 size={16} />
+	                      </button>
+	                    </div>
                  </div>
                ))}
              </div>
