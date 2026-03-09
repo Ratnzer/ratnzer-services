@@ -142,7 +142,18 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
                       return (
                         <button
                           key={key}
-                          onClick={() => openSocialLink(url.startsWith('http') || url.includes('@') ? (url.includes('@') && !url.startsWith('mailto') ? `mailto:${url}` : url) : `https://${url}`)}
+                          onClick={() => {
+                            let finalUrl = url;
+                            if (url.startsWith('http')) {
+                              finalUrl = url;
+                            } else if (url.includes('@') && !url.includes('/') && !url.startsWith('mailto:')) {
+                              // Only treat as email if it has @ but no / (to avoid TikTok handles) and doesn't already have mailto:
+                              finalUrl = `mailto:${url}`;
+                            } else if (!url.startsWith('mailto:')) {
+                              finalUrl = `https://${url}`;
+                            }
+                            openSocialLink(finalUrl);
+                          }}
                           className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-white"
                         >
                           {icon ? (
