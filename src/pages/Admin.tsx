@@ -3040,200 +3040,78 @@ try {
                 </div>
 
                 <div className="bg-[#13141f] p-4 rounded-xl border border-gray-700 mb-4">
-                  <p className="text-[10px] text-gray-400 font-bold mb-4 block text-right">روابط التواصل الاجتماعي</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => {
+                        const newId = `custom_${Date.now()}`;
+                        setAboutUsData({
+                          ...aboutUsData,
+                          socialLinks: {
+                            ...aboutUsData.socialLinks,
+                            [newId]: '',
+                            [`${newId}_label`]: '',
+                            [`${newId}_icon`]: ''
+                          }
+                        });
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-[10px] font-bold transition"
+                    >
+                      <Plus size={14} /> إضافة رابط جديد
+                    </button>
+                    <p className="text-[10px] text-gray-400 font-bold text-right">روابط التواصل الاجتماعي</p>
+                  </div>
                   <div className="space-y-3">
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">WhatsApp (رابط)</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-green-400 outline-none dir-ltr"
-                          placeholder="https://wa.me/..."
-                          value={aboutUsData.socialLinks?.whatsapp || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsapp: e.target.value } })}
-                        />
+                    {aboutUsData.socialLinks && Object.keys(aboutUsData.socialLinks).filter(key => !key.endsWith('_label') && !key.endsWith('_icon')).map((key) => (
+                      <div key={key} className="grid grid-cols-4 gap-2 p-3 bg-[#0a0b0e] rounded-lg border border-gray-700">
+                        <div>
+                          <label className="text-[9px] text-gray-500 mb-1 block text-right">الرابط</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-[#13141f] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-purple-400 outline-none dir-ltr"
+                            placeholder="https://..."
+                            value={aboutUsData.socialLinks[key] || ''}
+                            onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, [key]: e.target.value } })}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-[#13141f] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-purple-400 outline-none"
+                            placeholder="اسم المنصة"
+                            value={aboutUsData.socialLinks[`${key}_label`] || ''}
+                            onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, [`${key}_label`]: e.target.value } })}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-[#13141f] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-purple-400 outline-none dir-ltr"
+                            placeholder="https://.../icon.png"
+                            value={aboutUsData.socialLinks[`${key}_icon`] || ''}
+                            onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, [`${key}_icon`]: e.target.value } })}
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <button
+                            onClick={() => {
+                              const newLinks = { ...aboutUsData.socialLinks };
+                              delete newLinks[key];
+                              delete newLinks[`${key}_label`];
+                              delete newLinks[`${key}_icon`];
+                              setAboutUsData({ ...aboutUsData, socialLinks: newLinks });
+                            }}
+                            className="w-full flex items-center justify-center gap-1 px-2 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-[10px] font-bold transition"
+                          >
+                            <Trash2 size={12} /> حذف
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم المخصص</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-green-400 outline-none"
-                          placeholder="WhatsApp"
-                          value={aboutUsData.socialLinks?.whatsappLabel || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsappLabel: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-green-400 outline-none dir-ltr"
-                          placeholder="https://.../icon.png"
-                          value={aboutUsData.socialLinks?.whatsappIcon || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, whatsappIcon: e.target.value } })}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Telegram (رابط)</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-blue-400 outline-none dir-ltr"
-                          placeholder="https://t.me/..."
-                          value={aboutUsData.socialLinks?.telegram || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegram: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم المخصص</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-blue-400 outline-none"
-                          placeholder="Telegram"
-                          value={aboutUsData.socialLinks?.telegramLabel || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegramLabel: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-blue-400 outline-none dir-ltr"
-                          placeholder="https://.../icon.png"
-                          value={aboutUsData.socialLinks?.telegramIcon || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, telegramIcon: e.target.value } })}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Instagram (رابط)</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-pink-400 outline-none dir-ltr"
-                          placeholder="https://instagram.com/..."
-                          value={aboutUsData.socialLinks?.instagram || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagram: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم المخصص</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-pink-400 outline-none"
-                          placeholder="Instagram"
-                          value={aboutUsData.socialLinks?.instagramLabel || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagramLabel: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-pink-400 outline-none dir-ltr"
-                          placeholder="https://.../icon.png"
-                          value={aboutUsData.socialLinks?.instagramIcon || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, instagramIcon: e.target.value } })}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Twitter (رابط)</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-sky-400 outline-none dir-ltr"
-                          placeholder="https://twitter.com/..."
-                          value={aboutUsData.socialLinks?.twitter || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitter: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم المخصص</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-sky-400 outline-none"
-                          placeholder="Twitter"
-                          value={aboutUsData.socialLinks?.twitterLabel || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitterLabel: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-sky-400 outline-none dir-ltr"
-                          placeholder="https://.../icon.png"
-                          value={aboutUsData.socialLinks?.twitterIcon || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, twitterIcon: e.target.value } })}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">Facebook (رابط)</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-blue-600 outline-none dir-ltr"
-                          placeholder="https://facebook.com/..."
-                          value={aboutUsData.socialLinks?.facebook || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebook: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم المخصص</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-blue-600 outline-none"
-                          placeholder="Facebook"
-                          value={aboutUsData.socialLinks?.facebookLabel || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebookLabel: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-blue-600 outline-none dir-ltr"
-                          placeholder="https://.../icon.png"
-                          value={aboutUsData.socialLinks?.facebookIcon || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, facebookIcon: e.target.value } })}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">البريد الإلكتروني</label>
-                        <input 
-                          type="email"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-gray-400 outline-none dir-ltr"
-                          placeholder="info@example.com"
-                          value={aboutUsData.socialLinks?.email || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, email: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">الاسم المخصص</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-gray-400 outline-none"
-                          placeholder="Email"
-                          value={aboutUsData.socialLinks?.emailLabel || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, emailLabel: e.target.value } })}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] text-gray-500 mb-1 block text-right">رابط الصورة</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-[#0a0b0e] border border-gray-700 rounded-lg p-2 text-[10px] text-white focus:border-gray-400 outline-none dir-ltr"
-                          placeholder="https://.../icon.png"
-                          value={aboutUsData.socialLinks?.emailIcon || ''}
-                          onChange={(e) => setAboutUsData({ ...aboutUsData, socialLinks: { ...aboutUsData.socialLinks, emailIcon: e.target.value } })}
-                        />
-                      </div>
-                    </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                    <p className="text-[10px] text-blue-300 text-right">💡 يمكنك إضافة عدد غير محدود من روابط التواصل الاجتماعي. ما عليك سوى الضغط على "إضافة رابط جديد" وملء البيانات المطلوبة.</p>
                   </div>
                 </div>
 
