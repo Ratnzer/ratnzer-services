@@ -422,37 +422,31 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
             
             {/* Custom Input Field (Shows Global OR Region Specific) */}
             {activeCustomInput && activeCustomInput.enabled && (
-                <div className="mb-6 animate-fadeIn">
-                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3 flex items-center gap-1">
+                <div className="mb-4 animate-fadeIn">
+                    <h3 className="text-right text-gray-300 text-[10px] font-bold mb-2 flex items-center gap-1">
                         {activeCustomInput.label}
                         {activeCustomInput.required && <span className="text-red-500">*</span>}
                     </h3>
                     <div className="relative">
                         <input 
                             type="text" 
-                            className="w-full bg-[#242636] border border-gray-700 rounded-xl p-3 text-white focus:border-yellow-400 outline-none transition-colors text-right"
+                            className="w-full bg-[#242636] border border-gray-700 rounded-lg py-2 px-3 text-sm text-white focus:border-yellow-400 outline-none transition-colors text-right"
                             placeholder={activeCustomInput.placeholder || '...'}
                             value={customInputValue}
                             onChange={(e) => setCustomInputValue(e.target.value)}
                         />
                         {/* Optional Icon indicator */}
-                        <div className="absolute top-3 left-3 text-gray-500 pointer-events-none">
-                            <User size={18} />
+                        <div className="absolute top-2.5 left-3 text-gray-500 pointer-events-none">
+                            <User size={14} />
                         </div>
                     </div>
                     {activeCustomInput.required && !customInputValue && (
-                        <p className="text-[9px] text-red-400 mt-1 mr-1 flex items-center gap-1">
-                            <AlertTriangle size={10} /> هذا الحقل مطلوب
+                        <p className="text-[8px] text-red-400 mt-1 mr-1 flex items-center gap-1">
+                            <AlertTriangle size={8} /> هذا الحقل مطلوب
                         </p>
                     )}
                 </div>
             )}
-
-            {/* Total Price Display */}
-            <div className="flex justify-between items-center mb-4 px-2 bg-[#242636] p-4 rounded-xl border border-gray-800">
-                 <span className="text-white font-bold text-sm">المجموع الكلي</span>
-                 <span className="text-yellow-400 font-black text-xl dir-ltr">{formatPrice(currentPrice)}</span>
-            </div>
       </div>
   );
 
@@ -734,28 +728,37 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
         {/* Action Buttons (Only on Details Step) */}
         {currentStep === 'details' && (
-            <div className="p-4 bg-[#1f212e] border-t border-gray-800 flex gap-3 pb-8 z-[110] sticky bottom-0">
-                {!isAvailableGlobally ? (
-                    <div className="flex-1 bg-red-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg text-center">
-                        المنتج غير متوفر حالياً
+            <div className="p-4 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
+                {isAvailableGlobally && (
+                    <div className="flex justify-between items-center mb-4 px-1">
+                        <span className="text-gray-400 text-xs font-bold">المجموع الكلي</span>
+                        <span className="text-yellow-400 font-black text-lg dir-ltr">{formatPrice(currentPrice)}</span>
                     </div>
-                ) : (
-                    <>
-                        <button 
-                            onClick={handleBuyNowClick}
-                            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
-                        >
-                            اشتر الآن
-                        </button>
-                        <button 
-                            onClick={handleAddToCart}
-                            className="flex-[1.5] bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl shadow-lg shadow-yellow-400/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
-                        >
-                            <ShoppingCart size={18} />
-                            أضف المنتج للسلة
-                        </button>
-                    </>
                 )}
+                
+                <div className="flex gap-3 pb-4">
+                    {!isAvailableGlobally ? (
+                        <div className="flex-1 bg-red-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg text-center">
+                            المنتج غير متوفر حالياً
+                        </div>
+                    ) : (
+                        <>
+                            <button 
+                                onClick={handleBuyNowClick}
+                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all text-sm"
+                            >
+                                اشتر الآن
+                            </button>
+                            <button 
+                                onClick={handleAddToCart}
+                                className="flex-[1.5] bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl shadow-lg shadow-yellow-400/20 flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
+                            >
+                                <ShoppingCart size={18} />
+                                أضف للسلة
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
         )}
 
