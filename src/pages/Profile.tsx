@@ -6,7 +6,7 @@ import {
   LogOut, Star, Trash2, Bell, Wallet, ClipboardList, Headset,
   CircleDollarSign, Check, Camera, User as UserIcon, Phone, Mail, X, Save, Edit2,
   Send, ShieldAlert, ChevronDown, AlertTriangle, Lock, Eye, EyeOff, Key, Copy, MessageCircle,
-  ShieldCheck, Info, MapPin, Globe, Smartphone
+  ShieldCheck, Info, MapPin, Globe, Smartphone, ArrowLeft
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
 import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
