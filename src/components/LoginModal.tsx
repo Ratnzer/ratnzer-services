@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Facebook } from 'lucide-react';
+import { X, Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Facebook, ArrowLeft } from 'lucide-react';
 import { signInWithGoogle, signInWithFacebook } from '../services/firebase';
 import { authenticateWithPi, initPiSDK } from '../services/pi';
 import { AppTerms, AppPrivacy } from '../types';
@@ -492,11 +492,11 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
 	        {/* Full Terms Modal */}
 	        {showFullTerms && (
 	           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
-	               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
-	                   <button onClick={() => setShowFullTerms(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
-	                   <h2 className="text-lg font-bold text-white">الشروط والأحكام</h2>
-	                   <div className="w-9"></div>
-	               </div>
+<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+		                   <div className="w-10"></div>
+		                   <h2 className="text-xl font-bold text-white">الشروط والأحكام</h2>
+		                   <button onClick={() => setShowFullTerms(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
+		               </div>
                <div className="flex-1 overflow-hidden relative">
                     {terms.externalUrl ? (
                         <div className="w-full h-full bg-white">
@@ -520,11 +520,11 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
 	       {/* Full Privacy Modal */}
 	       {showFullPrivacy && (
 	           <div className="fixed inset-0 z-[200] bg-[#13141f] animate-fadeIn flex flex-col">
-	               <div className="flex items-center justify-between p-4 border-b border-gray-800/50 bg-[#1f212e]">
-	                   <button onClick={() => setShowFullPrivacy(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
-	                   <h2 className="text-lg font-bold text-white">سياسة الخصوصية</h2>
-	                   <div className="w-9"></div>
-	               </div>
+<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+		                   <div className="w-10"></div>
+		                   <h2 className="text-xl font-bold text-white">سياسة الخصوصية</h2>
+		                   <button onClick={() => setShowFullPrivacy(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
+		               </div>
                <div className="flex-1 overflow-hidden relative">
                     {privacy.externalUrl ? (
                         <div className="w-full h-full bg-white">
