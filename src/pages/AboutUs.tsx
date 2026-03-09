@@ -66,7 +66,9 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
       <div className="px-4 space-y-6">
         {aboutUsLoading && !aboutUsData ? (
           <div className="space-y-6 animate-pulse">
-            <div className="w-full h-48 bg-[#242636] rounded-2xl"></div>
+            <div className="flex justify-center">
+              <div className="w-48 h-48 bg-[#242636] rounded-2xl"></div>
+            </div>
             <div className="space-y-3">
               <div className="h-4 bg-[#242636] rounded w-3/4"></div>
               <div className="h-4 bg-[#242636] rounded w-full"></div>
@@ -82,22 +84,24 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
           <div className="space-y-6">
             {/* Image */}
             {aboutUsData.imageUrl && (
-              <div className={`w-full h-48 rounded-2xl overflow-hidden bg-[#242636] flex items-center justify-center relative ${!imageLoaded ? 'animate-pulse' : ''}`}>
-                {!imageLoaded && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-                  </div>
-                )}
-                <img 
-                  src={aboutUsData.imageUrl} 
-                  alt="About Us" 
-                  className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  onLoad={() => setImageLoaded(true)}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    setImageLoaded(true);
-                  }}
-                />
+              <div className="flex justify-center">
+                <div className={`w-48 h-48 rounded-2xl overflow-hidden bg-[#242636] flex items-center justify-center relative ${!imageLoaded ? 'animate-pulse' : ''}`}>
+                  {!imageLoaded && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
+                      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <img 
+                    src={aboutUsData.imageUrl} 
+                    alt="About Us" 
+                    className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    onLoad={() => setImageLoaded(true)}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      setImageLoaded(true);
+                    }}
+                  />
+                </div>
               </div>
             )}
             
