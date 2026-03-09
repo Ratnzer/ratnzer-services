@@ -325,7 +325,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
             {/* Header Section */}
             <div className="flex gap-5 items-start mb-6">
                  {/* Product Card Graphic */}
-                <div className={`w-32 h-40 rounded-2xl bg-gradient-to-br ${product.imageColor} flex items-center justify-center shadow-lg relative overflow-hidden flex-shrink-0 border border-white/10 group`}>
+                <div className={`w-28 h-36 rounded-2xl bg-gradient-to-br ${product.imageColor} flex items-center justify-center shadow-lg relative overflow-hidden flex-shrink-0 border border-white/10 group`}>
                      {product.imageUrl ? (
                          <img 
                            src={product.imageUrl} 
@@ -357,9 +357,9 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
                 {/* Text Info */}
                 <div className="flex-1 py-2">
-                    <h2 className="text-xl font-bold text-white mb-2 leading-snug">{product.name}</h2>
+                    <h2 className="text-lg font-bold text-white mb-2 leading-snug">{product.name}</h2>
                     {product.description && (
-                        <p className="text-gray-400 text-xs mb-4 leading-relaxed whitespace-pre-line">
+                        <p className="text-gray-400 text-[11px] mb-4 leading-relaxed whitespace-pre-line">
                             {product.description}
                         </p>
                     )}
