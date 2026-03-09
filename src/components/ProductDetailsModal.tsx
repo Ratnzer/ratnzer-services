@@ -451,18 +451,18 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   );
 
   const renderPaymentSelect = () => (
-      <div className="flex-1 p-6 animate-fadeIn flex flex-col h-full">
-          <div className="flex items-center gap-2 mb-6 cursor-pointer text-gray-400 hover:text-white" onClick={() => setCurrentStep('details')}>
-              <ArrowLeft size={20} />
-              <span className="text-sm font-bold">الرجوع للمنتج</span>
+      <div className="flex-1 p-4 animate-fadeIn flex flex-col h-full">
+          <div className="flex items-center gap-2 mb-4 cursor-pointer text-gray-400 hover:text-white" onClick={() => setCurrentStep('details')}>
+              <ArrowLeft size={18} />
+              <span className="text-xs font-bold">رجوع</span>
           </div>
 
-          <div className="text-center mb-6">
-             <h2 className="text-xl font-bold text-white">اختر طريقة الدفع</h2>
-             <p className="text-yellow-400 font-black text-xl dir-ltr mt-1 font-mono">{formatPrice(currentPrice)}</p>
+          <div className="text-center mb-4">
+             <h2 className="text-base font-bold text-white">اختر طريقة الدفع</h2>
+             <p className="text-yellow-400 font-black text-lg dir-ltr mt-1 font-mono">{formatPrice(currentPrice)}</p>
           </div>
 
-          <div className="space-y-4 flex-1">
+          <div className="space-y-2.5 flex-1">
               {/* Wallet Option */}
               <button 
                 onClick={() => {
@@ -472,69 +472,69 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                         alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
                     }
                 }}
-                className={`w-full p-5 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+                className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
                     paymentMethod === 'wallet' 
                     ? 'bg-yellow-400/10 border-yellow-400' 
                     : 'bg-[#242636] border-gray-700 hover:border-gray-500'
                 } ${userBalance < currentPrice ? 'opacity-80' : 'cursor-pointer'}`}
               >
-                  <div className="flex items-center gap-4 relative z-10">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${paymentMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
-                          <Wallet size={24} />
+                  <div className="flex items-center gap-3 relative z-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${paymentMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                          <Wallet size={20} />
                       </div>
                       <div className="text-right">
-                          <h3 className={`font-bold text-sm ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
-	                          <p className="text-gray-400 text-xs mt-1 dir-ltr text-right font-mono">
+                          <h3 className={`font-bold text-xs ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
+	                          <p className="text-gray-400 text-[10px] mt-0.5 dir-ltr text-right font-mono">
 	                              الرصيد: {formatPrice(userBalance)}
 	                          </p>
                       </div>
                   </div>
-                  {paymentMethod === 'wallet' && <div className="absolute top-5 left-5 text-yellow-400"><CheckCircle size={20} /></div>}
+                  {paymentMethod === 'wallet' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
                   {userBalance < currentPrice && (
-                      <span className="text-[10px] text-red-500 bg-red-500/10 px-2 py-1 rounded font-bold absolute top-5 left-5">رصيد غير كافي</span>
+                      <span className="text-[8px] text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded font-bold absolute top-3 left-3">غير كافي</span>
                   )}
               </button>
 
               {/* Card Option */}
               <button 
                 onClick={() => setPaymentMethod('card')}
-                className={`w-full p-5 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+                className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
                     paymentMethod === 'card' 
                     ? 'bg-yellow-400/10 border-yellow-400' 
                     : 'bg-[#242636] border-gray-700 hover:border-gray-500'
                 }`}
               >
-                  <div className="flex items-center gap-4 relative z-10">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+                  <div className="flex items-center gap-3 relative z-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
 	                          {localStorage.getItem('payment_method_card_icon') ? (
 	                              <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
 	                          ) : (
-                              <CreditCard size={24} />
+                              <CreditCard size={20} />
                           )}
                       </div>
                       <div className="text-right">
-                          <h3 className={`font-bold text-sm ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-                          <p className="text-gray-400 text-xs mt-1">دفع فوري وآمن</p>
+                          <h3 className={`font-bold text-xs ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
+                          <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
                       </div>
                   </div>
-	                  {paymentMethod === 'card' && <div className="absolute top-5 left-5 text-yellow-400"><CheckCircle size={20} /></div>}
+	                  {paymentMethod === 'card' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
 	              </button>
 
 	              {/* Pi Network Option */}
 	              <button 
 	                onClick={() => setPaymentMethod('pi')}
-	                className={`w-full p-5 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+	                className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
 	                    paymentMethod === 'pi' 
 	                    ? 'bg-yellow-400/10 border-yellow-400' 
 	                    : 'bg-[#242636] border-gray-700 hover:border-gray-500'
 	                }`}
 	              >
-	                  <div className="flex items-center gap-4 relative z-10">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
+	                  <div className="flex items-center gap-3 relative z-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
 	                          {localStorage.getItem('payment_method_pi_icon') ? (
 	                              <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-cover rounded-full" />
 	                          ) : (
-                              <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                              <svg viewBox="176.2 47.4 530.8 530.7" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
                                 <g fill="#593B8B">
                                   <path d="M441.6 47.4c-146.6 0-265.4 118.8-265.4 265.4S295 578.1 441.6 578.1 707 459.3 707 312.7 588.1 47.4 441.6 47.4zm0 492.8c-125.6 0-227.4-101.8-227.4-227.4S316 85.4 441.6 85.4 669 187.2 669 312.8 567.2 540.2 441.6 540.2z"/>
@@ -544,25 +544,25 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                           )}
                       </div>
 		                      <div className="text-right">
-		                          <h3 className={`font-bold text-sm ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi Network</h3>
-		                          <p className="text-gray-400 text-xs mt-1">طريقة الدفع هذه متوفرة فقط داخل Pi Browser</p>
+		                          <h3 className={`font-bold text-xs ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
+		                          <p className="text-gray-400 text-[10px] mt-0.5">متوفر في Pi Browser</p>
 		                      </div>
 	                  </div>
-	                  {paymentMethod === 'pi' && <div className="absolute top-5 left-5 text-yellow-400"><CheckCircle size={20} /></div>}
+	                  {paymentMethod === 'pi' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
 	              </button>
 	          </div>
 
-          <div className="pt-6 mt-auto">
+          <div className="pt-3 mt-auto">
              <button 
                onClick={handleProceedPayment}
                disabled={!paymentMethod || isSubmitting}
-               className={`w-full py-4 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95 ${
+               className={`w-full py-3 rounded-lg font-bold text-sm shadow-lg transition-all active:scale-95 ${
                    paymentMethod && !isSubmitting
                    ? 'bg-yellow-400 text-black hover:bg-yellow-500 shadow-yellow-400/20' 
                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
                }`}
              >
-               {isSubmitting ? 'جاري المعالجة...' : 'اكمال الدفع'}
+               {isSubmitting ? 'جاري...' : 'اكمال الدفع'}
              </button>
           </div>
       </div>
