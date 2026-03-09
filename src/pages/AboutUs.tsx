@@ -129,83 +129,83 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
             {aboutUsData.socialLinks && Object.keys(aboutUsData.socialLinks).length > 0 && (
               <div>
                 <p className="text-gray-400 text-xs mb-3 font-semibold">تواصل معنا</p>
-                <div className="flex flex-wrap gap-3 justify-start">
+                <div className="grid grid-cols-2 gap-3">
                   {aboutUsData.socialLinks.whatsapp && (
                     <button
                       onClick={() => openSocialLink(aboutUsData.socialLinks.whatsapp)}
-                      className="flex items-center justify-center p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-full transition text-green-400 w-12 h-12"
-                      title={aboutUsData.socialLinks.whatsappLabel || 'WhatsApp'}
+                      className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-green-400"
                     >
                       {aboutUsData.socialLinks.whatsappIcon ? (
-                        <img src={aboutUsData.socialLinks.whatsappIcon} alt="WhatsApp" className="w-6 h-6 object-contain" />
+                        <img src={aboutUsData.socialLinks.whatsappIcon} alt="WhatsApp" className="w-5 h-5 object-cover rounded-full" />
                       ) : (
-                        <Smartphone size={20} />
+                        <Smartphone size={18} />
                       )}
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.whatsappLabel || 'WhatsApp'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.telegram && (
                     <button
                       onClick={() => openSocialLink(aboutUsData.socialLinks.telegram)}
-                      className="flex items-center justify-center p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-full transition text-blue-400 w-12 h-12"
-                      title={aboutUsData.socialLinks.telegramLabel || 'Telegram'}
+                      className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-400"
                     >
                       {aboutUsData.socialLinks.telegramIcon ? (
-                        <img src={aboutUsData.socialLinks.telegramIcon} alt="Telegram" className="w-6 h-6 object-contain" />
+                        <img src={aboutUsData.socialLinks.telegramIcon} alt="Telegram" className="w-5 h-5 object-cover rounded-full" />
                       ) : (
-                        <Globe size={20} />
+                        <Globe size={18} />
                       )}
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.telegramLabel || 'Telegram'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.instagram && (
                     <button
                       onClick={() => openSocialLink(aboutUsData.socialLinks.instagram)}
-                      className="flex items-center justify-center p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-full transition text-pink-400 w-12 h-12"
-                      title={aboutUsData.socialLinks.instagramLabel || 'Instagram'}
+                      className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-pink-400"
                     >
                       {aboutUsData.socialLinks.instagramIcon ? (
-                        <img src={aboutUsData.socialLinks.instagramIcon} alt="Instagram" className="w-6 h-6 object-contain" />
+                        <img src={aboutUsData.socialLinks.instagramIcon} alt="Instagram" className="w-5 h-5 object-cover rounded-full" />
                       ) : (
-                        <Globe size={20} />
+                        <Globe size={18} />
                       )}
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.instagramLabel || 'Instagram'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.twitter && (
                     <button
                       onClick={() => openSocialLink(aboutUsData.socialLinks.twitter)}
-                      className="flex items-center justify-center p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-full transition text-sky-400 w-12 h-12"
-                      title={aboutUsData.socialLinks.twitterLabel || 'Twitter'}
+                      className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-sky-400"
                     >
                       {aboutUsData.socialLinks.twitterIcon ? (
-                        <img src={aboutUsData.socialLinks.twitterIcon} alt="Twitter" className="w-6 h-6 object-contain" />
+                        <img src={aboutUsData.socialLinks.twitterIcon} alt="Twitter" className="w-5 h-5 object-cover rounded-full" />
                       ) : (
-                        <Globe size={20} />
+                        <Globe size={18} />
                       )}
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.twitterLabel || 'Twitter'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.facebook && (
                     <button
                       onClick={() => openSocialLink(aboutUsData.socialLinks.facebook)}
-                      className="flex items-center justify-center p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-full transition text-blue-600 w-12 h-12"
-                      title={aboutUsData.socialLinks.facebookLabel || 'Facebook'}
+                      className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-blue-600"
                     >
                       {aboutUsData.socialLinks.facebookIcon ? (
-                        <img src={aboutUsData.socialLinks.facebookIcon} alt="Facebook" className="w-6 h-6 object-contain" />
+                        <img src={aboutUsData.socialLinks.facebookIcon} alt="Facebook" className="w-5 h-5 object-cover rounded-full" />
                       ) : (
-                        <Globe size={20} />
+                        <Globe size={18} />
                       )}
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.facebookLabel || 'Facebook'}</span>
                     </button>
                   )}
                   {aboutUsData.socialLinks.email && (
                     <button
                       onClick={() => openSocialLink(`mailto:${aboutUsData.socialLinks.email}`)}
-                      className="flex items-center justify-center p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-full transition text-gray-300 w-12 h-12"
-                      title={aboutUsData.socialLinks.emailLabel || 'Email'}
+                      className="flex items-center gap-2 p-3 bg-[#242636] hover:bg-[#2d2d40] rounded-lg transition text-gray-300"
                     >
                       {aboutUsData.socialLinks.emailIcon ? (
-                        <img src={aboutUsData.socialLinks.emailIcon} alt="Email" className="w-6 h-6 object-contain" />
+                        <img src={aboutUsData.socialLinks.emailIcon} alt="Email" className="w-5 h-5 object-cover rounded-full" />
                       ) : (
-                        <Mail size={20} />
+                        <Mail size={18} />
                       )}
+                      <span className="text-xs font-medium">{aboutUsData.socialLinks.emailLabel || 'Email'}</span>
                     </button>
                   )}
                 </div>
