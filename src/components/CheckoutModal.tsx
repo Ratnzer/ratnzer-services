@@ -152,38 +152,36 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                  <p className="text-right text-[10px] font-bold text-gray-400">اختر طريقة الدفع</p>
                  
 	                 {/* Wallet Option */}
-	                 {!isPiUser && (
-	                     <button 
-	                       onClick={() => {
-	                           if (userBalance >= price) {
-	                               setSelectedMethod('wallet');
-	                           } else {
-	                               alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
-	                           }
-	                       }}
-	                       className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
-	                           selectedMethod === 'wallet' 
-	                           ? 'bg-yellow-400/10 border-yellow-400' 
-	                           : 'bg-[#242636] border-gray-700 hover:border-gray-500'
-	                       } ${userBalance < price ? 'opacity-80' : 'cursor-pointer'}`}
-	                     >
-	                        <div className="flex items-center gap-3 relative z-10">
-	                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
-	                                <Wallet size={20} />
-	                            </div>
-	                            <div className="text-right">
-	                                <h3 className={`font-bold text-xs ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
-	                                <p className="text-gray-400 text-[10px] mt-0.5 dir-ltr text-right font-mono">
-	                                    الرصيد: {formatPrice(userBalance)}
-	                                </p>
-	                            </div>
+	                 <button 
+	                   onClick={() => {
+	                       if (userBalance >= price) {
+	                           setSelectedMethod('wallet');
+	                       } else {
+	                           alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
+	                       }
+	                   }}
+	                   className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+	                       selectedMethod === 'wallet' 
+	                       ? 'bg-yellow-400/10 border-yellow-400' 
+	                       : 'bg-[#242636] border-gray-700 hover:border-gray-500'
+	                   } ${userBalance < price ? 'opacity-80' : 'cursor-pointer'}`}
+	                 >
+	                    <div className="flex items-center gap-3 relative z-10">
+	                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+	                            <Wallet size={20} />
 	                        </div>
-	                        {selectedMethod === 'wallet' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
-	                        {userBalance < price && (
-	                            <span className="text-[8px] text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded font-bold absolute top-3 left-3">غير كافي</span>
-	                        )}
-	                     </button>
-	                 )}
+	                        <div className="text-right">
+	                            <h3 className={`font-bold text-xs ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
+	                            <p className="text-gray-400 text-[10px] mt-0.5 dir-ltr text-right font-mono">
+	                                الرصيد: {formatPrice(userBalance)}
+	                            </p>
+	                        </div>
+	                    </div>
+	                    {selectedMethod === 'wallet' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
+	                    {userBalance < price && (
+	                        <span className="text-[8px] text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded font-bold absolute top-3 left-3">غير كافي</span>
+	                    )}
+	                 </button>
 	
 	                 {/* Card Option */}
 	                 {!isPiUser && (
