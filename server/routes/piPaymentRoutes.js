@@ -50,9 +50,14 @@ const normalizeId = (val) => {
   return String(val);
 };
 
-// Pi Network API Key (تم تزويده من المستخدم)
-const PI_API_KEY = '38xubrn3ffjlva7azqmzg29q6s7xynoug8ix0rt2am2ewmnlgjfoqodrzm0kqzr5';
-const PI_API_URL = 'https://api.minepi.com';
+// Pi Network API Configuration (من متغيرات البيئة)
+const PI_API_KEY = process.env.PI_API_KEY;
+const PI_API_URL = process.env.PI_API_URL || 'https://api.minepi.com';
+
+// التحقق من توفر المفتاح
+if (!PI_API_KEY) {
+  console.warn('⚠️ تحذير: PI_API_KEY غير محدد في متغيرات البيئة. عمليات Pi لن تعمل.');
+}
 
 /**
  * @desc    الموافقة على الدفع (Approve)
