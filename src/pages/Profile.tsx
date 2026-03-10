@@ -176,10 +176,6 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const isPiUser = user?.email?.endsWith('@pi.network') || user?.preferredCurrency === 'PI';
 
   const handleOpenEdit = () => {
-    if (isPiUser) {
-      alert("حسابات Pi Network تُدار تلقائياً لضمان أمان وصولك. لا يمكن تعديل البيانات الأساسية يدوياً.");
-      return;
-    }
     if (user) {
         setEditForm({ name: user.name, phone: user.phone, email: user.email });
         setShowEditProfile(true);
