@@ -64,10 +64,14 @@ const Wallet: React.FC<Props> = ({
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [activeMethods, setActiveMethods] = useState<string[]>(() => {
-    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
-    return all.filter(id => localStorage.getItem(`payment_method_${id}_enabled`) !== 'false');
-  });
+	  const [activeMethods, setActiveMethods] = useState<string[]>(() => {
+	    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
+	    const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
+	                     localStorage.getItem('user_email')?.endsWith('@pi.network');
+	    
+	    if (isPiUser) return ['pi'];
+	    return all.filter(id => localStorage.getItem(`payment_method_${id}_enabled`) !== 'false');
+	  });
 
   const minSwipeDistance = 100;
 
@@ -120,10 +124,18 @@ const Wallet: React.FC<Props> = ({
   }, [modalStep]);
 
   useEffect(() => {
-    const syncPaymentSettings = async () => {
-      const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
-      try {
-        const results = await Promise.all(methods.map(async (id) => {
+	    const syncPaymentSettings = async () => {
+	      const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
+	      const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
+	                       localStorage.getItem('user_email')?.endsWith('@pi.network');
+	      
+	      if (isPiUser) {
+	        setActiveMethods(['pi']);
+	        return;
+	      }
+	      
+	      try {
+	        const results = await Promise.all(methods.map(async (id) => {
           const enabledKey = `payment_method_${id}_enabled`;
           const iconKey = `payment_method_${id}_icon`;
           
