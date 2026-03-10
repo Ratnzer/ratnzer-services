@@ -631,18 +631,18 @@ const Wallet: React.FC<Props> = ({
              onClick={() => setShowAddBalanceModal(false)}
            ></div>
            
-           {/* Modal Content */}
+           {/* Modal Content - Optimized Spacing */}
            <div 
-             className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-24 relative z-10 border-t border-gray-800 max-h-[85vh] flex flex-col transform transition-all duration-300 cubic-bezier(0.2, 0.8, 0.2, 1) ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
+             className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-4 pb-12 relative z-10 border-t border-gray-800 max-h-[85vh] flex flex-col transform transition-all duration-300 cubic-bezier(0.2, 0.8, 0.2, 1) ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'} ${isDragging ? 'duration-0 transition-none' : ''}`}
              style={{ 
                transform: translateY > 0 ? `translate3d(0, ${translateY}px, 0)` : 'translate3d(0, 0, 0)',
                willChange: 'transform, opacity'
              }}
            >
-              {/* Handle Bar & Close Button */}
-              <div className="relative mb-6">
+              {/* Handle Bar & Close Button - Matched with Checkout/Product Modals */}
+              <div className="relative mb-4">
                 <div 
-                  className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
+                  className="w-full flex justify-center pt-1 pb-2 cursor-grab active:cursor-grabbing"
                   onTouchStart={onTouchStart}
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
@@ -653,21 +653,21 @@ const Wallet: React.FC<Props> = ({
                 {modalStep === 'select' ? (
                     <button 
                       onClick={() => setShowAddBalanceModal(false)} 
-                      className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+                      className="absolute top-0 left-0 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
                     >
-                        <X size={20} strokeWidth={2} />
+                        <X size={18} strokeWidth={2} />
                     </button>
                 ) : (
                     <button 
                       onClick={() => setModalStep('select')} 
-                      className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95 flex items-center gap-1 text-xs font-bold"
+                      className="absolute top-0 left-0 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95 flex items-center gap-1 text-[10px] font-bold"
                     >
-                        <ChevronLeft size={16} /> رجوع
+                        <ChevronLeft size={14} /> رجوع
                     </button>
                 )}
                 
-                <h2 className="text-center text-lg font-bold text-white">
-                    {modalStep === 'select' ? 'طريقة الدفع' : modalStep === 'card' ? 'الدفع عبر البطاقة' : modalStep === 'asiacell' ? 'شحن كارت أسياسيل' : modalStep === 'pi' ? 'الشحن عبر Pi Network' : 'تواصل مع الدعم'}
+                <h2 className="text-center text-base font-bold text-white mt-1">
+                    {modalStep === 'select' ? 'إضافة رصيد' : modalStep === 'card' ? 'الدفع عبر البطاقة' : modalStep === 'asiacell' ? 'شحن كارت أسياسيل' : modalStep === 'pi' ? 'الشحن عبر Pi Network' : 'تواصل مع الدعم'}
                 </h2>
               </div>
 
@@ -676,13 +676,13 @@ const Wallet: React.FC<Props> = ({
                 {modalStep === 'select' && (
                     <div className="space-y-3 animate-fadeIn pb-4">
                         {paymentMethods.map((method) => (
-                            <button
-                                key={method.id}
-                                onClick={() => handleMethodSelect(method)}
-                                className={`w-full bg-gradient-to-r ${method.bg} p-4 rounded-2xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
-                            >
-                                <div className="flex items-center gap-4">
-	                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-[#242636] shadow-inner ${method.color} overflow-hidden`}>
+	                            <button
+	                                key={method.id}
+	                                onClick={() => handleMethodSelect(method)}
+	                                className={`w-full bg-gradient-to-r ${method.bg} p-3 rounded-xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
+	                            >
+	                                <div className="flex items-center gap-3">
+		                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-[#242636] shadow-inner ${method.color} overflow-hidden`}>
 	                                        {localStorage.getItem(`payment_method_${method.id}_icon`) ? (
 	                                            <img src={localStorage.getItem(`payment_method_${method.id}_icon`) || ''} alt={method.name} className="w-full h-full object-cover rounded-full" />
 	                                        ) : method.id === 'pi' ? (
@@ -707,38 +707,38 @@ const Wallet: React.FC<Props> = ({
                 {/* STEP 2: SUPPORT MESSAGE (WhatsApp & Telegram) */}
                 {modalStep === 'support' && (
 	                    <div className="flex flex-col items-center justify-center py-6 animate-fadeIn text-center">
-	                        <div className="w-24 h-24 bg-[#242636] rounded-full flex items-center justify-center mb-6 border border-gray-700 shadow-xl relative">
-	                            {selectedMethodIcon ? (
-	                              selectedMethodIcon === 'pi-icon' ? 
-	                                <div className="scale-[2.5]"><PiIcon size={24} /></div> : 
-	                                React.createElement(selectedMethodIcon, { size: 40, className: "text-yellow-400" })
-	                            ) : (
-	                              <Headset size={40} className="text-yellow-400" />
-	                            )}
+		                        <div className="w-20 h-20 bg-[#242636] rounded-full flex items-center justify-center mb-4 border border-gray-700 shadow-xl relative">
+		                            {selectedMethodIcon ? (
+		                              selectedMethodIcon === 'pi-icon' ? 
+		                                <div className="scale-[2]"><PiIcon size={24} /></div> : 
+		                                React.createElement(selectedMethodIcon, { size: 32, className: "text-yellow-400" })
+		                            ) : (
+		                              <Headset size={32} className="text-yellow-400" />
+		                            )}
+		                        </div>
+	                        
+	                        <h3 className="text-lg font-bold text-white mb-1">إيداع عبر {selectedMethodName}</h3>
+	                        <p className="text-gray-400 text-xs mb-6 leading-relaxed max-w-xs mx-auto">
+	                            لإتمام عملية شحن الرصيد، يرجى التواصل مع فريق الدعم الفني.
+	                        </p>
+	                        
+	                        <div className="w-full space-y-2.5">
+	                            <button 
+	                                onClick={openWhatsApp}
+	                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 group"
+	                            >
+	                                <Smartphone size={20} className="group-hover:rotate-12 transition-transform" />
+	                                <span className="text-sm">تواصل عبر واتساب</span>
+	                            </button>
+	
+	                            <button 
+	                                onClick={openTelegram}
+	                                className="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 group"
+	                            >
+	                                <Send size={20} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+	                                <span className="text-sm">تواصل عبر تيليجرام</span>
+	                            </button>
 	                        </div>
-                        
-                        <h3 className="text-xl font-bold text-white mb-2">إيداع عبر {selectedMethodName}</h3>
-                        <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-xs mx-auto">
-                            لإتمام عملية شحن الرصيد عبر <span className="text-yellow-400 font-bold">{selectedMethodName}</span>، يرجى التواصل مباشرة مع فريق الدعم الفني لتزويدك بالتفاصيل اللازمة.
-                        </p>
-                        
-                        <div className="w-full space-y-3">
-                            <button 
-                                onClick={openWhatsApp}
-                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95 group"
-                            >
-                                <Smartphone size={22} className="group-hover:rotate-12 transition-transform" />
-                                <span className="text-base">تواصل عبر واتساب</span>
-                            </button>
-
-                            <button 
-                                onClick={openTelegram}
-                                className="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95 group"
-                            >
-                                <Send size={22} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                                <span className="text-base">تواصل عبر تيليجرام</span>
-                            </button>
-                        </div>
 	                    </div>
 	                )}
 	
@@ -777,11 +777,11 @@ const Wallet: React.FC<Props> = ({
 	                        سيتم فتح متصفح Pi Network لإتمام عملية الدفع بشكل آمن ومباشر.
 	                      </div>
 	
-	                      <button 
-	                          className={`w-full bg-[#593B8B] text-white font-bold py-4 rounded-xl mt-8 hover:bg-[#4a3174] transition-all shadow-lg shadow-[#593B8B]/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
-	                          onClick={handleConfirmAddBalance}
-	                          disabled={isProcessing}
-	                      >
+		                      <button 
+		                          className={`w-full bg-[#593B8B] text-white font-bold py-3.5 rounded-xl mt-6 hover:bg-[#4a3174] transition-all shadow-lg shadow-[#593B8B]/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+		                          onClick={handleConfirmAddBalance}
+		                          disabled={isProcessing}
+		                      >
 	                          {isProcessing ? (
 	                               <>
 	                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -835,11 +835,11 @@ const Wallet: React.FC<Props> = ({
                         سيتم تحويلك إلى صفحة الدفع الآمنة لإتمام العملية بالدينار العراقي.
                       </div>
 
-                      <button 
-                          className={`w-full bg-emerald-500 text-white font-bold py-4 rounded-xl mt-8 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
-                          onClick={handleConfirmAddBalance}
-                          disabled={isProcessing}
-                      >
+	                      <button 
+	                          className={`w-full bg-emerald-500 text-white font-bold py-3.5 rounded-xl mt-6 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 transform flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+	                          onClick={handleConfirmAddBalance}
+	                          disabled={isProcessing}
+	                      >
                           {isProcessing ? (
                                <>
                                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
