@@ -728,23 +728,36 @@ useEffect(() => {
   }, [transactions]);
 
   // --- Load Profile if token exists on first mount ---
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+	  useEffect(() => {
+	    const initAuth = async () => {
+	      const token = localStorage.getItem('token');
+	      if (!token) return;
+	
+	      try {
+	        const res = await authService.getProfile();
+	        if (res && res.data) {
+	          const userData = res.data;
+	          setCurrentUser(userData);
+	          
+	          // ✅ Force Pi-only mode for Pi users
+	          const isPiUser = userData.email?.endsWith('@pi.network') || userData.preferredCurrency === 'PI';
+	          if (isPiUser) {
+	            localStorage.setItem('user_preferred_currency', 'PI');
+	            localStorage.setItem('user_email', userData.email);
+	            // Disable other methods in local storage to be sure
+	            ['card', 'superkey', 'zaincash', 'asiacell_transfer'].forEach(id => {
+	              localStorage.setItem(`payment_method_${id}_enabled`, 'false');
+	            });
+	            localStorage.setItem('payment_method_pi_enabled', 'true');
+	          }
 
-      try {
-        const res = await authService.getProfile();
-        if (res && res.data) {
-          setCurrentUser(res.data);
-        if ((res.data as any)?.preferredCurrency) {
-          const pc = (res.data as any).preferredCurrency;
-          setCurrencyCode(pc);
-          localStorage.setItem('currencyCode', String(pc));
-        }
-          
-        }
-      } catch (error: any) {
+	          if ((userData as any)?.preferredCurrency) {
+	            const pc = (userData as any).preferredCurrency;
+	            setCurrencyCode(pc);
+	            localStorage.setItem('currencyCode', String(pc));
+	          }
+	        }
+	      } catch (error: any) {
         const status = error?.response?.status;
 
         // ✅ Handle Ban (403) or Invalid Token (401)
