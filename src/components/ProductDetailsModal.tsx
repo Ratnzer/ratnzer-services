@@ -707,23 +707,24 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         }}
       >
         
-        {/* Close Button (X) */}
-        <button 
-            onClick={onClose}
-            className="absolute top-4 left-4 z-50 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all shadow-lg active:scale-95"
-            aria-label="Close"
-        >
-            <X size={20} strokeWidth={2} />
-        </button>
-
-        {/* Handle Bar (Mobile feel) */}
-        <div 
-          className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing" 
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
+        {/* Handle Bar & Close Button - Matched with CheckoutModal */}
+        <div className="relative">
+          <div 
+            className="w-full flex justify-center pt-2 pb-0.5 cursor-grab active:cursor-grabbing"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+          </div>
+          
+          <button 
+            onClick={onClose}
+            className="absolute top-3 left-4 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+            aria-label="Close"
+          >
+            <X size={18} strokeWidth={2} />
+          </button>
         </div>
 
         {/* Dynamic Content Body */}
