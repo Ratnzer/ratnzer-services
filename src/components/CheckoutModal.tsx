@@ -11,9 +11,10 @@ interface Props {
   onSuccess: (method: 'wallet' | 'card' | 'pi') => void;
   formatPrice: (price: number) => string;
   onRequireLogin?: () => void; // Optional fallback
+  title?: string; // ✅ New optional title prop
 }
 
-const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice }) => {
+const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice, title }) => {
   const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | 'pi' | null>(isPiUser ? 'pi' : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,9 +137,9 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
           </button>
         </div>
 
-        {/* Header Title - Reduced Padding */}
+        {/* Header Title - Dynamic based on context */}
         <div className="flex items-center justify-center p-2">
-           <h2 className="text-base font-bold text-white">إتمام الطلب</h2>
+           <h2 className="text-base font-bold text-white">{title || 'إتمام الطلب'}</h2>
         </div>
 
         <div className="px-4 pb-4 pt-1 space-y-2 flex flex-col h-full">

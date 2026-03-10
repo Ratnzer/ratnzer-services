@@ -2603,10 +2603,11 @@ useEffect(() => {
                 </div>
              )}
 
-             {/* Checkout Modal for Cart */}
+             {/* Checkout Modal for Cart & Home */}
              <CheckoutModal 
                 isOpen={!!activeCheckoutItem || isBulkCheckout}
                 onClose={() => { setActiveCheckoutItem(null); setIsBulkCheckout(false); }}
+                title={isBulkCheckout ? "إتمام الطلب" : "شراء سريع"}
                 itemName={isBulkCheckout ? `شراء الكل (${cartCount} منتجات)` : activeCheckoutItem?.name || ''}
                 price={isBulkCheckout ? cartTotal : activeCheckoutItem?.price || 0}
                 userBalance={balanceUSD}
