@@ -853,9 +853,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                </div>
 
                <h2 className="text-xl font-bold mb-6 text-center text-white">العملة</h2>
-               <div className="overflow-y-auto no-scrollbar space-y-2 mb-4 flex-1">
-                 {currencies.map((currency) => (
-                    <button key={currency.code} onClick={() => handleCurrencySelect(currency.code)} className={`w-full bg-[#13141f] rounded-xl border p-3 flex items-center justify-between transition-all ${currentCurrency === currency.code ? 'border-yellow-400 bg-yellow-400/5' : 'border-gray-700 hover:border-gray-500'}`}>
+	               <div className="overflow-y-auto no-scrollbar space-y-2 mb-4 flex-1">
+	                 {currencies
+	                   .filter(c => !isPiUser || c.code === 'PI')
+	                   .map((currency) => (
+	                    <button key={currency.code} onClick={() => handleCurrencySelect(currency.code)} className={`w-full bg-[#13141f] rounded-xl border p-3 flex items-center justify-between transition-all ${currentCurrency === currency.code ? 'border-yellow-400 bg-yellow-400/5' : 'border-gray-700 hover:border-gray-500'}`}>
                         <div className="flex items-center gap-3">{currency.code === 'PI' ? <PiIcon size={28} /> : <span className="text-2xl">{currency.flag}</span>}<div className="text-right"><p className={`font-bold text-sm ${currentCurrency === currency.code ? 'text-yellow-400' : 'text-white'}`}>{currency.name}</p><p className="text-[10px] text-gray-500 text-right dir-ltr uppercase">{currency.code}</p></div></div>
                         {currentCurrency === currency.code && <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"><Check size={14} className="text-black" strokeWidth={3} /></div>}
                     </button>
