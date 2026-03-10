@@ -82,6 +82,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
     if (selectedMethod === 'wallet') {
         if (userBalance < price) {
             alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
+            setIsSubmitting(false);
             return;
         }
         // Direct purchase without confirmation
@@ -118,7 +119,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
         {/* Handle Bar & Close Button */}
         <div className="relative">
           <div 
-            className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
+            className="w-full flex justify-center pt-2 pb-0.5 cursor-grab active:cursor-grabbing"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -128,27 +129,29 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
           
           <button 
             onClick={onClose}
-            className="absolute top-4 left-4 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+            className="absolute top-3 left-4 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
             aria-label="Close"
           >
-            <X size={20} strokeWidth={2} />
+            <X size={18} strokeWidth={2} />
           </button>
         </div>
 
-        {/* Header Title */}
-        <div className="flex items-center justify-center p-3">
+        {/* Header Title - Reduced Padding */}
+        <div className="flex items-center justify-center p-2">
            <h2 className="text-base font-bold text-white">إتمام الطلب</h2>
         </div>
 
-        <div className="p-4 space-y-3 flex flex-col h-full">
-              <div className="text-center mb-2">
-                 <p className="text-gray-400 text-[11px] mb-1">أنت على وشك شراء</p>
-                 <h3 className="text-white font-bold text-base dir-rtl">{itemName}</h3>
-                 <p className="text-yellow-400 font-black text-xl mt-2 dir-ltr font-mono">{formatPrice(price)}</p>
+        <div className="px-4 pb-4 pt-1 space-y-2 flex flex-col h-full">
+              {/* Item Info - Reduced Margins */}
+              <div className="text-center mb-1">
+                 <p className="text-gray-400 text-[11px] mb-0.5">أنت على وشك شراء</p>
+                 <h3 className="text-white font-bold text-base dir-rtl leading-tight">{itemName}</h3>
+                 <p className="text-yellow-400 font-black text-xl mt-1 dir-ltr font-mono">{formatPrice(price)}</p>
               </div>
 
-              <div className="space-y-2.5 flex-1">
-                 <p className="text-right text-[10px] font-bold text-gray-400">اختر طريقة الدفع</p>
+              {/* Payment Methods - Reduced Spacing */}
+              <div className="space-y-2 flex-1">
+                 <p className="text-right text-[10px] font-bold text-gray-400 mb-1">اختر طريقة الدفع</p>
                  
 	                 {/* Wallet Option */}
 	                 <button 
@@ -159,15 +162,15 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 	                           alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
 	                       }
 	                   }}
-	                   className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+	                   className={`w-full p-2.5 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
 	                       selectedMethod === 'wallet' 
 	                       ? 'bg-yellow-400/10 border-yellow-400' 
 	                       : 'bg-[#242636] border-gray-700 hover:border-gray-500'
 	                   } ${userBalance < price ? 'opacity-80' : 'cursor-pointer'}`}
 	                 >
 	                    <div className="flex items-center gap-3 relative z-10">
-	                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
-	                            <Wallet size={20} />
+	                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+	                            <Wallet size={18} />
 	                        </div>
 	                        <div className="text-right">
 	                            <h3 className={`font-bold text-xs ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
@@ -176,9 +179,9 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 	                            </p>
 	                        </div>
 	                    </div>
-	                    {selectedMethod === 'wallet' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
+	                    {selectedMethod === 'wallet' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
 	                    {userBalance < price && (
-	                        <span className="text-[8px] text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded font-bold absolute top-3 left-3">غير كافي</span>
+	                        <span className="text-[8px] text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded font-bold absolute top-2.5 left-3">غير كافي</span>
 	                    )}
 	                 </button>
 	
@@ -186,18 +189,18 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 	                 {!isPiUser && (
 	                     <button 
 	                       onClick={() => setSelectedMethod('card')}
-	                       className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+	                       className={`w-full p-2.5 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
 	                           selectedMethod === 'card' 
 	                           ? 'bg-yellow-400/10 border-yellow-400' 
 	                           : 'bg-[#242636] border-gray-700 hover:border-gray-500'
 	                       }`}
 	                     >
 	                        <div className="flex items-center gap-3 relative z-10">
-	                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+	                            <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
 	                                {localStorage.getItem('payment_method_card_icon') ? (
 	                                    <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
 	                                ) : (
-	                                    <CreditCard size={20} />
+	                                    <CreditCard size={18} />
 	                                )}
 	                            </div>
 	                            <div className="text-right">
@@ -205,25 +208,25 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 	                                <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
 	                            </div>
 	                        </div>
-	                        {selectedMethod === 'card' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
+	                        {selectedMethod === 'card' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
 	                     </button>
 	                 )}
 
                  {/* Pi Network Option */}
                  <button 
                    onClick={() => setSelectedMethod('pi')}
-                   className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+                   className={`w-full p-2.5 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
                        selectedMethod === 'pi' 
                        ? 'bg-yellow-400/10 border-yellow-400' 
                        : 'bg-[#242636] border-gray-700 hover:border-gray-500'
                    }`}
                  >
                     <div className="flex items-center gap-3 relative z-10">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
 	                            {localStorage.getItem('payment_method_pi_icon') ? (
 	                                <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-cover rounded-full" />
 	                            ) : (
-                                <svg viewBox="176.2 47.4 530.8 530.7" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                                <svg viewBox="176.2 47.4 530.8 530.7" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
                                   <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
                                   <g fill="#593B8B">
                                     <path d="m441.6 142.2c-94.2 0-170.6 76.4-170.6 170.6s76.4 170.6 170.6 170.6 170.6-76.4 170.6-170.6-76.4-170.6-170.6-170.6zm0 312.8c-78.5 0-142.2-63.7-142.2-142.2s63.7-142.2 142.2-142.2 142.2 63.7 142.2 142.2-63.7 142.2-142.2 142.2z"/>
@@ -237,15 +240,16 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                             <p className="text-gray-400 text-[10px] mt-0.5">متوفر في Pi Browser</p>
                         </div>
                     </div>
-                    {selectedMethod === 'pi' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
+                    {selectedMethod === 'pi' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
                  </button>
               </div>
 
-              <div className="pt-3 mt-auto pb-3">
+              {/* Action Button - Reduced Padding */}
+              <div className="pt-2 mt-auto pb-1">
                   <button 
                     onClick={handleProceed}
                     disabled={!selectedMethod || isSubmitting}
-                    className={`w-full py-3 rounded-lg font-bold text-sm shadow-lg transition-all active:scale-95 ${
+                    className={`w-full py-2.5 rounded-lg font-bold text-sm shadow-lg transition-all active:scale-95 ${
                         selectedMethod && !isSubmitting
                         ? 'bg-yellow-400 text-black hover:bg-yellow-500 shadow-yellow-400/20' 
                         : 'bg-gray-700 text-gray-400 cursor-not-allowed'
