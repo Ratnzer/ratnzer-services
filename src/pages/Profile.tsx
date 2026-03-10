@@ -173,7 +173,13 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     setShowCurrencyModal(false);
   };
 
+  const isPiUser = user?.email?.endsWith('@pi.network') || user?.preferredCurrency === 'PI';
+
   const handleOpenEdit = () => {
+    if (isPiUser) {
+      alert("حسابات Pi Network تُدار تلقائياً لضمان أمان وصولك. لا يمكن تعديل البيانات الأساسية يدوياً.");
+      return;
+    }
     if (user) {
         setEditForm({ name: user.name, phone: user.phone, email: user.email });
         setShowEditProfile(true);
@@ -745,8 +751,16 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                    <div className="w-9"></div>
                </div>
 
-               <div className="flex-1 overflow-y-auto p-6 pb-24">
-                   <div className="flex flex-col items-center mb-8">
+	               <div className="flex-1 overflow-y-auto p-6 pb-24">
+	                   {isPiUser && (
+	                       <div className="mb-6 p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-2xl flex items-start gap-3">
+	                           <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+	                           <p className="text-sm text-yellow-200/80 leading-relaxed text-right">
+	                               حسابات Pi Network تُدار تلقائياً لضمان أمان وصولك. لا يمكن تعديل البيانات الأساسية يدوياً.
+	                           </p>
+	                       </div>
+	                   )}
+	                   <div className="flex flex-col items-center mb-8">
                        <div className="relative mb-3">
                            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-yellow-400">
                                 <img
@@ -767,32 +781,34 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                        <div className="space-y-1.5">
                            <label className="text-xs font-bold text-gray-400 mr-1 block text-right">الاسم</label>
                            <div className="relative">
-                               <input type="text" value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} className="w-full bg-[#1e1f2b] border border-gray-700 rounded-xl py-3 pr-10 pl-4 text-white text-right focus:border-yellow-400 focus:outline-none transition-colors" />
+	                               <input type="text" value={editForm.name} disabled={isPiUser} onChange={(e) => setEditForm({...editForm, name: e.target.value})} className={`w-full bg-[#1e1f2b] border border-gray-700 rounded-xl py-3 pr-10 pl-4 text-white text-right focus:border-yellow-400 focus:outline-none transition-colors ${isPiUser ? 'opacity-50 cursor-not-allowed' : ''}`} />
                                <UserIcon className="absolute right-3 top-3.5 text-gray-500" size={18} />
                            </div>
                        </div>
                        <div className="space-y-1.5">
                            <label className="text-xs font-bold text-gray-400 mr-1 block text-right">رقم الهاتف</label>
                            <div className="relative">
-                               <input type="tel" value={editForm.phone} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} className="w-full bg-[#1e1f2b] border border-gray-700 rounded-xl py-3 pr-10 pl-4 text-white text-right focus:border-yellow-400 focus:outline-none transition-colors dir-rtl" />
+	                               <input type="tel" value={editForm.phone} disabled={isPiUser} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} className={`w-full bg-[#1e1f2b] border border-gray-700 rounded-xl py-3 pr-10 pl-4 text-white text-right focus:border-yellow-400 focus:outline-none transition-colors dir-rtl ${isPiUser ? 'opacity-50 cursor-not-allowed' : ''}`} />
                                <Phone className="absolute right-3 top-3.5 text-gray-500" size={18} />
                            </div>
                        </div>
                        <div className="space-y-1.5">
                            <label className="text-xs font-bold text-gray-400 mr-1 block text-right">البريد الإلكتروني</label>
                            <div className="relative">
-                               <input type="email" value={editForm.email} onChange={(e) => setEditForm({...editForm, email: e.target.value})} className="w-full bg-[#1e1f2b] border border-gray-700 rounded-xl py-3 pr-10 pl-4 text-white text-right focus:border-yellow-400 focus:outline-none transition-colors" />
+	                               <input type="email" value={editForm.email} disabled={isPiUser} onChange={(e) => setEditForm({...editForm, email: e.target.value})} className={`w-full bg-[#1e1f2b] border border-gray-700 rounded-xl py-3 pr-10 pl-4 text-white text-right focus:border-yellow-400 focus:outline-none transition-colors ${isPiUser ? 'opacity-50 cursor-not-allowed' : ''}`} />
                                <Mail className="absolute right-3 top-3.5 text-gray-500" size={18} />
                            </div>
                        </div>
                    </div>
 
-                   <button 
-                       onClick={handleSaveProfile}
-                       className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl shadow-lg mt-8 transition-transform active:scale-95"
-                   >
-                       حفظ التغييرات
-                   </button>
+	                   {!isPiUser && (
+	                       <button 
+	                           onClick={handleSaveProfile}
+	                           className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl shadow-lg mt-8 transition-transform active:scale-95"
+	                       >
+	                           حفظ التغييرات
+	                       </button>
+	                   )}
                </div>
            </div>
        )}
