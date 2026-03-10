@@ -13,8 +13,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Pi Network SDK -->
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <!-- Pi Network SDK (يتم تحميله ديناميكياً حسب البيئة) -->
+    <script id="pi-sdk-script"></script>
+    <script>
+      // تحديد رابط Pi SDK حسب البيئة
+      const isSandbox = (new URLSearchParams(window.location.search).get('sandbox') === 'true') || 
+                        (localStorage.getItem('RATNZER_SANDBOX') === 'true') ||
+                        (process.env.REACT_APP_SANDBOX === 'true');
+      
+      const piSdkUrl = isSandbox 
+        ? 'https://sandbox.minepi.com/pi-sdk.js'
+        : 'https://sdk.minepi.com/pi-sdk.js';
+      
+      // تحميل Pi SDK
+      const script = document.getElementById('pi-sdk-script');
+      script.src = piSdkUrl;
+      script.async = true;
+      
+      console.log(`📱 تحميل Pi SDK من: ${piSdkUrl}`);
+    </script>
     <style>
       html, body, #root {
         background-color: #000000 !important;

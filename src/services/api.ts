@@ -1,22 +1,23 @@
 import axios, { InternalAxiosRequestConfig, AxiosError, AxiosHeaders } from "axios";
+import { getApiUrl } from "../config/environment";
 
 // ============================================================
-// ✅ Heroku API URL: تم التحديث من Vercel إلى Heroku
+// ✅ API URL: يتم تحديده ديناميكياً حسب البيئة (Sandbox/Mainnet)
 // ============================================================
-const API_URL = "https://ratnzer-services-bb0a0cce4837.herokuapp.com/api";
+const API_URL = getApiUrl("");
 
 if (!API_URL) {
-  console.warn("⚠️ Warning: API_URL is not defined. API calls may fail.");
+  console.warn("⚠️ تحذير: لم يتم تحديد API_URL. قد تفشل استدعاءات API.");
 }
 
-console.log("Connecting to API:", API_URL);
+console.log("🔌 الاتصال بـ API:", API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 20000,
+  timeout: 20000, // يمكن تغييره من environment config
 });
 
 // ============================================================
@@ -41,17 +42,17 @@ api.interceptors.request.use(
 // ============================================================
 api.interceptors.response.use(
   (response) => {
-    // ✅ Success response
+    // ✅ استجابة ناجحة
     return response;
   },
   (error: AxiosError) => {
-    // ❌ Error response handling
+    // ❌ معالجة الأخطاء
     let errorMessage = 'حدث خطأ في الاتصال بالسيرفر';
     let statusCode = error.response?.status || 0;
 
     // معالجة الأخطاء المختلفة
     if (!error.response) {
-      // Network error (no response from server)
+      // خطأ في الشبكة (لا توجد استجابة من الخادم)
       if (error.code === 'ECONNABORTED') {
         errorMessage = 'انقطع الاتصال بالسيرفر. يرجى التحقق من اتصالك بالإنترنت';
       } else if (error.code === 'ERR_NETWORK') {
@@ -60,11 +61,11 @@ api.interceptors.response.use(
         errorMessage = 'فشل الاتصال بالسيرفر';
       }
     } else if (statusCode === 400) {
-      // Bad request
+      // طلب غير صحيح
       errorMessage = (error.response.data as any)?.message || 'بيانات غير صحيحة';
     } else if (statusCode === 401) {
-      // Unauthorized
-      // Check if it's an admin activation attempt
+      // غير مصرح
+      // تحقق من محاولة تفعيل المسؤول
       const isAdminActivation = error.config?.url?.includes('/auth/admin/activate');
       
       if (!isAdminActivation) {
@@ -72,29 +73,29 @@ api.interceptors.response.use(
         localStorage.removeItem('token');
         window.location.href = '/login';
       } else {
-        // Just return the specific error message from server for admin login
+        // أرجع رسالة الخطأ المحددة من الخادم لتسجيل دخول المسؤول
         errorMessage = (error.response?.data as any)?.message || 'كلمة مرور المسؤول غير صحيحة';
       }
     } else if (statusCode === 403) {
-      // Forbidden
+      // محظور
       errorMessage = 'ليس لديك صلاحية للقيام بهذا الإجراء';
     } else if (statusCode === 404) {
-      // Not found
+      // غير موجود
       errorMessage = 'المورد المطلوب غير موجود';
     } else if (statusCode === 409) {
-      // Conflict
+      // تضارب
       errorMessage = (error.response.data as any)?.message || 'تضارب في البيانات';
     } else if (statusCode === 500) {
-      // Server error
+      // خطأ في الخادم
       errorMessage = (error.response.data as any)?.message || 'حدث خطأ في السيرفر';
     } else if (statusCode === 503) {
-      // Service unavailable
+      // الخدمة غير متاحة
       errorMessage = 'الخدمة غير متاحة حالياً. يرجى المحاولة لاحقاً';
     } else if (statusCode >= 400 && statusCode < 500) {
-      // Other 4xx errors
+      // أخطاء 4xx أخرى
       errorMessage = (error.response.data as any)?.message || `خطأ في الطلب (${statusCode})`;
     } else if (statusCode >= 500) {
-      // Other 5xx errors
+      // أخطاء 5xx أخرى
       errorMessage = (error.response.data as any)?.message || `خطأ في السيرفر (${statusCode})`;
     }
 
@@ -103,6 +104,16 @@ api.interceptors.response.use(
     enhancedError.statusCode = statusCode;
     enhancedError.originalError = error;
     enhancedError.response = error.response;
+
+    // طباعة تفاصيل الخطأ في وضع التطوير
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ API Error:', {
+        message: errorMessage,
+        statusCode,
+        url: error.config?.url,
+        method: error.config?.method,
+      });
+    }
 
     return Promise.reject(enhancedError);
   }
@@ -284,6 +295,19 @@ export const analyticsService = {
 };
 
 // ============================================================
-// Export API Instance
+// دالة مساعدة للتحقق من حالة الاتصال بـ API
+// ============================================================
+export const checkApiHealth = async (): Promise<boolean> => {
+  try {
+    const response = await api.get('/health');
+    return response.status === 200;
+  } catch (error) {
+    console.warn('⚠️ API Health Check Failed:', error);
+    return false;
+  }
+};
+
+// ============================================================
+// تصدير API Instance
 // ============================================================
 export default api;

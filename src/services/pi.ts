@@ -3,6 +3,8 @@
  * يتعامل مع تهيئة SDK والمصادقة عبر Pi Network
  */
 
+import { PI_CONFIG } from '../config/environment';
+
 // تعريف نوع Pi SDK
 declare global {
   interface Window {
@@ -39,13 +41,15 @@ export const initPiSDK = () => {
   }
 
   try {
-    // تهيئة SDK مع تفعيل وضع الرمل (Sandbox) للاختبار
+    // تهيئة SDK باستخدام الإعدادات المركزية
     window.Pi.init({
-      version: '2.0',
-      sandbox: false,
+      version: PI_CONFIG.version,
+      sandbox: PI_CONFIG.sandbox,
     });
-    // App ID: -b33d8f279a2d5d02
-    console.log('✅ تم تهيئة Pi SDK بنجاح');
+    
+    const environment = PI_CONFIG.sandbox ? '🧪 Sandbox' : '🚀 Mainnet';
+    console.log(`✅ تم تهيئة Pi SDK بنجاح على بيئة ${environment}`);
+    console.log(`📱 معرّف التطبيق: ${PI_CONFIG.appId}`);
   } catch (error) {
     console.error('❌ خطأ في تهيئة Pi SDK:', error);
   }
@@ -65,8 +69,11 @@ export const authenticateWithPi = async (): Promise<{
   }
 
   try {
+    const environment = PI_CONFIG.sandbox ? 'Sandbox' : 'Mainnet';
+    console.log(`🔐 محاولة المصادقة عبر Pi Network (${environment})...`);
+    
     const onIncompletePaymentFound = (payment: any) => {
-      console.log('Incomplete payment found:', payment);
+      console.log('⚠️ تم العثور على عملية دفع غير مكتملة:', payment);
       // في بيئة حقيقية، يجب إرسال الـ payment.identifier للخلفية لإكمال أو إلغاء العملية
     };
 
@@ -75,6 +82,8 @@ export const authenticateWithPi = async (): Promise<{
       onIncompletePaymentFound
     );
 
+    console.log(`✅ تم تسجيل الدخول بنجاح: ${result.user.username}`);
+    
     return {
       username: result.user.username,
       uid: result.user.uid,
@@ -116,9 +125,20 @@ export const getPiUserInfo = async (): Promise<{
   }
 };
 
+/**
+ * دالة للحصول على معلومات البيئة الحالية
+ */
+export const getPiEnvironment = () => ({
+  isSandbox: PI_CONFIG.sandbox,
+  environment: PI_CONFIG.sandbox ? 'Sandbox' : 'Mainnet',
+  appId: PI_CONFIG.appId,
+  sdkUrl: PI_CONFIG.sdkUrl,
+});
+
 export default {
   initPiSDK,
   authenticateWithPi,
   isPiAvailable,
   getPiUserInfo,
+  getPiEnvironment,
 };
