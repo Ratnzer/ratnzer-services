@@ -28,9 +28,10 @@ interface Props {
   ) => void;
   isLoggedIn?: boolean; // New prop
   onRequireAuth?: () => void; // New prop
+  title?: string; // ✅ New title prop
 }
 
-const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, formatPrice, addToCart, userBalance = 0, onPurchase, isLoggedIn = true, onRequireAuth }) => {
+const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, formatPrice, addToCart, userBalance = 0, onPurchase, isLoggedIn = true, onRequireAuth, title }) => {
   const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedDenomId, setSelectedDenomId] = useState<string>('');
@@ -458,10 +459,11 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
               <span className="text-xs font-bold">رجوع</span>
           </div>
 
-          <div className="text-center mb-3">
-             <h2 className="text-base font-bold text-white">شراء سريع</h2>
-             <p className="text-gray-400 text-[11px] mt-0.5">أنت على وشك شراء {product.name}</p>
-             <p className="text-yellow-400 font-black text-xl dir-ltr mt-1 font-mono">{formatPrice(currentPrice)}</p>
+          <div className="text-center mb-1">
+             <h2 className="text-base font-bold text-white mb-2">{title || 'شراء سريع'}</h2>
+             <p className="text-gray-400 text-[11px] mb-0.5">أنت على وشك شراء</p>
+             <h3 className="text-white font-bold text-base dir-rtl leading-tight">{product.name}</h3>
+             <p className="text-yellow-400 font-black text-xl mt-1 dir-ltr font-mono">{formatPrice(currentPrice)}</p>
           </div>
 
           <div className="space-y-2 flex-1">
