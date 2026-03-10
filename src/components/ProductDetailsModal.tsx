@@ -31,15 +31,17 @@ interface Props {
 }
 
 const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, formatPrice, addToCart, userBalance = 0, onPurchase, isLoggedIn = true, onRequireAuth }) => {
+  const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
+                   localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedDenomId, setSelectedDenomId] = useState<string>('');
   
   // Custom Input State
   const [customInputValue, setCustomInputValue] = useState<string>('');
   
-  // Checkout Steps State
-  const [currentStep, setCurrentStep] = useState<'details' | 'payment_select' | 'card_form'>('details');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'card' | 'pi' | null>(null);
+	  // Checkout Steps State
+	  const [currentStep, setCurrentStep] = useState<'details' | 'payment_select' | 'card_form'>('details');
+	  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'card' | 'pi' | null>(isPiUser ? 'pi' : null);
 
   // Card Form State
   const [cardDetails, setCardDetails] = useState({
@@ -495,30 +497,32 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                   )}
               </button>
 
-              {/* Card Option */}
-              <button 
-                onClick={() => setPaymentMethod('card')}
-                className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
-                    paymentMethod === 'card' 
-                    ? 'bg-yellow-400/10 border-yellow-400' 
-                    : 'bg-[#242636] border-gray-700 hover:border-gray-500'
-                }`}
-              >
-                  <div className="flex items-center gap-3 relative z-10">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
-	                          {localStorage.getItem('payment_method_card_icon') ? (
-	                              <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
-	                          ) : (
-                              <CreditCard size={20} />
-                          )}
-                      </div>
-                      <div className="text-right">
-                          <h3 className={`font-bold text-xs ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-                          <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
-                      </div>
-                  </div>
-	                  {paymentMethod === 'card' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
-	              </button>
+	              {/* Card Option */}
+	              {!isPiUser && (
+	                  <button 
+	                    onClick={() => setPaymentMethod('card')}
+	                    className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+	                        paymentMethod === 'card' 
+	                        ? 'bg-yellow-400/10 border-yellow-400' 
+	                        : 'bg-[#242636] border-gray-700 hover:border-gray-500'
+	                    }`}
+	                  >
+	                      <div className="flex items-center gap-3 relative z-10">
+	                          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+	                              {localStorage.getItem('payment_method_card_icon') ? (
+	                                  <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
+	                              ) : (
+	                                  <CreditCard size={20} />
+	                              )}
+	                          </div>
+	                          <div className="text-right">
+	                              <h3 className={`font-bold text-xs ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
+	                              <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
+	                          </div>
+	                      </div>
+	                      {paymentMethod === 'card' && <div className="absolute top-3 left-3 text-yellow-400"><CheckCircle size={16} /></div>}
+	                  </button>
+	              )}
 
 	              {/* Pi Network Option */}
 	              <button 
