@@ -453,13 +453,17 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   );
 
   const renderPaymentSelect = () => (
-      <div className="flex-1 p-4 animate-fadeIn flex flex-col h-full">
-          <div className="flex items-center gap-2 mb-3 cursor-pointer text-gray-400 hover:text-white" onClick={() => setCurrentStep('details')}>
-              <ArrowLeft size={18} />
-              <span className="text-xs font-bold">رجوع</span>
-          </div>
+      <div className="flex-1 p-4 pt-1 animate-fadeIn flex flex-col h-full relative">
+          {/* Back Button - Moved to absolute position to save vertical space */}
+          <button 
+            onClick={() => setCurrentStep('details')}
+            className="absolute top-2 right-4 z-50 flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors"
+          >
+              <span className="text-[10px] font-bold">رجوع</span>
+              <ArrowLeft size={16} />
+          </button>
 
-          <div className="text-center mb-1">
+          <div className="text-center mb-1 mt-1">
              <h2 className="text-base font-bold text-white mb-2">{title || 'شراء سريع'}</h2>
              <p className="text-gray-400 text-[11px] mb-0.5">أنت على وشك شراء</p>
              <h3 className="text-white font-bold text-base dir-rtl leading-tight">{product.name}</h3>
