@@ -740,9 +740,8 @@ useEffect(() => {
 	          setCurrentUser(userData);
 	          
 	          // ✅ Force Pi-only mode for Pi users
-	          const isPiUser = userData.email?.endsWith('@pi.network') || userData.preferredCurrency === 'PI';
+	          const isPiUser = userData.email?.endsWith('@pi.network');
 	          if (isPiUser) {
-	            localStorage.setItem('user_preferred_currency', 'PI');
 	            localStorage.setItem('user_email', userData.email);
 	            // Disable other methods in local storage to be sure
 	            ['card', 'superkey', 'zaincash', 'asiacell_transfer'].forEach(id => {

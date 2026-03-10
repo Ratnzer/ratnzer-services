@@ -173,7 +173,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     setShowCurrencyModal(false);
   };
 
-  const isPiUser = user?.email?.endsWith('@pi.network') || user?.preferredCurrency === 'PI';
+  const isPiUser = user?.email?.endsWith('@pi.network');
 
   const handleOpenEdit = () => {
     if (user) {

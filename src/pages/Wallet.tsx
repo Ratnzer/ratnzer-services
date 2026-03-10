@@ -66,8 +66,7 @@ const Wallet: React.FC<Props> = ({
   const [isVisible, setIsVisible] = useState(false);
 	  const [activeMethods, setActiveMethods] = useState<string[]>(() => {
 	    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
-	    const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
-	                     localStorage.getItem('user_email')?.endsWith('@pi.network');
+	    const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
 	    
 	    if (isPiUser) return ['pi'];
 	    return all.filter(id => localStorage.getItem(`payment_method_${id}_enabled`) !== 'false');
@@ -126,8 +125,7 @@ const Wallet: React.FC<Props> = ({
   useEffect(() => {
 	    const syncPaymentSettings = async () => {
 	      const methods = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
-	      const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
-	                       localStorage.getItem('user_email')?.endsWith('@pi.network');
+	      const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
 	      
 	      if (isPiUser) {
 	        setActiveMethods(['pi']);

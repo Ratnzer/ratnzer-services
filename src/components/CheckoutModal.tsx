@@ -14,8 +14,7 @@ interface Props {
 }
 
 const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice }) => {
-  const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
-                   localStorage.getItem('user_email')?.endsWith('@pi.network');
+  const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | 'pi' | null>(isPiUser ? 'pi' : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   

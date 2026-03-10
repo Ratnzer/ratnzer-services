@@ -31,8 +31,7 @@ interface Props {
 }
 
 const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, formatPrice, addToCart, userBalance = 0, onPurchase, isLoggedIn = true, onRequireAuth }) => {
-  const isPiUser = localStorage.getItem('user_preferred_currency') === 'PI' || 
-                   localStorage.getItem('user_email')?.endsWith('@pi.network');
+  const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedDenomId, setSelectedDenomId] = useState<string>('');
   
