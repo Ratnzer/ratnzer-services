@@ -22,7 +22,7 @@ declare global {
       Ads?: {
         isAdReady: (adType: "interstitial" | "rewarded") => Promise<{ ready: boolean }>;
         requestAd: (adType: "interstitial" | "rewarded") => Promise<{ result: "AD_LOADED" | "ADS_NOT_SUPPORTED" | "AD_LOAD_FAILED" }>;
-        showAd: (adType: "interstitial" | "rewarded") => Promise<{ result: "AD_REWARDED" | "AD_CLOSED" | "AD_DISPLAY_FAILED" | "AD_DISMISSED", adId: string }>;
+        showAd: (adType: "interstitial" | "rewarded") => Promise<{ result: "AD_REWARDED" | "AD_CLOSED" | "AD_DISPLAY_FAILED" | "AD_DISMISSED" | "AD_NETWORK_ERROR" | "USER_UNAUTHENTICATED", adId?: string }>;
       };
     };
   }
@@ -123,7 +123,7 @@ import { userService } from './api';
  */
 export const showRewardedAd = async (userId?: string): Promise<{ success: boolean; adId?: string; error?: string }> => {
   if (!window.Pi || !window.Pi.Ads) {
-    return { success: false, error: 'Pi Ads SDK غير متاح' };
+    return { success: false, error: 'Pi Ads SDK غير متاح حالياً في متصفحك.' };
   }
 
   try {
@@ -143,7 +143,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
       }
 
       if (requestAdResponse.result !== "AD_LOADED") {
-        return { success: false, error: 'الإعلانات غير متوفرة حالياً أو فشل تحميلها. يرجى المحاولة مرة أخرى لاحقاً.' };
+        return { success: false, error: 'عذراً، لا تتوفر إعلانات حالياً من Pi Ads. يرجى المحاولة مرة أخرى لاحقاً.' };
       }
     }
 
@@ -152,20 +152,37 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     const showAdResponse = await window.Pi.Ads.showAd("rewarded");
     console.log("Show ad response:", showAdResponse);
 
-    if (showAdResponse.result === "AD_REWARDED") {
-      // 4. إضافة الرصيد للمستخدم (1 دولار) بشكل فعلي
-      if (userId) {
-        try {
-          await userService.updateBalance(userId, 1.0, "add");
-          console.log("✅ تم إضافة 1 دولار لرصيد المستخدم بنجاح");
-        } catch (apiError) {
-          console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
-          // لا نوقف العملية لأن الإعلان تمت مشاهدته بنجاح
+    // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
+    switch (showAdResponse.result) {
+      case "AD_REWARDED":
+        // 4. إضافة الرصيد للمستخدم (1 دولار) بشكل فعلي
+        if (userId) {
+          try {
+            await userService.updateBalance(userId, 1.0, "add");
+            console.log("✅ تم إضافة 1 دولار لرصيد المستخدم بنجاح");
+          } catch (apiError) {
+            console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
+            // لا نوقف العملية لأن الإعلان تمت مشاهدته بنجاح، ولكن نبلغ المستخدم بوجود مشكلة في المزامنة
+            return { success: true, adId: showAdResponse.adId, error: "تمت المشاهدة بنجاح، ولكن حدث خطأ أثناء تحديث الرصيد في السيرفر." };
+          }
         }
-      }
-      return { success: true, adId: showAdResponse.adId };
-    } else {
-      return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة' };
+        return { success: true, adId: showAdResponse.adId };
+
+      case "AD_CLOSED":
+      case "AD_DISMISSED":
+        return { success: false, error: 'لقد قمت بإغلاق الإعلان قبل اكتماله، يرجى مشاهدة الإعلان كاملاً للحصول على المكافأة.' };
+
+      case "AD_NETWORK_ERROR":
+        return { success: false, error: 'حدث خطأ في الشبكة أثناء عرض الإعلان. يرجى التأكد من اتصالك بالإنترنت.' };
+
+      case "USER_UNAUTHENTICATED":
+        return { success: false, error: 'يجب تسجيل الدخول أولاً لعرض الإعلانات والحصول على مكافآت.' };
+
+      case "AD_DISPLAY_FAILED":
+        return { success: false, error: 'فشل عرض الإعلان لسبب تقني. يرجى المحاولة مرة أخرى.' };
+
+      default:
+        return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة.' };
     }
   } catch (err: any) {
     console.error('❌ خطأ في عرض إعلان Pi:', err);
