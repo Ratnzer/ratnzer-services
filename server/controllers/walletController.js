@@ -61,9 +61,13 @@ const depositFunds = asyncHandler(async (req, res) => {
     throw new Error(`الحد الأدنى للشحن هو ${MIN_DEPOSIT}$`);
   }
 
+  // تحديد عنوان العملية بناءً على طريقة الدفع
+  const isPiAds = paymentMethod === 'pi_ads';
+  const txTitle = isPiAds ? 'مكافأة مشاهدة إعلان Pi Ads' : 'شحن رصيد';
+
   // Build a helpful description but keep it short and safe
-  let desc = description || 'شحن رصيد';
-  if (paymentMethod) {
+  let desc = description || txTitle;
+  if (paymentMethod && !isPiAds) {
     desc += ` | method: ${String(paymentMethod)}`;
   }
   // If card details exist, store only non-sensitive summary (e.g., last4)
@@ -82,7 +86,7 @@ const depositFunds = asyncHandler(async (req, res) => {
         userId,
         amount: numAmount,
         type: 'credit',
-        title: 'شحن رصيد',
+        title: txTitle,
         createdAt: { gte: fiveSecondsAgo },
       },
     });
@@ -100,7 +104,7 @@ const depositFunds = asyncHandler(async (req, res) => {
       data: {
         id: generateShortId(),
         userId,
-        title: 'شحن رصيد',
+        title: txTitle,
         amount: numAmount,
         type: 'credit',
         status: 'completed',
@@ -112,8 +116,11 @@ const depositFunds = asyncHandler(async (req, res) => {
   });
 
   // Send Notification & FCM Push
-  const title = 'تم شحن رصيدك بنجاح';
-  const message = `تم إضافة ${numAmount} رصيد إلى حسابك. رصيدك الحالي هو ${result.user.balance}.`;
+  const notifTitle = isPiAds ? 'مكافأة Pi Ads' : 'تم شحن رصيدك بنجاح';
+  const title = notifTitle;
+  const message = isPiAds
+    ? `تهانياً! تم إضافة ${numAmount}$ لرصيدك كمكافأة على مشاهدة إعلان Pi Ads.`
+    : `تم إضافة ${numAmount} رصيد إلى حسابك. رصيدك الحالي هو ${result.user.balance}.`;
   
   await sendNotification(userId, title, message, 'wallet_credit');
   

@@ -69,8 +69,9 @@ api.interceptors.response.use(
       
       if (!isAdminActivation) {
         errorMessage = 'جلستك انتهت. يرجى تسجيل الدخول مرة أخرى';
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+        // ✅ لا نحذف التوكن ولا نعيد التوجيه هنا تجنباً لتسجيل الخروج التلقائي عند أي خطأ 401.
+        // المعالجة الصحيحة تتم في App.tsx عبر refreshProfileFromServer و initAuth
+        // التي تتحقق من الحالة وتسجّل الخروج بشكل آمن عند الحاجة فقط.
       } else {
         // Just return the specific error message from server for admin login
         errorMessage = (error.response?.data as any)?.message || 'كلمة مرور المسؤول غير صحيحة';

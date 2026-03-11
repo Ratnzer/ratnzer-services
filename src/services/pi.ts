@@ -3,6 +3,8 @@
  * يتعامل مع تهيئة SDK والمصادقة عبر Pi Network
  */
 
+import api from './api';
+
 // تعريف نوع Pi SDK
 declare global {
   interface Window {
@@ -116,10 +118,14 @@ export const getPiUserInfo = async (): Promise<{
   }
 };
 
-import { userService } from './api';
-
 /**
  * عرض إعلان مكافأة (Rewarded Ad)
+ *
+ * ⚠️ إصلاح مهم: كان الكود القديم يستدعي PUT /api/users/:id/balance
+ * وهو endpoint محمي بصلاحية admin فقط، مما يُرجع 401 Unauthorized
+ * ويُطلق interceptor في api.ts الذي يحذف التوكن ويُسجّل خروج المستخدم.
+ *
+ * الحل: استخدام POST /api/wallet/deposit الذي يعمل مع أي مستخدم مسجّل دخول.
  */
 export const showRewardedAd = async (userId?: string): Promise<{ success: boolean; adId?: string; error?: string }> => {
   if (!window.Pi || !window.Pi.Ads) {
@@ -155,16 +161,21 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
     switch (showAdResponse.result) {
       case "AD_REWARDED":
-        // 4. إضافة الرصيد للمستخدم (1 دولار) بشكل فعلي
-        if (userId) {
-          try {
-            await userService.updateBalance(userId, 1.0, "add");
-            console.log("✅ تم إضافة 1 دولار لرصيد المستخدم بنجاح");
-          } catch (apiError) {
-            console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
-            // لا نوقف العملية لأن الإعلان تمت مشاهدته بنجاح، ولكن نبلغ المستخدم بوجود مشكلة في المزامنة
-            return { success: true, adId: showAdResponse.adId, error: "تمت المشاهدة بنجاح، ولكن حدث خطأ أثناء تحديث الرصيد في السيرفر." };
-          }
+        // 4. إضافة الرصيد للمستخدم (1 دولار) عبر endpoint المحفظة المخصص للمستخدم العادي
+        // ✅ نستخدم POST /wallet/deposit (يتطلب protect فقط، لا admin)
+        // ❌ لا نستخدم PUT /users/:id/balance لأنه يتطلب صلاحية admin وسيُرجع 401
+        //    مما يُطلق interceptor api.ts الذي يحذف التوكن ويُسجّل خروج المستخدم تلقائياً
+        try {
+          await api.post('/wallet/deposit', {
+            amount: 1.0,
+            paymentMethod: 'pi_ads',
+            description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
+          });
+          console.log("✅ تم إضافة 1 دولار لرصيد المستخدم بنجاح عبر /wallet/deposit");
+        } catch (apiError: any) {
+          console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
+          // لا نوقف العملية لأن الإعلان تمت مشاهدته بنجاح، ولكن نبلغ المستخدم بوجود مشكلة في المزامنة
+          return { success: true, adId: showAdResponse.adId, error: "تمت المشاهدة بنجاح، ولكن حدث خطأ أثناء تحديث الرصيد في السيرفر." };
         }
         return { success: true, adId: showAdResponse.adId };
 
