@@ -188,7 +188,13 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
         return { success: false, error: 'حدث خطأ في الشبكة أثناء عرض الإعلان. يرجى التأكد من اتصالك بالإنترنت.' };
 
       case "USER_UNAUTHENTICATED":
-        return { success: false, error: 'يجب تسجيل الدخول أولاً لعرض الإعلانات والحصول على مكافآت.' };
+        console.log("User unauthenticated for Ads, attempting to re-authenticate...");
+        try {
+          await window.Pi.authenticate(['username']);
+          return { success: false, error: 'تم تحديث المصادقة، يرجى المحاولة مرة أخرى الآن.' };
+        } catch (authErr) {
+          return { success: false, error: 'يجب تسجيل الدخول أولاً لعرض الإعلانات والحصول على مكافآت.' };
+        }
 
       case "AD_DISPLAY_FAILED":
         return { success: false, error: 'فشل عرض الإعلان لسبب تقني. يرجى المحاولة مرة أخرى.' };

@@ -734,21 +734,26 @@ useEffect(() => {
 	      if (!token) return;
 	
 	      try {
-	        const res = await authService.getProfile();
-	        if (res && res.data) {
-	          const userData = res.data;
-	          setCurrentUser(userData);
-	          
-	          // ✅ Force Pi-only mode for Pi users
-	          const isPiUser = userData.email?.endsWith('@pi.network');
-	          if (isPiUser) {
-	            localStorage.setItem('user_email', userData.email);
-	            // Disable other methods in local storage to be sure
-	            ['card', 'superkey', 'zaincash', 'asiacell_transfer'].forEach(id => {
-	              localStorage.setItem(`payment_method_${id}_enabled`, 'false');
-	            });
-	            localStorage.setItem('payment_method_pi_enabled', 'true');
-	          }
+		        const res = await authService.getProfile();
+		        if (res && res.data) {
+		          const userData = res.data;
+		          setCurrentUser(userData);
+		          
+		          // ✅ Force Pi-only mode for Pi users
+		          const isPiUser = userData.email?.endsWith('@pi.network');
+		          if (isPiUser) {
+		            localStorage.setItem('user_email', userData.email);
+		            // Disable other methods in local storage to be sure
+		            ['card', 'superkey', 'zaincash', 'asiacell_transfer'].forEach(id => {
+		              localStorage.setItem(`payment_method_${id}_enabled`, 'false');
+		            });
+		            localStorage.setItem('payment_method_pi_enabled', 'true');
+
+		            // ✅ Ensure Pi SDK is authenticated for Ads
+		            if ((window as any).Pi) {
+		              (window as any).Pi.authenticate(['username']).catch((e: any) => console.warn('Pi Auth failed on boot', e));
+		            }
+		          }
 
 	          if ((userData as any)?.preferredCurrency) {
 	            const pc = (userData as any).preferredCurrency;
