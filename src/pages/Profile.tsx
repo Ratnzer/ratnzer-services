@@ -9,11 +9,12 @@ import { PlayCircle,
   ShieldCheck, Info, MapPin, Globe, Smartphone, ArrowLeft
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
-import { PlayCircle, View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
-import { PlayCircle, authService, settingsService } from '../services/api';
-import { PlayCircle, auth } from '../services/firebase';
-import { PlayCircle, localCache } from '../services/localCache';
+import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
+import { authService, settingsService } from '../services/api';
+import { auth } from '../services/firebase';
+import { localCache } from '../services/localCache';
 import versionData from '../version.json';
+import { showRewardedAd } from '../services/pi';
 
 const PiIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
   <svg viewBox="176.2 47.4 530.8 530.7" width={size} height={size} xmlns="http://www.w3.org/2000/svg">
