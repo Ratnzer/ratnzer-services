@@ -127,28 +127,30 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
   }
 
   try {
+    console.log("Checking if Ad is ready...");
     // 1. التحقق مما إذا كان الإعلان جاهزاً
     const isAdReadyResponse = await window.Pi.Ads.isAdReady("rewarded");
+    console.log("Ad ready response:", isAdReadyResponse);
 
     if (!isAdReadyResponse.ready) {
+      console.log("Ad not ready, requesting ad...");
       // 2. طلب تحميل الإعلان إذا لم يكن جاهزاً
       const requestAdResponse = await window.Pi.Ads.requestAd("rewarded");
+      console.log("Request ad response:", requestAdResponse);
 
       if (requestAdResponse.result === "ADS_NOT_SUPPORTED") {
-        return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح' };
+        return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح. يرجى تحديث متصفح Pi.' };
       }
 
-      if (requestAdResponse.result !== "AD_LOAD_FAILED") {
-         // محاولة أخيرة للطلب إذا لم يفشل تماماً
-      }
-      
       if (requestAdResponse.result !== "AD_LOADED") {
-        return { success: false, error: 'الإعلانات غير متوفرة حالياً، يرجى المحاولة لاحقاً' };
+        return { success: false, error: 'الإعلانات غير متوفرة حالياً أو فشل تحميلها. يرجى المحاولة مرة أخرى لاحقاً.' };
       }
     }
 
+    console.log("Showing Ad now...");
     // 3. عرض الإعلان
     const showAdResponse = await window.Pi.Ads.showAd("rewarded");
+    console.log("Show ad response:", showAdResponse);
 
     if (showAdResponse.result === "AD_REWARDED") {
       // 4. إضافة الرصيد للمستخدم (1 دولار) بشكل فعلي
