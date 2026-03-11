@@ -117,6 +117,41 @@ router.post('/approve', protect, asyncHandler(async (req, res) => {
  * @route   POST /api/pi-payments/complete
  * @access  Private
  */
+/**
+ * @desc    التحقق من حالة إعلان مكافأة Pi Ads
+ * @route   GET /api/pi-payments/verify-ad/:adId
+ * @access  Private
+ */
+router.get('/verify-ad/:adId', protect, asyncHandler(async (req, res) => {
+  const { adId } = req.params;
+
+  if (!adId) {
+    res.status(400);
+    throw new Error('adId مطلوب');
+  }
+
+  if (!PI_API_KEY) {
+    res.status(500);
+    throw new Error('السيرفر غير مهيأ بمفتاح Pi API');
+  }
+
+  try {
+    const response = await axios.get(`${PI_API_URL}/v2/ads_network/status/${adId}`, {
+      headers: {
+        'Authorization': `Key ${PI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 10000
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('❌ خطأ في التحقق من إعلان Pi:', error.response?.data || error.message);
+    res.status(error.response?.status || 500);
+    throw new Error(error.response?.data?.message || 'فشل التحقق من الإعلان مع Pi Network');
+  }
+}));
+
 router.post('/complete', protect, asyncHandler(async (req, res) => {
   const { 
     paymentId, txid, amountUSD,

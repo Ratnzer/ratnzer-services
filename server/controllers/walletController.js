@@ -3,6 +3,11 @@ const prisma = require('../config/db');
 const { generateShortId } = require('../utils/id');
 const { sendNotification, sendFcmPush } = require('./notificationController');
 const { getTokensForUsers } = require('../utils/tokenStore');
+const axios = require('axios');
+
+// Pi Ads Configuration
+const PI_API_KEY = process.env.PI_API_KEY;
+const PI_API_URL = process.env.PI_API_URL || 'https://api.minepi.com';
 
 // @desc    Get current user transaction history
 // @route   GET /api/wallet/transactions
@@ -65,6 +70,57 @@ const depositFunds = asyncHandler(async (req, res) => {
   const isPiAds = paymentMethod === 'pi_ads';
   const txTitle = isPiAds ? 'مكافأة مشاهدة إعلان Pi Ads' : 'شحن رصيد';
 
+  // --- التحقق الأمني من إعلانات Pi Ads ---
+  if (isPiAds) {
+    // 1. التحقق من أن المبلغ لا يتجاوز 1.0 دولار
+    if (numAmount > 1.0) {
+      res.status(400);
+      throw new Error('لا يمكن إضافة أكثر من 1.0 دولار لكل إعلان');
+    }
+
+    // 2. التحقق من وجود adId (يجب إرساله من الفرونت إند في الحقل paymentDetails.adId)
+    const adId = paymentDetails?.adId;
+    if (!adId) {
+      res.status(400);
+      throw new Error('معرف الإعلان (adId) مطلوب للتحقق');
+    }
+
+    // 3. التحقق من صحة adId عبر Pi Ads API
+    if (PI_API_KEY) {
+      try {
+        const adResponse = await axios.get(`${PI_API_URL}/v2/ads_network/status/${adId}`, {
+          headers: {
+            'Authorization': `Key ${PI_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        });
+
+        // التحقق من أن حالة الإعلان "granted"
+        if (adResponse.data.mediator_ack_status !== 'granted') {
+          res.status(400);
+          throw new Error('لم يتم تأكيد مشاهدة الإعلان بنجاح من Pi Network');
+        }
+
+        // 4. التحقق من عدم تكرار استخدام نفس الـ adId (إجراء أمني إضافي)
+        const existingAdTx = await prisma.transaction.findFirst({
+          where: { paymentId: adId }
+        });
+        if (existingAdTx) {
+          res.status(400);
+          throw new Error('لقد حصلت بالفعل على مكافأة مقابل هذا الإعلان');
+        }
+      } catch (error) {
+        console.error('❌ فشل التحقق من إعلان Pi في السيرفر:', error.response?.data || error.message);
+        res.status(error.response?.status || 400);
+        throw new Error(error.response?.data?.message || 'فشل التحقق من صحة الإعلان');
+      }
+    } else {
+      console.warn('⚠️ تنبيه أمني: لم يتم التحقق من adId لأن PI_API_KEY غير مضبوط');
+      // في حالة عدم وجود المفتاح، نكتفي بالحد الأقصى للمبلغ (1.0) كحماية أساسية
+    }
+  }
+
   // Build a helpful description but keep it short and safe
   let desc = description || txTitle;
   if (paymentMethod && !isPiAds) {
@@ -109,6 +165,7 @@ const depositFunds = asyncHandler(async (req, res) => {
         type: 'credit',
         status: 'completed',
         description: desc,
+        paymentId: isPiAds ? paymentDetails?.adId : undefined, // تخزين adId لمنع التكرار
       },
     });
 
