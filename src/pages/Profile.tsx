@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { 
+import { PlayCircle, 
   ChevronLeft, HelpCircle, FileText, 
   LogOut, Star, Trash2, Bell, Wallet, ClipboardList, Headset,
   CircleDollarSign, Check, Camera, User as UserIcon, Phone, Mail, X, Save, Edit2,
@@ -9,10 +9,10 @@ import {
   ShieldCheck, Info, MapPin, Globe, Smartphone, ArrowLeft
 } from 'lucide-react';
 import SupportModal from '../components/SupportModal';
-import { View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
-import { authService, settingsService } from '../services/api';
-import { auth } from '../services/firebase';
-import { localCache } from '../services/localCache';
+import { PlayCircle, View, AppTerms, AppPrivacy, UserProfile, Currency } from '../types';
+import { PlayCircle, authService, settingsService } from '../services/api';
+import { PlayCircle, auth } from '../services/firebase';
+import { PlayCircle, localCache } from '../services/localCache';
 import versionData from '../version.json';
 
 const PiIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
@@ -126,6 +126,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   }, [user?.avatar, socialPhoto]);
 
   const menuItems = [
+    { icon: PlayCircle, label: 'شاهد واربح', action: async () => { const result = await showRewardedAd(); if (result.success) { alert('شكراً لمشاهدتك! تم تسجيل مطالبتك بنجاح.'); console.log('Ad rewarded successfully:', result.adId); } else { alert(result.error || 'فشل عرض الإعلان'); } } },
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },
     { icon: Lock, label: 'أمان الحساب', action: () => { setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' }); setShowPasswordModal(true); } },
     { icon: Bell, label: 'الإشعارات', action: () => setView(View.NOTIFICATIONS) },

@@ -20,9 +20,9 @@ declare global {
       copyText: (text: string) => void;
       openUrlInSystemBrowser: (url: string) => void;
       Ads?: {
-        isAdReady: () => Promise<boolean>;
-        requestAd: () => Promise<void>;
-        showAd: () => Promise<void>;
+        isAdReady: (adType: "interstitial" | "rewarded") => Promise<{ ready: boolean }>;
+        requestAd: (adType: "interstitial" | "rewarded") => Promise<{ result: "AD_LOADED" | "ADS_NOT_SUPPORTED" | "AD_LOAD_FAILED" }>;
+        showAd: (adType: "interstitial" | "rewarded") => Promise<{ result: "AD_REWARDED" | "AD_CLOSED" | "AD_DISPLAY_FAILED" | "AD_DISMISSED", adId: string }>;
       };
     };
   }
@@ -116,9 +116,49 @@ export const getPiUserInfo = async (): Promise<{
   }
 };
 
+/**
+ * عرض إعلان مكافأة (Rewarded Ad)
+ */
+export const showRewardedAd = async (): Promise<{ success: boolean; adId?: string; error?: string }> => {
+  if (!window.Pi || !window.Pi.Ads) {
+    return { success: false, error: 'Pi Ads SDK غير متاح' };
+  }
+
+  try {
+    // 1. التحقق مما إذا كان الإعلان جاهزاً
+    const isAdReadyResponse = await window.Pi.Ads.isAdReady("rewarded");
+
+    if (!isAdReadyResponse.ready) {
+      // 2. طلب تحميل الإعلان إذا لم يكن جاهزاً
+      const requestAdResponse = await window.Pi.Ads.requestAd("rewarded");
+
+      if (requestAdResponse.result === "ADS_NOT_SUPPORTED") {
+        return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح' };
+      }
+
+      if (requestAdResponse.result !== "AD_LOADED") {
+        return { success: false, error: 'الإعلانات غير متوفرة حالياً، يرجى المحاولة لاحقاً' };
+      }
+    }
+
+    // 3. عرض الإعلان
+    const showAdResponse = await window.Pi.Ads.showAd("rewarded");
+
+    if (showAdResponse.result === "AD_REWARDED") {
+      return { success: true, adId: showAdResponse.adId };
+    } else {
+      return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة' };
+    }
+  } catch (err: any) {
+    console.error('❌ خطأ في عرض إعلان Pi:', err);
+    return { success: false, error: err?.message || 'حدث خطأ غير متوقع أثناء عرض الإعلان' };
+  }
+};
+
 export default {
   initPiSDK,
   authenticateWithPi,
   isPiAvailable,
   getPiUserInfo,
+  showRewardedAd,
 };
