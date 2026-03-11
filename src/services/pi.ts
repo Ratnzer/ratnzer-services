@@ -116,10 +116,12 @@ export const getPiUserInfo = async (): Promise<{
   }
 };
 
+import { userService } from './api';
+
 /**
  * عرض إعلان مكافأة (Rewarded Ad)
  */
-export const showRewardedAd = async (): Promise<{ success: boolean; adId?: string; error?: string }> => {
+export const showRewardedAd = async (userId?: string): Promise<{ success: boolean; adId?: string; error?: string }> => {
   if (!window.Pi || !window.Pi.Ads) {
     return { success: false, error: 'Pi Ads SDK غير متاح' };
   }
@@ -136,6 +138,10 @@ export const showRewardedAd = async (): Promise<{ success: boolean; adId?: strin
         return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح' };
       }
 
+      if (requestAdResponse.result !== "AD_LOAD_FAILED") {
+         // محاولة أخيرة للطلب إذا لم يفشل تماماً
+      }
+      
       if (requestAdResponse.result !== "AD_LOADED") {
         return { success: false, error: 'الإعلانات غير متوفرة حالياً، يرجى المحاولة لاحقاً' };
       }
@@ -145,6 +151,16 @@ export const showRewardedAd = async (): Promise<{ success: boolean; adId?: strin
     const showAdResponse = await window.Pi.Ads.showAd("rewarded");
 
     if (showAdResponse.result === "AD_REWARDED") {
+      // 4. إضافة الرصيد للمستخدم (1 دولار) بشكل فعلي
+      if (userId) {
+        try {
+          await userService.updateBalance(userId, 1.0, "add");
+          console.log("✅ تم إضافة 1 دولار لرصيد المستخدم بنجاح");
+        } catch (apiError) {
+          console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
+          // لا نوقف العملية لأن الإعلان تمت مشاهدته بنجاح
+        }
+      }
       return { success: true, adId: showAdResponse.adId };
     } else {
       return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة' };

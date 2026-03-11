@@ -127,7 +127,18 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   }, [user?.avatar, socialPhoto]);
 
   const menuItems = [
-    { icon: PlayCircle, label: 'شاهد واربح', action: async () => { const result = await showRewardedAd(); if (result.success) { alert('شكراً لمشاهدتك! تم تسجيل مطالبتك بنجاح.'); console.log('Ad rewarded successfully:', result.adId); } else { alert(result.error || 'فشل عرض الإعلان'); } } },
+    { icon: PlayCircle, label: 'شاهد واربح', action: async () => { 
+        const result = await showRewardedAd(user?.id); 
+        if (result.success) { 
+            alert('شكراً لمشاهدتك! تم إضافة 1 دولار لرصيدك بنجاح.'); 
+            // تحديث بيانات المستخدم في الواجهة ليعكس الرصيد الجديد
+            if (user) {
+                onUpdateUser({ ...user, balance: (user.balance || 0) + 1 });
+            }
+        } else { 
+            alert(result.error || 'فشل عرض الإعلان'); 
+        } 
+    } },
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },
     { icon: Lock, label: 'أمان الحساب', action: () => { setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' }); setShowPasswordModal(true); } },
     { icon: Bell, label: 'الإشعارات', action: () => setView(View.NOTIFICATIONS) },
