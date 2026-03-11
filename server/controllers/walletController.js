@@ -60,22 +60,22 @@ const depositFunds = asyncHandler(async (req, res) => {
     throw new Error('المبلغ غير صالح');
   }
 
-  const MIN_DEPOSIT = 1.0;
+  // تحديد عنوان العملية بناءً على طريقة الدفع
+  const isPiAds = paymentMethod === 'pi_ads';
+  const txTitle = isPiAds ? 'مكافأة مشاهدة إعلان Pi Ads' : 'شحن رصيد';
+
+  const MIN_DEPOSIT = isPiAds ? 0.01 : 1.0;
   if (numAmount < MIN_DEPOSIT) {
     res.status(400);
     throw new Error(`الحد الأدنى للشحن هو ${MIN_DEPOSIT}$`);
   }
 
-  // تحديد عنوان العملية بناءً على طريقة الدفع
-  const isPiAds = paymentMethod === 'pi_ads';
-  const txTitle = isPiAds ? 'مكافأة مشاهدة إعلان Pi Ads' : 'شحن رصيد';
-
   // --- التحقق الأمني من إعلانات Pi Ads ---
   if (isPiAds) {
-    // 1. التحقق من أن المبلغ لا يتجاوز 1.0 دولار
-    if (numAmount > 1.0) {
+    // 1. التحقق من أن المبلغ لا يتجاوز 0.01 دولار
+    if (numAmount > 0.01) {
       res.status(400);
-      throw new Error('لا يمكن إضافة أكثر من 1.0 دولار لكل إعلان');
+      throw new Error('لا يمكن إضافة أكثر من 0.01 دولار لكل إعلان');
     }
 
     // 2. التحقق من وجود adId (يجب إرساله من الفرونت إند في الحقل paymentDetails.adId)

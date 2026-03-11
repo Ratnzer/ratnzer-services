@@ -158,12 +158,12 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
         try {
           // نرسل adId للسيرفر للتحقق منه ومنع التكرار
           await api.post('/wallet/deposit', {
-            amount: 1.0,
+            amount: 0.01,
             paymentMethod: 'pi_ads',
             paymentDetails: { adId: showAdResponse.adId },
             description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
           });
-          console.log("✅ تم إضافة 1 دولار لرصيد المستخدم بنجاح");
+          console.log("✅ تم إضافة 0.01 دولار لرصيد المستخدم بنجاح");
           return { success: true, adId: showAdResponse.adId };
         } catch (apiError: any) {
           console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
