@@ -127,20 +127,31 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   }, [user?.avatar, socialPhoto]);
 
   const menuItems = [
-	    { icon: PlayCircle, label: 'شاهد واربح', action: async () => { 
-	        if (!user || !user.id) {
-	            alert('يرجى تسجيل الدخول أولاً للحصول على المكافأة');
-	            return;
-	        }
-	        const result = await showRewardedAd(user.id); 
-	        if (result.success) { 
-	            alert('شكراً لمشاهدتك! تم إضافة 1 دولار لرصيدك بنجاح.'); 
-	            // تحديث بيانات المستخدم في الواجهة ليعكس الرصيد الجديد
-	            onUpdateUser({ ...user, balance: (user.balance || 0) + 1 });
-	        } else { 
-	            alert(result.error || 'فشل عرض الإعلان'); 
-	        } 
-	    } },
+    { icon: PlayCircle, label: 'شاهد واربح', action: async () => { 
+        if (!user || !user.id) {
+            alert('يرجى تسجيل الدخول أولاً للحصول على المكافأة');
+            return;
+        }
+        
+        // التحقق من وجود Pi SDK
+        if (!window.Pi || !window.Pi.Ads) {
+            alert('إعلانات Pi غير متاحة حالياً. يرجى فتح التطبيق من داخل Pi Browser.');
+            return;
+        }
+
+        try {
+            const result = await showRewardedAd(user.id); 
+            if (result.success) { 
+                alert('شكراً لمشاهدتك! تم إضافة 1 دولار لرصيدك بنجاح.'); 
+                // تحديث بيانات المستخدم في الواجهة ليعكس الرصيد الجديد
+                onUpdateUser({ ...user, balance: (user.balance || 0) + 1 });
+            } else if (result.error) { 
+                alert(result.error); 
+            }
+        } catch (err: any) {
+            alert(err?.message || 'حدث خطأ أثناء عرض الإعلان');
+        }
+    } },
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },
     { icon: Lock, label: 'أمان الحساب', action: () => { setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' }); setShowPasswordModal(true); } },
     { icon: Bell, label: 'الإشعارات', action: () => setView(View.NOTIFICATIONS) },

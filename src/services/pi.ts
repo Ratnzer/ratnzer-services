@@ -41,12 +41,11 @@ export const initPiSDK = () => {
   }
 
   try {
-    // تهيئة SDK مع تفعيل وضع الرمل (Sandbox) للاختبار
+    // تهيئة SDK
     window.Pi.init({
       version: '2.0',
       sandbox: false,
     });
-    // App ID: -b33d8f279a2d5d02
     console.log('✅ تم تهيئة Pi SDK بنجاح');
   } catch (error) {
     console.error('❌ خطأ في تهيئة Pi SDK:', error);
@@ -69,11 +68,10 @@ export const authenticateWithPi = async (): Promise<{
   try {
     const onIncompletePaymentFound = (payment: any) => {
       console.log('Incomplete payment found:', payment);
-      // في بيئة حقيقية، يجب إرسال الـ payment.identifier للخلفية لإكمال أو إلغاء العملية
     };
 
     const result = await window.Pi.authenticate(
-      ['payments', 'username', 'wallet_address'], // الصلاحيات المطلوبة
+      ['payments', 'username', 'wallet_address'], 
       onIncompletePaymentFound
     );
 
@@ -120,16 +118,11 @@ export const getPiUserInfo = async (): Promise<{
 
 /**
  * عرض إعلان مكافأة (Rewarded Ad)
- *
- * ⚠️ إصلاح مهم: كان الكود القديم يستدعي PUT /api/users/:id/balance
- * وهو endpoint محمي بصلاحية admin فقط، مما يُرجع 401 Unauthorized
- * ويُطلق interceptor في api.ts الذي يحذف التوكن ويُسجّل خروج المستخدم.
- *
- * الحل: استخدام POST /api/wallet/deposit الذي يعمل مع أي مستخدم مسجّل دخول.
+ * يقوم بالتحقق من جاهزية الإعلان، طلبه إذا لم يكن جاهزاً، ثم عرضه وإرسال adId للسيرفر.
  */
 export const showRewardedAd = async (userId?: string): Promise<{ success: boolean; adId?: string; error?: string }> => {
   if (!window.Pi || !window.Pi.Ads) {
-    return { success: false, error: 'Pi Ads SDK غير متاح حالياً في متصفحك.' };
+    return { success: false, error: 'إعلانات Pi غير متاحة حالياً. يرجى فتح التطبيق من داخل Pi Browser.' };
   }
 
   try {
@@ -161,13 +154,9 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
     switch (showAdResponse.result) {
       case "AD_REWARDED":
-        // 4. إضافة الرصيد للمستخدم (1 دولار) عبر endpoint المحفظة المخصص للمستخدم العادي
-        // ✅ نستخدم POST /wallet/deposit (يتطلب protect فقط، لا admin)
-        
-        // نقوم بإرجاع النجاح فوراً للمتصفح ليتمكن من إغلاق شاشة الإعلان، 
-        // ونقوم بعملية التحديث في الخلفية أو ننتظرها مع معالجة الأخطاء
+        // 4. إضافة الرصيد للمستخدم (1 دولار) عبر السيرفر
         try {
-          // نستخدم await هنا لضمان انتهاء العملية قبل إغلاق الإعلان في بعض المتصفحات التي قد تقتل الـ process
+          // نرسل adId للسيرفر للتحقق منه ومنع التكرار
           await api.post('/wallet/deposit', {
             amount: 1.0,
             paymentMethod: 'pi_ads',
@@ -178,7 +167,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
           return { success: true, adId: showAdResponse.adId };
         } catch (apiError: any) {
           console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
-          // حتى لو فشل تحديث السيرفر، نعتبر العملية ناجحة لأن الإعلان عُرض
+          // نعتبر العملية ناجحة في الواجهة ولكن نبلغ المستخدم بوجود تأخير
           return { success: true, adId: showAdResponse.adId, error: "تمت المشاهدة بنجاح، سيتم تحديث رصيدك قريباً." };
         }
 
