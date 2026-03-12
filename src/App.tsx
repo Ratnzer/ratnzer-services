@@ -2513,27 +2513,27 @@ useEffect(() => {
                     </button>
                 </div>
 	             ) : (
-		                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 pb-24">
-                    
-	                    {/* Summary (Moved to Top) - Compact Version */}
-	                    <div className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-lg mb-1">
-	                        <div className="flex justify-between items-center mb-3">
-	                            <div className="flex flex-col">
-	                                <span className="text-gray-400 text-[10px] uppercase tracking-wider">الإجمالي ({cartCount} عناصر)</span>
-	                                <span className="text-yellow-400 font-black text-lg dir-ltr leading-none">{formatPrice(cartTotal)}</span>
-	                            </div>
-	                            <button 
-	                                onClick={handleBuyAll}
-	                                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-lg shadow-md shadow-emerald-500/20 flex items-center gap-2 active:scale-95 transition-all text-sm"
-	                            >
-	                                <CheckCircle size={16} />
-	                                شراء الكل
-	                            </button>
-	                        </div>
-	                    </div>
+			                <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+		                    
+		                    {/* Summary (Sticky Top) - Extra Compact Version */}
+		                    <div className="sticky top-0 z-20 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-3 mb-2 shadow-xl">
+		                        <div className="bg-[#242636] p-2.5 rounded-xl border border-gray-700/50 flex justify-between items-center">
+		                            <div className="flex flex-col">
+		                                <span className="text-gray-500 text-[9px] uppercase font-bold tracking-tight">الإجمالي ({cartCount})</span>
+		                                <span className="text-yellow-400 font-black text-base dir-ltr leading-none">{formatPrice(cartTotal)}</span>
+		                            </div>
+		                            <button 
+		                                onClick={handleBuyAll}
+		                                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 active:scale-95 transition-all text-xs"
+		                            >
+		                                <CheckCircle size={14} />
+		                                شراء الكل
+		                            </button>
+		                        </div>
+		                    </div>
 
-	                    {/* Cart Items List - Compact Version */}
-	                    <div className="space-y-2 pb-8">
+		                    {/* Cart Items List - Compact Version */}
+		                    <div className="px-4 space-y-2 pb-8">
 	                        {cartItems.map((item) => (
 	                            <div key={item.id} className="bg-[#242636] p-2 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
 	                                <div className="flex items-center gap-3">
