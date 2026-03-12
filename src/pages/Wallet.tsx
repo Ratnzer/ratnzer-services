@@ -678,26 +678,26 @@ const Wallet: React.FC<Props> = ({
                 {modalStep === 'select' && (
                     <div className="space-y-3 animate-fadeIn pb-4">
                         {paymentMethods.map((method) => (
-	                            <button
-	                                key={method.id}
-	                                onClick={() => handleMethodSelect(method)}
-	                                className={`w-full bg-gradient-to-r ${method.bg} p-3 rounded-xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-sm touch-manipulation`}
-	                            >
-	                                <div className="flex items-center gap-3">
-		                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-[#242636] shadow-inner ${method.color} overflow-hidden`}>
-	                                        {localStorage.getItem(`payment_method_${method.id}_icon`) ? (
-	                                            <img src={localStorage.getItem(`payment_method_${method.id}_icon`) || ''} alt={method.name} className="w-full h-full object-cover rounded-full" />
-	                                        ) : method.id === 'pi' ? (
-                                          <PiIcon size={24} />
-                                        ) : (
-                                          React.createElement(method.icon as any, { size: 24, strokeWidth: 1.5 })
-                                        )}
-                                    </div>
-                                    <div className="text-right">
-                                        <span className="font-bold text-sm text-white block">{method.name}</span>
-                                        <span className="text-[10px] text-gray-400 font-bold">{method.desc}</span>
-                                    </div>
-                                </div>
+		                            <button
+		                                key={method.id}
+		                                onClick={() => handleMethodSelect(method)}
+		                                className={`w-full bg-gradient-to-r ${method.bg} p-4 rounded-2xl flex items-center justify-between border ${method.border} hover:opacity-90 transition-all group active:scale-95 shadow-md touch-manipulation`}
+		                            >
+		                                <div className="flex items-center gap-4">
+			                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-[#242636] shadow-inner ${method.color} overflow-hidden`}>
+		                                        {localStorage.getItem(`payment_method_${method.id}_icon`) ? (
+		                                            <img src={localStorage.getItem(`payment_method_${method.id}_icon`) || ''} alt={method.name} className="w-full h-full object-cover rounded-full" />
+		                                        ) : method.id === 'pi' ? (
+	                                          <PiIcon size={28} />
+	                                        ) : (
+	                                          React.createElement(method.icon as any, { size: 28, strokeWidth: 1.5 })
+	                                        )}
+	                                    </div>
+	                                    <div className="text-right">
+	                                        <span className="font-bold text-base text-white block">{method.name}</span>
+	                                        <span className="text-[11px] text-gray-400 font-bold">{method.desc}</span>
+	                                    </div>
+	                                </div>
                                 <div className="bg-[#242636]/50 p-2 rounded-lg text-gray-400 group-hover:text-white transition-colors">
                                    <ChevronLeft size={18} />
                                 </div>
