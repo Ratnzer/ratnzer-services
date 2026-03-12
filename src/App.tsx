@@ -2548,9 +2548,9 @@ useEffect(() => {
                                         
                                         <div className="flex flex-wrap gap-2 mb-2">
                                             {item.selectedRegion && (
-                                                <span className="text-[10px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-700 flex items-center gap-1">
-                                                    {item.selectedRegion.flag} {item.selectedRegion.name}
-                                                </span>
+<span className="text-[10px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-700 flex items-center gap-1">
+	                                                    {item.selectedRegion.name}
+	                                                </span>
                                             )}
                                             {item.selectedDenomination && (
                                                 <span className="text-[10px] bg-yellow-400/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/30">

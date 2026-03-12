@@ -388,7 +388,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                                     : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'
                                 }`}
                             >
-                                <span className="text-lg leading-none pt-0.5">{region.flag}</span>
+                                {/* <span className="text-lg leading-none pt-0.5">{region.flag}</span> */}
                                 <span className="text-xs font-bold leading-none">{region.name}</span>
                             </button>
                         ))}

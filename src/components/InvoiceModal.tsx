@@ -304,7 +304,7 @@ const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice }) 
 
                     {order.regionName && (
                         <div className="flex justify-between items-center py-1 border-b border-gray-800/30">
-                            <span className="text-gray-500 text-[9px] font-bold flex items-center gap-1"><MapPin size={10}/> نوع المنتج</span>
+                            <span className="text-gray-500 text-[9px] font-bold flex items-center gap-1">نوع المنتج</span>
                             <span className="text-white text-[9px] text-left">{order.regionName}</span>
                         </div>
                     )}

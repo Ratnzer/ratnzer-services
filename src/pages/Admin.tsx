@@ -3560,7 +3560,7 @@ try {
                         
                         {/* Regions Section */}
                         <div className="bg-[#242636] p-4 rounded-xl border border-gray-700">
-                            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 pb-2 border-b border-gray-700"><Flag size={14} className="text-blue-400"/> نوع المنتج</h3>
+                            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 pb-2 border-b border-gray-700">نوع المنتج</h3>
                             
                             {/* Region Selection */}
                             <div className="flex flex-wrap gap-2 mb-4">
