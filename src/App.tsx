@@ -431,17 +431,18 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Track navigation history: store PREVIOUS view when entering a new view
+  const previousViewRef = useRef<View | null>(null);
   useEffect(() => {
-    // ✅ Only push to history if the new view is different from the last recorded view
-    // This prevents duplicate entries and ensures pop() returns the correct previous view
-    const history = navigationHistory.current;
-    const lastView = history[history.length - 1];
-    if (lastView !== currentView) {
-      history.push(currentView);
-      if (history.length > 20) {
-        history.shift();
+    // When currentView changes, push the PREVIOUS view to history (not the current one)
+    // This way, when user presses back, pop() returns the correct previous screen
+    if (previousViewRef.current !== null && previousViewRef.current !== currentView) {
+      navigationHistory.current.push(previousViewRef.current);
+      if (navigationHistory.current.length > 20) {
+        navigationHistory.current.shift();
       }
     }
+    previousViewRef.current = currentView;
   }, [currentView]);
 
   const showLocalNotification = async (notification: PushNotificationSchema) => {
