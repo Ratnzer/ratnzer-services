@@ -871,10 +871,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                   
                   <button 
                     onClick={() => setShowCurrencyModal(false)}
-                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-yellow-400 hover:text-yellow-300 border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
                     aria-label="Close"
                   >
-                    <X size={20} strokeWidth={2} />
+                    <X size={20} strokeWidth={2.5} />
                   </button>
                </div>
 
