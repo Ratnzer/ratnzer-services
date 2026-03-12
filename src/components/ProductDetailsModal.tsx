@@ -351,7 +351,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                      )}
                      
                      {product.tag && (
-                         <div className="absolute top-0 right-0 bg-yellow-400 text-black text-[7px] font-black px-1.5 py-0.5 rounded-bl-lg shadow-sm z-10">
+                         <div className="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-2 py-1 rounded-bl-xl shadow-sm z-10">
                              {product.tag}
                          </div>
                      )}
