@@ -478,92 +478,92 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
           <div className="space-y-2 flex-1">
               <p className="text-right text-[10px] font-bold text-gray-400 mb-1">اختر طريقة الدفع</p>
               
-              {/* Wallet Option */}
-              <button 
-                onClick={() => {
-                    if (userBalance >= currentPrice) {
-                        setPaymentMethod('wallet');
-                    } else {
-                        alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
-                    }
-                }}
-className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
-	                    paymentMethod === 'wallet' 
-	                    ? 'bg-yellow-400/10 border-yellow-400' 
-	                    : 'bg-[#242636] border-gray-700 hover:border-gray-500'
-	                } ${userBalance < currentPrice ? 'opacity-80' : 'cursor-pointer'}`}
-	              >
-	                  <div className="flex items-center gap-3 relative z-10">
-	                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${paymentMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
-	                          <Wallet size={20} />
+	              {/* Wallet Option */}
+	              <button 
+	                onClick={() => {
+	                    if (userBalance >= currentPrice) {
+	                        setPaymentMethod('wallet');
+	                    } else {
+	                        alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
+	                    }
+	                }}
+	className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+		                    paymentMethod === 'wallet' 
+		                    ? 'bg-yellow-400/10 border-yellow-400' 
+		                    : 'bg-[#242636] border-gray-700 hover:border-gray-500'
+		                } ${userBalance < currentPrice ? 'opacity-80' : 'cursor-pointer'}`}
+		              >
+		                  <div className="flex items-center gap-4 relative z-10">
+		                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${paymentMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+		                          <Wallet size={24} />
+		                      </div>
+		                      <div className="text-right">
+		                          <h3 className={`font-bold text-base ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
+	                          <p className="text-gray-400 text-[11px] mt-1 dir-ltr text-right font-mono">
+	                              الرصيد: {formatPrice(userBalance)}
+	                          </p>
 	                      </div>
-	                      <div className="text-right">
-	                          <h3 className={`font-bold text-sm ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
-                          <p className="text-gray-400 text-[10px] mt-0.5 dir-ltr text-right font-mono">
-                              الرصيد: {formatPrice(userBalance)}
-                          </p>
-                      </div>
-                  </div>
+	                  </div>
                   {paymentMethod === 'wallet' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
               </button>
 
-              {/* Card Option */}
-              {!isPiUser && (
-                  <button 
-                    onClick={() => setPaymentMethod('card')}
-className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
-	                        paymentMethod === 'card' 
-	                        ? 'bg-yellow-400/10 border-yellow-400' 
-	                        : 'bg-[#242636] border-gray-700 hover:border-gray-500'
-	                    }`}
-	                  >
-	                      <div className="flex items-center gap-3 relative z-10">
-	                          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
-	                              {localStorage.getItem('payment_method_card_icon') ? (
-	                                  <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
-	                              ) : (
-	                                  <CreditCard size={20} />
-	                              )}
+	              {/* Card Option */}
+	              {!isPiUser && (
+	                  <button 
+	                    onClick={() => setPaymentMethod('card')}
+	className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+		                        paymentMethod === 'card' 
+		                        ? 'bg-yellow-400/10 border-yellow-400' 
+		                        : 'bg-[#242636] border-gray-700 hover:border-gray-500'
+		                    }`}
+		                  >
+		                      <div className="flex items-center gap-4 relative z-10">
+		                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+		                              {localStorage.getItem('payment_method_card_icon') ? (
+		                                  <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
+		                                ) : (
+		                                  <CreditCard size={24} />
+		                              )}
+		                          </div>
+		                          <div className="text-right">
+		                              <h3 className={`font-bold text-base ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
+	                              <p className="text-gray-400 text-[11px] mt-1">دفع فوري وآمن</p>
 	                          </div>
-	                          <div className="text-right">
-	                              <h3 className={`font-bold text-sm ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-                              <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
-                          </div>
-                      </div>
-                      {paymentMethod === 'card' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
-                  </button>
-              )}
+	                      </div>
+	                      {paymentMethod === 'card' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={16} /></div>}
+	                  </button>
+	              )}
 
-              {/* Pi Network Option */}
-              <button 
-                onClick={() => setPaymentMethod('pi')}
-className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between group relative overflow-hidden ${
-	                    paymentMethod === 'pi' 
-	                    ? 'bg-yellow-400/10 border-yellow-400' 
-	                    : 'bg-[#242636] border-gray-700 hover:border-gray-500'
-	                }`}
-	              >
-	                  <div className="flex items-center gap-3 relative z-10">
-	                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
-	                          {localStorage.getItem('payment_method_pi_icon') ? (
-	                              <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-cover rounded-full" />
-	                          ) : (
-	                              <svg viewBox="176.2 47.4 530.8 530.7" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
-                                <g fill="#593B8B">
-                                  <path d="m441.6 142.2c-94.2 0-170.6 76.4-170.6 170.6s76.4 170.6 170.6 170.6 170.6-76.4 170.6-170.6-76.4-170.6-170.6-170.6zm0 312.8c-78.5 0-142.2-63.7-142.2-142.2s63.7-142.2 142.2-142.2 142.2 63.7 142.2 142.2-63.7 142.2-142.2 142.2z"/>
-                                  <path d="m491.3 234.7h-99.4c-11.8 0-21.3 9.5-21.3 21.3v113.7c0 11.8 9.5 21.3 21.3 21.3h99.4c11.8 0 21.3-9.5 21.3-21.3v-113.7c0-11.8-9.5-21.3-21.3-21.3zm-7.1 127.9h-85.2v-99.4h85.2z"/>
-                                </g>
-                              </svg>
-                          )}
-                      </div>
-                      <div className="text-right">
-                          <h3 className={`font-bold text-xs ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
-                          <p className="text-gray-400 text-[10px] mt-0.5">متوفر في Pi Browser</p>
-                      </div>
-                  </div>
-                  {paymentMethod === 'pi' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
-              </button>
+	              {/* Pi Network Option */}
+	              <button 
+	                onClick={() => setPaymentMethod('pi')}
+	className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+		                    paymentMethod === 'pi' 
+		                    ? 'bg-yellow-400/10 border-yellow-400' 
+		                    : 'bg-[#242636] border-gray-700 hover:border-gray-500'
+		                }`}
+		              >
+		                  <div className="flex items-center gap-4 relative z-10">
+		                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${paymentMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
+		                          {localStorage.getItem('payment_method_pi_icon') ? (
+		                              <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-cover rounded-full" />
+		                          ) : (
+		                              <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+	                                <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
+	                                <g fill="#593B8B">
+	                                  <path d="m441.6 142.2c-94.2 0-170.6 76.4-170.6 170.6s76.4 170.6 170.6 170.6 170.6-76.4 170.6-170.6-76.4-170.6-170.6-170.6zm0 312.8c-78.5 0-142.2-63.7-142.2-142.2s63.7-142.2 142.2-142.2 142.2 63.7 142.2 142.2-63.7 142.2-142.2 142.2z"/>
+	                                  <path d="m491.3 234.7h-99.4c-11.8 0-21.3 9.5-21.3 21.3v113.7c0 11.8 9.5 21.3 21.3 21.3h99.4c11.8 0 21.3-9.5 21.3-21.3v-113.7c0-11.8-9.5-21.3-21.3-21.3zm-7.1 127.9h-85.2v-99.4h85.2z"/>
+	                                </g>
+	                              </svg>
+	                          )}
+	                      </div>
+	                      <div className="text-right">
+		                          <h3 className={`font-bold text-base ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
+	                          <p className="text-gray-400 text-[11px] mt-1">متوفر في Pi Browser</p>
+	                      </div>
+	                  </div>
+	                  {paymentMethod === 'pi' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={16} /></div>}
+	              </button>
           </div>
 
           <div className="pt-2 mt-auto pb-1">
