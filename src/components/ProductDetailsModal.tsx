@@ -327,7 +327,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
             {/* Header Section */}
             <div className="flex gap-5 items-start mb-6">
                  {/* Product Card Graphic */}
-                <div className={`w-28 h-36 rounded-2xl bg-gradient-to-br ${product.imageColor} flex items-center justify-center shadow-lg relative overflow-hidden flex-shrink-0 border border-white/10 group`}>
+                <div className={`w-24 aspect-[4/5] rounded-[0.9rem] bg-gradient-to-br ${product.imageColor} flex items-center justify-center shadow-lg relative overflow-hidden flex-shrink-0 border border-white/10 group`}>
                      {product.imageUrl ? (
                          <img 
                            src={product.imageUrl} 
@@ -339,22 +339,23 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                                target.style.display = 'none';
                                target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
                                const span = document.createElement('span');
-                               span.className = 'text-white text-xs font-bold text-center p-2';
+                               span.className = 'text-white text-[10px] font-bold text-center p-2';
                                span.innerText = product.name;
                                target.parentElement!.appendChild(span);
                            }}
                          />
                      ) : (
-                        <div className="w-16 h-16 bg-white/20 rounded-full backdrop-blur-sm flex items-center justify-center shadow-inner">
-                           <span className="text-white text-[10px] font-bold text-center leading-tight opacity-90">{product.name}</span>
+                        <div className="w-10 h-10 bg-white/20 rounded-full backdrop-blur-sm flex items-center justify-center shadow-inner">
+                           <span className="text-white text-[8px] font-bold text-center leading-tight opacity-90">{product.name.slice(0, 2)}</span>
                         </div>
                      )}
                      
                      {product.tag && (
-                         <div className="absolute top-2 left-2 bg-yellow-400 text-black text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+                         <div className="absolute top-0 right-0 bg-yellow-400 text-black text-[7px] font-black px-1.5 py-0.5 rounded-bl-lg shadow-sm z-10">
                              {product.tag}
                          </div>
                      )}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
                 </div>
 
                 {/* Text Info */}
