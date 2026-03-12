@@ -196,9 +196,12 @@ export const walletTopupService = {
 // ============================================================
 export const paymentService = {
   charge: (data: any) => api.post("/payments/charge", data),
-  // ✅ PayTabs
-  paytabsCreate: (data: any) => api.post('/payments/paytabs/create', data),
-  paytabsStatus: (paymentId: string) => api.get('/payments/paytabs/status/' + encodeURIComponent(paymentId)),
+  // ✅ Qi Card (Replaces PayTabs)
+  qiCreate: (data: any) => api.post('/payments/qi/create', data),
+  qiStatus: (paymentId: string) => api.get('/payments/qi/status/' + encodeURIComponent(paymentId)),
+  // Aliases for backward compatibility
+  paytabsCreate: (data: any) => api.post('/payments/qi/create', data),
+  paytabsStatus: (paymentId: string) => api.get('/payments/qi/status/' + encodeURIComponent(paymentId)),
 };
 
 // ============================================================

@@ -1510,7 +1510,7 @@ useEffect(() => {
   // ============================================================
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  const startPaytabsRedirect = async (payload: any) => {
+  const startQiRedirect = async (payload: any) => {
     if (!currentUser) {
       setShowLoginModal(true);
       return;
@@ -1520,14 +1520,14 @@ useEffect(() => {
       setPaytabsProcessing(true);
       setPaytabsProcessingText('جاري إنشاء عملية الدفع...');
 
-      const res = await paymentService.paytabsCreate(payload);
-      const redirectUrl = res?.data?.redirectUrl;
+      const res = await paymentService.qiCreate(payload);
+      const redirectUrl = res?.data?.redirect_url;
 
       if (!redirectUrl) {
         throw new Error('No redirectUrl');
       }
 
-      // Navigate to PayTabs inside the same WebView
+      // Navigate to Qi Gateway inside the same WebView
       window.location.assign(redirectUrl);
     } catch (error: any) {
       setPaytabsProcessing(false);
@@ -1536,18 +1536,18 @@ useEffect(() => {
     }
   };
 
-  // Handle return from PayTabs (https://localhost/?pt_payment_id=...)
-  const paytabsHandledRef = useRef(false);
+  // Handle return from Qi Gateway (https://localhost/?qi_payment_id=...)
+  const qiHandledRef = useRef(false);
 
-  const handlePaytabsCallback = (searchStr: string) => {
-    if (paytabsHandledRef.current) return;
+  const handleQiCallback = (searchStr: string) => {
+    if (qiHandledRef.current) return;
 
     const params = new URLSearchParams(searchStr || '');
-    const paymentId = params.get('pt_payment_id') || params.get('paymentId') || params.get('cart_id') || params.get('tran_ref');
+    const paymentId = params.get('qi_payment_id') || params.get('requestId') || params.get('paymentId');
     if (!paymentId) return;
 
-    paytabsHandledRef.current = true;
-    const returnViewParam = (params.get('pt_return_view') || params.get('return_view') || 'home').toLowerCase();
+    qiHandledRef.current = true;
+    const returnViewParam = (params.get('qi_return_view') || params.get('return_view') || 'home').toLowerCase();
 
     // Clean URL (remove params to avoid repeating)
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -1568,7 +1568,7 @@ useEffect(() => {
 
         let last = null as any;
         for (let i = 0; i < 6; i++) {
-          const r = await paymentService.paytabsStatus(paymentId);
+          const r = await paymentService.qiStatus(paymentId);
           last = r?.data;
           const st = String(last?.status || '').toLowerCase();
           if (st && st !== 'pending') break;
@@ -1598,7 +1598,7 @@ useEffect(() => {
           alert('لم يتم تأكيد الدفع بعد. حاول مرة أخرى بعد قليل.');
         }
       } catch (e: any) {
-        console.warn('PayTabs status check failed', e);
+        console.warn('Qi status check failed', e);
       } finally {
         setPaytabsProcessing(false);
         setPaytabsProcessingText('');
@@ -1608,7 +1608,7 @@ useEffect(() => {
 
   useEffect(() => {
     // 1. Check current URL (for web or initial app load)
-    handlePaytabsCallback(window.location.search);
+    handleQiCallback(window.location.search);
 
     // 2. Listen for Deep Links (for app return from browser)
     if (Capacitor.isNativePlatform()) {
@@ -1618,7 +1618,7 @@ useEffect(() => {
           if (data.url.includes('?')) {
             searchStr = data.url.substring(data.url.indexOf('?'));
           }
-          handlePaytabsCallback(searchStr);
+          handleQiCallback(searchStr);
         } catch (e) {
           console.error('Failed to parse appUrlOpen URL', e);
         }
@@ -1676,16 +1676,16 @@ useEffect(() => {
           customInputLabel,
           paymentMethod,
         };
-
-        // ✅ Card payment via PayTabs
-        if (paymentMethod === 'card') {
-      await startPaytabsRedirect({
-        type: 'single',
-        orderPayload: payload,
-        returnView: currentView,
-        is_app: Capacitor.isNativePlatform() ? 'true' : 'false',
-      });
-          return;
+        // ✅ Card payment via Qi
+        if (pa      if (paymentMethod === 'card') {
+        return startQiRedirect({
+          type: 'topup',
+          amount,
+          is_app: Capacitor.isNativePlatform(),
+          returnView: 'wallet'
+        });
+      }});
+        }return;
         }
 
         // ✅ Pi Network Direct Payment
@@ -2132,13 +2132,13 @@ useEffect(() => {
         }
       }
 
-      // ✅ Card payment via PayTabs (Bulk payment with sequential server execution)
+      // ✅ Card payment via Qi (Bulk payment with sequential server execution)
       if (method === 'card') {
           if (isBulkCheckout) {
               const items = [...cartItems];
               if (items.length === 0) return;
               
-              await startPaytabsRedirect({
+              await startQiRedirect({
                 type: 'cart',
                 cartMode: 'bulk',
                 returnView: View.CART,
@@ -2162,7 +2162,7 @@ useEffect(() => {
               return;
           }
           if (activeCheckoutItem) {
-              await startPaytabsRedirect({
+              await startQiRedirect({
                 type: 'cart',
                 cartMode: 'single',
                 cartItemId: activeCheckoutItem.id,

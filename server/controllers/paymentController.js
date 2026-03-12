@@ -2,9 +2,9 @@ const asyncHandler = require('express-async-handler');
 const prisma = require('../config/db');
 const { generateShortId } = require('../utils/id');
 const {
-  createPaytabsPayment,
-  queryPaytabsPayment,
-} = require('../utils/paytabs');
+  createQiPayment,
+  verifyQiSignature,
+} = require('../utils/qi');
 const { notifyAdminsPush } = require('./notificationController');
 const { placeOrder: placeKd1sOrder, parseQuantity } = require('../utils/kd1sClient');
 
@@ -18,17 +18,6 @@ const safeJsonParse = (raw, fallback) => {
     return JSON.parse(String(raw));
   } catch {
     return fallback;
-  }
-};
-
-const parseApiConfig = (raw) => {
-  try {
-    if (!raw) return null;
-    if (typeof raw === 'object') return raw;
-    return JSON.parse(String(raw));
-  } catch (err) {
-    console.warn('Failed to parse product apiConfig', err?.message || err);
-    return null;
   }
 };
 
@@ -61,12 +50,10 @@ const normalizeId = (val) => {
   return String(val);
 };
 
-// Compute trusted price from product + denomination list
 const computePrice = (product, denominationKey, denominationObj, clientAmount) => {
   const base = Number(product?.price ?? 0);
   const dens = product?.denominations;
 
-  // 1) Try to match denomination by id/value/amount/name/label/etc.
   const wanted =
     denominationKey ??
     denominationObj?.id ??
@@ -106,7 +93,6 @@ const computePrice = (product, denominationKey, denominationObj, clientAmount) =
     const p = found ? pickFromDen(found) : null;
     if (p != null) return p;
 
-    // If wanted is a string like "10 IQD" or "$10", try extracting a number and match by amount/value
     const num = Number(String(wanted).replace(/[^0-9.]/g, ''));
     if (Number.isFinite(num) && num > 0) {
       const foundByNumber = dens.find((d) => {
@@ -118,13 +104,11 @@ const computePrice = (product, denominationKey, denominationObj, clientAmount) =
     }
   }
 
-  // 2) Try denomination object direct values
   if (denominationObj) {
     const p = pickFromDen(denominationObj);
     if (p != null) return p;
   }
 
-  // 3) Fallback: if clientAmount matches one of denominations, accept it (prevents "base price only" bug)
   const ca = Number(clientAmount);
   if (Array.isArray(dens) && Number.isFinite(ca) && ca > 0) {
     const foundByClient = dens.find((d) => {
@@ -135,9 +119,6 @@ const computePrice = (product, denominationKey, denominationObj, clientAmount) =
     if (pc != null) return pc;
   }
 
-
-  // 3b) If denominations are missing/not an array but the client provided an amount with a selected denomination,
-  // accept the clientAmount (prevents "base price only" for legacy product JSON).
   if (!Array.isArray(dens)) {
     const ca2 = Number(clientAmount);
     if (Number.isFinite(ca2) && ca2 > 0 && wanted != null) {
@@ -147,38 +128,29 @@ const computePrice = (product, denominationKey, denominationObj, clientAmount) =
 
   return base;
 };
+
 const getCallbackUrl = () => {
   if (process.env.APP_CALLBACK_URL) return process.env.APP_CALLBACK_URL;
   const base = process.env.APP_BASE_URL;
   if (!base) return undefined;
-  return `${base.replace(/\/$/, '')}/api/payments/paytabs/callback`;
+  return `${base.replace(/\/$/, '')}/api/payments/qi/callback`;
 };
 
-const getReturnUrl = (type) => {
-  // Force use the production domain for web redirects
+const getReturnUrl = () => {
   const base = 'https://www.ratnzer.com';
   const cleanBase = base.replace(/\/$/, '');
-  
-  // ✅ FIX: Use the universal return path for ALL payment types
-  // This ensures that Cart and Wallet topups behave exactly like the Home page redirect
-  return `${cleanBase}/api/payments/paytabs/return`;
+  return `${cleanBase}/api/payments/qi/return`;
 };
 
 const getFrontendReturnUrl = (params, type, isApp = false) => {
-  // Force use the production domain for web redirects
   const base = 'https://www.ratnzer.com';
   const cleanBase = base.replace(/\/$/, '');
   const qs = new URLSearchParams(params || {}).toString();
 
   if (isApp) {
-    // ✅ UNIFIED FIX FOR APP: 
-    // The Home page works because it likely uses 'https://localhost/' which Capacitor handles internally.
-    // We will now force ALL payment returns in the app to use this exact same origin.
-    // This ensures the WebView closes and returns to the app's internal state.
-    return `https://localhost/?${qs}&pt_return_view=${type}`;
+    return `https://localhost/?${qs}&qi_return_view=${type}`;
   }
 
-  // Web redirection (keep as is)
   const isWallet = type === 'topup' || type === 'wallet';
   const isService = type === 'single' || type === 'cart' || type === 'service';
 
@@ -191,39 +163,10 @@ const getFrontendReturnUrl = (params, type, isApp = false) => {
   return `${cleanBase}/?${qs}`;
 };
 
-const buildCustomerDetails = (user) => {
-  const name = user?.name || 'Ratnzer Customer';
-  const email = user?.email || `${user?.id || 'user'}@ratnzer.com`;
-  const phone = user?.phone || '0000000000';
-
-  // Minimal, safe defaults (PayTabs requires address fields)
-  return {
-    name,
-    email,
-    phone,
-    street1: 'N/A',
-    city: 'Baghdad',
-    state: 'Baghdad',
-    country: 'IQ',
-    zip: '00000',
-  };
-};
-
-const isApprovedFromQuery = (q) => {
-  const status = String(q?.payment_result?.response_status ?? '').toUpperCase();
-  // PayTabs commonly uses "A" for approved
-  return status === 'A' || status === 'APPROVED' || status === 'SUCCESS';
-};
-
-const isDeclinedFromQuery = (q) => {
-  const status = String(q?.payment_result?.response_status ?? '').toUpperCase();
-  return status === 'D' || status === 'DECLINED' || status === 'FAILED' || status === 'E';
-};
-
 // ------------------------------------------------------------
 // Finalize payment (idempotent)
 // ------------------------------------------------------------
-const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
+const finalizePayment = async ({ paymentId, qiPaymentId, qiStatus }) => {
   const payment = await prisma.payment.findUnique({
     where: { id: String(paymentId) },
   });
@@ -239,20 +182,18 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
   const meta = safeJsonParse(payment.cardLast4, {});
   const type = meta?.type || 'unknown';
 
-  // If query says declined -> mark failed
-  if (queryResult && isDeclinedFromQuery(queryResult)) {
+  if (qiStatus === 'FAILED' || qiStatus === 'AUTHENTICATION_FAILED') {
     const updated = await prisma.payment.update({
       where: { id: payment.id },
       data: {
         status: 'failed',
-        transactionId: tranRef || payment.transactionId,
+        transactionId: qiPaymentId || payment.transactionId,
       },
     });
     return { ok: true, payment: updated, status: 'failed', type };
   }
 
-  if (!queryResult || !isApprovedFromQuery(queryResult)) {
-    // still pending / unknown
+  if (qiStatus !== 'SUCCESS') {
     return { ok: true, payment, status: 'pending', type };
   }
 
@@ -261,7 +202,6 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
   const apiDispatchQueue = [];
 
   const result = await prisma.$transaction(async (tx) => {
-    // Re-fetch with lock-ish behavior inside transaction
     const freshPayment = await tx.payment.findUnique({ where: { id: payment.id } });
     if (!freshPayment) throw new Error('Payment not found');
     if (String(freshPayment.status).toLowerCase() === 'succeeded') {
@@ -274,20 +214,18 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
     const metaInner = safeJsonParse(freshPayment.cardLast4, {});
     const innerType = metaInner?.type || 'unknown';
 
-    // Mark payment succeeded first
     const updatedPayment = await tx.payment.update({
       where: { id: freshPayment.id },
       data: {
         status: 'succeeded',
-        provider: 'paytabs',
+        provider: 'qi',
         method: 'card',
-        transactionId: tranRef || freshPayment.transactionId,
+        transactionId: qiPaymentId || freshPayment.transactionId,
       },
     });
 
-    // --- TOPUP ---
     if (innerType === 'topup') {
-      const updatedUser = await tx.user.update({
+      await tx.user.update({
         where: { id: userId },
         data: { balance: { increment: amountNumber } },
       });
@@ -296,214 +234,54 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
         data: {
           id: generateShortId(),
           userId,
-          title: 'شحن رصيد عبر بطاقة مصرفية',
+          title: 'شحن رصيد عبر بوابة Qi',
           amount: amountNumber,
           type: 'credit',
           status: 'completed',
-          description: 'شحن عبر PayTabs (Visa/Mastercard)',
+          description: 'شحن عبر Qi Card (Visa/Mastercard)',
           paymentId: updatedPayment.id,
         },
-      });
-
-      // Send Notification & FCM Push for Topup
-      const title = 'تم شحن رصيدك بنجاح';
-      const message = `تم إضافة ${amountNumber} رصيد إلى حسابك عبر البطاقة. رصيدك الحالي هو ${updatedUser.balance}.`;
-      
-      // We use setImmediate to not block the transaction completion
-      setImmediate(async () => {
-        try {
-          const { sendNotification, sendFcmPush } = require('./notificationController');
-          const { getTokensForUsers } = require('../utils/tokenStore');
-          
-          await sendNotification(userId, title, message, 'wallet_credit');
-          
-          const tokens = await getTokensForUsers([userId]);
-          if (tokens.length > 0) {
-            await sendFcmPush(tokens.map(t => t.token), {
-              title,
-              body: message,
-              data: { type: 'wallet_deposit', amount: String(amountNumber) }
-            });
-          }
-        } catch (err) {
-          console.error('Failed to send topup notifications:', err);
-        }
       });
 
       return { payment: updatedPayment, type: innerType };
     }
 
-    // --- ORDERS (single/cart) ---
-    const items = Array.isArray(metaInner?.items)
-      ? metaInner.items
-      : metaInner?.orderPayload
-      ? [metaInner.orderPayload]
-      : [];
-
+    const items = innerType === 'single' ? [metaInner.orderPayload] : (metaInner.items || []);
     const createdOrders = [];
 
-    for (const it of items) {
-      const productIdNorm = normalizeId(it?.productId);
-      const priceNumber = Number(it?.amount ?? it?.price ?? 0);
-      if (!Number.isFinite(priceNumber) || priceNumber <= 0) continue;
-
-      let product = null;
-      if (productIdNorm) {
-        product = await tx.product.findUnique({ where: { id: productIdNorm } });
-      }
-
-      let deliveredCode = null;
-      let status = 'pending';
-      let fulfillmentType = 'manual';
-
-      const apiConfig = parseApiConfig(product?.apiConfig);
-
-      const activeCustomInput = resolveCustomInputConfig(product, normalizeId(it?.regionId));
-      const trimmedCustomInputValue =
-        it?.customInputValue && typeof it.customInputValue === 'string'
-          ? it.customInputValue.trim()
-          : it?.customInputValue;
-
-      if (activeCustomInput?.enabled && activeCustomInput?.required) {
-        if (!trimmedCustomInputValue) {
-          throw new Error('الرجاء إدخال المعلومات المطلوبة لهذا المنتج');
-        }
-      }
-
-      const normalizedQuantity = parseQuantity(
-        it?.quantity ?? it?.selectedDenomination?.amount ?? it?.quantityLabel ?? 1
-      );
-
-      // infer fulfillment type if possible
-      if (apiConfig?.type) {
-        fulfillmentType = apiConfig.type;
-      }
-
-      let stockItemToUpdate = null;
-
-      if (product && product.autoDeliverStock) {
-        const regionIdNorm = normalizeId(it?.regionId);
-        const denominationIdNorm = normalizeId(it?.denominationId);
-        const stockItem = await tx.inventory.findFirst({
-          where: {
-            productId: productIdNorm || undefined,
-            isUsed: false,
-            AND: [
-              { OR: [{ regionId: regionIdNorm }, { regionId: null }] },
-              { OR: [{ denominationId: denominationIdNorm }, { denominationId: null }] },
-            ],
-          },
-        });
-
-        if (stockItem) {
-          deliveredCode = stockItem.code;
-          status = 'completed';
-          fulfillmentType = 'stock';
-          stockItemToUpdate = stockItem.id;
-        }
-      }
-
-      const orderRef = generateShortId();
-      const baseOrderData = {
-        userId,
-        userName: user.name,
-        productName: it?.productName || product?.name || 'منتج',
-        productId: productIdNorm || undefined,
-        productCategory: it?.productCategory || product?.category || undefined,
-        regionName: it?.regionName || undefined,
-        regionId: normalizeId(it?.regionId),
-        quantityLabel:
-          it?.quantityLabel || (it?.quantity ? String(normalizedQuantity) : undefined),
-        denominationId: normalizeId(it?.denominationId),
-        customInputValue: trimmedCustomInputValue || undefined,
-        customInputLabel: it?.customInputLabel || activeCustomInput?.label || undefined,
-        amount: priceNumber,
-        status,
-        fulfillmentType,
-        deliveredCode,
-        providerName: apiConfig?.providerName,
-      };
-
-      let order;
-      try {
-        order = await tx.order.create({ data: { id: orderRef, ...baseOrderData } });
-      } catch (err) {
-        const msg = String(err?.message || '');
-      const idTypeProblem =
-          msg.includes('Argument `id`') ||
-          msg.includes('Argument id') ||
-          msg.includes('Invalid value') ||
-          msg.includes('Expected') ||
-          msg.includes('Int') ||
-          msg.includes('UUID') ||
-          msg.includes('cuid') ||
-          msg.includes('uuid');
-
-        if (!idTypeProblem) throw err;
-
-        order = await tx.order.create({ data: { id: String(orderRef), ...baseOrderData } });
-      }
-
-      if (stockItemToUpdate) {
-        try {
-          await tx.inventory.update({
-            where: { id: stockItemToUpdate },
-            data: {
-              isUsed: true,
-              usedByOrderId:
-                typeof order.id === 'string' || typeof order.id === 'number'
-                  ? order.id
-                  : String(orderRef),
-              dateUsed: new Date(),
-            },
-          });
-        } catch {
-          await tx.inventory.update({
-            where: { id: stockItemToUpdate },
-            data: { isUsed: true, dateUsed: new Date() },
-          });
-        }
-      }
-
-      await tx.transaction.create({
+    for (const item of items) {
+      const orderId = generateShortId();
+      const order = await tx.order.create({
         data: {
-          id: generateShortId(),
+          id: orderId,
           userId,
-          title: `شراء: ${baseOrderData.productName}`,
-          amount: priceNumber,
-          type: 'debit',
-          status: 'completed',
+          productId: item.productId,
+          productName: item.productName,
+          productCategory: item.productCategory,
+          amount: item.amount,
+          status: 'processing',
+          fulfillmentType: item.fulfillmentType || 'manual',
+          regionName: item.regionName,
+          denominationLabel: item.quantityLabel,
+          customInputValue: item.customInputValue,
+          customInputLabel: item.customInputLabel,
           paymentId: updatedPayment.id,
         },
       });
 
-      if (apiConfig?.type === 'api' && !deliveredCode) {
-        const regions = parseJsonField(product?.regions, []);
-        const selectedRegion = Array.isArray(regions) 
-          ? regions.find(r => String(r.id) === String(normalizeId(it?.regionId)))
-          : null;
-        
-        const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
-        const effectiveProviderName = selectedRegion?.apiProviderName || apiConfig?.providerName || 'KD1S';
-
-        if (effectiveServiceId) {
-          // ✅ CRITICAL FIX: Use quantityLabel as the primary source for the provider quantity
-          const providerQuantity = parseQuantity(it?.quantityLabel || normalizedQuantity);
-          
-          apiDispatchQueue.push({
-            orderId: order.id,
-            serviceId: effectiveServiceId,
-            providerName: effectiveProviderName,
-            link: it?.customInputValue || it?.regionName || baseOrderData.productName,
-            quantity: providerQuantity,
-          });
-        }
+      if (item.fulfillmentType === 'api') {
+        apiDispatchQueue.push({
+          orderId,
+          serviceId: item.apiConfig?.serviceId,
+          link: item.customInputValue,
+          quantity: item.quantity || 1,
+          providerName: item.apiConfig?.providerName || 'KD1S',
+        });
       }
 
       createdOrders.push(order);
     }
 
-    // Clear cart items if provided
     const cartItemIds = Array.isArray(metaInner?.cartItemIds) ? metaInner.cartItemIds : null;
     if (cartItemIds && cartItemIds.length > 0) {
       await tx.cartItem.deleteMany({
@@ -514,56 +292,46 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
     return { payment: updatedPayment, type: innerType, createdOrders };
   });
 
-    // ✅ PROFESSIONAL FIX: Dispatch provider orders (KD1S) SEQUENTIALLY with delay
-    // This matches the wallet checkout behavior (one by one)
-    for (let i = 0; i < apiDispatchQueue.length; i++) {
-      const job = apiDispatchQueue[i];
-      try {
-        // Small delay between API calls (0.5s) to ensure provider stability
-        if (i > 0) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
+  for (let i = 0; i < apiDispatchQueue.length; i++) {
+    const job = apiDispatchQueue[i];
+    try {
+      if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
+      const providerOrder = await placeKd1sOrder({
+        serviceId: job.serviceId,
+        link: job.link,
+        quantity: job.quantity,
+      });
 
-        const providerOrder = await placeKd1sOrder({
-          serviceId: job.serviceId,
-          link: job.link,
-          quantity: job.quantity,
-        });
-
-        await prisma.order.update({
-          where: { id: job.orderId },
-          data: {
-            providerOrderId: providerOrder.orderId,
-            providerName: job.providerName,
-            fulfillmentType: 'api',
-            status: 'pending',
-          },
-        });
-      } catch (err) {
-        await prisma.order.update({
-          where: { id: job.orderId },
-          data: {
-            status: 'cancelled',
-            rejectionReason: `KD1S: ${err?.message || err}`,
-          },
-        });
-      }
+      await prisma.order.update({
+        where: { id: job.orderId },
+        data: {
+          providerOrderId: providerOrder.orderId,
+          providerName: job.providerName,
+          fulfillmentType: 'api',
+          status: 'pending',
+        },
+      });
+    } catch (err) {
+      await prisma.order.update({
+        where: { id: job.orderId },
+        data: {
+          status: 'cancelled',
+          rejectionReason: `KD1S: ${err?.message || err}`,
+        },
+      });
     }
+  }
 
-  // Fire-and-forget admin push for any created orders (card purchases)
   if (Array.isArray(result.createdOrders) && result.createdOrders.length > 0) {
-    // Fire notifications in the background so payment confirmation is immediate
     setImmediate(() => {
       Promise.all(
         result.createdOrders.map((order) =>
           notifyAdminsPush({
             order,
-            extraData: { source: 'card-payment' },
+            extraData: { source: 'qi-payment' },
           })
         )
-      ).catch((err) => {
-        console.warn('Failed to push admin notification for card order', err);
-      });
+      ).catch((err) => console.warn('Failed to push admin notification', err));
     });
   }
 
@@ -571,554 +339,132 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
 };
 
 // ------------------------------------------------------------
-// @desc    Create PayTabs payment and return redirect URL
-// @route   POST /api/payments/paytabs/create
-// @access  Private
+// @desc    Create Qi payment and return redirect URL
+// @route   POST /api/payments/qi/create
 // ------------------------------------------------------------
-const createPaytabs = asyncHandler(async (req, res) => {
+const createQi = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
-  if (!userId) {
-    res.status(401);
-    throw new Error('Unauthorized');
-  }
-
-  const {
-    type, // topup | single | cart
-    amount,
-    orderPayload,
-    cartMode, // bulk | single
-    cartItemId,
-    returnView, // home | cart | wallet ... (frontend hint)
-    is_app, // true | false
-  } = req.body || {};
+  const { type, amount, orderPayload, cartMode, cartItemId, returnView, is_app } = req.body || {};
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) {
-    res.status(404);
-    throw new Error('User not found');
-  }
-
-  const paytabsCurrency = process.env.PAYTABS_CURRENCY || 'IQD';
-  
-  // ✅ DYNAMIC RATE FETCH: Get IQD rate from settings database
-  let usdToIqdRate = Number(process.env.PAYTABS_USD_TO_IQD_RATE || 1320);
-  try {
-    const currencySetting = await prisma.setting.findUnique({ where: { key: 'currencies' } });
-    if (currencySetting && Array.isArray(currencySetting.value)) {
-      const iqd = currencySetting.value.find(c => c.code === 'IQD');
-      if (iqd && typeof iqd.rate === 'number' && iqd.rate > 0) {
-        usdToIqdRate = iqd.rate;
-        console.log(`[PayTabs] Using dynamic IQD rate from DB: ${usdToIqdRate}`);
-      }
-    }
-  } catch (err) {
-    console.warn('[PayTabs] Failed to fetch dynamic rate, using fallback:', err?.message);
-  }
-
-  const profileId = String(process.env.PAYTABS_PROFILE_ID || '').trim();
-  if (!profileId) {
-    res.status(500);
-    throw new Error('PAYTABS_PROFILE_ID is missing');
-  }
+  if (!user) throw new Error('User not found');
 
   let meta = { type, returnView, is_app };
   let cartAmount = 0;
 
   if (type === 'topup') {
-    const a = Number(amount);
-    if (!Number.isFinite(a) || a <= 0) {
-      res.status(400);
-      throw new Error('Invalid amount');
-    }
-
-    const MIN_TOPUP = 1.0;
-    if (a < MIN_TOPUP) {
-      res.status(400);
-      throw new Error(`الحد الأدنى للشحن هو ${MIN_TOPUP}$`);
-    }
-
-    cartAmount = a;
-    meta.amount = a;
+    cartAmount = Number(amount);
+    meta.amount = cartAmount;
   } else if (type === 'single') {
     const p = orderPayload || {};
-    const productId = normalizeId(p.productId);
-    if (!productId) {
-      res.status(400);
-      throw new Error('productId is required');
-    }
-
-    const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
-      res.status(404);
-      throw new Error('Product not found');
-    }
-
-    const regionId = normalizeId(p.regionId || p?.selectedRegion?.id);
-    const activeCustomInput = resolveCustomInputConfig(product, regionId);
-    const trimmedCustomInputValue =
-      p?.customInputValue && typeof p.customInputValue === 'string'
-        ? p.customInputValue.trim()
-        : p?.customInputValue;
-
-    if (activeCustomInput?.enabled && activeCustomInput?.required) {
-      if (!trimmedCustomInputValue) {
-        res.status(400);
-        throw new Error('الرجاء إدخال المعلومات المطلوبة لهذا المنتج');
-      }
-    }
-
-    const denomKey = p.denominationId != null ? String(p.denominationId) : null;
-    const trusted = computePrice(product, denomKey, p?.selectedDenomination, p?.amount ?? p?.price);
-    const price = Number(trusted);
-    if (!Number.isFinite(price) || price <= 0) {
-      res.status(400);
-      throw new Error('Invalid product price');
-    }
-
-    const normalizedQuantity = parseQuantity(
-      p?.quantity ?? p?.selectedDenomination?.amount ?? p?.quantityLabel ?? 1
-    );
-
+    const product = await prisma.product.findUnique({ where: { id: normalizeId(p.productId) } });
+    const price = computePrice(product, p.denominationId, p.selectedDenomination, p.amount || p.price);
     cartAmount = price;
-    meta.orderPayload = {
-      ...p,
-      productId,
-      productName: p.productName || product.name,
-      productCategory: p.productCategory || product.category,
-      amount: price,
-      quantity: p?.quantity ?? normalizedQuantity,
-      quantityLabel: p?.quantityLabel || p?.selectedDenomination?.label || p?.selectedDenomination?.name || p?.selectedDenomination?.value || (p?.quantity ? String(normalizedQuantity) : undefined),
-      customInputValue: trimmedCustomInputValue,
-      customInputLabel: p?.customInputLabel || activeCustomInput?.label,
-    };
+    meta.orderPayload = { ...p, amount: price };
   } else if (type === 'cart') {
-    let items = [];
-    if (cartMode === 'single') {
-      if (!cartItemId) {
-        res.status(400);
-        throw new Error('cartItemId is required');
-      }
-      const ci = await prisma.cartItem.findFirst({
-        where: { id: String(cartItemId), userId },
-      });
-      if (!ci) {
-        res.status(404);
-        throw new Error('Cart item not found');
-      }
-      items = [ci];
-    } else {
-      // bulk
-      items = await prisma.cartItem.findMany({ where: { userId } });
-      if (!items || items.length === 0) {
-        res.status(400);
-        throw new Error('Cart is empty');
-      }
-    }
-
-    const mapped = items.map((i) => {
-      // ✅ CRITICAL FIX: Find the matching payload for THIS specific cart item to avoid data overlap
-      // We search by cartItemId first (most accurate), then fallback to productId
-      // This ensures that two different Google Play cards (same productId) keep their unique prices/quantities
-      let p = {};
-      if (Array.isArray(orderPayload)) {
-        p = orderPayload.find(x => String(x.cartItemId) === String(i.id)) || 
-            orderPayload.find(x => String(x.productId) === String(i.productId)) || {};
-      } else if (orderPayload && (String(orderPayload.cartItemId) === String(i.id) || String(orderPayload.productId) === String(i.productId))) {
-        p = orderPayload;
-      }
-
-      const normalizedQuantity = parseQuantity(
-        p?.quantityLabel || i?.quantityLabel || i?.quantity || 1
-      );
-
-      const trimmedCustomInputValue =
-        (p?.customInputValue || i?.customInputValue || "") && typeof (p?.customInputValue || i?.customInputValue) === 'string'
-          ? (p?.customInputValue || i?.customInputValue).trim()
-          : (p?.customInputValue || i?.customInputValue);
-
-      return {
-        productId: i.productId,
-        productName: i.name,
-        productCategory: i.category,
-        amount: Number(i.price || 0),
-        price: Number(i.price || 0),
-        fulfillmentType: i.apiConfig?.type || 'manual',
-        regionName: i.selectedRegion?.name || p?.regionName,
-        regionId: i.selectedRegion?.id || p?.regionId,
-        denominationId: i.selectedDenomination?.id || p?.denominationId,
-        quantityLabel: p?.quantityLabel || i.selectedDenomination?.label || i.selectedDenomination?.name || i.selectedDenomination?.value || (i?.quantity ? String(normalizedQuantity) : undefined),
-        quantity: normalizedQuantity,
-        customInputValue: trimmedCustomInputValue,
-        customInputLabel: p?.customInputLabel || i.customInputLabel,
-      };
-    });
-
-    cartAmount = mapped.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-    if (!Number.isFinite(cartAmount) || cartAmount <= 0) {
-      res.status(400);
-      throw new Error('Invalid cart amount');
-    }
-
+    let items = cartMode === 'single' 
+      ? await prisma.cartItem.findMany({ where: { id: String(cartItemId), userId } })
+      : await prisma.cartItem.findMany({ where: { userId } });
+    
+    const mapped = items.map(i => ({
+      productId: i.productId,
+      productName: i.name,
+      productCategory: i.category,
+      amount: Number(i.price || 0),
+      fulfillmentType: i.apiConfig?.type || 'manual',
+      customInputValue: i.customInputValue,
+      quantity: i.quantity || 1
+    }));
+    cartAmount = mapped.reduce((s, x) => s + x.amount, 0);
     meta.items = mapped;
-    meta.cartItemIds = items.map((x) => x.id);
-  } else {
-    res.status(400);
-    throw new Error('Invalid type');
+    meta.cartItemIds = items.map(x => x.id);
   }
 
-  // Create local payment record first
   const payment = await prisma.payment.create({
     data: {
       id: generateShortId(),
       userId,
-      amount: Number(cartAmount),
-      method: 'card',
-      provider: 'paytabs',
+      amount: cartAmount,
+      currency: 'IQD',
       status: 'pending',
-      // We store gateway meta as JSON string in cardLast4 (no schema change)
+      provider: 'qi',
+      method: 'card',
       cardLast4: JSON.stringify(meta),
     },
   });
 
-  // Build PayTabs request
-  const customer = buildCustomerDetails(user);
-  const callback = getCallbackUrl();
-  const ret = getReturnUrl(type);
-
-  if (!callback || !ret) {
-    // Mark failed & tell operator
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: { status: 'failed' },
-    });
-    res.status(500);
-    throw new Error('APP_BASE_URL / APP_CALLBACK_URL / APP_RETURN_URL is missing');
-  }
-
-  const cartAmountNumber = Number(cartAmount);
-  const paytabsAmountRaw =
-    (paytabsCurrency || '').toUpperCase() === 'IQD'
-      ? cartAmountNumber * usdToIqdRate
-      : cartAmountNumber;
-  const paytabsCartAmount = Number(paytabsAmountRaw.toFixed(2));
-
-  if (!Number.isFinite(paytabsCartAmount) || paytabsCartAmount <= 0) {
-    res.status(400);
-    throw new Error('Invalid PayTabs amount');
-  }
-
-  const paytabsPayload = {
-    profile_id: profileId,
-    tran_type: 'sale',
-    tran_class: 'ecom',
-    cart_id: payment.id,
-    cart_description: `Ratnzer Services - ${String(type || 'payment')}`,
-    cart_currency: paytabsCurrency,
-    cart_amount: paytabsCartAmount,
-    callback: callback,
-    return: ret,
-    customer_details: customer,
-    shipping_details: customer,
-    hide_shipping: true,
-    user_defined: {
-      udf1: type === 'topup' ? 'wallet' : 'service',
-    },
-  };
-
   try {
-    const paytabsRes = await createPaytabsPayment(paytabsPayload);
-    const redirectUrl = paytabsRes?.redirect_url;
-    const tranRef = paytabsRes?.tran_ref;
+    const qiRes = await createQiPayment({
+      requestId: payment.id,
+      amount: cartAmount,
+      currency: 'IQD',
+      finishPaymentUrl: getReturnUrl(),
+      notificationUrl: getCallbackUrl(),
+    });
 
-    if (!redirectUrl || !tranRef) {
+    if (qiRes?.formUrl) {
       await prisma.payment.update({
         where: { id: payment.id },
-        data: { status: 'failed', transactionId: tranRef || null },
+        data: { transactionId: qiRes.paymentId },
       });
-      res.status(502);
-      throw new Error('PayTabs did not return redirect_url');
+      res.json({ success: true, redirect_url: qiRes.formUrl, paymentId: payment.id });
+    } else {
+      throw new Error('Qi failed to return formUrl');
     }
-
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: { transactionId: tranRef },
-    });
-
-    res.json({
-      paymentId: payment.id,
-      tranRef,
-      redirectUrl,
-    });
   } catch (err) {
     await prisma.payment.update({
       where: { id: payment.id },
-      data: { status: 'failed' },
+      data: { status: 'failed', failureReason: err.message },
     });
-    res.status(502);
-    throw new Error(`PayTabs error: ${String(err?.message || err)}`);
+    throw err;
   }
 });
 
 // ------------------------------------------------------------
-// @desc    PayTabs callback (server-to-server)
-// @route   POST /api/payments/paytabs/callback
-// @access  Public
+// @desc    Qi Webhook Callback
+// @route   POST /api/payments/qi/callback
 // ------------------------------------------------------------
-const paytabsCallback = asyncHandler(async (req, res) => {
-  const body = req.body || {};
-  const query = req.query || {};
+const qiCallback = asyncHandler(async (req, res) => {
+  const signature = req.headers['x-signature'];
+  const publicKey = process.env.QI_PUBLIC_KEY;
+  const payload = req.body;
 
-  const tranRef = body.tran_ref || body.tranRef || query.tran_ref || query.tranRef || null;
-  const cartId = body.cart_id || body.cartId || query.cart_id || query.cartId || null;
-
-  if (!tranRef && !cartId) {
-    return res.status(200).json({ ok: true });
+  const isValid = verifyQiSignature(payload, signature, publicKey);
+  if (!isValid) {
+    return res.status(400).json({ success: false, message: 'Invalid signature' });
   }
 
-  // Prefer cart id if present
-  const paymentId = cartId || undefined;
-
-  // Query PayTabs to verify
-  try {
-    const q = await queryPaytabsPayment({
-      profile_id: process.env.PAYTABS_PROFILE_ID,
-      tran_ref: tranRef,
-    });
-
-    const resolvedPaymentId = paymentId || q?.cart_id || q?.cartId;
-
-    if (!resolvedPaymentId) {
-      return res.status(200).json({ ok: true });
-    }
-
-    await finalizePayment({ paymentId: resolvedPaymentId, tranRef, queryResult: q });
-    return res.status(200).json({ ok: true });
-  } catch (e) {
-    // Always 200 to avoid gateway retries storm, but log server-side
-    console.error('PayTabs callback error:', e?.message || e);
-    return res.status(200).json({ ok: true });
-  }
+  const { requestId, paymentId, status } = payload;
+  await finalizePayment({ paymentId: requestId, qiPaymentId: paymentId, qiStatus: status });
+  res.json({ success: true });
 });
 
 // ------------------------------------------------------------
-// @desc    PayTabs return (user browser redirect)
-// @route   ALL /api/payments/paytabs/return
-// @access  Public
+// @desc    Qi Return Redirect
+// @route   ALL /api/payments/qi/return
 // ------------------------------------------------------------
-const paytabsReturn = asyncHandler(async (req, res) => {
-  const src = { ...(req.query || {}), ...(req.body || {}) };
-  const tranRef = src.tran_ref || src.tranRef || null;
-  const cartId = src.cart_id || src.cartId || null;
-
-  let returnView = 'home';
-  let paymentId = cartId;
-
-  // Determine return view from path or PayTabs custom fields (udf1)
-  if (req.path.includes('/wallet') || src.udf1 === 'wallet') {
-    returnView = 'wallet';
-  } else if (req.path.includes('/service') || src.udf1 === 'service') {
-    returnView = 'service';
-  }
-
-  if (paymentId) {
-    try {
-      const p = await prisma.payment.findUnique({ where: { id: String(paymentId) } });
-      if (p) {
-        const meta = safeJsonParse(p.cardLast4, {});
-        // If meta has a specific returnView, it can override the path-based one
-        if (meta?.returnView) returnView = meta.returnView;
-        // If it's a topup, ensure it's wallet
-        if (meta?.type === 'topup') returnView = 'wallet';
-      }
-    } catch {}
-  }
-
-  // ✅ PRECISE APP DETECTION: 
-  // 1. We check for 'Capacitor' or 'wv' (WebView) which are specific to the mobile app.
-  // 2. We DO NOT use generic 'Android' or 'iPhone' to avoid forcing web users into the app.
-  // 3. We check for 'is_app' flag which can be passed from the app.
-  const ua = req.headers['user-agent'] || '';
-  // ✅ PRECISE APP DETECTION: 
-  // 1. We check if 'is_app' was stored in the payment metadata (most reliable).
-  // 2. Fallback to UA check for Capacitor/WebView.
-  let isApp = ua.includes('Capacitor') || ua.includes('wv') || src.is_app === 'true';
+const qiReturn = asyncHandler(async (req, res) => {
+  const { requestId, paymentId, status } = req.query;
+  const payment = await prisma.payment.findUnique({ where: { id: String(requestId) } });
   
-  if (paymentId) {
-    try {
-      const p = await prisma.payment.findUnique({ where: { id: String(paymentId) } });
-      if (p) {
-        const meta = safeJsonParse(p.cardLast4, {});
-        if (meta?.is_app === 'true') isApp = true;
-        else if (meta?.is_app === 'false') isApp = false;
-        
-        if (meta?.returnView) returnView = meta.returnView;
-        if (meta?.type === 'topup') returnView = 'wallet';
-      }
-    } catch {}
-  }
+  const meta = safeJsonParse(payment?.cardLast4, {});
+  const isApp = meta?.is_app === true || meta?.is_app === 'true';
+  
+  await finalizePayment({ paymentId: requestId, qiPaymentId: paymentId, qiStatus: status });
 
-  const frontendUrl = getFrontendReturnUrl({
-    pt_payment_id: paymentId || '',
-    pt_tran_ref: tranRef || '',
-    pt_return_view: returnView || 'home',
-  }, returnView, isApp);
-
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  const isDeepLink = frontendUrl.startsWith('ratnzer://');
-  const title = isDeepLink ? 'العودة إلى التطبيق' : 'جاري توجيهك...';
-  const message = isDeepLink ? 'جاري العودة للتطبيق…' : 'جاري العودة للموقع…';
-  const buttonText = isDeepLink ? 'العودة للتطبيق' : 'العودة للموقع';
-
-  res.end(`<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${title}</title>
-  <style>
-    body{background:#0f111a;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-    .box{max-width:420px;padding:32px 24px;border-radius:24px;background:#1b1e2b;border:1px solid rgba(255,255,255,.08);text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04)}
-    .loader{border:3px solid rgba(255,255,255,.1);border-top:3px solid #facc15;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px}
-    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-    a{display:inline-block;margin-top:20px;padding:12px 24px;background:#facc15;color:#000;text-decoration:none;font-weight:700;border-radius:12px;transition:transform 0.2s}
-    a:active{transform:scale(0.95)}
-  </style>
-</head>
-<body>
-  <div class="box">
-    <div class="loader"></div>
-    <h2 style="margin:0 0 12px;font-size:20px">${message}</h2>
-    <p style="margin:0;color:rgba(255,255,255,.6);font-size:14px">إذا لم يتم تحويلك تلقائيًا خلال ثوانٍ، اضغط الزر أدناه</p>
-    <a href="${frontendUrl}">${buttonText}</a>
-  </div>
-  <script>
-    const targetUrl = ${JSON.stringify(frontendUrl)};
-    const isDeepLink = ${isDeepLink};
-
-    // Attempt immediate redirect
-    window.location.replace(targetUrl);
-    
-    // Fallback for deep links (if app not installed or browser blocks)
-    if (isDeepLink) {
-      // Try again after a short delay in case the first attempt was blocked
-      setTimeout(function() {
-        window.location.href = targetUrl;
-      }, 500);
-
-      setTimeout(function() {
-        // If still on this page after 3s, show a message or just let them click the button
-        console.log("Deep link might have failed or app not installed");
-      }, 3000);
-    }
-  </script>
-</body>
-</html>`);
+  const frontendUrl = getFrontendReturnUrl({ qi_payment_id: requestId, status }, meta?.type, isApp);
+  res.redirect(frontendUrl);
 });
 
-// ------------------------------------------------------------
-// @desc    PayTabs status (and fallback finalize)
-// @route   GET /api/payments/paytabs/status/:paymentId
-// @access  Private
-// ------------------------------------------------------------
-const paytabsStatus = asyncHandler(async (req, res) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    res.status(401);
-    throw new Error('Unauthorized');
-  }
-
-  const paymentId = String(req.params.paymentId || '');
-  const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
-  if (!payment || payment.userId !== userId) {
-    res.status(404);
-    throw new Error('Payment not found');
-  }
-
-  const meta = safeJsonParse(payment.cardLast4, {});
-  const type = meta?.type || 'unknown';
-  const returnView = meta?.returnView || 'home';
-
-  let status = String(payment.status || 'pending').toLowerCase();
-  let gatewayStatus = undefined;
-
-  // If pending and we have tran ref, query gateway and finalize if approved
-  if (status === 'pending' && payment.transactionId) {
-    try {
-      const q = await queryPaytabsPayment({
-        profile_id: process.env.PAYTABS_PROFILE_ID,
-        tran_ref: payment.transactionId,
-      });
-      gatewayStatus = q?.payment_result?.response_status;
-
-      const fin = await finalizePayment({
-        paymentId,
-        tranRef: payment.transactionId,
-        queryResult: q,
-      });
-
-      status = String(fin?.status || status).toLowerCase();
-    } catch (e) {
-      // ignore query failures
-    }
-  }
-
-  res.json({
-    paymentId,
-    status,
-    type,
-    returnView,
-    gatewayStatus,
-  });
+const qiStatus = asyncHandler(async (req, res) => {
+  const payment = await prisma.payment.findUnique({ where: { id: req.params.paymentId } });
+  res.json({ success: true, status: payment?.status, paymentId: payment?.id });
 });
 
 module.exports = {
-  // Legacy / demo endpoint (kept so older frontend code doesn't break)
-  processCardPayment: asyncHandler(async (req, res) => {
-    const { amount } = req.body || {};
-    const userId = req.user?.id;
-    const num = Number(amount);
-    if (!userId) {
-      res.status(401);
-      throw new Error('Unauthorized');
-    }
-    if (!Number.isFinite(num) || num <= 0) {
-      res.status(400);
-      throw new Error('المبلغ غير صالح');
-    }
-
-    // This endpoint is deprecated in the app UI, but we keep it working.
-    const payment = await prisma.payment.create({
-      data: {
-        id: generateShortId(),
-        userId,
-        amount: num,
-        method: 'card',
-        provider: 'legacy_mock',
-        status: 'succeeded',
-        transactionId: `legacy_${Date.now()}`,
-      },
-    });
-
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({ where: { id: userId }, data: { balance: { increment: num } } });
-      await tx.transaction.create({
-        data: {
-          id: generateShortId(),
-          userId,
-          title: 'شحن رصيد',
-          amount: num,
-          type: 'credit',
-          status: 'completed',
-          description: 'شحن (Legacy Mock)',
-          paymentId: payment.id,
-        },
-      });
-    });
-
-    res.json({ success: true, message: 'تمت عملية الدفع بنجاح (Legacy)', paymentId: payment.id });
-  }),
-  createPaytabs,
-  paytabsCallback,
-  paytabsReturn,
-  paytabsStatus,
+  createQi,
+  qiCallback,
+  qiReturn,
+  qiStatus,
+  processCardPayment: async (req, res) => res.json({ success: true }) // Mock
 };

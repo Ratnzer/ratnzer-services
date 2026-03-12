@@ -1,22 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const {
-  // Legacy mock endpoint kept for backward compatibility
+  createQi,
+  qiCallback,
+  qiReturn,
+  qiStatus,
   processCardPayment,
-  createPaytabs,
-  paytabsCallback,
-  paytabsReturn,
-  paytabsStatus,
 } = require('../controllers/paymentController');
 const { protect } = require('../middleware/authMiddleware');
 
-// ✅ PayTabs flow
-router.post('/paytabs/create', protect, createPaytabs);
-router.post('/paytabs/callback', paytabsCallback);
-router.all('/paytabs/return', paytabsReturn);
-router.get('/paytabs/status/:paymentId', protect, paytabsStatus);
+// ✅ Qi Payment flow (Replaces PayTabs)
+router.post('/qi/create', protect, createQi);
+router.post('/qi/callback', qiCallback);
+router.all('/qi/return', qiReturn);
+router.get('/qi/status/:paymentId', protect, qiStatus);
 
-// Legacy simulation (kept)
+// Backward compatibility (optional: if you want to keep old routes pointing to new ones)
+router.post('/paytabs/create', protect, createQi);
+router.post('/paytabs/callback', qiCallback);
+router.all('/paytabs/return', qiReturn);
+router.get('/paytabs/status/:paymentId', protect, qiStatus);
+
+// Legacy simulation
 router.post('/charge', protect, processCardPayment);
 
 module.exports = router;

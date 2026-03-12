@@ -9,9 +9,7 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     allowNavigation: [
       'ratnzer-services-bb0a0cce4837.herokuapp.com',
-      '*.paytabs.com',
-      '*.paytabs.com.sa',
-      '*.paytabs.io',
+      '*.qi.iq',
       '*.imgur.com',
       '*.cloudinary.com',
       '*.postimg.cc',
