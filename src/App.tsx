@@ -1317,7 +1317,8 @@ useEffect(() => {
     setSelectedInvoiceOrder(null);
     
     // Track where we are coming from when entering Notifications or Wallet
-    if (view === View.NOTIFICATIONS || view === View.WALLET || view === View.SEARCH) {
+    // This allows the back button to return to the correct previous page
+    if (view === View.NOTIFICATIONS || view === View.WALLET) {
       setSourceView(currentView);
     }
 
