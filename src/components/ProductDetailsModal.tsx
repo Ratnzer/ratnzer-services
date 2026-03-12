@@ -453,16 +453,20 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
       </div>
   );
 
-  const renderPaymentSelect = () => (
-      <div className="flex-1 p-4 pt-1 animate-fadeIn flex flex-col h-full relative">
-          {/* Back Button - Moved to absolute position to save vertical space */}
-          <button 
-            onClick={() => setCurrentStep('details')}
-            className="absolute top-2 right-4 z-50 flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors"
-          >
-              <span className="text-[10px] font-bold">رجوع</span>
-              <ArrowLeft size={16} />
-          </button>
+	  const renderPaymentSelect = () => (
+	      <div className="flex-1 p-4 pt-1 animate-fadeIn flex flex-col h-full relative">
+	          {/* Back Button */}
+	          <button 
+	            onClick={(e) => {
+	                e.preventDefault();
+	                e.stopPropagation();
+	                setCurrentStep('details');
+	            }}
+	            className="absolute top-0 right-4 z-[210] flex items-center gap-1.5 text-gray-400 hover:text-white transition-all active:scale-95 bg-[#242636]/50 px-3 py-1.5 rounded-lg border border-gray-700/30"
+	          >
+	              <span className="text-[11px] font-bold">رجوع</span>
+	              <ArrowLeft size={16} />
+	          </button>
 
           <div className="text-center mb-1 mt-1">
              <h2 className="text-base font-bold text-white mb-2">{title || 'شراء سريع'}</h2>
@@ -695,8 +699,8 @@ className={`w-full p-3 rounded-xl border transition-all flex items-center justif
       </div>
   );
 
-  return (
-    <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center">
+	  return (
+	    <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <div 
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
@@ -712,25 +716,30 @@ className={`w-full p-3 rounded-xl border transition-all flex items-center justif
         }}
       >
         
-        {/* Handle Bar & Close Button - Matched with CheckoutModal */}
-        <div className="relative">
-          <div 
-            className="w-full flex justify-center pt-2 pb-0.5 cursor-grab active:cursor-grabbing"
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-          >
-            <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
-          </div>
-          
-          <button 
-            onClick={onClose}
-            className="absolute top-3 left-4 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
-            aria-label="Close"
-          >
-            <X size={18} strokeWidth={2} />
-          </button>
-        </div>
+	        {/* Handle Bar */}
+	        <div 
+	          className="w-full flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing"
+	          onTouchStart={onTouchStart}
+	          onTouchMove={onTouchMove}
+	          onTouchEnd={onTouchEnd}
+	        >
+	          <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+	        </div>
+	
+	        {/* Global Modal Header (X button only) */}
+	        <div className="absolute top-3 left-4 z-[210]">
+	           <button 
+	             onClick={(e) => {
+	                 e.preventDefault();
+	                 e.stopPropagation();
+	                 onClose();
+	             }}
+	             className="p-2 bg-[#242636] hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 shadow-lg transition-all active:scale-90 flex items-center justify-center"
+	             aria-label="Close"
+	           >
+	             <X size={20} strokeWidth={2.5} />
+	           </button>
+	        </div>
 
         {/* Dynamic Content Body */}
         {currentStep === 'details' && renderDetails()}
