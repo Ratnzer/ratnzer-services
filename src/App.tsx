@@ -2515,109 +2515,104 @@ useEffect(() => {
 	             ) : (
 		                <div className="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 pb-24">
                     
-                    {/* Summary (Moved to Top) */}
-                    <div className="bg-[#242636] p-4 rounded-2xl border border-gray-700 shadow-lg mb-2">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-400 text-sm">عدد العناصر</span>
-                            <span className="text-white font-bold">{cartCount}</span>
-                        </div>
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-gray-400 text-sm">الإجمالي الكلي</span>
-                            <span className="text-yellow-400 font-black text-xl dir-ltr">{formatPrice(cartTotal)}</span>
-                        </div>
-                        {/* Buy All Button */}
-                        <button 
-                            onClick={handleBuyAll}
-                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
-                        >
-                            <CheckCircle size={20} />
-                            شراء الكل ({formatPrice(cartTotal)})
-                        </button>
-                    </div>
+	                    {/* Summary (Moved to Top) - Compact Version */}
+	                    <div className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-lg mb-1">
+	                        <div className="flex justify-between items-center mb-3">
+	                            <div className="flex flex-col">
+	                                <span className="text-gray-400 text-[10px] uppercase tracking-wider">الإجمالي ({cartCount} عناصر)</span>
+	                                <span className="text-yellow-400 font-black text-lg dir-ltr leading-none">{formatPrice(cartTotal)}</span>
+	                            </div>
+	                            <button 
+	                                onClick={handleBuyAll}
+	                                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-lg shadow-md shadow-emerald-500/20 flex items-center gap-2 active:scale-95 transition-all text-sm"
+	                            >
+	                                <CheckCircle size={16} />
+	                                شراء الكل
+	                            </button>
+	                        </div>
+	                    </div>
 
-                    {/* Cart Items List */}
-                    <div className="space-y-3 pb-8">
-                        {cartItems.map((item) => (
-                            <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
-                                <div className="flex items-start gap-3">
-                                    {/* Image */}
-                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-shimmer' : ''}`}>
-                                        {item.imageUrl ? (
-                                             <img 
-                                               src={item.imageUrl} 
-                                               alt={item.name} 
-                                               onLoad={() => setLoadedCartImageIndices(prev => new Set(prev).add(item.id))}
-                                               fetchPriority="high"
-                                               className={`w-full h-full object-cover transition-opacity duration-150 ease-in-out will-change-opacity ${
-                                                 loadedCartImageIndices.has(item.id) ? 'opacity-90' : 'opacity-0'
-                                               }`}
-                                               referrerPolicy="no-referrer"
-                                               onError={(e) => {
-                                                  const target = e.target as HTMLImageElement;
-                                                  target.style.display = 'none';
-                                                  target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
-                                                  const span = document.createElement('span');
-                                                  span.className = 'text-white text-[10px] font-bold';
-                                                  span.innerText = item.name.slice(0, 5);
-                                                  target.parentElement!.appendChild(span);
-                                               }}
-                                             />
-                                        ) : (
-                                             <span className="text-white text-[10px] font-bold">{item.name.slice(0,5)}
-</span>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Info */}
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <h3 className="text-sm font-bold text-white line-clamp-1">{item.name}</h3>
-                                        </div>
-                                        
-                                        <div className="flex flex-wrap gap-2 mb-2">
-                                            {item.selectedRegion && (
-<span className="text-[10px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-700 flex items-center gap-1">
+	                    {/* Cart Items List - Compact Version */}
+	                    <div className="space-y-2 pb-8">
+	                        {cartItems.map((item) => (
+	                            <div key={item.id} className="bg-[#242636] p-2 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
+	                                <div className="flex items-center gap-3">
+	                                    {/* Image - Smaller */}
+	                                    <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-shimmer' : ''}`}>
+	                                        {item.imageUrl ? (
+	                                             <img 
+	                                               src={item.imageUrl} 
+	                                               alt={item.name} 
+	                                               onLoad={() => setLoadedCartImageIndices(prev => new Set(prev).add(item.id))}
+	                                               fetchPriority="high"
+	                                               className={`w-full h-full object-cover transition-opacity duration-150 ease-in-out will-change-opacity ${
+	                                                 loadedCartImageIndices.has(item.id) ? 'opacity-90' : 'opacity-0'
+	                                               }`}
+	                                               referrerPolicy="no-referrer"
+	                                               onError={(e) => {
+	                                                  const target = e.target as HTMLImageElement;
+	                                                  target.style.display = 'none';
+	                                                  target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
+	                                                  const span = document.createElement('span');
+	                                                  span.className = 'text-white text-[8px] font-bold';
+	                                                  span.innerText = item.name.slice(0, 5);
+	                                                  target.parentElement!.appendChild(span);
+	                                               }}
+	                                             />
+	                                        ) : (
+	                                             <span className="text-white text-[8px] font-bold">{item.name.slice(0,5)}</span>
+	                                        )}
+	                                    </div>
+	                                    
+	                                    {/* Info - Compact */}
+	                                    <div className="flex-1 min-w-0">
+	                                        <div className="flex justify-between items-start">
+	                                            <h3 className="text-xs font-bold text-white truncate">{item.name}</h3>
+	                                            <p className="text-sm font-black text-yellow-400 dir-ltr font-mono leading-none">{formatPrice(item.price)}</p>
+	                                        </div>
+	                                        
+	                                        <div className="flex flex-wrap gap-1 mt-1">
+	                                            {item.selectedRegion && (
+	                                                <span className="text-[9px] bg-[#13141f] text-gray-400 px-1.5 py-0.5 rounded border border-gray-800">
 	                                                    {item.selectedRegion.name}
 	                                                </span>
-                                            )}
-                                            {item.selectedDenomination && (
-                                                <span className="text-[10px] bg-yellow-400/10 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/30">
-                                                    {item.selectedDenomination.label}
-                                                </span>
-                                            )}
-                                        </div>
+	                                            )}
+	                                            {item.selectedDenomination && (
+	                                                <span className="text-[9px] bg-yellow-400/5 text-yellow-400/80 px-1.5 py-0.5 rounded border border-yellow-400/20">
+	                                                    {item.selectedDenomination.label}
+	                                                </span>
+	                                            )}
+	                                        </div>
+	
+	                                        {/* Show Custom Input in Cart - Compact */}
+	                                        {item.customInputValue && (
+	                                            <div className="mt-1 text-[9px] text-gray-500 flex items-center gap-1 truncate">
+	                                                <span className="font-bold">{item.customInputLabel}:</span>
+	                                                <span className="text-gray-300">{item.customInputValue}</span>
+	                                            </div>
+	                                        )}
+	                                    </div>
 
-                                        {/* Show Custom Input in Cart */}
-                                        {item.customInputValue && (
-                                            <div className="mb-2 text-[10px] bg-[#13141f] border border-gray-700 rounded px-2 py-1 text-gray-400 flex items-center gap-1">
-                                                <User size={10} className="text-gray-500" />
-                                                <span className="font-bold">{item.customInputLabel}:</span>
-                                                <span className="text-white">{item.customInputValue}</span>
-                                            </div>
-                                        )}
-                                        
-                                        <p className="text-lg font-black text-yellow-400 dir-ltr font-mono leading-none mb-3">{formatPrice(item.price)}</p>
-                                    </div>
-                                </div>
-
-                                {/* Actions Row */}
-                                <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700/50">
-                                    <button 
-                                        onClick={() => handleBuyItem(item)}
-                                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-                                    >
-                                        <CheckCircle size={14} />
-                                        شراء الآن
-                                    </button>
-                                    <button 
-                                        onClick={() => removeFromCart(item.id)}
-                                        className="px-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center active:scale-95"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+	                                    {/* Quick Actions */}
+	                                    <div className="flex flex-col gap-1">
+	                                        <button 
+	                                            onClick={() => handleBuyItem(item)}
+	                                            className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90"
+	                                            title="شراء"
+	                                        >
+	                                            <CheckCircle size={16} />
+	                                        </button>
+	                                        <button 
+	                                            onClick={() => removeFromCart(item.id)}
+	                                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90"
+	                                            title="حذف"
+	                                        >
+	                                            <Trash2 size={16} />
+	                                        </button>
+	                                    </div>
+	                                </div>
+	                            </div>
+	                        ))}
                         {cartHasMore && (
                           <div className="flex justify-center py-6">
                             <button
