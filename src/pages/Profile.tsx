@@ -933,11 +933,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                ))}
             </div>
             
-<div className="p-4 pb-28 border-t border-gray-800/50 bg-[#13141f]">
-               <button onClick={() => { setShowFaqModal(false); setShowSupportModal(true); }} className="w-full bg-[#242636] text-white font-bold py-3.5 rounded-xl hover:bg-[#2f3245] transition-colors border border-gray-700 shadow-lg">
-                   لم تجد إجابة لسؤالك؟ تواصل معنا
-               </button>
-            </div>
+	<div className="p-4 pb-28 border-t border-gray-800/50 bg-[#13141f]">
+	               <button onClick={() => { setShowSupportModal(true); }} className="w-full bg-[#242636] text-white font-bold py-3.5 rounded-xl hover:bg-[#2f3245] transition-colors border border-gray-700 shadow-lg">
+	                   لم تجد إجابة لسؤالك؟ تواصل معنا
+	               </button>
+	            </div>
          </div>
        )}
 
