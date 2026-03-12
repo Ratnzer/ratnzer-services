@@ -572,12 +572,12 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Password Modal */}
        {showPasswordModal && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
+               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+                   <div className="w-10"></div>
+                   <h2 className="text-xl font-bold text-white">أمان الحساب</h2>
                    <button onClick={() => setShowPasswordModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm">
-                       <ChevronLeft size={22} />
+                       <ArrowLeft size={22} />
                    </button>
-                   <h2 className="text-lg font-bold text-white">أمان الحساب</h2>
-                   <div className="w-9"></div>
                </div>
 
                <div className="p-6">
@@ -765,12 +765,12 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Edit Profile Modal */}
        {showEditProfile && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
+               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+                   <div className="w-10"></div>
+                   <h2 className="text-xl font-bold text-white">تعديل الملف الشخصي</h2>
                    <button onClick={() => setShowEditProfile(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm">
-                       <ChevronLeft size={22} />
+                       <ArrowLeft size={22} />
                    </button>
-                   <h2 className="text-lg font-bold text-white">تعديل الملف الشخصي</h2>
-                   <div className="w-9"></div>
                </div>
 
 	               <div className="flex-1 overflow-y-auto p-6 pb-24">
