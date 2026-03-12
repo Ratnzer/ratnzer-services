@@ -128,19 +128,31 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
             <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
           </div>
           
-          <button 
-            onClick={onClose}
-            className="absolute top-3 left-4 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
-            aria-label="Close"
-          >
-            <X size={18} strokeWidth={2} />
-          </button>
+	          <button 
+	            onClick={(e) => {
+	                e.preventDefault();
+	                e.stopPropagation();
+	                onClose();
+	            }}
+	            className="absolute top-3 left-4 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-105 z-[120]"
+	            aria-label="Close"
+	          >
+	            <X size={18} strokeWidth={2.5} />
+	          </button>
         </div>
 
-        {/* Header Title - Dynamic based on context */}
-        <div className="flex items-center justify-center p-2">
-           <h2 className="text-base font-bold text-white">{title || 'إتمام الطلب'}</h2>
-        </div>
+	        {/* Header Title - Dynamic based on context */}
+	        <div className="flex items-center justify-between px-4 py-2">
+	           <div className="w-10"></div> {/* Spacer for symmetry */}
+	           <h2 className="text-base font-bold text-white">{title || 'إتمام الطلب'}</h2>
+	           <button 
+	             onClick={onClose}
+	             className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors"
+	           >
+	             <span className="text-[11px] font-bold">رجوع</span>
+	             <ArrowLeft size={16} />
+	           </button>
+	        </div>
 
         <div className="px-4 pb-4 pt-1 space-y-2 flex flex-col h-full">
               {/* Item Info - Reduced Margins */}
