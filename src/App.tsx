@@ -2519,7 +2519,7 @@ useEffect(() => {
                                                alt={item.name} 
                                                onLoad={() => setLoadedCartImageIndices(prev => new Set(prev).add(item.id))}
                                                fetchPriority="high"
-                                               className={`w-full h-full object-cover transition-opacity duration-300 ease-in-out ${
+                                               className={`w-full h-full object-cover transition-opacity duration-150 ease-in-out will-change-opacity ${
                                                  loadedCartImageIndices.has(item.id) ? 'opacity-90' : 'opacity-0'
                                                }`}
                                                referrerPolicy="no-referrer"

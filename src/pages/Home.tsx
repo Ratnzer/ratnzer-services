@@ -363,7 +363,7 @@ const Home: React.FC<Props> = ({
                         loading="lazy"
                         onLoad={() => setLoadedBannerIndices(prev => new Set(prev).add(index))}
                         fetchPriority={index === 0 ? 'high' : 'auto'}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out ${
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-150 ease-in-out will-change-opacity ${
                           isBannerLoaded ? 'opacity-100' : 'opacity-0'
                         }`}
                         referrerPolicy="no-referrer"
