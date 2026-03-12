@@ -2596,12 +2596,12 @@ useEffect(() => {
 	
 				                                    {/* Quick Actions */}
 				                                    <div className="flex flex-col gap-1.5">
-			                                        <button 
-			                                            onClick={() => handleBuyItem(item)}
-			                                            className="px-3 py-2 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90 text-[11px] font-bold whitespace-nowrap"
-			                                        >
-			                                            شراء الآن
-			                                        </button>
+				                                        <button 
+				                                            onClick={() => handleBuyItem(item)}
+				                                            className="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-90 text-[11px] font-bold whitespace-nowrap"
+				                                        >
+				                                            شراء الآن
+				                                        </button>
 			                                        <button 
 			                                            onClick={() => removeFromCart(item.id)}
 			                                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
