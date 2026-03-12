@@ -130,13 +130,13 @@ button:active {
   animation-play-state: paused;
 }
 
-/* Shimmer Skeleton Animation (Professional Loading Effect) */
+/* Shimmer Skeleton Animation (Professional Loading Effect) - RTL Direction */
 @keyframes shimmer {
   0% {
-    background-position: -1000px 0;
+    background-position: 1000px 0;
   }
   100% {
-    background-position: 1000px 0;
+    background-position: -1000px 0;
   }
 }
 
