@@ -337,6 +337,7 @@ const App: React.FC = () => {
 
   // ✅ Use a ref to always hold the latest currentView — avoids stale closure in back button handler
   const currentViewRef = useRef<View>(currentView);
+  const isBackNavigationRef = useRef(false); // Flag to distinguish back navigation from normal navigation
   useEffect(() => {
     currentViewRef.current = currentView;
   }, [currentView]);
@@ -348,9 +349,11 @@ const App: React.FC = () => {
       if (currentViewRef.current !== View.HOME) {
         // If not on Home, go back to previous view or Home
         if (navigationHistory.current.length > 0) {
+          isBackNavigationRef.current = true; // Mark this as back navigation
           const prevView = navigationHistory.current.pop();
           if (prevView) setCurrentView(prevView);
         } else {
+          isBackNavigationRef.current = true;
           setCurrentView(View.HOME);
         }
       } else {
@@ -434,14 +437,16 @@ const App: React.FC = () => {
   // Track navigation history: store PREVIOUS view when entering a new view
   const previousViewRef = useRef<View | null>(null);
   useEffect(() => {
-    // When currentView changes, push the PREVIOUS view to history (not the current one)
-    // This way, when user presses back, pop() returns the correct previous screen
-    if (previousViewRef.current !== null && previousViewRef.current !== currentView) {
+    // Only track history for NORMAL navigation, not for back button presses
+    // This prevents the infinite loop where going back re-adds the same view to history
+    if (!isBackNavigationRef.current && previousViewRef.current !== null && previousViewRef.current !== currentView) {
       navigationHistory.current.push(previousViewRef.current);
       if (navigationHistory.current.length > 20) {
         navigationHistory.current.shift();
       }
     }
+    // Reset the flag after processing
+    isBackNavigationRef.current = false;
     previousViewRef.current = currentView;
   }, [currentView]);
 
