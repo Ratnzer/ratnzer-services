@@ -2534,84 +2534,77 @@ useEffect(() => {
 
 		                    {/* Cart Items List - Compact Version */}
 		                    <div className="px-4 space-y-2 pb-8">
-	                        {cartItems.map((item) => (
-	                            <div key={item.id} className="bg-[#242636] p-2 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
-	                                <div className="flex items-center gap-3">
-	                                    {/* Image - Smaller */}
-	                                    <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-shimmer' : ''}`}>
-	                                        {item.imageUrl ? (
-	                                             <img 
-	                                               src={item.imageUrl} 
-	                                               alt={item.name} 
-	                                               onLoad={() => setLoadedCartImageIndices(prev => new Set(prev).add(item.id))}
-	                                               fetchPriority="high"
-	                                               className={`w-full h-full object-cover transition-opacity duration-150 ease-in-out will-change-opacity ${
-	                                                 loadedCartImageIndices.has(item.id) ? 'opacity-90' : 'opacity-0'
-	                                               }`}
-	                                               referrerPolicy="no-referrer"
-	                                               onError={(e) => {
-	                                                  const target = e.target as HTMLImageElement;
-	                                                  target.style.display = 'none';
-	                                                  target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
-	                                                  const span = document.createElement('span');
-	                                                  span.className = 'text-white text-[8px] font-bold';
-	                                                  span.innerText = item.name.slice(0, 5);
-	                                                  target.parentElement!.appendChild(span);
-	                                               }}
-	                                             />
-	                                        ) : (
-	                                             <span className="text-white text-[8px] font-bold">{item.name.slice(0,5)}</span>
-	                                        )}
-	                                    </div>
-	                                    
-	                                    {/* Info - Compact */}
-	                                    <div className="flex-1 min-w-0">
-	                                        <div className="flex justify-between items-start">
-	                                            <h3 className="text-xs font-bold text-white truncate">{item.name}</h3>
-	                                            <p className="text-sm font-black text-yellow-400 dir-ltr font-mono leading-none">{formatPrice(item.price)}</p>
-	                                        </div>
-	                                        
-	                                        <div className="flex flex-wrap gap-1 mt-1">
-	                                            {item.selectedRegion && (
-	                                                <span className="text-[9px] bg-[#13141f] text-gray-400 px-1.5 py-0.5 rounded border border-gray-800">
-	                                                    {item.selectedRegion.name}
-	                                                </span>
-	                                            )}
-	                                            {item.selectedDenomination && (
-	                                                <span className="text-[9px] bg-yellow-400/5 text-yellow-400/80 px-1.5 py-0.5 rounded border border-yellow-400/20">
-	                                                    {item.selectedDenomination.label}
-	                                                </span>
-	                                            )}
-	                                        </div>
-	
-	                                        {/* Show Custom Input in Cart - Compact */}
-	                                        {item.customInputValue && (
-	                                            <div className="mt-1 text-[9px] text-gray-500 flex items-center gap-1 truncate">
-	                                                <span className="font-bold">{item.customInputLabel}:</span>
-	                                                <span className="text-gray-300">{item.customInputValue}</span>
-	                                            </div>
-	                                        )}
-	                                    </div>
-
-		                                    {/* Quick Actions */}
-		                                    <div className="flex flex-col gap-1">
-		                                        <button 
-		                                            onClick={() => handleBuyItem(item)}
-		                                            className="px-2 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90 text-[10px] font-bold"
-		                                        >
-		                                            شراء
-		                                        </button>
-		                                        <button 
-		                                            onClick={() => removeFromCart(item.id)}
-		                                            className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
-		                                            title="حذف"
-		                                        >
-		                                            <Trash2 size={14} />
-		                                        </button>
+		                        {cartItems.map((item) => (
+		                            <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
+		                                <div className="flex items-center gap-4">
+		                                    {/* Image - Slightly Larger */}
+		                                    <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-shimmer' : ''}`}>
+		                                        {item.imageUrl ? (
+		                                             <img 
+		                                               src={item.imageUrl} 
+		                                               alt={item.name} 
+		                                               onLoad={() => setLoadedCartImageIndices(prev => new Set(prev).add(item.id))}
+		                                               fetchPriority="high"
+		                                               className={`w-full h-full object-cover transition-opacity duration-150 ease-in-out will-change-opacity ${
+		                                                 loadedCartImageIndices.has(item.id) ? 'opacity-90' : 'opacity-0'
+		                                               }`}
+		                                               referrerPolicy="no-referrer"
+		                                               onError={(e) => {
+		                                                  const target = e.target as HTMLImageElement;
+		                                                  target.style.display = 'none';
+		                                                  target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
+		                                                  const span = document.createElement('span');
+		                                                  span.className = 'text-white text-[10px] font-bold';
+		                                                  span.innerText = item.name.slice(0, 5);
+		                                                  target.parentElement!.appendChild(span);
+		                                               }}
+		                                             />
+		                                        ) : (
+		                                             <span className="text-white text-[10px] font-bold">{item.name.slice(0,5)}</span>
+		                                        )}
 		                                    </div>
-	                                </div>
-	                            </div>
-	                        ))}
+		                                    
+		                                    {/* Info */}
+		                                    <div className="flex-1 min-w-0">
+		                                        <div className="flex justify-between items-start mb-1">
+		                                            <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
+		                                        </div>
+		                                        
+		                                        <div className="flex flex-wrap gap-1.5 mb-1.5">
+		                                            {item.selectedRegion && (
+		                                                <span className="text-[10px] bg-[#13141f] text-gray-400 px-2 py-0.5 rounded border border-gray-800">
+		                                                    {item.selectedRegion.name}
+		                                                </span>
+		                                            )}
+		                                            {item.selectedDenomination && (
+		                                                <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
+		                                                    {item.selectedDenomination.label}
+		                                                </span>
+		                                            )}
+		                                        </div>
+		
+		                                        <p className="text-base font-black text-yellow-400 dir-ltr font-mono leading-none">{formatPrice(item.price)}</p>
+		                                    </div>
+	
+			                                    {/* Quick Actions */}
+			                                    <div className="flex flex-col gap-1.5">
+			                                        <button 
+			                                            onClick={() => handleBuyItem(item)}
+			                                            className="px-3 py-2 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90 text-[11px] font-bold whitespace-nowrap"
+			                                        >
+			                                            شراء الآن
+			                                        </button>
+			                                        <button 
+			                                            onClick={() => removeFromCart(item.id)}
+			                                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
+			                                            title="حذف"
+			                                        >
+			                                            <Trash2 size={16} />
+			                                        </button>
+			                                    </div>
+		                                </div>
+		                            </div>
+		                        ))}
                         {cartHasMore && (
                           <div className="flex justify-center py-6">
                             <button
