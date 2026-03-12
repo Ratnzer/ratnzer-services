@@ -335,10 +335,17 @@ const App: React.FC = () => {
     };
   }, [inAppNotification]);
 
+  // ✅ Use a ref to always hold the latest currentView — avoids stale closure in back button handler
+  const currentViewRef = useRef<View>(currentView);
+  useEffect(() => {
+    currentViewRef.current = currentView;
+  }, [currentView]);
+
   useEffect(() => {
     // Handle Hardware Back Button for Android
+    // Uses currentViewRef to always read the latest view without re-registering the listener
     const backButtonListener = CapApp.addListener('backButton', async ({ canGoBack }: { canGoBack: boolean }) => {
-      if (currentView !== View.HOME) {
+      if (currentViewRef.current !== View.HOME) {
         // If not on Home, go back to previous view or Home
         if (navigationHistory.current.length > 0) {
           const prevView = navigationHistory.current.pop();
@@ -355,7 +362,8 @@ const App: React.FC = () => {
     return () => {
       backButtonListener.then((l: any) => l.remove());
     };
-  }, [currentView]);
+  // ✅ Empty dependency array: register listener only once — currentViewRef handles freshness
+  }, []);
 
   useEffect(() => () => {
     if (inAppNotifTimeout.current) clearTimeout(inAppNotifTimeout.current);
@@ -424,10 +432,14 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (navigationHistory.current[navigationHistory.current.length - 1] !== currentView) {
-      navigationHistory.current.push(currentView);
-      if (navigationHistory.current.length > 10) {
-        navigationHistory.current.shift();
+    // ✅ Only push to history if the new view is different from the last recorded view
+    // This prevents duplicate entries and ensures pop() returns the correct previous view
+    const history = navigationHistory.current;
+    const lastView = history[history.length - 1];
+    if (lastView !== currentView) {
+      history.push(currentView);
+      if (history.length > 20) {
+        history.shift();
       }
     }
   }, [currentView]);
