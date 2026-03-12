@@ -2518,10 +2518,10 @@ useEffect(() => {
 			                    {/* Summary (Sticky Top) - Extra Compact Version */}
 			                    <div className="sticky top-0 z-20 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-2 mb-1 shadow-xl">
 		                        <div className="bg-[#242636] p-2.5 rounded-xl border border-gray-700/50 flex justify-between items-center">
-		                            <div className="flex flex-col">
-		                                <span className="text-gray-500 text-[9px] uppercase font-bold tracking-tight">الإجمالي ({cartCount})</span>
-		                                <span className="text-yellow-400 font-black text-base dir-ltr leading-none">{formatPrice(cartTotal)}</span>
-		                            </div>
+			                            <div className="flex flex-col">
+			                                <span className="text-gray-300 text-[10px] uppercase font-black tracking-tight mb-1">الإجمالي ({cartCount})</span>
+			                                <span className="text-yellow-400 font-black text-xl dir-ltr leading-none">{formatPrice(cartTotal)}</span>
+			                            </div>
 		                            <button 
 		                                onClick={handleBuyAll}
 		                                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 active:scale-95 transition-all text-xs"
