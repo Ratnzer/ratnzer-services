@@ -32,7 +32,8 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
               loading="lazy"
               referrerPolicy="no-referrer"
               onLoad={() => setIsImageLoaded(true)}
-              className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-105 will-change-transform ${
+              fetchPriority="high"
+              className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-in-out group-hover:scale-105 will-change-transform ${
                 isImageLoaded ? 'opacity-90 group-hover:opacity-100' : 'opacity-0'
               }`}
             />
