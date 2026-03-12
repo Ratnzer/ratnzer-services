@@ -1404,6 +1404,7 @@ useEffect(() => {
   const handleUserLogout = async () => {
       setCurrentUser(null);
       setHasBannedOverride(false);
+      setIsOtherModalOpen(false);
       
       // ✅ Clear Firebase Session (Fixes stale profile photo from Google/Facebook)
       await signOutFromFirebase();
