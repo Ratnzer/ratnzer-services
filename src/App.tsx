@@ -2701,9 +2701,9 @@ useEffect(() => {
                                             {/* Region and Quantity Badges */}
                                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                                                 {order.regionName && (
-                                                    <span className="text-[9px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-600 flex items-center gap-1">
-                                                        <Flag size={8} /> {order.regionName}
-                                                    </span>
+<span className="text-[9px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-600 flex items-center gap-1">
+	                                                        {order.regionName}
+	                                                    </span>
                                                 )}
                                                 {order.quantityLabel && (
                                                     <span className="text-[9px] bg-yellow-400/5 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/20 flex items-center gap-1">
