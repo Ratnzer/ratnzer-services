@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Product } from '../types';
 
 interface Props {
@@ -9,6 +9,8 @@ interface Props {
 }
 
 const ProductCard: React.FC<Props> = ({ product, onClick }) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   return (
     <div 
       onClick={onClick}
@@ -17,7 +19,7 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
       {/* The Visual Card (Image/Icon Area) */}
       <div className={`
         w-full aspect-[4/5] rounded-[0.9rem] bg-gradient-to-br ${product.imageColor} 
-        relative overflow-hidden shadow-inner
+        relative overflow-hidden shadow-inner ${!isImageLoaded ? 'animate-pulse' : ''}
       `}>
          {/* Background Pattern Overlay */}
          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat"></div>
@@ -29,7 +31,10 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
               alt={product.name} 
               loading="lazy"
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 will-change-transform" 
+              onLoad={() => setIsImageLoaded(true)}
+              className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-105 will-change-transform ${
+                isImageLoaded ? 'opacity-90 group-hover:opacity-100' : 'opacity-0'
+              }`}
             />
          ) : (
             /* Fallback Icon/Text if no image */

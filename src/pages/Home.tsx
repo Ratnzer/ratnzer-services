@@ -89,6 +89,7 @@ const Home: React.FC<Props> = ({
   hasCachedData = false,
 }) => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [loadedBannerIndices, setLoadedBannerIndices] = useState<Set<number>>(new Set());
 
   // Cached data (used when props are temporarily empty after app reopen)
   const [cachedProducts, setCachedProducts] = useState<Product[]>(() => readCache<Product[]>(HOME_CACHE_PRODUCTS_KEY, []));
@@ -347,10 +348,12 @@ const Home: React.FC<Props> = ({
                 dir="rtl"
                 className="flex overflow-x-auto snap-x snap-proximity h-full w-full no-scrollbar touch-pan-x touch-pan-y pointer-events-auto" style={{ touchAction: 'pan-x pan-y' }}
               >
-                {extendedBanners.map((banner: any, index: number) => (
+                {extendedBanners.map((banner: any, index: number) => {
+                  const isBannerLoaded = loadedBannerIndices.has(index);
+                  return (
                   <div
                     key={index}
-                    className="w-full flex-shrink-0 snap-center h-full relative flex items-center justify-center bg-gradient-to-r will-change-transform"
+                    className={`w-full flex-shrink-0 snap-center h-full relative flex items-center justify-center bg-gradient-to-r will-change-transform ${!isBannerLoaded && banner.imageUrl ? 'animate-pulse' : ''}`}
                     style={{ scrollSnapStop: 'always', transform: 'translate3d(0,0,0)' }}
                   >
                     {banner.imageUrl ? (
@@ -358,7 +361,10 @@ const Home: React.FC<Props> = ({
                         src={banner.imageUrl}
                         alt={banner.title}
                         loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        onLoad={() => setLoadedBannerIndices(prev => new Set(prev).add(index))}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                          isBannerLoaded ? 'opacity-100' : 'opacity-0'
+                        }`}
                         referrerPolicy="no-referrer"
                       />
                     ) : (
@@ -395,7 +401,8 @@ const Home: React.FC<Props> = ({
                       </>
                     )}
                   </div>
-                ))}
+                );
+                })}
               </div>
             </div>
 
