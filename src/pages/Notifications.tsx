@@ -11,6 +11,7 @@ interface Props {
   refreshing?: boolean;
   onLoadMore?: () => void;
   onRefresh?: () => void;
+  sourceView?: View;
 }
 
 const Notifications: React.FC<Props> = ({ 
@@ -21,7 +22,8 @@ const Notifications: React.FC<Props> = ({
   loadingMore = false,
   refreshing = false,
   onLoadMore,
-  onRefresh
+  onRefresh,
+  sourceView = View.HOME
 }) => {
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const visibleAnnouncements = (announcements || []).filter(a => a && a.showInNotifications !== false && (a.isActive ?? true));
@@ -52,7 +54,7 @@ const Notifications: React.FC<Props> = ({
           {refreshing ? "جاري التحديث..." : "تحديث"}
         </button>
         <h1 className="text-xl font-bold text-white">الإشعارات</h1>
-        <button onClick={() => setView(View.HOME)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
+        <button onClick={() => setView(sourceView)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
       </div>
 
       <div className="p-4 space-y-3 pt-0">

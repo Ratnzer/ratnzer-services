@@ -249,6 +249,7 @@ const App: React.FC = () => {
   const hasToken = Boolean(localStorage.getItem('token'));
   const persistedAdminAuth = localStorage.getItem('ratnzer_admin_auth') === 'true';
   const [currentView, setCurrentView] = useState<View>(View.HOME);
+  const [sourceView, setSourceView] = useState<View>(View.HOME);
   const [currencyCode, setCurrencyCode] = useState<string>(() => {
     return localStorage.getItem('currencyCode') || 'USD';
   });
@@ -1315,6 +1316,11 @@ useEffect(() => {
     setSelectedProduct(null);
     setSelectedInvoiceOrder(null);
     
+    // Track where we are coming from when entering Notifications or Wallet
+    if (view === View.NOTIFICATIONS || view === View.WALLET || view === View.SEARCH) {
+      setSourceView(currentView);
+    }
+
     setCurrentView(view);
     if (view !== View.ORDERS) {
       setIsOrdersFromProfile(false);
@@ -2345,16 +2351,17 @@ useEffect(() => {
       case View.WALLET:
         return (
             <Wallet 
-                setView={handleSetView} 
-                formatPrice={formatPrice} 
-                balance={balanceUSD} 
-                onAddBalance={handleAddBalance} 
-                transactions={transactions.filter(t => !currentUser || !t.userId || t.userId === currentUser.id)}
-                onRefreshTransactions={refreshTransactionsFromServer}
-                hasMore={transactionsHasMore}
-                loadingMore={transactionsLoadingMore}
-                currencies={currencies}
-                onAddBalanceModalToggle={setIsAddBalanceOpen}
+              setView={handleSetView} 
+              formatPrice={formatPrice} 
+              balance={balanceUSD} 
+              onAddBalance={handleAddBalance}
+              transactions={transactions}
+              onRefreshTransactions={refreshTransactionsFromServer}
+              hasMore={transactionsHasMore}
+              loadingMore={transactionsLoadingMore}
+              currencies={currencies}
+              onAddBalanceModalToggle={setIsAddBalanceOpen}
+              sourceView={sourceView}
             />
         );
       case View.PROFILE:
@@ -2458,16 +2465,17 @@ useEffect(() => {
         );
       case View.NOTIFICATIONS:
         return (
-          <Notifications 
-            setView={handleSetView} 
-            formatPrice={formatPrice} 
-            announcements={announcements} 
-            hasMore={announcementsHasMore}
-            loadingMore={announcementsLoadingMore}
-            refreshing={announcementsRefreshing}
-            onLoadMore={() => refreshAnnouncementsFromServer('append')}
-            onRefresh={() => refreshAnnouncementsFromServer('replace')}
-          />
+            <Notifications 
+              setView={handleSetView} 
+              formatPrice={formatPrice} 
+              announcements={announcements}
+              hasMore={announcementsHasMore}
+              loadingMore={announcementsLoadingMore}
+              refreshing={announcementsRefreshing}
+              onLoadMore={() => refreshAnnouncementsFromServer('append')}
+              onRefresh={() => refreshAnnouncementsFromServer('replace')}
+              sourceView={sourceView}
+            />
         );
       case View.ABOUT_US:
         return (

@@ -14,6 +14,7 @@ interface Props {
   loadingMore?: boolean;
   currencies?: Currency[];
   onAddBalanceModalToggle?: (isOpen: boolean) => void;
+  sourceView?: View;
 }
 
 const PiIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
@@ -36,7 +37,8 @@ const Wallet: React.FC<Props> = ({
   hasMore = false,
   loadingMore = false,
   currencies = [],
-  onAddBalanceModalToggle
+  onAddBalanceModalToggle,
+  sourceView = View.HOME
 }) => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
@@ -519,7 +521,7 @@ const Wallet: React.FC<Props> = ({
           <div className="w-10"></div>
         )}
         <h1 className="text-xl font-bold text-white">محفظتي</h1>
-        <button onClick={() => setView(View.HOME)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
+        <button onClick={() => setView(sourceView)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
       </div>
 
       <div className="px-4 space-y-5">
