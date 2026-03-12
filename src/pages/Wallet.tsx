@@ -693,10 +693,10 @@ const Wallet: React.FC<Props> = ({
 	                                          React.createElement(method.icon as any, { size: 28, strokeWidth: 1.5 })
 	                                        )}
 	                                    </div>
-	                                    <div className="text-right">
-	                                        <span className="font-bold text-base text-white block">{method.name}</span>
-	                                        <span className="text-[11px] text-gray-400 font-bold">{method.desc}</span>
-	                                    </div>
+		                                    <div className="text-right">
+		                                        <span className="font-bold text-[13px] text-white block">{method.name}</span>
+		                                        <span className="text-[10px] text-gray-400 font-bold">{method.desc}</span>
+		                                    </div>
 	                                </div>
                                 <div className="bg-[#242636]/50 p-2 rounded-lg text-gray-400 group-hover:text-white transition-colors">
                                    <ChevronLeft size={18} />

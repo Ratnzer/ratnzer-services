@@ -498,7 +498,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 		                          <Wallet size={24} />
 		                      </div>
 		                      <div className="text-right">
-		                          <h3 className={`font-bold text-base ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
+		                          <h3 className={`font-bold text-[13px] ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
 	                          <p className="text-gray-400 text-[11px] mt-1 dir-ltr text-right font-mono">
 	                              الرصيد: {formatPrice(userBalance)}
 	                          </p>
@@ -526,7 +526,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 		                              )}
 		                          </div>
 		                          <div className="text-right">
-		                              <h3 className={`font-bold text-base ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
+		                              <h3 className={`font-bold text-[13px] ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
 	                              <p className="text-gray-400 text-[11px] mt-1">دفع فوري وآمن</p>
 	                          </div>
 	                      </div>
@@ -558,7 +558,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                          )}
 	                      </div>
 	                      <div className="text-right">
-		                          <h3 className={`font-bold text-base ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
+		                          <h3 className={`font-bold text-[13px] ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
 	                          <p className="text-gray-400 text-[11px] mt-1">متوفر في Pi Browser</p>
 	                      </div>
 	                  </div>
