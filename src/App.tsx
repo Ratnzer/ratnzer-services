@@ -626,6 +626,7 @@ useEffect(() => {
   
   // --- Cart State ---
   const [cartItems, setCartItems] = useState<CartItem[]>(() => (hasToken ? loadCache<CartItem[]>('cache_cart_v1', []) : []));
+  const [loadedCartImageIndices, setLoadedCartImageIndices] = useState<Set<string>>(new Set());
 
   const [cartVisibleCount, setCartVisibleCount] = useState<number>(10);
   const [activeCheckoutItem, setActiveCheckoutItem] = useState<CartItem | null>(null);
@@ -2511,12 +2512,15 @@ useEffect(() => {
                             <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
                                 <div className="flex items-start gap-3">
                                     {/* Image */}
-                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center`}>
+                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-pulse' : ''}`}>
                                         {item.imageUrl ? (
                                              <img 
                                                src={item.imageUrl} 
                                                alt={item.name} 
-                                               className="w-full h-full object-cover opacity-90"
+                                               onLoad={() => setLoadedCartImageIndices(prev => new Set(prev).add(item.id))}
+                                               className={`w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                                                 loadedCartImageIndices.has(item.id) ? 'opacity-90' : 'opacity-0'
+                                               }`}
                                                referrerPolicy="no-referrer"
                                                onError={(e) => {
                                                   const target = e.target as HTMLImageElement;
