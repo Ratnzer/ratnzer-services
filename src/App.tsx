@@ -1316,9 +1316,9 @@ useEffect(() => {
     setSelectedProduct(null);
     setSelectedInvoiceOrder(null);
     
-    // Track where we are coming from when entering Notifications or Wallet
+    // Track where we are coming from when entering Notifications, Wallet, or Search
     // This allows the back button to return to the correct previous page
-    if (view === View.NOTIFICATIONS || view === View.WALLET) {
+    if (view === View.NOTIFICATIONS || view === View.WALLET || view === View.SEARCH) {
       setSourceView(currentView);
     }
 
@@ -2339,14 +2339,15 @@ useEffect(() => {
       case View.SEARCH:
         return (
             <SearchPage 
-                setView={handleSetView} 
-                formatPrice={formatPrice} 
-                products={products}
-                categories={categories} 
-                addToCart={addToCart}
-                userBalance={balanceUSD}
-                onPurchase={handlePurchase}
-                onProductSelect={handleProductSelect}
+              setView={handleSetView} 
+              formatPrice={formatPrice} 
+              products={products} 
+              categories={categories} 
+              addToCart={addToCart}
+              userBalance={balanceUSD}
+              onPurchase={handlePurchase}
+              onProductSelect={handleProductSelect}
+              sourceView={sourceView}
             />
         );
       case View.WALLET:

@@ -28,6 +28,7 @@ interface Props {
     selectedDenominationObj?: any
   ) => void;
   onProductSelect: (product: Product) => void;
+  sourceView?: View;
 }
 // ============================================================
 // Local fixed category: "كل المنتجات" (stored locally & auto-selected)
@@ -43,7 +44,7 @@ const LOCAL_LATEST_CATEGORY: Category = {
 };
 
 
-const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categories, addToCart, userBalance = 0, onPurchase, onProductSelect }) => {
+const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categories, addToCart, userBalance = 0, onPurchase, onProductSelect, sourceView = View.HOME }) => {
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     return localStorage.getItem(LOCAL_CATEGORY_STORAGE_KEY) || LOCAL_LATEST_CATEGORY_ID;
@@ -108,7 +109,7 @@ const SearchPage: React.FC<Props> = ({ setView, formatPrice, products, categorie
       <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-0">
         <div className="w-10"></div>
         <h1 className="text-xl font-bold text-white">البحث</h1>
-        <button onClick={() => setView(View.HOME)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
+        <button onClick={() => setView(sourceView)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
       </div>
       <div className="px-4 mb-6 pt-4">
         <div className="relative">
