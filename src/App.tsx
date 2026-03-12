@@ -2593,23 +2593,22 @@ useEffect(() => {
 	                                        )}
 	                                    </div>
 
-	                                    {/* Quick Actions */}
-	                                    <div className="flex flex-col gap-1">
-	                                        <button 
-	                                            onClick={() => handleBuyItem(item)}
-	                                            className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90"
-	                                            title="شراء"
-	                                        >
-	                                            <CheckCircle size={16} />
-	                                        </button>
-	                                        <button 
-	                                            onClick={() => removeFromCart(item.id)}
-	                                            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90"
-	                                            title="حذف"
-	                                        >
-	                                            <Trash2 size={16} />
-	                                        </button>
-	                                    </div>
+		                                    {/* Quick Actions */}
+		                                    <div className="flex flex-col gap-1">
+		                                        <button 
+		                                            onClick={() => handleBuyItem(item)}
+		                                            className="px-2 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90 text-[10px] font-bold"
+		                                        >
+		                                            شراء
+		                                        </button>
+		                                        <button 
+		                                            onClick={() => removeFromCart(item.id)}
+		                                            className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
+		                                            title="حذف"
+		                                        >
+		                                            <Trash2 size={14} />
+		                                        </button>
+		                                    </div>
 	                                </div>
 	                            </div>
 	                        ))}
