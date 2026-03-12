@@ -499,7 +499,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 		                      </div>
 		                      <div className="text-right">
 		                          <h3 className={`font-bold text-[13px] ${paymentMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
-	                          <p className="text-gray-400 text-[11px] mt-1 dir-ltr text-right font-mono">
+	                          <p className="text-gray-400 text-[10px] mt-0.5 dir-ltr text-right font-mono">
 	                              الرصيد: {formatPrice(userBalance)}
 	                          </p>
 	                      </div>
@@ -527,7 +527,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 		                          </div>
 		                          <div className="text-right">
 		                              <h3 className={`font-bold text-[13px] ${paymentMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-	                              <p className="text-gray-400 text-[11px] mt-1">دفع فوري وآمن</p>
+	                              <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
 	                          </div>
 	                      </div>
 	                      {paymentMethod === 'card' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={16} /></div>}
@@ -559,7 +559,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                      </div>
 	                      <div className="text-right">
 		                          <h3 className={`font-bold text-[13px] ${paymentMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
-	                          <p className="text-gray-400 text-[11px] mt-1">متوفر في Pi Browser</p>
+	                          <p className="text-gray-400 text-[10px] mt-0.5">متوفر في Pi Browser</p>
 	                      </div>
 	                  </div>
 	                  {paymentMethod === 'pi' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={16} /></div>}

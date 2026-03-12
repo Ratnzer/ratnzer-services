@@ -176,14 +176,14 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 		                   } ${userBalance < price ? 'opacity-80' : 'cursor-pointer'}`}
 		                 >
 		                    <div className="flex items-center gap-4 relative z-10">
-		                        <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+		                        <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' :bg-emerald-500/10 text-emerald-500'}`}>
 		                            <Wallet size={22} />
 		                        </div>
 		                        <div className="text-right">
-		                                <h3 className={`font-bold text-[13px] ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
-		                            <p className="text-gray-400 text-[11px] mt-1 dir-ltr text-right font-mono">
-		                                الرصيد: {formatPrice(userBalance)}
-		                            </p>
+<h3 className={`font-bold text-[13px] ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
+			                            <p className="text-gray-400 text-[10px] mt-0.5 dir-ltr text-right font-mono">
+			                                الرصيد: {formatPrice(userBalance)}
+			                            </p>
 		                        </div>
 		                    </div>
 	                    {selectedMethod === 'wallet' && <div className="absolute top-2.5 left-3 text-yellow-400"><CheckCircle size={14} /></div>}
@@ -211,8 +211,8 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 		                                )}
 		                            </div>
 		                            <div className="text-right">
-		                                <h3 className={`font-bold text-[13px] ${selectedMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
-		                                <p className="text-gray-400 text-[11px] mt-1">دفع فوري وآمن</p>
+<h3 className={`font-bold text-[13px] ${selectedMethod === 'card' ? 'text-yellow-400' : 'text-white'}`}>بطاقة مصرفية</h3>
+			                                <p className="text-gray-400 text-[10px] mt-0.5">دفع فوري وآمن</p>
 		                            </div>
 		                        </div>
 		                        {selectedMethod === 'card' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={16} /></div>}
@@ -243,8 +243,8 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 	                            )}
 	                        </div>
 	                        <div className="text-right">
-		                            <h3 className={`font-bold text-[13px] ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
-	                            <p className="text-gray-400 text-[11px] mt-1">متوفر في Pi Browser</p>
+<h3 className={`font-bold text-[13px] ${selectedMethod === 'pi' ? 'text-yellow-400' : 'text-white'}`}>الدفع عبر Pi</h3>
+		                            <p className="text-gray-400 text-[10px] mt-0.5">متوفر في Pi Browser</p>
 	                        </div>
 	                    </div>
 	                    {selectedMethod === 'pi' && <div className="absolute top-4 left-4 text-yellow-400"><CheckCircle size={16} /></div>}
