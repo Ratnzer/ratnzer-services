@@ -176,7 +176,7 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 		                   } ${userBalance < price ? 'opacity-80' : 'cursor-pointer'}`}
 		                 >
 		                    <div className="flex items-center gap-4 relative z-10">
-		                        <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' :bg-emerald-500/10 text-emerald-500'}`}>
+			                        <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
 		                            <Wallet size={22} />
 		                        </div>
 		                        <div className="text-right">
