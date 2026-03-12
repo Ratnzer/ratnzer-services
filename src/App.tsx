@@ -2613,26 +2613,26 @@ useEffect(() => {
 		                                </div>
 		                            </div>
 		                        ))}
-                        {cartHasMore && (
-                          <div className="flex justify-center py-6">
-                            <button
-                              onClick={() => {
-                                refreshCartFromServer('append');
-                              }}
-                              disabled={cartLoadingMore}
-                              className="w-full max-w-[200px] py-3 rounded-xl bg-[#242636] border border-gray-700 text-gray-200 text-sm font-bold hover:bg-[#2f3245] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
-                            >
-                              {cartLoadingMore ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                  جاري التحميل...
-                                </>
-                              ) : (
-                                'عرض المزيد'
-                              )}
-                            </button>
-                          </div>
-                        )}
+	                        {cartHasMore && (
+	                          <div className="flex justify-center py-6">
+	                            <button
+	                              onClick={() => {
+	                                refreshCartFromServer('append');
+	                              }}
+	                              disabled={cartLoadingMore}
+	                              className="w-full max-w-[120px] py-2 rounded-lg bg-yellow-400 text-black text-[10px] font-black hover:bg-yellow-500 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-yellow-400/10"
+	                            >
+	                              {cartLoadingMore ? (
+	                                <>
+	                                  <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+	                                  جاري...
+	                                </>
+	                              ) : (
+	                                'عرض المزيد'
+	                              )}
+	                            </button>
+	                          </div>
+	                        )}
                     </div>
                 </div>
              )}
