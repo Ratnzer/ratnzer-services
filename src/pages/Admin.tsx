@@ -1968,7 +1968,7 @@ try {
                                                 className={`p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${invSelectedRegion === r.id ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-[#13141f] text-gray-300 border-gray-700'}`}
                                                 onClick={(e) => { e.stopPropagation(); setInvSelectedRegion(r.id); setInvSelectedDenom(''); setOpenInvDropdown(null); }}
                                             >
-                                                <span className="text-lg">{r.flag}</span>
+
                                                 <span>{r.name}</span>
                                             </button>
                                         ))}
@@ -2077,7 +2077,7 @@ try {
                                           <div className="flex items-center gap-2 flex-wrap">
                                               {reg && (
                                                   <span className="flex items-center gap-1 text-[9px] text-gray-400 bg-[#242636] px-1.5 py-0.5 rounded border border-gray-700">
-                                                      <span>{reg.flag}</span>
+
                                                       <span>{reg.name}</span>
                                                   </span>
                                               )}
@@ -3572,7 +3572,7 @@ try {
                                             onClick={() => toggleRegion(region)}
                                             className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all flex items-center gap-1.5 ${isSelected ? 'bg-blue-600/20 text-blue-400 border-blue-500' : 'bg-[#13141f] text-gray-400 border-gray-700 hover:border-gray-600'}`}
                                         >
-                                            <span>{region.flag}</span>
+
                                             {region.name}
                                         </button>
                                     );
@@ -3582,8 +3582,7 @@ try {
                             {/* Add Custom Region Input */}
                             <div className="flex items-center bg-[#13141f] rounded-xl border border-gray-700 p-1 mb-4">
                                 <input className="flex-[2] bg-transparent p-2 text-white text-xs outline-none" placeholder="نوع مخصص..." value={tempRegionName} onChange={e => setTempRegionName(e.target.value)} />
-                                <div className="w-[1px] h-6 bg-gray-700"></div>
-                                <input className="flex-1 bg-transparent p-2 text-white text-xs outline-none text-center" placeholder="الرمز 🇪🇺" value={tempRegionFlag} onChange={e => setTempRegionFlag(e.target.value)} />
+
                                 <button onClick={addCustomRegion} className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-500 m-0.5"><Plus size={14} /></button>
                             </div>
 
@@ -3595,7 +3594,7 @@ try {
                                         <div key={r.id} className="bg-[#1f212e] border border-gray-700 rounded-xl p-3">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-2">
-                                                   <span className="text-2xl">{r.flag}</span>
+
                                                     <span className="text-xs font-bold text-white">{r.name}</span>
                                                     {r.customInput?.enabled && (
                                                         <span className="text-[9px] bg-blue-500/10 text-blue-400 px-1.5 rounded border border-blue-500/20">
