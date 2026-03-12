@@ -117,37 +117,44 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
         }}
       >
         
-        {/* Handle Bar & Close Button */}
-        <div className="relative">
-          <div 
-            className="w-full flex justify-center pt-2 pb-0.5 cursor-grab active:cursor-grabbing"
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-          >
-            <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
-          </div>
-          
-	          <button 
-	            onClick={(e) => {
-	                e.preventDefault();
-	                e.stopPropagation();
-	                onClose();
-	            }}
-	            className="absolute top-3 left-4 p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-105 z-[120]"
-	            aria-label="Close"
-	          >
-	            <X size={18} strokeWidth={2.5} />
-	          </button>
-        </div>
-
-	        {/* Header Title - Dynamic based on context */}
-	        <div className="flex items-center justify-between px-4 py-2">
-	           <div className="w-10"></div> {/* Spacer for symmetry */}
-	           <h2 className="text-base font-bold text-white">{title || 'إتمام الطلب'}</h2>
+	        {/* Handle Bar */}
+	        <div 
+	          className="w-full flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing"
+	          onTouchStart={onTouchStart}
+	          onTouchMove={onTouchMove}
+	          onTouchEnd={onTouchEnd}
+	        >
+	          <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+	        </div>
+	
+	        {/* Header Title & Actions */}
+	        <div className="flex items-center justify-between px-4 py-3 relative border-b border-gray-800/50">
+	           {/* Left: Close Button (X) */}
 	           <button 
-	             onClick={onClose}
-	             className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors"
+	             onClick={(e) => {
+	                 e.preventDefault();
+	                 e.stopPropagation();
+	                 onClose();
+	             }}
+	             className="p-1.5 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-gray-400 hover:text-white border border-gray-700/50 backdrop-blur-md transition-all active:scale-90 z-[120] flex items-center justify-center"
+	             aria-label="Close"
+	           >
+	             <X size={18} strokeWidth={2.5} />
+	           </button>
+	
+	           {/* Center: Title */}
+	           <h2 className="text-base font-bold text-white absolute left-1/2 -translate-x-1/2 pointer-events-none">
+	             {title || 'إتمام الطلب'}
+	           </h2>
+	
+	           {/* Right: Back Button */}
+	           <button 
+	             onClick={(e) => {
+	                 e.preventDefault();
+	                 e.stopPropagation();
+	                 onClose();
+	             }}
+	             className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-all active:scale-95 bg-[#242636]/50 px-2.5 py-1 rounded-lg border border-gray-700/30"
 	           >
 	             <span className="text-[11px] font-bold">رجوع</span>
 	             <ArrowLeft size={16} />
