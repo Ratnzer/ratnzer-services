@@ -100,8 +100,8 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center">
+	  return (
+	    <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <div 
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`} 
