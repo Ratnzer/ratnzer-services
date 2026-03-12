@@ -2512,7 +2512,7 @@ useEffect(() => {
                             <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
                                 <div className="flex items-start gap-3">
                                     {/* Image */}
-                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-pulse' : ''}`}>
+                                    <div className={`w-20 h-24 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-shimmer' : ''}`}>
                                         {item.imageUrl ? (
                                              <img 
                                                src={item.imageUrl} 

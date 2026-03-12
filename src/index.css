@@ -129,3 +129,26 @@ button:active {
 .marquee-container:hover .animate-marquee {
   animation-play-state: paused;
 }
+
+/* Shimmer Skeleton Animation (Professional Loading Effect) */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #242636 0%,
+    #2d2e42 25%,
+    #242636 50%,
+    #2d2e42 75%,
+    #242636 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}

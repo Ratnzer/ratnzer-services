@@ -353,7 +353,7 @@ const Home: React.FC<Props> = ({
                   return (
                   <div
                     key={index}
-                    className={`w-full flex-shrink-0 snap-center h-full relative flex items-center justify-center bg-gradient-to-r will-change-transform ${!isBannerLoaded && banner.imageUrl ? 'animate-pulse' : ''}`}
+                    className={`w-full flex-shrink-0 snap-center h-full relative flex items-center justify-center bg-gradient-to-r will-change-transform ${!isBannerLoaded && banner.imageUrl ? 'animate-shimmer' : ''}`}
                     style={{ scrollSnapStop: 'always', transform: 'translate3d(0,0,0)' }}
                   >
                     {banner.imageUrl ? (

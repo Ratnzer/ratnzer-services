@@ -19,7 +19,7 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
       {/* The Visual Card (Image/Icon Area) */}
       <div className={`
         w-full aspect-[4/5] rounded-[0.9rem] bg-gradient-to-br ${product.imageColor} 
-        relative overflow-hidden shadow-inner ${!isImageLoaded ? 'animate-pulse' : ''}
+        relative overflow-hidden shadow-inner ${!isImageLoaded ? 'animate-shimmer' : ''}
       `}>
          {/* Background Pattern Overlay */}
          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat"></div>
