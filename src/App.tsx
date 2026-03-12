@@ -2583,11 +2583,19 @@ useEffect(() => {
 		                                            )}
 		                                        </div>
 		
-		                                        <p className="text-base font-black text-yellow-400 dir-ltr font-mono leading-none">{formatPrice(item.price)}</p>
-		                                    </div>
+                                        <p className="text-base font-black text-yellow-400 dir-ltr font-mono leading-none">{formatPrice(item.price)}</p>
+                                        
+                                        {/* Custom Input Value (e.g. Link) */}
+                                        {item.customInputValue && (
+                                            <div className="mt-1.5 bg-[#13141f] rounded px-2 py-1 border border-gray-700 w-fit max-w-full">
+                                                <span className="text-[9px] text-gray-400 font-bold">{item.customInputLabel || 'معلومات إضافية'}: </span>
+                                                <span className="text-[9px] text-white select-all break-all">{item.customInputValue}</span>
+                                            </div>
+                                        )}
+                                    </div>
 	
-			                                    {/* Quick Actions */}
-			                                    <div className="flex flex-col gap-1.5">
+				                                    {/* Quick Actions */}
+				                                    <div className="flex flex-col gap-1.5">
 			                                        <button 
 			                                            onClick={() => handleBuyItem(item)}
 			                                            className="px-3 py-2 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all active:scale-90 text-[11px] font-bold whitespace-nowrap"
