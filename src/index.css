@@ -150,5 +150,5 @@ button:active {
     #242636 100%
   );
   background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
+  animation: shimmer 0.8s infinite;
 }
