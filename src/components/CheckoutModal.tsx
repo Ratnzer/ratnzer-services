@@ -146,19 +146,6 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 		           <h2 className="text-base font-bold text-white text-center">
 		             {title || 'إتمام الطلب'}
 		           </h2>
-		
-		           {/* Right: Back Button - Absolute for no interference */}
-		           <button 
-		             onClick={(e) => {
-		                 e.preventDefault();
-		                 e.stopPropagation();
-		                 onClose();
-		             }}
-		             className="absolute right-4 flex items-center gap-1.5 text-gray-400 hover:text-white transition-all active:scale-95 bg-[#242636]/50 px-3 py-1.5 rounded-lg border border-gray-700/30 z-[130]"
-		           >
-		             <span className="text-[11px] font-bold">رجوع</span>
-		             <ArrowLeft size={16} />
-		           </button>
 		        </div>
 
         <div className="px-4 pb-4 pt-1 space-y-2 flex flex-col h-full">
