@@ -573,8 +573,8 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {showPasswordModal && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
                <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
-                   <button onClick={() => setShowPasswordModal(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white">
-                       <X size={20} />
+                   <button onClick={() => setShowPasswordModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm">
+                       <ChevronLeft size={22} />
                    </button>
                    <h2 className="text-lg font-bold text-white">أمان الحساب</h2>
                    <div className="w-9"></div>
@@ -766,8 +766,8 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {showEditProfile && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
                <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
-                   <button onClick={() => setShowEditProfile(false)} className="p-2 bg-[#242636] rounded-xl text-gray-400 hover:text-white">
-                       <X size={20} />
+                   <button onClick={() => setShowEditProfile(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm">
+                       <ChevronLeft size={22} />
                    </button>
                    <h2 className="text-lg font-bold text-white">تعديل الملف الشخصي</h2>
                    <div className="w-9"></div>
