@@ -155,13 +155,13 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             // Fallback في حال فشل جلب البروفايل
                             onUpdateUser({ ...user, balance: (user.balance || 0) + 0.01 });
                         }
-                        alert(\'شكراً لمشاهدتك! تم إضافة 0.01 دولار لرصيدك بنجاح.\'); 
+                        alert('شكراً لمشاهدتك! تم إضافة 0.01 دولار لرصيدك بنجاح.'); 
                     } catch (fetchErr) {
                         console.error("Failed to fetch updated profile:", fetchErr);
                         if (user && onUpdateUser) {
                             onUpdateUser({ ...user, balance: (user.balance || 0) + 0.01 });
                         }
-                        alert(\'تمت مشاهدة الإعلان بنجاح، ولكن حدث خطأ أثناء تحديث رصيدك. يرجى التحقق من محفظتك لاحقاً.\');
+                        alert('تمت مشاهدة الإعلان بنجاح، ولكن حدث خطأ أثناء تحديث رصيدك. يرجى التحقق من محفظتك لاحقاً.');
                     }
             } else if (result.error) { 
                 alert(result.error); 

@@ -185,15 +185,15 @@ const handleAdResponse = (showAdResponse: any): { success: boolean; adId?: strin
     case "AD_REWARDED":
       // 4. إضافة الرصيد للمستخدم (0.01 دولار) عبر السيرفر
       try {
-        await api.post(\'/wallet/deposit\', {
+        await api.post('/wallet/deposit', {
           amount: 0.01,
-          paymentMethod: \'pi_ads\',
-          paymentDetails: { adId: showAdResponse.adId || \'unknown_\' + Date.now() }, // إضافة قيمة بديلة لـ adId إذا كان undefined
-          description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || \'unknown\'}`,
+          paymentMethod: 'pi_ads',
+          paymentDetails: { adId: showAdResponse.adId || 'unknown_' + Date.now() }, // إضافة قيمة بديلة لـ adId إذا كان undefined
+          description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
         });
       } catch (err: any) {
         console.error("Deposit API error:", err);
-        return { success: false, error: err?.message || \'فشل إضافة الرصيد\' };
+        return { success: false, error: err?.message || 'فشل إضافة الرصيد' };
       }
       return { success: true, adId: showAdResponse.adId };
 
