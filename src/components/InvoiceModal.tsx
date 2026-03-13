@@ -209,15 +209,30 @@ const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice }) 
   };
 
   const getCategoryName = (catId?: string) => {
-      switch(catId) {
-          case 'games': return 'ألعاب';
-          case 'stores': return 'متاجر تطبيقات';
-          case 'telecom': return 'اتصالات';
-          case 'software': return 'خدمات / برامج';
-          case 'shopping': return 'تسوق';
-          case 'media': return 'خدمات ميديا';
-          default: return catId || 'غير محدد';
+      if (!catId) return 'غير محدد';
+      
+      // Try to find a friendly name for common IDs
+      const commonNames: Record<string, string> = {
+          'games': 'ألعاب',
+          'stores': 'متاجر تطبيقات',
+          'telecom': 'اتصالات',
+          'software': 'خدمات / برامج',
+          'shopping': 'تسوق',
+          'media': 'خدمات ميديا',
+          'gamepad': 'ألعاب',
+          'gamepad2': 'ألعاب',
+          'phone': 'رصيد هاتف',
+          'smartphone': 'رصيد هاتف',
+          'gift': 'هدايا / ميديا',
+          'sparkles': 'مميز'
+      };
+
+      if (commonNames[catId.toLowerCase()]) {
+          return commonNames[catId.toLowerCase()];
       }
+
+      // If it's a numeric ID or unknown string, just return it as is or capitalized
+      return catId;
   };
 
   return (

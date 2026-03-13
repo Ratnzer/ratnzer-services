@@ -2803,6 +2803,11 @@ useEffect(() => {
                                                         {order.quantityLabel}
                                                     </span>
                                                 )}
+                                                {order.productCategory && (
+                                                    <span className="text-[9px] bg-blue-500/5 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 flex items-center gap-1">
+                                                        {order.productCategory}
+                                                    </span>
+                                                )}
                                             </div>
                                             
                                             {/* Custom Input Value Display */}
