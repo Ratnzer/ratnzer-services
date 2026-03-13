@@ -420,7 +420,7 @@ const renderDetails = () => (
                                 className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative ${
                                     selectedRegion === region.id 
                                     ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
-                                    : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'
+                                    : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
                                 }`}
                             >
                                 {/* <span className="text-lg leading-none pt-0.5">{region.flag}</span> */}
@@ -443,7 +443,7 @@ const renderDetails = () => (
                                 className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative ${
                                     selectedExecutionMethodId === method.id 
                                     ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
-                                    : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'
+                                    : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
                                 }`}
                             >
 	                                <span className="text-xs font-bold leading-none">{method.name}</span>
@@ -469,7 +469,7 @@ const renderDetails = () => (
                                     flex items-center justify-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] snap-center relative
                                     ${selectedDenomId === denom.id 
                                     ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
-                                    : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'}
+                                    : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'}
                                 `}
                             >
                                 <span className="text-xs font-bold leading-none">{denom.label}</span>
