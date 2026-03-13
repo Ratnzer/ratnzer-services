@@ -2004,6 +2004,8 @@ useEffect(() => {
             fulfillmentType: item.apiConfig?.type || 'manual',
             regionName: item.selectedRegion?.name,
             regionId: item.selectedRegion?.id,
+            executionMethodId: item.selectedExecutionMethod?.id,
+            executionMethodName: item.selectedExecutionMethod?.name,
             denominationId: item.selectedDenomination?.id,
             quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
             customInputValue: item.customInputValue,
@@ -2018,6 +2020,8 @@ useEffect(() => {
           fulfillmentType: activeCheckoutItem?.apiConfig?.type || 'manual',
           regionName: activeCheckoutItem?.selectedRegion?.name,
           regionId: activeCheckoutItem?.selectedRegion?.id,
+          executionMethodId: activeCheckoutItem?.selectedExecutionMethod?.id,
+          executionMethodName: activeCheckoutItem?.selectedExecutionMethod?.name,
           denominationId: activeCheckoutItem?.selectedDenomination?.id,
           quantityLabel: activeCheckoutItem?.selectedDenomination?.label || (activeCheckoutItem?.selectedDenomination as any)?.name || (activeCheckoutItem?.selectedDenomination as any)?.value || String(activeCheckoutItem?.quantity),
           customInputValue: activeCheckoutItem?.customInputValue,
@@ -2097,6 +2101,8 @@ useEffect(() => {
                       fulfillmentType: item.apiConfig?.type || 'manual',
                       regionName: item.selectedRegion?.name,
                       regionId: item.selectedRegion?.id,
+                      executionMethodId: item.selectedExecutionMethod?.id,
+                      executionMethodName: item.selectedExecutionMethod?.name,
                       denominationId: item.selectedDenomination?.id,
                       quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
                       customInputValue: item.customInputValue,
@@ -2160,11 +2166,13 @@ useEffect(() => {
                   fulfillmentType: item.apiConfig?.type || 'manual',
                   regionName: item.selectedRegion?.name,
                   regionId: item.selectedRegion?.id,
+                  executionMethodId: item.selectedExecutionMethod?.id,
+                  executionMethodName: item.selectedExecutionMethod?.name,
                   denominationId: item.selectedDenomination?.id,
                   quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
                   customInputValue: item.customInputValue,
                   customInputLabel: item.customInputLabel,
-                }))
+                })
               });
               return;
           }
@@ -2215,6 +2223,8 @@ useEffect(() => {
               fulfillmentType: item.apiConfig?.type || 'manual',
               regionName: item.selectedRegion?.name,
               regionId: item.selectedRegion?.id,
+              executionMethodId: item.selectedExecutionMethod?.id,
+              executionMethodName: item.selectedExecutionMethod?.name,
               denominationId: item.selectedDenomination?.id,
               quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
               customInputValue: item.customInputValue,
