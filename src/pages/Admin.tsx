@@ -1076,6 +1076,20 @@ try {
     }));
   };
 
+  const updateExecutionMethodSyncAvailability = (regionId: string, methodId: string, autoSync: boolean) => {
+    setProdForm(prev => ({
+        ...prev,
+        regions: prev.regions?.map(r => 
+            r.id === regionId ? { 
+                ...r, 
+                executionMethods: r.executionMethods?.map(m => 
+                    m.id === methodId ? { ...m, autoSyncAvailability: autoSync } : m
+                )
+            } : r
+        )
+    }));
+  };
+
   const startEditDenomination = (denom: Denomination) => {
       setEditingDenomId(denom.id);
       setEditDenomLabel(denom.label);
@@ -3900,32 +3914,44 @@ try {
                                                                                 </div>
                                                                             </div>
 
-                                                                            {/* Custom Input for this Execution Method */}
-                                                                            <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
-                                                                                <div className="flex justify-between items-center">
-                                                                                    <label className="text-[9px] text-blue-400 font-bold">تفعيل حقل مخصص لهذه الطريقة</label>
-                                                                                    <button 
-                                                                                        type="button"
-                                                                                        onClick={() => {
-                                                                                            setProdForm(prev => ({
-                                                                                                ...prev,
-                                                                                                regions: (prev.regions || []).map(reg => 
-                                                                                                    reg.id === r.id 
-                                                                                                    ? { 
-                                                                                                        ...reg, 
-                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                            meth.id === em.id ? { ...meth, customInput: { enabled: !(meth.customInput?.enabled), label: meth.customInput?.label || '', placeholder: meth.customInput?.placeholder || '', required: meth.customInput?.required || false } } : meth
-                                                                                                        )
-                                                                                                    } 
-                                                                                                    : reg
-                                                                                                )
-                                                                                            }));
-                                                                                        }}
-                                                                                        className={`relative inline-flex h-3 w-6 items-center rounded-full transition-colors ${em.customInput?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
-                                                                                    >
-                                                                                        <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${em.customInput?.enabled ? 'translate-x-0.5' : 'translate-x-3.5'}`} />
-                                                                                    </button>
-                                                                                </div>
+	                                                                            {/* NEW: Auto Sync Availability for this Execution Method */}
+	                                                                            <div className="flex items-center justify-between bg-[#13141f] p-2 rounded-lg border border-gray-700">
+	                                                                                <label className="text-[9px] text-purple-400 font-bold">مزامنة التوفر التلقائية</label>
+	                                                                                <button 
+	                                                                                    type="button"
+	                                                                                    onClick={() => updateExecutionMethodSyncAvailability(r.id, em.id, !em.autoSyncAvailability)}
+	                                                                                    className={`relative inline-flex h-3 w-6 items-center rounded-full transition-colors ${em.autoSyncAvailability ? 'bg-purple-500' : 'bg-gray-600'}`}
+	                                                                                >
+	                                                                                    <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${em.autoSyncAvailability ? 'translate-x-0.5' : 'translate-x-3.5'}`} />
+	                                                                                </button>
+	                                                                            </div>
+
+	                                                                            {/* Custom Input for this Execution Method */}
+	                                                                            <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
+	                                                                                <div className="flex justify-between items-center">
+	                                                                                    <label className="text-[9px] text-blue-400 font-bold">تفعيل حقل مخصص لهذه الطريقة</label>
+	                                                                                    <button 
+	                                                                                        type="button"
+	                                                                                        onClick={() => {
+	                                                                                            setProdForm(prev => ({
+	                                                                                                ...prev,
+	                                                                                                regions: (prev.regions || []).map(reg => 
+	                                                                                                    reg.id === r.id 
+	                                                                                                    ? { 
+	                                                                                                        ...reg, 
+	                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+	                                                                                                            meth.id === em.id ? { ...meth, customInput: { enabled: !(meth.customInput?.enabled), label: meth.customInput?.label || '', placeholder: meth.customInput?.placeholder || '', required: meth.customInput?.required || false } } : meth
+	                                                                                                        )
+	                                                                                                    } 
+	                                                                                                    : reg
+	                                                                                                )
+	                                                                                            }));
+	                                                                                        }}
+	                                                                                        className={`relative inline-flex h-3 w-6 items-center rounded-full transition-colors ${em.customInput?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+	                                                                                    >
+	                                                                                        <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${em.customInput?.enabled ? 'translate-x-0.5' : 'translate-x-3.5'}`} />
+	                                                                                    </button>
+	                                                                                </div>
                                                                                 {em.customInput?.enabled && (
                                                                                     <div className="grid grid-cols-2 gap-1.5 pt-1">
                                                                                         <input 
