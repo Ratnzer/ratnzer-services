@@ -140,85 +140,79 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     const isAdReadyResponse = await window.Pi.Ads.isAdReady("rewarded");
     console.log("Ad ready response:", isAdReadyResponse);
 
-    if (!isAdReadyResponse.ready) {
-      console.log("Ad not ready, requesting ad...");
-      // 2. طلب تحميل الإعلان إذا لم يكن جاهزاً
-      // في بعض إصدارات Pi Browser، طلب الإعلان قد يعرضه تلقائياً أو يجهزه
-      const requestAdResponse = await window.Pi.Ads.requestAd("rewarded");
-      console.log("Request ad response:", requestAdResponse);
-
-      if (requestAdResponse.result === "ADS_NOT_SUPPORTED") {
-        isAdShowing = false;
-        return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح. يرجى تحديث متصفح Pi.' };
-      }
-
-      if (requestAdResponse.result !== "AD_LOADED") {
-        isAdShowing = false;
-        return { success: false, error: 'عذراً، لا تتوفر إعلانات حالياً من Pi Ads. يرجى المحاولة مرة أخرى لاحقاً.' };
-      }
-      
-      // بعد التحميل الناجح، ننتظر قليلاً ثم نتحقق مرة أخرى من الجاهزية قبل العرض
-      // هذا يمنع تداخل الطلبات الذي يسبب توقف العداد وتكرار الإعلان
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const secondCheck = await window.Pi.Ads.isAdReady("rewarded");
-      if (!secondCheck.ready) {
-        isAdShowing = false;
-        return { success: false, error: 'تم تحميل الإعلان ولكن لم يتم تجهيزه للعرض بعد، يرجى المحاولة مرة أخرى.' };
-      }
+    // 2. إذا كان الإعلان جاهزاً، نعرضه مباشرة
+    if (isAdReadyResponse.ready) {
+      console.log("Ad is ready, showing now...");
+      const showAdResponse = await window.Pi.Ads.showAd("rewarded");
+      isAdShowing = false;
+      return handleAdResponse(showAdResponse);
     }
 
-    console.log("Showing Ad now...");
-    // 3. عرض الإعلان بشكل آمن
-    const showAdResponse = await window.Pi.Ads.showAd("rewarded");
-    
-    // تحرير القفل بعد الحصول على استجابة العرض لضمان عدم التداخل
+    // 3. إذا لم يكن جاهزاً، نطلبه مرة واحدة فقط
+    // ملاحظة: في متصفح Pi، دالة requestAd قد تقوم بعرض الإعلان تلقائياً أو تحميله للعرض القادم
+    console.log("Ad not ready, requesting ad...");
+    const requestAdResponse = await window.Pi.Ads.requestAd("rewarded");
+    console.log("Request ad response:", requestAdResponse);
+
+    if (requestAdResponse.result === "ADS_NOT_SUPPORTED") {
+      isAdShowing = false;
+      return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح. يرجى تحديث متصفح Pi.' };
+    }
+
+    if (requestAdResponse.result === "AD_LOADED") {
+      // بعد التحميل، نعرضه مرة واحدة فقط وبشكل مباشر
+      console.log("Ad loaded, showing now...");
+      const showAdResponse = await window.Pi.Ads.showAd("rewarded");
+      isAdShowing = false;
+      return handleAdResponse(showAdResponse);
+    }
+
     isAdShowing = false;
-
-    // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
-    switch (showAdResponse.result) {
-      case "AD_REWARDED":
-        // 4. إضافة الرصيد للمستخدم (0.01 دولار) عبر السيرفر
-        // نستخدم setTimeout لفصل معالجة المكافأة عن خيط (Thread) الإعلان الرئيسي
-        // هذا يمنع تجمد الشاشة في الثواني الأخيرة
-        setTimeout(() => {
-          api.post('/wallet/deposit', {
-            amount: 0.01,
-            paymentMethod: 'pi_ads',
-            paymentDetails: { adId: showAdResponse.adId },
-            description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
-          }).catch(err => console.error("Background deposit error:", err));
-        }, 500);
-
-        return { success: true, adId: showAdResponse.adId };
-
-      case "AD_CLOSED":
-      case "AD_DISMISSED":
-        return { success: false, error: 'لقد قمت بإغلاق الإعلان قبل اكتماله، يرجى مشاهدة الإعلان كاملاً للحصول على المكافأة.' };
-
-      case "AD_NETWORK_ERROR":
-        return { success: false, error: 'حدث خطأ في الشبكة أثناء عرض الإعلان. يرجى التأكد من اتصالك بالإنترنت.' };
-
-      case "USER_UNAUTHENTICATED":
-        console.log("User unauthenticated for Ads, attempting to re-authenticate...");
-        try {
-          await window.Pi.authenticate(['username']);
-          return { success: false, error: 'تم تحديث المصادقة، يرجى المحاولة مرة أخرى الآن.' };
-        } catch (authErr) {
-          return { success: false, error: 'يجب تسجيل الدخول أولاً لعرض الإعلانات والحصول على مكافآت.' };
-        }
-
-      case "AD_DISPLAY_FAILED":
-        return { success: false, error: 'فشل عرض الإعلان لسبب تقني. يرجى المحاولة مرة أخرى.' };
-
-      default:
-        return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة.' };
-    }
+    return { success: false, error: 'عذراً، لا تتوفر إعلانات حالياً من Pi Ads. يرجى المحاولة مرة أخرى لاحقاً.' };
   } catch (err: any) {
     isAdShowing = false;
     console.error('❌ خطأ في عرض إعلان Pi:', err);
     return { success: false, error: err?.message || 'حدث خطأ غير متوقع أثناء عرض الإعلان' };
   }
 };
+
+/**
+ * دالة مساعدة لمعالجة استجابة الإعلان بشكل موحد
+ */
+const handleAdResponse = (showAdResponse: any): { success: boolean; adId?: string; error?: string } => {
+  // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
+  switch (showAdResponse.result) {
+    case "AD_REWARDED":
+      // 4. إضافة الرصيد للمستخدم (0.01 دولار) عبر السيرفر
+      setTimeout(() => {
+        api.post('/wallet/deposit', {
+          amount: 0.01,
+          paymentMethod: 'pi_ads',
+          paymentDetails: { adId: showAdResponse.adId },
+          description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
+        }).catch(err => console.error("Background deposit error:", err));
+      }, 500);
+      return { success: true, adId: showAdResponse.adId };
+
+    case "AD_CLOSED":
+    case "AD_DISMISSED":
+      return { success: false, error: 'لقد قمت بإغلاق الإعلان قبل اكتماله، يرجى مشاهدة الإعلان كاملاً للحصول على المكافأة.' };
+
+    case "AD_NETWORK_ERROR":
+      return { success: false, error: 'حدث خطأ في الشبكة أثناء عرض الإعلان. يرجى التأكد من اتصالك بالإنترنت.' };
+
+    case "USER_UNAUTHENTICATED":
+      return { success: false, error: 'يجب تسجيل الدخول أولاً لعرض الإعلانات والحصول على مكافآت.' };
+
+    case "AD_DISPLAY_FAILED":
+      return { success: false, error: 'فشل عرض الإعلان لسبب تقني. يرجى المحاولة مرة أخرى.' };
+
+    default:
+      return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة.' };
+  }
+};
+
+
 
 export default {
   initPiSDK,
