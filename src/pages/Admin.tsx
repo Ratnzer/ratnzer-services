@@ -3789,16 +3789,16 @@ try {
                                                     <div className="bg-[#13141f] p-3 rounded-xl border border-gray-700 space-y-3">
                                                         <div className="flex justify-between items-center border-b border-gray-700 pb-2">
                                                             <h5 className="text-[10px] font-bold text-yellow-400 flex items-center gap-1.5">
-                                                                <Zap size={12} /> طرق التنفيذ لهذا النوع
+                                                                <Zap size={12} /> أنواع الطلب لهذا النوع
                                                             </h5>
                                                             <button 
                                                                 onClick={() => {
                                                                     const currentMethods = r.executionMethods || [];
-                                                                    const newMethod = { id: generateShortId(), name: 'طريقة جديدة', isAvailable: true };
+                                                                    const newMethod = { id: generateShortId(), name: 'نوع طلب جديد', isAvailable: true };
                                                                     updateRegionConfig(r.id, { executionMethods: [...currentMethods, newMethod] });
                                                                 }}
                                                                 className="text-[9px] bg-yellow-400 text-black px-2 py-1 rounded font-bold"
-                                                            >+ إضافة طريقة</button>
+                                                            >+ إضافة نوع طلب</button>
                                                         </div>
                                                         
                                                         <div className="space-y-3">
@@ -3806,7 +3806,7 @@ try {
                                                                 <div key={em.id} className="bg-[#242636] rounded-lg border border-gray-600 overflow-hidden">
                                                                     {/* Method Header - Click to Toggle */}
                                                                     <div className="flex justify-between items-center p-3">
-                                                                        <span className="text-[10px] font-bold text-white">{em.name || 'طريقة بدون اسم'}</span>
+                                                                        <span className="text-[10px] font-bold text-white">{em.name || 'نوع طلب بدون اسم'}</span>
 	                                                                        <div className="flex items-center gap-2">
 	                                                                            <button 
 	                                                                                onClick={() => updateExecutionMethodAvailability(r.id, em.id, em.isAvailable !== false ? false : true)}
