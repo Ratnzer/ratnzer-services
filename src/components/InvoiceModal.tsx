@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { X, CheckCircle, Download, Share2, Receipt, Copy, Loader2, MapPin, Tag, Grid, User, Calendar, Hash } from 'lucide-react';
-import { Order } from '../types';
+import { Order, Category } from '../types';
 import html2canvas from 'html2canvas';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -13,9 +13,10 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   formatPrice: (price: number) => string;
+  categories?: Category[];
 }
 
-const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice }) => {
+const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice, categories = [] }) => {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -211,7 +212,11 @@ const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice }) 
   const getCategoryName = (catId?: string) => {
       if (!catId) return 'غير محدد';
       
-      // Try to find a friendly name for common IDs
+      // 1. Try to find in the live categories list (most accurate for dynamic IDs like 16868715)
+      const foundCat = categories.find(c => String(c.id) === String(catId));
+      if (foundCat) return foundCat.name;
+
+      // 2. Fallback to common static names
       const commonNames: Record<string, string> = {
           'games': 'ألعاب',
           'stores': 'متاجر تطبيقات',
@@ -227,11 +232,9 @@ const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice }) 
           'sparkles': 'مميز'
       };
 
-      if (commonNames[catId.toLowerCase()]) {
-          return commonNames[catId.toLowerCase()];
-      }
+      const lowerId = catId.toLowerCase().trim();
+      if (commonNames[lowerId]) return commonNames[lowerId];
 
-      // If it's a numeric ID or unknown string, just return it as is or capitalized
       return catId;
   };
 

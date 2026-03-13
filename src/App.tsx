@@ -3039,12 +3039,13 @@ useEffect(() => {
         
         {/* Invoice Modal */}
         {selectedInvoiceOrder && (
-            <InvoiceModal 
-                order={selectedInvoiceOrder}
-                isOpen={!!selectedInvoiceOrder}
-                onClose={() => setSelectedInvoiceOrder(null)}
-                formatPrice={formatPrice}
-            />
+          <InvoiceModal 
+            order={selectedInvoiceOrder!} 
+            isOpen={!!selectedInvoiceOrder} 
+            onClose={() => setSelectedInvoiceOrder(null)}
+            formatPrice={formatPrice}
+            categories={categories}
+          />
         )}
 
       {/* Login Modal */}
