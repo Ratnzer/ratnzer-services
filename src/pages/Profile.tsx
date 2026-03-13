@@ -144,11 +144,22 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
             return;
         }
 
-        setIsAdLoading(true);
-        try {
-            const result = await showRewardedAd(user.id); 
-            if (result.success) { 
-                    // جلب بيانات المستخدم المحدثة من السيرفر لضمان دقة الرصيد والعمليات
+	        setIsAdLoading(true);
+	        try {
+	            // ✅ طلب المصادقة من Pi SDK قبل عرض الإعلان لضمان أن المستخدم "مسجل دخول" لدى Pi Ads
+	            // هذا يحل مشكلة رسالة "يجب تسجيل الدخول أولاً" التي تظهر من Pi SDK
+	            if (window.Pi) {
+	                try {
+	                    await window.Pi.authenticate(['username']);
+	                    console.log("Pi Authenticated for Ads");
+	                } catch (authErr) {
+	                    console.warn("Pi Auth failed before ad, proceeding anyway:", authErr);
+	                }
+	            }
+
+	            const result = await showRewardedAd(user.id); 
+	            if (result.success) { 
+	                    // جلب بيانات المستخدم المحدثة من السيرفر لضمان دقة الرصيد والعمليات
                     try {
                         const res = await authService.getProfile();
                         if (res?.data && onUpdateUser) {
