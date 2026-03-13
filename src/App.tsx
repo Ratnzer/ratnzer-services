@@ -1928,9 +1928,11 @@ useEffect(() => {
         quantity: item.quantity || 1,
         apiConfig: item.apiConfig,
         selectedRegion: item.selectedRegion,
+        selectedExecutionMethod: item.selectedExecutionMethod,
         selectedDenomination: item.selectedDenomination,
         denominationId: item.selectedDenomination?.id,
         regionId: item.selectedRegion?.id,
+        executionMethodId: item.selectedExecutionMethod?.id,
         customInputValue: item.customInputValue,
         customInputLabel: item.customInputLabel,
       };

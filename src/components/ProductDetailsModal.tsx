@@ -253,6 +253,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageUrl: product.imageUrl,
         imageColor: product.imageColor,
         selectedRegion: regionObj,
+        selectedExecutionMethod: executionMethodObj,
         selectedDenomination: denomObj,
         quantity: 1,
         apiConfig: product.apiConfig,

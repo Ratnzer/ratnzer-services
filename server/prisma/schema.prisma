@@ -284,6 +284,7 @@ model CartItem {
 
   apiConfig            Json?
   selectedRegion       Json?
+  selectedExecutionMethod Json?
   selectedDenomination Json?
   customInputValue     String?
   customInputLabel     String?
