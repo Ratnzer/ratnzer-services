@@ -2750,8 +2750,8 @@ useEffect(() => {
 	                                                    </span>
                                                 )}
                                                 {order.executionMethodName && (
-                                                    <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                                                        <Truck size={8} /> {order.executionMethodName}
+                                                    <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+                                                        <Truck size={10} /> {order.executionMethodName}
                                                     </span>
                                                 )}
                                                 {order.quantityLabel && (
