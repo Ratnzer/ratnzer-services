@@ -412,8 +412,9 @@ const renderDetails = () => (
             {product.regions && product.regions.length > 0 && (
                 <div className="mb-4">
                     <h3 className="text-right text-gray-300 text-xs font-bold mb-3">نوع المنتج</h3>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                        {product.regions.map((region) => (
+                    <div className="relative group">
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 scroll-smooth">
+                            {product.regions.map((region) => (
                             <button
                                 key={region.id}
                                 onClick={() => setSelectedRegion(region.id)}
@@ -426,7 +427,11 @@ const renderDetails = () => (
                                 {/* <span className="text-lg leading-none pt-0.5">{region.flag}</span> */}
                                 <span className="text-xs font-bold leading-none">{region.name}</span>
                             </button>
-                        ))}
+                            ))}
+                        </div>
+                        {/* Fade Indicators */}
+                        <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#1c1e2d] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#1c1e2d] to-transparent pointer-events-none"></div>
                     </div>
                 </div>
             )}
@@ -435,8 +440,9 @@ const renderDetails = () => (
             {regionObj?.executionMethods && regionObj.executionMethods.length > 0 && (
                 <div className="mb-4 animate-fadeIn">
                     <h3 className="text-right text-gray-300 text-xs font-bold mb-3">طريقة التنفيذ</h3>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                        {regionObj.executionMethods.map((method) => (
+                    <div className="relative group">
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 scroll-smooth">
+                            {regionObj.executionMethods.map((method) => (
                             <button
                                 key={method.id}
                                 onClick={() => setSelectedExecutionMethodId(method.id)}
@@ -448,7 +454,10 @@ const renderDetails = () => (
                             >
 	                                <span className="text-xs font-bold leading-none">{method.name}</span>
                             </button>
-                        ))}
+                            ))}
+                        </div>
+                        <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#1c1e2d] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#1c1e2d] to-transparent pointer-events-none"></div>
                     </div>
                 </div>
             )}
@@ -460,8 +469,9 @@ const renderDetails = () => (
                         <h3 className="text-gray-300 text-xs font-bold">اختيار كمية المنتج</h3>
                     </div>
                     
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
-                        {effectiveDenoms.map((denom) => (
+                    <div className="relative group">
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory scroll-smooth">
+                            {effectiveDenoms.map((denom) => (
                             <button
                                 key={denom.id}
                                 onClick={() => setSelectedDenomId(denom.id)}
@@ -474,7 +484,10 @@ const renderDetails = () => (
                             >
                                 <span className="text-xs font-bold leading-none">{denom.label}</span>
                             </button>
-                        ))}
+                            ))}
+                        </div>
+                        <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#1c1e2d] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#1c1e2d] to-transparent pointer-events-none"></div>
                     </div>
                 </div>
             )}
