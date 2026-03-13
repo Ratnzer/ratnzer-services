@@ -4051,6 +4051,8 @@ try {
                                                                                 className="bg-yellow-400 text-black p-1 rounded font-bold text-[8px]"
                                                                             >+</button>
                                                                         </div>
+                                                                    </div>
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                             ))}
@@ -4059,6 +4061,8 @@ try {
                                                             )}
                                                         </div>
                                                     </div>
+                                                </div>
+                                            )}
 
                                                     <div className="flex justify-between items-center">
                                                         <label className="text-[10px] text-gray-400 font-bold">تفعيل الحقل المخصص لهذا النوع</label>
