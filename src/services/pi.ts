@@ -172,20 +172,25 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     switch (showAdResponse.result) {
       case "AD_REWARDED":
         // 4. إضافة الرصيد للمستخدم (0.01 دولار) عبر السيرفر
+        // نستخدم try-catch داخلي قوي جداً لمنع أي انهيار في التطبيق
         try {
-          // نرسل adId للسيرفر للتحقق منه ومنع التكرار
-          await api.post('/wallet/deposit', {
+          console.log("Processing reward for adId:", showAdResponse.adId);
+          
+          // نرسل الطلب للسيرفر، ولكن لا ننتظر استجابته لتعطيل الواجهة إذا تأخر
+          // هذا يمنع الانهيار (Crash) في حال كان السيرفر بطيئاً أو حدث خطأ في الشبكة فور إغلاق الإعلان
+          api.post('/wallet/deposit', {
             amount: 0.01,
             paymentMethod: 'pi_ads',
             paymentDetails: { adId: showAdResponse.adId },
             description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
-          });
-          console.log("✅ تم إضافة 0.01 دولار لرصيد المستخدم بنجاح");
+          }).catch(err => console.error("Background deposit error:", err));
+
+          console.log("✅ Ad rewarded successfully, returning to UI");
           return { success: true, adId: showAdResponse.adId };
-        } catch (apiError: any) {
-          console.error("❌ فشل تحديث الرصيد عبر API:", apiError);
-          // نعتبر العملية ناجحة في الواجهة ولكن نبلغ المستخدم بوجود تأخير
-          return { success: true, adId: showAdResponse.adId, error: "تمت المشاهدة بنجاح، سيتم تحديث رصيدك قريباً." };
+        } catch (innerError: any) {
+          console.error("❌ Error in reward processing block:", innerError);
+          // حتى لو فشل الكود الداخلي، نرجع نجاح للمستخدم لأن الإعلان اكتمل فعلياً
+          return { success: true, adId: showAdResponse.adId, error: "اكتملت المشاهدة، سيتم تحديث الرصيد تلقائياً." };
         }
 
       case "AD_CLOSED":

@@ -146,9 +146,14 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
         try {
             const result = await showRewardedAd(user.id); 
             if (result.success) { 
-                alert('شكراً لمشاهدتك! تم إضافة 0.01 دولار لرصيدك بنجاح.'); 
-                // تحديث بيانات المستخدم في الواجهة ليعكس الرصيد الجديد
-                onUpdateUser({ ...user, balance: (user.balance || 0) + 0.01 });
+                // ننتظر قليلاً قبل إظهار التنبيه لضمان استقرار متصفح Pi بعد إغلاق الإعلان
+                setTimeout(() => {
+                    alert('شكراً لمشاهدتك! تم إضافة 0.01 دولار لرصيدك بنجاح.'); 
+                    // تحديث بيانات المستخدم في الواجهة ليعكس الرصيد الجديد
+                    if (user && onUpdateUser) {
+                        onUpdateUser({ ...user, balance: (user.balance || 0) + 0.01 });
+                    }
+                }, 800);
             } else if (result.error) { 
                 alert(result.error); 
             }
