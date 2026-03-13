@@ -433,21 +433,17 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                    <div className="relative">
 	                        <input 
 	                            type="text" 
-	                            className="w-full bg-[#242636] border border-gray-700 rounded-xl py-3 px-4 text-base text-white focus:border-yellow-400 outline-none transition-colors text-right shadow-inner"
+	                            className="w-full bg-[#242636] border border-gray-700 rounded-xl py-2.5 px-4 text-sm text-white focus:border-yellow-400 outline-none transition-colors text-right shadow-inner"
 	                            placeholder={activeCustomInput.placeholder || '...'}
 	                            value={customInputValue}
 	                            onChange={(e) => setCustomInputValue(e.target.value)}
 	                        />
-                        {/* Optional Icon indicator */}
-                        <div className="absolute top-2.5 left-3 text-gray-500 pointer-events-none">
-                            <User size={14} />
-                        </div>
-                    </div>
-                    {activeCustomInput.required && !customInputValue && (
-                        <p className="text-[8px] text-red-400 mt-1 mr-1 flex items-center gap-1">
-                            <AlertTriangle size={8} /> هذا الحقل مطلوب
-                        </p>
-                    )}
+	                    </div>
+	                    {activeCustomInput.required && !customInputValue && (
+	                        <p className="text-[11px] text-red-400 mt-1.5 mr-1 flex items-center gap-1 font-bold">
+	                            <AlertTriangle size={12} /> هذا الحقل مطلوب
+	                        </p>
+	                    )}
                 </div>
             )}
       </div>
