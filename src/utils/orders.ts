@@ -29,6 +29,8 @@ export const normalizeOrderFromApi = (o: any): Order => {
     productCategory: toStr(o?.productCategory),
     regionName: toStr(o?.regionName),
     regionId: toNullableStr(o?.regionId),
+    executionMethodName: toOptionalStr(o?.executionMethodName),
+    executionMethodId: toNullableStr(o?.executionMethodId),
     quantityLabel: toOptionalStr(o?.quantityLabel),
     denominationId: toNullableStr(o?.denominationId),
     customInputValue: toOptionalStr(o?.customInputValue),
