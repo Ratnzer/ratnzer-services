@@ -4325,6 +4325,7 @@ try {
             isOpen={!!selectedInvoiceOrder}
             onClose={() => setSelectedInvoiceOrder(null)}
             formatPrice={adminFormatPrice}
+            categories={categories}
           />
       )}
 
