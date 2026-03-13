@@ -163,35 +163,26 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     console.log("Showing Ad now...");
     // 3. عرض الإعلان
     const showAdResponse = await window.Pi.Ads.showAd("rewarded");
-    console.log("Show ad response:", showAdResponse);
-
-    // تحرير القفل فور الحصول على النتيجة
+    
+    // تحرير القفل فوراً لضمان استجابة الواجهة
     isAdShowing = false;
 
     // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
     switch (showAdResponse.result) {
       case "AD_REWARDED":
         // 4. إضافة الرصيد للمستخدم (0.01 دولار) عبر السيرفر
-        // نستخدم try-catch داخلي قوي جداً لمنع أي انهيار في التطبيق
-        try {
-          console.log("Processing reward for adId:", showAdResponse.adId);
-          
-          // نرسل الطلب للسيرفر، ولكن لا ننتظر استجابته لتعطيل الواجهة إذا تأخر
-          // هذا يمنع الانهيار (Crash) في حال كان السيرفر بطيئاً أو حدث خطأ في الشبكة فور إغلاق الإعلان
+        // نستخدم setTimeout لفصل معالجة المكافأة عن خيط (Thread) الإعلان الرئيسي
+        // هذا يمنع تجمد الشاشة في الثواني الأخيرة
+        setTimeout(() => {
           api.post('/wallet/deposit', {
             amount: 0.01,
             paymentMethod: 'pi_ads',
             paymentDetails: { adId: showAdResponse.adId },
             description: `مكافأة مشاهدة إعلان Pi Ads | adId: ${showAdResponse.adId || 'unknown'}`,
           }).catch(err => console.error("Background deposit error:", err));
+        }, 500);
 
-          console.log("✅ Ad rewarded successfully, returning to UI");
-          return { success: true, adId: showAdResponse.adId };
-        } catch (innerError: any) {
-          console.error("❌ Error in reward processing block:", innerError);
-          // حتى لو فشل الكود الداخلي، نرجع نجاح للمستخدم لأن الإعلان اكتمل فعلياً
-          return { success: true, adId: showAdResponse.adId, error: "اكتملت المشاهدة، سيتم تحديث الرصيد تلقائياً." };
-        }
+        return { success: true, adId: showAdResponse.adId };
 
       case "AD_CLOSED":
       case "AD_DISMISSED":
