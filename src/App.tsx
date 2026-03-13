@@ -2172,7 +2172,7 @@ useEffect(() => {
                   quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
                   customInputValue: item.customInputValue,
                   customInputLabel: item.customInputLabel,
-                })
+                }))
               });
               return;
           }
