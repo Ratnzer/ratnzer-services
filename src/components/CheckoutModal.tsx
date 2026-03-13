@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Wallet, CreditCard, ArrowLeft, Calendar, User, Lock, CheckCircle, Wifi, Truck } from 'lucide-react';
+import { X, Wallet, CreditCard, ArrowLeft, Calendar, User, Lock, CheckCircle, Wifi } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -174,7 +174,7 @@ const CheckoutModal: React.FC<Props> = ({
                     )}
                     {selectedExecutionMethod && (
                         <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                            <Truck size={10} /> {selectedExecutionMethod.name}
+                            {selectedExecutionMethod.name}
                         </span>
                     )}
                  </div>

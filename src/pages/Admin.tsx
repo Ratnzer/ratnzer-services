@@ -18,7 +18,7 @@ import {
   Facebook, Instagram, Twitter, Linkedin, Youtube, Twitch, 
   Code, Terminal, Database, Cloud, Bitcoin, Coins,
   Key, Lock, Wrench, Hammer, Settings, Heart, Flame, Sun, Moon, CloudRain,
-  Truck, Anchor, Box, Crown, Diamond, Medal, Trophy,
+  Anchor, Box, Crown, Diamond, Medal, Trophy,
   Cpu, HardDrive, Mouse, Keyboard, Laptop, Tablet,
   Router, Signal, Radio, Tv, Speaker, Mic,
   Ticket, Film, Clapperboard, Sparkles, Palette, Brush,
@@ -2173,7 +2173,7 @@ try {
                                               )}
                                               {order.executionMethodName && (
                                                   <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                                                      <Truck size={8} /> {order.executionMethodName}
+                                                      {order.executionMethodName}
                                                   </span>
                                               )}
                                               {order.quantityLabel && (

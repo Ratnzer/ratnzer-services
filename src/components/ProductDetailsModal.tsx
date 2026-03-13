@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap, Truck } from 'lucide-react';
+import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
 
@@ -539,7 +539,7 @@ const renderDetails = () => (
                     )}
 	                {executionMethodObj && (
 	                    <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-	                        <Truck size={10} /> {executionMethodObj.name}
+	                        {executionMethodObj.name}
 	                    </span>
 	                )}
 	             </div>

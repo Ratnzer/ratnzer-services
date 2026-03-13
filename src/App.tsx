@@ -2603,7 +2603,7 @@ useEffect(() => {
 			                                            )}
 			                                            {item.selectedExecutionMethod && (
 			                                                <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-			                                                    <Truck size={10} /> {item.selectedExecutionMethod.name}
+			                                                    {item.selectedExecutionMethod.name}
 			                                                </span>
 			                                            )}
 			                                        </div>
@@ -2758,7 +2758,7 @@ useEffect(() => {
                                                 )}
                                                 {order.executionMethodName && (
                                                     <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                                                        <Truck size={10} /> {order.executionMethodName}
+                                                        {order.executionMethodName}
                                                     </span>
                                                 )}
                                                 {order.quantityLabel && (
