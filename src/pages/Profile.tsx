@@ -146,10 +146,6 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
         try {
             const result = await showRewardedAd(user.id); 
             if (result.success) { 
-                // ننتظر قليلاً قبل إظهار التنبيه لضمان استقرار متصفح Pi بعد إغلاق الإعلان
-                setTimeout(async () => {
-                    alert('شكراً لمشاهدتك! تم إضافة 0.01 دولار لرصيدك بنجاح.'); 
-                    
                     // جلب بيانات المستخدم المحدثة من السيرفر لضمان دقة الرصيد والعمليات
                     try {
                         const res = await authService.getProfile();
@@ -159,13 +155,14 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                             // Fallback في حال فشل جلب البروفايل
                             onUpdateUser({ ...user, balance: (user.balance || 0) + 0.01 });
                         }
+                        alert(\'شكراً لمشاهدتك! تم إضافة 0.01 دولار لرصيدك بنجاح.\'); 
                     } catch (fetchErr) {
                         console.error("Failed to fetch updated profile:", fetchErr);
                         if (user && onUpdateUser) {
                             onUpdateUser({ ...user, balance: (user.balance || 0) + 0.01 });
                         }
+                        alert(\'تمت مشاهدة الإعلان بنجاح، ولكن حدث خطأ أثناء تحديث رصيدك. يرجى التحقق من محفظتك لاحقاً.\');
                     }
-                }, 1000);
             } else if (result.error) { 
                 alert(result.error); 
             }

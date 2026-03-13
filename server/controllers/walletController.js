@@ -79,10 +79,9 @@ const depositFunds = asyncHandler(async (req, res) => {
     }
 
     // 2. التحقق من وجود adId (يجب إرساله من الفرونت إند في الحقل paymentDetails.adId)
-    const adId = paymentDetails?.adId;
-    if (!adId) {
-      res.status(400);
-      throw new Error('معرف الإعلان (adId) مطلوب للتحقق');
+    const adId = paymentDetails?.adId || `no_ad_id_${Date.now()}_${userId}`;
+    if (paymentDetails?.adId === undefined) {
+      console.warn(`⚠️ adId غير موجود في طلب الإيداع للمستخدم ${userId}. سيتم استخدام معرف بديل: ${adId}`);
     }
 
     // 3. التحقق من صحة adId عبر Pi Ads API
