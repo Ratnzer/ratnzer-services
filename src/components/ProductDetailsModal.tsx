@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
+import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap, Truck } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
 
@@ -24,7 +24,8 @@ interface Props {
     customInputLabel?: string,
     paymentMethod?: 'wallet' | 'card' | 'pi',
     selectedRegionObj?: any,
-    selectedDenominationObj?: any
+    selectedDenominationObj?: any,
+    selectedExecutionMethodObj?: any
   ) => void;
   isLoggedIn?: boolean; // New prop
   onRequireAuth?: () => void; // New prop
@@ -302,23 +303,23 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         if (userBalance >= currentPrice) {
             // Direct purchase without confirmation dialog
             if (onPurchase) {
-                onPurchase(
-                    product.name, 
-                    currentPrice, 
-                    executionMethodObj?.apiConfig?.type || (regionObj as any)?.apiConfig?.type || product.apiConfig?.type || 'manual',
-                    regionObj?.name,
-                    `${executionMethodObj?.name ? executionMethodObj.name + ' - ' : ''}${denomObj?.label}`,
-                    product.category,
-                    product.id,
-                    selectedRegion,
-                    selectedDenomId,
-                    customInputValue.trim(),
-                    customInputLabel,
-                    'wallet',
-                    regionObj,
-                    denomObj,
-                    executionMethodObj
-                );
+	                onPurchase(
+	                    product.name, 
+	                    currentPrice, 
+	                    executionMethodObj?.apiConfig?.type || (regionObj as any)?.apiConfig?.type || product.apiConfig?.type || 'manual',
+	                    regionObj?.name,
+	                    `${executionMethodObj?.name ? executionMethodObj.name + ' - ' : ''}${denomObj?.label || (denomObj as any)?.name || ''}`,
+	                    product.category,
+	                    product.id,
+	                    selectedRegion,
+	                    selectedDenomId,
+	                    customInputValue.trim(),
+	                    activeCustomInput?.label,
+	                    'wallet',
+	                    regionObj,
+	                    denomObj,
+	                    executionMethodObj
+	                );
                 onClose();
             } else {
                 alert('Error: Purchase function not connected');
@@ -329,23 +330,23 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
       } else {
           // ✅ PayTabs or Pi Network flow (handled by parent)
           if (onPurchase) {
-                onPurchase(
-                    product.name, 
-                    currentPrice, 
-                    product.apiConfig?.type || 'manual',
-                    regionObj?.name,
-                    denomObj?.label,
-                    product.category,
-                    product.id,
-                    selectedRegion,
-                    selectedDenomId,
-                    customInputValue.trim(),
-                           customInputLabel,
-                    paymentMethod, // ✅ Pass 'card' or 'pi' correctly
-                    regionObj,
-                    denomObj,
-                    executionMethodObj
-                );
+	                onPurchase(
+	                    product.name, 
+	                    currentPrice, 
+	                    product.apiConfig?.type || 'manual',
+	                    regionObj?.name,
+	                    denomObj?.label || (denomObj as any)?.name || '',
+	                    product.category,
+	                    product.id,
+	                    selectedRegion,
+	                    selectedDenomId,
+	                    customInputValue.trim(),
+	                    activeCustomInput?.label,
+	                    paymentMethod, // ✅ Pass 'card' or 'pi' correctly
+	                    regionObj,
+	                    denomObj,
+	                    executionMethodObj
+	                );
                 onClose();
           } else {
               alert('Error: Purchase function not connected');
@@ -531,11 +532,11 @@ const renderDetails = () => (
 	                        {regionObj.name}
 	                    </span>
 	                )}
-	                {denomObj && (
-	                    <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
-	                        {denomObj.label || denomObj.name}
-	                    </span>
-	                )}
+                    {denomObj && (
+                        <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
+                            {denomObj.label || (denomObj as any).name}
+                        </span>
+                    )}
 	                {executionMethodObj && (
 	                    <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
 	                        <Truck size={10} /> {executionMethodObj.name}
