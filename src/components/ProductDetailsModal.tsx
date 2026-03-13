@@ -300,7 +300,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                 onPurchase(
                     product.name, 
                     currentPrice, 
-                    executionMethodObj?.apiConfig?.type || regionObj?.apiConfig?.type || product.apiConfig?.type || 'manual',
+                    executionMethodObj?.apiConfig?.type || (regionObj as any)?.apiConfig?.type || product.apiConfig?.type || 'manual',
                     regionObj?.name,
                     `${executionMethodObj?.name ? executionMethodObj.name + ' - ' : ''}${denomObj?.label}`,
                     product.category,
