@@ -3790,130 +3790,14 @@ try {
                                                                             
                                                                             {/* API Configuration */}
                                                                             <div className="grid grid-cols-2 gap-2">
-                                                                        <div className="space-y-1">
-                                                                            <label className="text-[8px] text-gray-500">ID الخدمة (API)</label>
-                                                                            <input 
-                                                                                className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
-                                                                                placeholder="Service ID"
-                                                                                value={em.apiConfig?.serviceId || ''}
-                                                                                onChange={e => {
-                                                                                    const val = e.target.value;
-                                                                                    setProdForm(prev => ({
-                                                                                        ...prev,
-                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                            reg.id === r.id 
-                                                                                            ? { 
-                                                                                                ...reg, 
-                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                    meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), serviceId: val, type: val ? 'api' : 'manual' } } : meth
-                                                                                                )
-                                                                                            } 
-                                                                                            : reg
-                                                                                        )
-                                                                                    }));
-                                                                                }}
-                                                                            />
-                                                                        </div>
-                                                                        <div className="space-y-1">
-                                                                            <label className="text-[8px] text-gray-500">اسم المزود</label>
-                                                                            <input 
-                                                                                className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
-                                                                                placeholder="Provider Name"
-                                                                                value={em.apiConfig?.providerName || ''}
-                                                                                onChange={e => {
-                                                                                    const val = e.target.value;
-                                                                                    setProdForm(prev => ({
-                                                                                        ...prev,
-                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                            reg.id === r.id 
-                                                                                            ? { 
-                                                                                                ...reg, 
-                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                    meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), providerName: val } } : meth
-                                                                                                )
-                                                                                            } 
-                                                                                            : reg
-                                                                                        )
-                                                                                    }));
-                                                                                }}
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {/* Custom Input for this Execution Method */}
-                                                                    <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
-                                                                        <div className="flex justify-between items-center">
-                                                                            <label className="text-[9px] text-blue-400 font-bold">تفعيل حقل مخصص لهذه الطريقة</label>
-                                                                            <button 
-                                                                                type="button"
-                                                                                onClick={() => {
-                                                                                    setProdForm(prev => ({
-                                                                                        ...prev,
-                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                            reg.id === r.id 
-                                                                                            ? { 
-                                                                                                ...reg, 
-                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                    meth.id === em.id ? { ...meth, customInput: { enabled: !(meth.customInput?.enabled), label: meth.customInput?.label || '', placeholder: meth.customInput?.placeholder || '', required: meth.customInput?.required || false } } : meth
-                                                                                                )
-                                                                                            } 
-                                                                                            : reg
-                                                                                        )
-                                                                                    }));
-                                                                                }}
-                                                                                className={`relative inline-flex h-3 w-6 items-center rounded-full transition-colors ${em.customInput?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
-                                                                            >
-                                                                                <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${em.customInput?.enabled ? 'translate-x-0.5' : 'translate-x-3.5'}`} />
-                                                                            </button>
-                                                                        </div>
-                                                                        {em.customInput?.enabled && (
-                                                                            <div className="grid grid-cols-2 gap-1.5 pt-1">
-                                                                                <input 
-                                                                                    className="w-full bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-                                                                                    placeholder="العنوان" 
-                                                                                    value={em.customInput.label}
-                                                                                    onChange={e => {
-                                                                                        setProdForm(prev => ({
-                                                                                            ...prev,
-                                                                                            regions: (prev.regions || []).map(reg => 
-                                                                                                reg.id === r.id 
-                                                                                                ? { 
-                                                                                                    ...reg, 
-                                                                                                    executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                        meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, label: e.target.value } } : meth
-                                                                                                    )
-                                                                                                } 
-                                                                                                : reg
-                                                                                            )
-                                                                                        }));
-                                                                                    }}
-                                                                                />
-                                                                                <input 
-                                                                                    className="w-full bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-                                                                                    placeholder="توضيح" 
-                                                                                    value={em.customInput.placeholder}
-                                                                                    onChange={e => {
-                                                                                        setProdForm(prev => ({
-                                                                                            ...prev,
-                                                                                            regions: (prev.regions || []).map(reg => 
-                                                                                                reg.id === r.id 
-                                                                                                ? { 
-                                                                                                    ...reg, 
-                                                                                                    executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                        meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, placeholder: e.target.value } } : meth
-                                                                                                    )
-                                                                                                } 
-                                                                                                : reg
-                                                                                            )
-                                                                                        }));
-                                                                                    }}
-                                                                                />
-                                                                                <label className="col-span-2 flex items-center gap-1.5 text-[8px] text-gray-400">
+                                                                                <div className="space-y-1">
+                                                                                    <label className="text-[8px] text-gray-500">ID الخدمة (API)</label>
                                                                                     <input 
-                                                                                        type="checkbox" 
-                                                                                        className="w-3 h-3 rounded bg-[#13141f] border-gray-600"
-                                                                                        checked={em.customInput.required}
+                                                                                        className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
+                                                                                        placeholder="Service ID"
+                                                                                        value={em.apiConfig?.serviceId || ''}
                                                                                         onChange={e => {
+                                                                                            const val = e.target.value;
                                                                                             setProdForm(prev => ({
                                                                                                 ...prev,
                                                                                                 regions: (prev.regions || []).map(reg => 
@@ -3921,7 +3805,7 @@ try {
                                                                                                     ? { 
                                                                                                         ...reg, 
                                                                                                         executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                            meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, required: e.target.checked } } : meth
+                                                                                                            meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), serviceId: val, type: val ? 'api' : 'manual' } } : meth
                                                                                                         )
                                                                                                     } 
                                                                                                     : reg
@@ -3929,129 +3813,245 @@ try {
                                                                                             }));
                                                                                         }}
                                                                                     />
-                                                                                    مطلوب
-                                                                                </label>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-
-                                                                    {/* Denominations for this Execution Method */}
-                                                                    <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
-                                                                        <h6 className="text-[9px] text-yellow-400 font-bold">الكميات/الفئات لهذه الطريقة</h6>
-                                                                        <div className="space-y-1 max-h-24 overflow-y-auto">
-                                                                            {(em.denominations && em.denominations.length > 0) ? (
-                                                                                em.denominations.map(d => (
-                                                                                    <div key={d.id} className={`p-1.5 rounded border text-[8px] ${d.isAvailable !== false ? 'bg-[#1f212e] border-gray-600' : 'bg-red-900/30 border-red-700/50'}`}>
-                                                                                        {editingRegionDenomId?.denomId === d.id && editingRegionDenomId?.methodId === em.id ? (
-                                                                                            <div className="space-y-1">
-                                                                                                <div className="flex gap-1">
-                                                                                                    <input className="flex-[2] bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
-                                                                                                    <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" type="number" step="0.01" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
-                                                                                                </div>
-                                                                                                <div className="flex gap-1">
-                                                                                                    <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-0.5 rounded text-[8px] font-bold">حفظ</button>
-                                                                                                    <button onClick={() => setEditingRegionDenomId(null)} className="flex-1 bg-gray-600 text-white py-0.5 rounded text-[8px] font-bold">إلغاء</button>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        ) : (
-                                                                                            <div className="flex justify-between items-center">
-                                                                                                <div className="flex-1 min-w-0">
-                                                                                                    <span className={`font-bold block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
-                                                                                                    <span className={`font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
-                                                                                                </div>
-                                                                                                <div className="flex gap-0.5 items-center ml-1">
-                                                                                                    <button onClick={() => startEditRegionDenomination(r.id, d, em.id)} className="p-0.5 text-blue-400 hover:bg-blue-500/20 rounded"><Edit2 size={10} /></button>
-                                                                                                    <button 
-                                                                                                        onClick={() => {
-                                                                                                            setProdForm(prev => ({
-                                                                                                                ...prev,
-                                                                                                                regions: (prev.regions || []).map(reg => 
-                                                                                                                    reg.id === r.id 
-                                                                                                                    ? { 
-                                                                                                                        ...reg, 
-                                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                                            meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).map(dd => dd.id === d.id ? { ...dd, isAvailable: dd.isAvailable !== false ? false : true } : dd) } : meth
-                                                                                                                        )
-                                                                                                                    } 
-                                                                                                                    : reg
-                                                                                                                )
-                                                                                                            }));
-                                                                                                        }}
-                                                                                                        className={`p-0.5 rounded text-[7px] ${d.isAvailable !== false ? 'text-green-500 hover:bg-green-500/20' : 'text-red-500 hover:bg-red-500/20'}`}
-                                                                                                        title={d.isAvailable !== false ? 'تعطيل' : 'تفعيل'}
-                                                                                                    >
-                                                                                                        {d.isAvailable !== false ? <CheckSquare size={10} /> : <XCircle size={10} />}
-                                                                                                    </button>
-                                                                                                    <button 
-                                                                                                        onClick={() => {
-                                                                                                            setProdForm(prev => ({
-                                                                                                                ...prev,
-                                                                                                                regions: (prev.regions || []).map(reg => 
-                                                                                                                    reg.id === r.id 
-                                                                                                                    ? { 
-                                                                                                                        ...reg, 
-                                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                                            meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).filter(dd => dd.id !== d.id) } : meth
-                                                                                                                        )
-                                                                                                                    } 
-                                                                                                                    : reg
-                                                                                                                )
-                                                                                                            }));
-                                                                                                        }}
-                                                                                                        className="text-red-500 hover:text-red-400 p-0.5"
-                                                                                                    ><X size={10} /></button>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                ))
-                                                                            ) : (
-                                                                                <p className="text-[8px] text-gray-500 italic text-center py-1">لا توجد كميات</p>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="flex gap-1 pt-1">
-                                                                            <input 
-                                                                                className="flex-[2] bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-                                                                                placeholder="الاسم" 
-                                                                                value={tempRegionDenomLabel}
-                                                                                onChange={e => setTempRegionDenomLabel(e.target.value)}
-                                                                            />
-                                                                            <input 
-                                                                                className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-                                                                                type="number" 
-                                                                                step="0.01" 
-                                                                                placeholder="السعر" 
-                                                                                value={tempRegionDenomPrice}
-                                                                                onChange={e => setTempRegionDenomPrice(e.target.value)}
-                                                                            />
-                                                                            <button 
-                                                                                onClick={() => {
-                                                                                    if (!tempRegionDenomLabel || !tempRegionDenomPrice) return;
-                                                                                    const newDenom: Denomination = {
-                                                                                        id: generateShortId(),
-                                                                                        label: tempRegionDenomLabel,
-                                                                                        price: parseFloat(tempRegionDenomPrice)
-                                                                                    };
-                                                                                    setProdForm(prev => ({
-                                                                                        ...prev,
-                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                            reg.id === r.id 
-                                                                                            ? { 
-                                                                                                ...reg, 
-                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                    meth.id === em.id ? { ...meth, denominations: [...(meth.denominations || []), newDenom] } : meth
+                                                                                </div>
+                                                                                <div className="space-y-1">
+                                                                                    <label className="text-[8px] text-gray-500">اسم المزود</label>
+                                                                                    <input 
+                                                                                        className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
+                                                                                        placeholder="Provider Name"
+                                                                                        value={em.apiConfig?.providerName || ''}
+                                                                                        onChange={e => {
+                                                                                            const val = e.target.value;
+                                                                                            setProdForm(prev => ({
+                                                                                                ...prev,
+                                                                                                regions: (prev.regions || []).map(reg => 
+                                                                                                    reg.id === r.id 
+                                                                                                    ? { 
+                                                                                                        ...reg, 
+                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                            meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), providerName: val } } : meth
+                                                                                                        )
+                                                                                                    } 
+                                                                                                    : reg
                                                                                                 )
-                                                                                            } 
-                                                                                            : reg
-                                                                                        )
-                                                                                    }));
-                                                                                    setTempRegionDenomLabel('');
-                                                                                    setTempRegionDenomPrice('');
-                                                                                }}
-                                                                                className="bg-yellow-400 text-black p-1 rounded font-bold text-[8px]"
-                                                                            >+</button>
-                                                                        </div>
-                                                                    </div>
+                                                                                            }));
+                                                                                        }}
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {/* Custom Input for this Execution Method */}
+                                                                            <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
+                                                                                <div className="flex justify-between items-center">
+                                                                                    <label className="text-[9px] text-blue-400 font-bold">تفعيل حقل مخصص لهذه الطريقة</label>
+                                                                                    <button 
+                                                                                        type="button"
+                                                                                        onClick={() => {
+                                                                                            setProdForm(prev => ({
+                                                                                                ...prev,
+                                                                                                regions: (prev.regions || []).map(reg => 
+                                                                                                    reg.id === r.id 
+                                                                                                    ? { 
+                                                                                                        ...reg, 
+                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                            meth.id === em.id ? { ...meth, customInput: { enabled: !(meth.customInput?.enabled), label: meth.customInput?.label || '', placeholder: meth.customInput?.placeholder || '', required: meth.customInput?.required || false } } : meth
+                                                                                                        )
+                                                                                                    } 
+                                                                                                    : reg
+                                                                                                )
+                                                                                            }));
+                                                                                        }}
+                                                                                        className={`relative inline-flex h-3 w-6 items-center rounded-full transition-colors ${em.customInput?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+                                                                                    >
+                                                                                        <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${em.customInput?.enabled ? 'translate-x-0.5' : 'translate-x-3.5'}`} />
+                                                                                    </button>
+                                                                                </div>
+                                                                                {em.customInput?.enabled && (
+                                                                                    <div className="grid grid-cols-2 gap-1.5 pt-1">
+                                                                                        <input 
+                                                                                            className="w-full bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+                                                                                            placeholder="العنوان" 
+                                                                                            value={em.customInput.label}
+                                                                                            onChange={e => {
+                                                                                                setProdForm(prev => ({
+                                                                                                    ...prev,
+                                                                                                    regions: (prev.regions || []).map(reg => 
+                                                                                                        reg.id === r.id 
+                                                                                                        ? { 
+                                                                                                            ...reg, 
+                                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, label: e.target.value } } : meth
+                                                                                                            )
+                                                                                                        } 
+                                                                                                        : reg
+                                                                                                    )
+                                                                                                }));
+                                                                                            }}
+                                                                                        />
+                                                                                        <input 
+                                                                                            className="w-full bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+                                                                                            placeholder="توضيح" 
+                                                                                            value={em.customInput.placeholder}
+                                                                                            onChange={e => {
+                                                                                                setProdForm(prev => ({
+                                                                                                    ...prev,
+                                                                                                    regions: (prev.regions || []).map(reg => 
+                                                                                                        reg.id === r.id 
+                                                                                                        ? { 
+                                                                                                            ...reg, 
+                                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, placeholder: e.target.value } } : meth
+                                                                                                            )
+                                                                                                        } 
+                                                                                                        : reg
+                                                                                                    )
+                                                                                                }));
+                                                                                            }}
+                                                                                        />
+                                                                                        <label className="col-span-2 flex items-center gap-1.5 text-[8px] text-gray-400">
+                                                                                            <input 
+                                                                                                type="checkbox" 
+                                                                                                className="w-3 h-3 rounded bg-[#13141f] border-gray-600"
+                                                                                                checked={em.customInput.required}
+                                                                                                onChange={e => {
+                                                                                                    setProdForm(prev => ({
+                                                                                                        ...prev,
+                                                                                                        regions: (prev.regions || []).map(reg => 
+                                                                                                            reg.id === r.id 
+                                                                                                            ? { 
+                                                                                                                ...reg, 
+                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                    meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, required: e.target.checked } } : meth
+                                                                                                                )
+                                                                                                            } 
+                                                                                                            : reg
+                                                                                                        )
+                                                                                                    }));
+                                                                                                }}
+                                                                                            />
+                                                                                            مطلوب
+                                                                                        </label>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+
+                                                                            {/* Denominations for this Execution Method */}
+                                                                            <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
+                                                                                <h6 className="text-[9px] text-yellow-400 font-bold">الكميات/الفئات لهذه الطريقة</h6>
+                                                                                <div className="space-y-1 max-h-24 overflow-y-auto">
+                                                                                    {(em.denominations && em.denominations.length > 0) ? (
+                                                                                        em.denominations.map(d => (
+                                                                                            <div key={d.id} className={`p-1.5 rounded border text-[8px] ${d.isAvailable !== false ? 'bg-[#1f212e] border-gray-600' : 'bg-red-900/30 border-red-700/50'}`}>
+                                                                                                {editingRegionDenomId?.denomId === d.id && editingRegionDenomId?.methodId === em.id ? (
+                                                                                                    <div className="space-y-1">
+                                                                                                        <div className="flex gap-1">
+                                                                                                            <input className="flex-[2] bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
+                                                                                                            <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" type="number" step="0.01" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
+                                                                                                        </div>
+                                                                                                        <div className="flex gap-1">
+                                                                                                            <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-0.5 rounded text-[8px] font-bold">حفظ</button>
+                                                                                                            <button onClick={() => setEditingRegionDenomId(null)} className="flex-1 bg-gray-600 text-white py-0.5 rounded text-[8px] font-bold">إلغاء</button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ) : (
+                                                                                                    <div className="flex justify-between items-center">
+                                                                                                        <div className="flex-1 min-w-0">
+                                                                                                            <span className={`font-bold block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
+                                                                                                            <span className={`font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
+                                                                                                        </div>
+                                                                                                        <div className="flex gap-0.5 items-center ml-1">
+                                                                                                            <button onClick={() => startEditRegionDenomination(r.id, d, em.id)} className="p-0.5 text-blue-400 hover:bg-blue-500/20 rounded"><Edit2 size={10} /></button>
+                                                                                                            <button 
+                                                                                                                onClick={() => {
+                                                                                                                    setProdForm(prev => ({
+                                                                                                                        ...prev,
+                                                                                                                        regions: (prev.regions || []).map(reg => 
+                                                                                                                            reg.id === r.id 
+                                                                                                                            ? { 
+                                                                                                                                ...reg, 
+                                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                                    meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).map(dd => dd.id === d.id ? { ...dd, isAvailable: dd.isAvailable !== false ? false : true } : dd) } : meth
+                                                                                                                                )
+                                                                                                                            } 
+                                                                                                                            : reg
+                                                                                                                        )
+                                                                                                                    }));
+                                                                                                                }}
+                                                                                                                className={`p-0.5 rounded text-[7px] ${d.isAvailable !== false ? 'text-green-500 hover:bg-green-500/20' : 'text-red-500 hover:bg-red-500/20'}`}
+                                                                                                                title={d.isAvailable !== false ? 'تعطيل' : 'تفعيل'}
+                                                                                                            >
+                                                                                                                {d.isAvailable !== false ? <CheckSquare size={10} /> : <XCircle size={10} />}
+                                                                                                            </button>
+                                                                                                            <button 
+                                                                                                                onClick={() => {
+                                                                                                                    setProdForm(prev => ({
+                                                                                                                        ...prev,
+                                                                                                                        regions: (prev.regions || []).map(reg => 
+                                                                                                                            reg.id === r.id 
+                                                                                                                            ? { 
+                                                                                                                                ...reg, 
+                                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                                    meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).filter(dd => dd.id !== d.id) } : meth
+                                                                                                                                )
+                                                                                                                            } 
+                                                                                                                            : reg
+                                                                                                                        )
+                                                                                                                    }));
+                                                                                                                }}
+                                                                                                                className="text-red-500 hover:text-red-400 p-0.5"
+                                                                                                            ><X size={10} /></button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        ))
+                                                                                    ) : (
+                                                                                        <p className="text-[8px] text-gray-500 italic text-center py-1">لا توجد كميات</p>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="flex gap-1 pt-1">
+                                                                                    <input 
+                                                                                        className="flex-[2] bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+                                                                                        placeholder="الاسم" 
+                                                                                        value={tempRegionDenomLabel}
+                                                                                        onChange={e => setTempRegionDenomLabel(e.target.value)}
+                                                                                    />
+                                                                                    <input 
+                                                                                        className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+                                                                                        type="number" 
+                                                                                        step="0.01" 
+                                                                                        placeholder="السعر" 
+                                                                                        value={tempRegionDenomPrice}
+                                                                                        onChange={e => setTempRegionDenomPrice(e.target.value)}
+                                                                                    />
+                                                                                    <button 
+                                                                                        onClick={() => {
+                                                                                            if (!tempRegionDenomLabel || !tempRegionDenomPrice) return;
+                                                                                            const newDenom: Denomination = {
+                                                                                                id: generateShortId(),
+                                                                                                label: tempRegionDenomLabel,
+                                                                                                price: parseFloat(tempRegionDenomPrice)
+                                                                                            };
+                                                                                            setProdForm(prev => ({
+                                                                                                ...prev,
+                                                                                                regions: (prev.regions || []).map(reg => 
+                                                                                                    reg.id === r.id 
+                                                                                                    ? { 
+                                                                                                        ...reg, 
+                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                            meth.id === em.id ? { ...meth, denominations: [...(meth.denominations || []), newDenom] } : meth
+                                                                                                        )
+                                                                                                    } 
+                                                                                                    : reg
+                                                                                                )
+                                                                                            }));
+                                                                                            setTempRegionDenomLabel('');
+                                                                                            setTempRegionDenomPrice('');
+                                                                                        }}
+                                                                                        className="bg-yellow-400 text-black p-1 rounded font-bold text-[8px]"
+                                                                                    >+</button>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -4061,8 +4061,6 @@ try {
                                                             )}
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )}
 
                                                     <div className="flex justify-between items-center">
                                                         <label className="text-[10px] text-gray-400 font-bold">تفعيل الحقل المخصص لهذا النوع</label>
