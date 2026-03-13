@@ -520,9 +520,29 @@ const renderDetails = () => (
           <div className="text-center mb-1 mt-1">
              <h2 className="text-base font-bold text-white mb-2">{title || 'شراء سريع'}</h2>
              <p className="text-gray-400 text-[11px] mb-0.5">أنت على وشك شراء</p>
-             <h3 className="text-white font-bold text-base dir-rtl leading-tight">{product.name}</h3>
-             <p className="text-yellow-400 font-black text-xl mt-1 dir-ltr font-mono">{formatPrice(currentPrice)}</p>
-          </div>
+	             <h3 className="text-white font-bold text-base dir-rtl leading-tight">{product.name}</h3>
+	             
+	             {/* Badges like Cart */}
+	             <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+	                {regionObj && (
+	                    <span className="text-[10px] bg-[#13141f] text-gray-400 px-2 py-0.5 rounded border border-gray-800">
+	                        {regionObj.name}
+	                    </span>
+	                )}
+	                {denomObj && (
+	                    <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
+	                        {denomObj.label || denomObj.name}
+	                    </span>
+	                )}
+	                {executionMethodObj && (
+	                    <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+	                        <Truck size={10} /> {executionMethodObj.name}
+	                    </span>
+	                )}
+	             </div>
+
+	             <p className="text-yellow-400 font-black text-xl mt-2 dir-ltr font-mono">{formatPrice(currentPrice)}</p>
+	          </div>
 
           <div className="space-y-2 flex-1">
               <p className="text-right text-[10px] font-bold text-gray-400 mb-1">اختر طريقة الدفع</p>
