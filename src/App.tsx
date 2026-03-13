@@ -2721,12 +2721,17 @@ useEffect(() => {
       : '—')}</span>
                                             </div>
 
-                                            {/* Region and Quantity Badges */}
+                                            {/* Region, Execution Method, and Quantity Badges */}
                                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                                                 {order.regionName && (
 <span className="text-[9px] bg-[#13141f] text-gray-300 px-1.5 py-0.5 rounded border border-gray-600 flex items-center gap-1">
 	                                                        {order.regionName}
 	                                                    </span>
+                                                )}
+                                                {order.executionMethodName && (
+                                                    <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+                                                        <Truck size={8} /> {order.executionMethodName}
+                                                    </span>
                                                 )}
                                                 {order.quantityLabel && (
                                                     <span className="text-[9px] bg-yellow-400/5 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/20 flex items-center gap-1">
