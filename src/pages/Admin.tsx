@@ -1193,14 +1193,15 @@ try {
         });
 
         const updated = res?.data;
-        const updatedIcon =
-          AVAILABLE_ICONS.find(i => i.id === (updated?.icon || selectedIconId))?.icon || catForm.icon || Gamepad2;
+        // Ensure we use the icon component in the local state
+        const updatedIcon = catForm.icon || Gamepad2;
 
         setCategories(prev =>
           prev.map(c =>
             c.id === editingCategory.id ? { ...(updated || c), name: catForm.name, icon: updatedIcon } : c
           )
         );
+        setShowCategoryModal(false);
       } catch (err) {
         console.error('Update category failed:', err);
         alert('فشل تعديل الفئة على السيرفر');
@@ -1214,11 +1215,10 @@ try {
 
         const created = res?.data;
         if (created) {
-          const createdIcon =
-            AVAILABLE_ICONS.find(i => i.id === created.icon)?.icon || catForm.icon || Gamepad2;
-
+          const createdIcon = catForm.icon || Gamepad2;
           // Keep UI format (icon component) while DB stores icon id
           setCategories(prev => [...prev, { ...created, icon: createdIcon }]);
+          setShowCategoryModal(false);
         } else {
           // Fallback to old local behavior if API returned nothing
           const newCat: Category = {
