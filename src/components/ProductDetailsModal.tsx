@@ -442,13 +442,7 @@ const renderDetails = () => (
                                     : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'
                                 }`}
                             >
-                                <Zap size={12} className={selectedExecutionMethodId === method.id ? 'text-black' : 'text-yellow-400'} />
-                                <span className="text-xs font-bold leading-none">{method.name}</span>
-                                {selectedExecutionMethodId === method.id && (
-                                    <div className="absolute -top-1 -left-1 bg-black text-yellow-400 rounded-full p-0.5 border border-yellow-400">
-                                        <CheckCircle size={10} />
-                                    </div>
-                                )}
+	                                <span className="text-xs font-bold leading-none">{method.name}</span>
                             </button>
                         ))}
                     </div>
