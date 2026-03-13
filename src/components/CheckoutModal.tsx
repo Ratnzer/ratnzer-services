@@ -169,15 +169,15 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 		                           alert('عذراً، رصيد المحفظة غير كافي لإتمام العملية.');
 		                       }
 		                   }}
-		                   className={`w-full p-3.5 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+		                   className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
 		                       selectedMethod === 'wallet' 
 		                       ? 'bg-yellow-400/10 border-yellow-400' 
 		                       : 'bg-[#242636] border-gray-700 hover:border-gray-500'
 		                   } ${userBalance < price ? 'opacity-80' : 'cursor-pointer'}`}
 		                 >
 		                    <div className="flex items-center gap-4 relative z-10">
-			                        <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
-		                            <Wallet size={22} />
+			                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${selectedMethod === 'wallet' ? 'bg-yellow-400 text-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+		                            <Wallet size={24} />
 		                        </div>
 		                        <div className="text-right">
 <h3 className={`font-bold text-[13px] ${selectedMethod === 'wallet' ? 'text-yellow-400' : 'text-white'}`}>محفظتي</h3>
@@ -196,18 +196,18 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
 		                 {!isPiUser && (
 		                     <button 
 		                       onClick={() => setSelectedMethod('card')}
-		                       className={`w-full p-3.5 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+		                       className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
 		                           selectedMethod === 'card' 
 		                           ? 'bg-yellow-400/10 border-yellow-400' 
 		                           : 'bg-[#242636] border-gray-700 hover:border-gray-500'
 		                       }`}
 		                     >
 		                        <div className="flex items-center gap-4 relative z-10">
-		                            <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
+		                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'card' ? 'bg-yellow-400 text-black' : 'bg-blue-500/10 text-blue-500'}`}>
 		                                {localStorage.getItem('payment_method_card_icon') ? (
 		                                    <img src={localStorage.getItem('payment_method_card_icon') || ''} alt="Card" className="w-full h-full object-cover rounded-full" />
 		                                ) : (
-		                                    <CreditCard size={22} />
+		                                    <CreditCard size={24} />
 		                                )}
 		                            </div>
 		                            <div className="text-right">
@@ -222,18 +222,18 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
                  {/* Pi Network Option */}
 	                 <button 
 	                   onClick={() => setSelectedMethod('pi')}
-	                   className={`w-full p-3.5 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
+	                   className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between group relative overflow-hidden ${
 	                       selectedMethod === 'pi' 
 	                       ? 'bg-yellow-400/10 border-yellow-400' 
 	                       : 'bg-[#242636] border-gray-700 hover:border-gray-500'
 	                   }`}
 	                 >
 	                    <div className="flex items-center gap-4 relative z-10">
-	                        <div className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
+	                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors overflow-hidden ${selectedMethod === 'pi' ? 'bg-yellow-400 text-black' : 'bg-[#593B8B]/10 text-[#593B8B]'}`}>
 		                            {localStorage.getItem('payment_method_pi_icon') ? (
 		                                <img src={localStorage.getItem('payment_method_pi_icon') || ''} alt="Pi" className="w-full h-full object-cover rounded-full" />
 		                            ) : (
-	                                <svg viewBox="176.2 47.4 530.8 530.7" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+	                                <svg viewBox="176.2 47.4 530.8 530.7" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
 	                                  <circle cx="441.6" cy="312.8" fill="white" r="227.4"/>
 	                                  <g fill="#593B8B">
 	                                    <path d="m441.6 142.2c-94.2 0-170.6 76.4-170.6 170.6s76.4 170.6 170.6 170.6 170.6-76.4 170.6-170.6-76.4-170.6-170.6-170.6zm0 312.8c-78.5 0-142.2-63.7-142.2-142.2s63.7-142.2 142.2-142.2 142.2 63.7 142.2 142.2-63.7 142.2-142.2 142.2z"/>
