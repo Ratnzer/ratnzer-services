@@ -3805,7 +3805,7 @@ try {
                                                                                     <label className="text-[8px] text-gray-500">ID الخدمة (API)</label>
                                                                                     <input 
                                                                                         className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
-                                                                                        placeholder="Service ID"
+                                                                                        placeholder="رقم الخدمة"
                                                                                         value={em.apiConfig?.serviceId || ''}
                                                                                         onChange={e => {
                                                                                             const val = e.target.value;
@@ -3959,7 +3959,7 @@ try {
 			                                                                                    <input className="w-full bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="الاسم" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
 			                                                                                    <div className="flex gap-1 w-full">
 			                                                                                        <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" type="number" step="0.01" placeholder="السعر" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
-			                                                                                        <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="ID" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
+			                                                                                        <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="رقم الخدمة" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
 			                                                                                    </div>
 			                                                                                </div>
                                                                                                         <div className="flex gap-1">
@@ -3973,7 +3973,7 @@ try {
 		                                                                                                            <span className={`font-bold block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
 		                                                                                                            <div className="flex gap-1 items-center">
 		                                                                                                                <span className={`font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
-		                                                                                                                {d.serviceId && <span className="text-gray-500 text-[6px] bg-gray-800 px-1 py-0.5 rounded border border-gray-700">ID: {d.serviceId}</span>}
+		                                                                                                                {d.serviceId && <span className="text-gray-500 text-[6px] bg-gray-800 px-1 py-0.5 rounded border border-gray-700">رقم الخدمة: {d.serviceId}</span>}
 		                                                                                                            </div>
 		                                                                                                        </div>
                                                                                                         <div className="flex gap-0.5 items-center ml-1">
@@ -4044,7 +4044,7 @@ try {
 		                                                                                        />
 		                                                                                        <input 
 		                                                                                            className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-		                                                                                            placeholder="ID" 
+		                                                                                            placeholder="رقم الخدمة" 
 		                                                                                            value={tempRegionDenomServiceId}
 		                                                                                            onChange={e => setTempRegionDenomServiceId(e.target.value)}
 		                                                                                        />
@@ -4152,7 +4152,7 @@ try {
 		                                                                                    <input className="flex-[2] bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" placeholder="الاسم" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
 		                                                                                    <div className="flex gap-2 flex-1">
 		                                                                                        <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" type="number" step="0.01" placeholder="السعر" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
-		                                                                                        <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" placeholder="Service ID" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
+		                                                                                        <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" placeholder="رقم الخدمة" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
 		                                                                                    </div>
 		                                                                                </div>
 	                                                                                <div className="flex gap-2">
@@ -4166,7 +4166,7 @@ try {
 		                                                                                    <span className={`font-bold text-[11px] block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
 		                                                                                    <div className="flex gap-2 items-center">
 		                                                                                        <span className={`text-[10px] font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
-		                                                                                        {d.serviceId && <span className="text-gray-500 text-[8px] bg-gray-800 px-1 py-0.5 rounded border border-gray-700">ID: {d.serviceId}</span>}
+		                                                                                        {d.serviceId && <span className="text-gray-500 text-[8px] bg-gray-800 px-1 py-0.5 rounded border border-gray-700">رقم الخدمة: {d.serviceId}</span>}
 		                                                                                    </div>
 		                                                                                </div>
 	                                                                                <div className="flex gap-2 items-center">
@@ -4193,7 +4193,7 @@ try {
 	                                                            <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 60 UC)" value={tempRegionDenomLabel} onChange={e => setTempRegionDenomLabel(e.target.value)} />
 	                                                            <div className="flex gap-2 flex-1">
 	                                                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempRegionDenomPrice} onChange={e => setTempRegionDenomPrice(e.target.value)} />
-	                                                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="Service ID" value={tempRegionDenomServiceId} onChange={e => setTempRegionDenomServiceId(e.target.value)} />
+	                                                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="رقم الخدمة" value={tempRegionDenomServiceId} onChange={e => setTempRegionDenomServiceId(e.target.value)} />
 	                                                            </div>
 	                                                            <button onClick={() => addRegionDenomination(r.id)} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-[11px] hover:bg-yellow-500 transition-colors sm:w-16">إضافة</button>
 	                                                        </div>
@@ -4222,7 +4222,7 @@ try {
 			                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="الاسم" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
 			                                                        <div className="flex gap-2 flex-1">
 			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" placeholder="السعر" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
-			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="Service ID" value={editDenomServiceId} onChange={e => setEditDenomServiceId(e.target.value)} />
+			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="رقم الخدمة" value={editDenomServiceId} onChange={e => setEditDenomServiceId(e.target.value)} />
 			                                                        </div>
 			                                                    </div>
 	                                                    <div className="flex gap-2">
@@ -4257,7 +4257,7 @@ try {
 		                                <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 100 جوهرة)" value={tempDenomLabel} onChange={e => setTempDenomLabel(e.target.value)} />
 		                                <div className="flex gap-2 flex-1">
 		                                    <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempDenomPrice} onChange={e => setTempDenomPrice(e.target.value)} />
-		                                    <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="Service ID" value={tempDenomServiceId} onChange={e => setTempDenomServiceId(e.target.value)} />
+		                                    <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="رقم الخدمة" value={tempDenomServiceId} onChange={e => setTempDenomServiceId(e.target.value)} />
 		                                </div>
 		                                <button onClick={addDenomination} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-xs hover:bg-yellow-500 transition-colors sm:w-20">إضافة</button>
 		                            </div>
