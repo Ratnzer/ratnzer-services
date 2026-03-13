@@ -143,6 +143,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     if (!isAdReadyResponse.ready) {
       console.log("Ad not ready, requesting ad...");
       // 2. طلب تحميل الإعلان إذا لم يكن جاهزاً
+      // في بعض إصدارات Pi Browser، طلب الإعلان قد يعرضه تلقائياً أو يجهزه
       const requestAdResponse = await window.Pi.Ads.requestAd("rewarded");
       console.log("Request ad response:", requestAdResponse);
 
@@ -156,15 +157,21 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
         return { success: false, error: 'عذراً، لا تتوفر إعلانات حالياً من Pi Ads. يرجى المحاولة مرة أخرى لاحقاً.' };
       }
       
-      // ننتظر ثانية واحدة لضمان استقرار SDK بعد التحميل
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // بعد التحميل الناجح، ننتظر قليلاً ثم نتحقق مرة أخرى من الجاهزية قبل العرض
+      // هذا يمنع تداخل الطلبات الذي يسبب توقف العداد وتكرار الإعلان
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const secondCheck = await window.Pi.Ads.isAdReady("rewarded");
+      if (!secondCheck.ready) {
+        isAdShowing = false;
+        return { success: false, error: 'تم تحميل الإعلان ولكن لم يتم تجهيزه للعرض بعد، يرجى المحاولة مرة أخرى.' };
+      }
     }
 
     console.log("Showing Ad now...");
-    // 3. عرض الإعلان
+    // 3. عرض الإعلان بشكل آمن
     const showAdResponse = await window.Pi.Ads.showAd("rewarded");
     
-    // تحرير القفل فوراً لضمان استجابة الواجهة
+    // تحرير القفل بعد الحصول على استجابة العرض لضمان عدم التداخل
     isAdShowing = false;
 
     // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
