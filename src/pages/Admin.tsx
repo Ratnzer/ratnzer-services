@@ -3737,17 +3737,16 @@ try {
                                                             {(r.executionMethods || []).map((em, emIdx) => (
                                                                 <div key={em.id} className="bg-[#242636] rounded-lg border border-gray-600 overflow-hidden">
                                                                     {/* Method Header - Click to Toggle */}
-                                                                    <div 
-                                                                        onClick={() => setExpandedExecutionMethodId(expandedExecutionMethodId === em.id ? null : em.id)}
-                                                                        className="flex justify-between items-center p-3 cursor-pointer hover:bg-[#2a2d3d] transition-colors"
-                                                                    >
+                                                                    <div className="flex justify-between items-center p-3">
+                                                                        <span className="text-[10px] font-bold text-white">{em.name || 'طريقة بدون اسم'}</span>
                                                                         <div className="flex items-center gap-2">
-                                                                            <div className={`p-1 rounded bg-purple-500/10 text-purple-400 transition-transform ${expandedExecutionMethodId === em.id ? 'rotate-180' : ''}`}>
-                                                                                <ArrowLeft size={12} className="-rotate-90" />
-                                                                            </div>
-                                                                            <span className="text-[10px] font-bold text-white">{em.name || 'طريقة بدون اسم'}</span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                                                                            <button
+                                                                                onClick={() => setExpandedExecutionMethodId(expandedExecutionMethodId === em.id ? null : em.id)}
+                                                                                className={`p-1.5 rounded-lg transition-colors border ${expandedExecutionMethodId === em.id ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-[#242636] text-gray-400 border-gray-600 hover:text-white'}`}
+                                                                                title={expandedExecutionMethodId === em.id ? 'طي الإعدادات' : 'فتح الإعدادات'}
+                                                                            >
+                                                                                <Settings2 size={12} />
+                                                                            </button>
                                                                             <button 
                                                                                 onClick={() => {
                                                                                     const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
