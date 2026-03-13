@@ -361,11 +361,11 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                 {/* Text Info */}
                 <div className="flex-1 py-2">
                     <h2 className="text-lg font-bold text-white mb-2 leading-snug">{product.name}</h2>
-                    {product.description && (
-                        <p className="text-gray-400 text-[11px] mb-4 leading-relaxed whitespace-pre-line">
-                            {product.description}
-                        </p>
-                    )}
+	                    {product.description && (
+	                        <p className="text-gray-400 text-[13px] mb-4 leading-relaxed whitespace-pre-line">
+	                            {product.description}
+	                        </p>
+	                    )}
                     
                     <div className="flex items-center gap-1 bg-[#242636] w-fit px-3 py-1.5 rounded-lg border border-gray-700 shadow-sm">
                         <Star size={14} className="text-yellow-400 fill-yellow-400" />
@@ -742,41 +742,41 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         {currentStep === 'payment_select' && renderPaymentSelect()}
         {currentStep === 'card_form' && renderCardForm()}
 
-        {/* Action Buttons (Only on Details Step) */}
-        {currentStep === 'details' && (
-            <div className="p-4 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
-                {isAvailableGlobally && (
-	                    <div className="flex justify-between items-center mb-4 px-1">
-	                        <span className="text-gray-300 text-sm font-bold">المجموع الكلي</span>
-	                        <span className="text-yellow-400 font-black text-2xl dir-ltr drop-shadow-sm">{formatPrice(currentPrice)}</span>
+	        {/* Action Buttons (Only on Details Step) */}
+	        {currentStep === 'details' && (
+	            <div className="p-3 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
+	                {isAvailableGlobally && (
+	                    <div className="flex justify-between items-center mb-3 px-1">
+	                        <span className="text-gray-300 text-xs font-bold">المجموع الكلي</span>
+	                        <span className="text-yellow-400 font-black text-xl dir-ltr drop-shadow-sm">{formatPrice(currentPrice)}</span>
 	                    </div>
-                )}
-                
-                <div className="flex gap-3 pb-4">
-                    {!isAvailableGlobally ? (
-                        <div className="flex-1 bg-red-700/50 text-white font-bold py-3.5 rounded-xl shadow-lg text-center">
-                            المنتج غير متوفر حالياً
-                        </div>
-                    ) : (
-                        <>
-                            <button 
-                                onClick={handleBuyNowClick}
-                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all text-sm"
-                            >
-                                اشتر الآن
-                            </button>
-                            <button 
-                                onClick={handleAddToCart}
-                                className="flex-[1.5] bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl shadow-lg shadow-yellow-400/20 flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
-                            >
-                                <ShoppingCart size={18} />
-                                أضف للسلة
-                            </button>
-                        </>
-                    )}
-                </div>
-            </div>
-        )}
+	                )}
+	                
+	                <div className="flex gap-2 pb-2">
+	                    {!isAvailableGlobally ? (
+	                        <div className="flex-1 bg-red-700/50 text-white font-bold py-3 rounded-lg shadow-lg text-center text-xs">
+	                            المنتج غير متوفر حالياً
+	                        </div>
+	                    ) : (
+	                        <>
+	                            <button 
+	                                onClick={handleBuyNowClick}
+	                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-emerald-500/20 active:scale-95 transition-all text-[13px]"
+	                            >
+	                                اشتر الآن
+	                            </button>
+	                            <button 
+	                                onClick={handleAddToCart}
+	                                className="flex-[1.5] bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 rounded-lg shadow-lg shadow-yellow-400/20 flex items-center justify-center gap-2 active:scale-95 transition-all text-[13px]"
+	                            >
+	                                <ShoppingCart size={16} />
+	                                أضف للسلة
+	                            </button>
+	                        </>
+	                    )}
+	                </div>
+	            </div>
+	        )}
 
       </div>
     </div>
