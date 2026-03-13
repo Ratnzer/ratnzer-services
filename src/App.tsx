@@ -687,14 +687,20 @@ useEffect(() => {
 	      const essentialTasks = [
 	        productService.getAll().then(res => res?.data && setProducts(res.data)).catch(() => {}),
 	        contentService.getBanners().then(res => res?.data && setBanners(res.data)).catch(() => {}),
-	        contentService.getCategories().then(res => {
-	          if (res?.data) {
-	            setCategories(res.data.map((c: any) => ({
-	              ...c,
-	              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Sparkles) : c.icon,
-	            })));
-	          }
-	        }).catch(() => {}),
+        contentService.getCategories().then(res => {
+		          if (res?.data) {
+		            setCategories(res.data.map((c: any) => {
+		              let IconComp = Sparkles;
+		              if (c.icon && typeof c.icon === 'string') {
+		                const iconKey = c.icon.toLowerCase().trim();
+		                IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
+		              } else if (c.icon) {
+		                IconComp = c.icon;
+		              }
+		              return { ...c, icon: IconComp };
+		            }));
+		          }
+		        }).catch(() => {}),
 		        settingsService.get('rateAppLink').then(res => {
 		          if (typeof res?.data === 'string') {
 		            setRateAppLink(res.data);
@@ -1022,13 +1028,19 @@ useEffect(() => {
         productService.getAll().then(res => res?.data && setProducts(res.data)),
         contentService.getBanners().then(res => res?.data && setBanners(res.data)),
         contentService.getCategories().then(res => {
-          if (res?.data) {
-            setCategories(res.data.map((c: any) => ({
-              ...c,
-              icon: typeof c.icon === 'string' ? (CATEGORY_ICON_MAP[c.icon.toLowerCase().trim()] || Tags) : c.icon,
-            })));
-          }
-        }),
+	          if (res?.data) {
+	            setCategories(res.data.map((c: any) => {
+	              let IconComp = Sparkles;
+	              if (c.icon && typeof c.icon === 'string') {
+	                const iconKey = c.icon.toLowerCase().trim();
+	                IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
+	              } else if (c.icon) {
+	                IconComp = c.icon;
+	              }
+	              return { ...c, icon: IconComp };
+	            }));
+	          }
+	        }),
         contentService.getTerms().then(res => res?.data && setTerms(res.data)),
         contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)),
         refreshAnnouncementsFromServer('silent'), // ✅ Added to ensure announcements update on Home
