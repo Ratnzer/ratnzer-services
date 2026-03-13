@@ -440,7 +440,7 @@ const renderDetails = () => (
                             <button
                                 key={method.id}
                                 onClick={() => setSelectedExecutionMethodId(method.id)}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[100px] h-[42px] justify-center relative ${
+                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative ${
                                     selectedExecutionMethodId === method.id 
                                     ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
                                     : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'
