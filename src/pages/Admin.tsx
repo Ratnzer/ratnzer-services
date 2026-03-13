@@ -463,6 +463,7 @@ const getOrderDate = (o: any) => {
 
   // State for configuring region-specific custom input
   const [editingRegionCustomInput, setEditingRegionCustomInput] = useState<string | null>(null);
+  const [expandedExecutionMethodId, setExpandedExecutionMethodId] = useState<string | null>(null);
 
   // Category Modal State
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -3734,45 +3735,61 @@ try {
                                                         
                                                         <div className="space-y-3">
                                                             {(r.executionMethods || []).map((em, emIdx) => (
-                                                                <div key={em.id} className="bg-[#242636] p-3 rounded-lg border border-gray-600 space-y-3">
-                                                                    {/* Method Name and Delete Button */}
-                                                                    <div className="flex justify-between items-start gap-2">
-                                                                        <div className="flex-1 space-y-1">
-                                                                            <label className="text-[8px] text-yellow-500 font-bold">اسم طريقة التنفيذ (مثلاً: شحن مباشر)</label>
-                                                                            <input 
-                                                                                className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[10px] font-bold focus:border-yellow-400 outline-none"
-                                                                                placeholder="اكتب اسم الطريقة هنا..."
-                                                                                value={em.name}
-                                                                                onChange={e => {
-                                                                                    const val = e.target.value;
-                                                                                    setProdForm(prev => ({
-                                                                                        ...prev,
-                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                            reg.id === r.id 
-                                                                                            ? { 
-                                                                                                ...reg, 
-                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                    meth.id === em.id ? { ...meth, name: val } : meth
-                                                                                                )
-                                                                                            } 
-                                                                                            : reg
-                                                                                        )
-                                                                                    }));
-                                                                                }}
-                                                                            />
+                                                                <div key={em.id} className="bg-[#242636] rounded-lg border border-gray-600 overflow-hidden">
+                                                                    {/* Method Header - Click to Toggle */}
+                                                                    <div 
+                                                                        onClick={() => setExpandedExecutionMethodId(expandedExecutionMethodId === em.id ? null : em.id)}
+                                                                        className="flex justify-between items-center p-3 cursor-pointer hover:bg-[#2a2d3d] transition-colors"
+                                                                    >
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className={`p-1 rounded bg-purple-500/10 text-purple-400 transition-transform ${expandedExecutionMethodId === em.id ? 'rotate-180' : ''}`}>
+                                                                                <ArrowLeft size={12} className="-rotate-90" />
+                                                                            </div>
+                                                                            <span className="text-[10px] font-bold text-white">{em.name || 'طريقة بدون اسم'}</span>
                                                                         </div>
-                                                                        <button 
-                                                                            onClick={() => {
-                                                                                const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
-                                                                                updateRegionConfig(r.id, { executionMethods: updatedMethods });
-                                                                            }}
-                                                                            className="mt-5 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
-                                                                            title="حذف هذه الطريقة"
-                                                                        ><X size={12} /></button>
+                                                                        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                                                                            <button 
+                                                                                onClick={() => {
+                                                                                    const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
+                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                                }}
+                                                                                className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
+                                                                                title="حذف هذه الطريقة"
+                                                                            ><X size={12} /></button>
+                                                                        </div>
                                                                     </div>
-                                                                    
-                                                                    {/* API Configuration */}
-                                                                    <div className="grid grid-cols-2 gap-2">
+
+                                                                    {/* Method Details - Collapsible */}
+                                                                    {expandedExecutionMethodId === em.id && (
+                                                                        <div className="p-3 pt-0 space-y-3 border-t border-gray-700/50 animate-fadeIn">
+                                                                            {/* Method Name Edit */}
+                                                                            <div className="space-y-1 pt-3">
+                                                                                <label className="text-[8px] text-yellow-500 font-bold">اسم طريقة التنفيذ (مثلاً: شحن مباشر)</label>
+                                                                                <input 
+                                                                                    className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[10px] font-bold focus:border-yellow-400 outline-none"
+                                                                                    placeholder="اكتب اسم الطريقة هنا..."
+                                                                                    value={em.name}
+                                                                                    onChange={e => {
+                                                                                        const val = e.target.value;
+                                                                                        setProdForm(prev => ({
+                                                                                            ...prev,
+                                                                                            regions: (prev.regions || []).map(reg => 
+                                                                                                reg.id === r.id 
+                                                                                                ? { 
+                                                                                                    ...reg, 
+                                                                                                    executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                        meth.id === em.id ? { ...meth, name: val } : meth
+                                                                                                    )
+                                                                                                } 
+                                                                                                : reg
+                                                                                            )
+                                                                                        }));
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                            
+                                                                            {/* API Configuration */}
+                                                                            <div className="grid grid-cols-2 gap-2">
                                                                         <div className="space-y-1">
                                                                             <label className="text-[8px] text-gray-500">ID الخدمة (API)</label>
                                                                             <input 
@@ -4034,7 +4051,7 @@ try {
                                                                                 className="bg-yellow-400 text-black p-1 rounded font-bold text-[8px]"
                                                                             >+</button>
                                                                         </div>
-                                                                    </div>
+                                                                    )}
                                                                 </div>
                                                             ))}
                                                             {(r.executionMethods || []).length === 0 && (
