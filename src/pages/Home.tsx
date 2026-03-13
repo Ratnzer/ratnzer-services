@@ -437,8 +437,12 @@ const Home: React.FC<Props> = ({
                 }`}
               >
                 {(() => {
-                  const IconComp: any = typeof (cat as any).icon === 'function' ? (cat as any).icon : Sparkles;
-                  return <IconComp size={22} />;
+                  const IconComp: any = (cat as any).icon || Sparkles;
+                  // If it's a component (function/object), render it; otherwise fallback
+                  if (typeof IconComp === 'function' || (typeof IconComp === 'object' && IconComp.$$typeof)) {
+                    return <IconComp size={22} />;
+                  }
+                  return <Sparkles size={22} />;
                 })()}
               </div>
               <span
