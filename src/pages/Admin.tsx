@@ -1053,6 +1053,29 @@ try {
       setProdForm({ ...prodForm, denominations: (prodForm.denominations || []).filter(d => d.id !== id) });
   };
 
+  const updateDenominationAvailability = (denomId: string, isAvailable: boolean) => {
+    setProdForm(prev => ({
+        ...prev,
+        denominations: prev.denominations?.map(d => 
+            d.id === denomId ? { ...d, isAvailable: isAvailable } : d
+        )
+    }));
+  };
+
+  const updateExecutionMethodAvailability = (regionId: string, methodId: string, isAvailable: boolean) => {
+    setProdForm(prev => ({
+        ...prev,
+        regions: prev.regions?.map(r => 
+            r.id === regionId ? { 
+                ...r, 
+                executionMethods: r.executionMethods?.map(m => 
+                    m.id === methodId ? { ...m, isAvailable: isAvailable } : m
+                )
+            } : r
+        )
+    }));
+  };
+
   const startEditDenomination = (denom: Denomination) => {
       setEditingDenomId(denom.id);
       setEditDenomLabel(denom.label);
@@ -3770,23 +3793,30 @@ try {
                                                                     {/* Method Header - Click to Toggle */}
                                                                     <div className="flex justify-between items-center p-3">
                                                                         <span className="text-[10px] font-bold text-white">{em.name || 'طريقة بدون اسم'}</span>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <button
-                                                                                onClick={() => setExpandedExecutionMethodId(expandedExecutionMethodId === em.id ? null : em.id)}
-                                                                                className={`p-1.5 rounded-lg transition-colors border ${expandedExecutionMethodId === em.id ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-[#242636] text-gray-400 border-gray-600 hover:text-white'}`}
-                                                                                title={expandedExecutionMethodId === em.id ? 'طي الإعدادات' : 'فتح الإعدادات'}
-                                                                            >
-                                                                                <Settings2 size={12} />
-                                                                            </button>
-                                                                            <button 
-                                                                                onClick={() => {
-                                                                                    const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
-                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
-                                                                                }}
-                                                                                className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
-                                                                                title="حذف هذه الطريقة"
-                                                                            ><X size={12} /></button>
-                                                                        </div>
+	                                                                        <div className="flex items-center gap-2">
+	                                                                            <button 
+	                                                                                onClick={() => updateExecutionMethodAvailability(r.id, em.id, em.isAvailable !== false ? false : true)}
+	                                                                                className={`p-1.5 rounded-lg transition-colors border ${em.isAvailable !== false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
+	                                                                                title={em.isAvailable !== false ? 'تعطيل هذا القسم' : 'تفعيل هذا القسم'}
+	                                                                            >
+	                                                                                {em.isAvailable !== false ? <CheckSquare size={12} /> : <XCircle size={12} />}
+	                                                                            </button>
+	                                                                            <button
+	                                                                                onClick={() => setExpandedExecutionMethodId(expandedExecutionMethodId === em.id ? null : em.id)}
+	                                                                                className={`p-1.5 rounded-lg transition-colors border ${expandedExecutionMethodId === em.id ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-[#242636] text-gray-400 border-gray-600 hover:text-white'}`}
+	                                                                                title={expandedExecutionMethodId === em.id ? 'طي الإعدادات' : 'فتح الإعدادات'}
+	                                                                            >
+	                                                                                <Settings2 size={12} />
+	                                                                            </button>
+	                                                                            <button 
+	                                                                                onClick={() => {
+	                                                                                    const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
+	                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+	                                                                                }}
+	                                                                                className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
+	                                                                                title="حذف هذه الطريقة"
+	                                                                            ><X size={12} /></button>
+	                                                                        </div>
                                                                     </div>
 
                                                                     {/* Method Details - Collapsible */}
@@ -4220,37 +4250,44 @@ try {
                             <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
 	                                {prodForm.denominations && prodForm.denominations.length > 0 ? (
 	                                    prodForm.denominations.map(denom => (
-	                                        <div key={denom.id} className="bg-[#13141f] p-3 rounded-lg border border-gray-700">
-	                                            {editingDenomId === denom.id ? (
-	                                                <div className="space-y-3">
-			                                                    <div className="flex flex-col sm:flex-row gap-2">
-			                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="الاسم" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
-			                                                        <div className="flex gap-2 flex-1">
-			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" placeholder="السعر" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
-			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="رقم الخدمة" value={editDenomServiceId} onChange={e => setEditDenomServiceId(e.target.value)} />
+		                                        <div key={denom.id} className={`p-3 rounded-lg border ${denom.isAvailable !== false ? 'bg-[#13141f] border-gray-700' : 'bg-red-900/20 border-red-700/50'}`}>
+		                                            {editingDenomId === denom.id ? (
+		                                                <div className="space-y-3">
+				                                                    <div className="flex flex-col sm:flex-row gap-2">
+				                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="الاسم" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
+				                                                        <div className="flex gap-2 flex-1">
+				                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" placeholder="السعر" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
+				                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="رقم الخدمة" value={editDenomServiceId} onChange={e => setEditDenomServiceId(e.target.value)} />
+				                                                        </div>
+				                                                    </div>
+		                                                    <div className="flex gap-2">
+		                                                        <button onClick={saveEditDenomination} className="flex-1 bg-green-600 text-white py-2 rounded-lg text-xs font-bold">حفظ التعديل</button>
+		                                                        <button onClick={() => setEditingDenomId(null)} className="flex-1 bg-gray-600 text-white py-2 rounded-lg text-xs font-bold">إلغاء</button>
+		                                                    </div>
+		                                                </div>
+		                                            ) : (
+		                                                <div className="flex justify-between items-center">
+			                                                    <div>
+			                                                        <span className={`font-bold text-sm block ${denom.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{denom.label}</span>
+			                                                        <div className="flex gap-2 items-center">
+			                                                            <span className={`text-xs font-mono ${denom.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${denom.price}</span>
+			                                                            {denom.serviceId && <span className="text-gray-500 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded border border-gray-700">ID: {denom.serviceId}</span>}
 			                                                        </div>
 			                                                    </div>
-	                                                    <div className="flex gap-2">
-	                                                        <button onClick={saveEditDenomination} className="flex-1 bg-green-600 text-white py-2 rounded-lg text-xs font-bold">حفظ التعديل</button>
-	                                                        <button onClick={() => setEditingDenomId(null)} className="flex-1 bg-gray-600 text-white py-2 rounded-lg text-xs font-bold">إلغاء</button>
-	                                                    </div>
-	                                                </div>
-	                                            ) : (
-	                                                <div className="flex justify-between items-center">
-		                                                    <div>
-		                                                        <span className="text-white font-bold text-sm block">{denom.label}</span>
-		                                                        <div className="flex gap-2 items-center">
-		                                                            <span className="text-yellow-400 text-xs font-mono">${denom.price}</span>
-		                                                            {denom.serviceId && <span className="text-gray-500 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded border border-gray-700">ID: {denom.serviceId}</span>}
-		                                                        </div>
+		                                                    <div className="flex gap-2">
+		                                                        <button 
+		                                                            onClick={() => updateDenominationAvailability(denom.id, denom.isAvailable === false)}
+		                                                            className={`p-1.5 rounded-lg transition-colors border ${denom.isAvailable === false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'}`}
+		                                                            title={denom.isAvailable === false ? 'تفعيل' : 'إيقاف'}
+		                                                        >
+		                                                            {denom.isAvailable === false ? <Check size={14} /> : <EyeOff size={14} />}
+		                                                        </button>
+		                                                        <button onClick={() => startEditDenomination(denom)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
+		                                                        <button onClick={() => removeDenomination(denom.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14}/></button>
 		                                                    </div>
-	                                                    <div className="flex gap-2">
-	                                                        <button onClick={() => startEditDenomination(denom)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
-	                                                        <button onClick={() => removeDenomination(denom.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14}/></button>
-	                                                    </div>
-	                                                </div>
-	                                            )}
-	                                        </div>
+		                                                </div>
+		                                            )}
+		                                        </div>
 	                                    ))
 	                                ) : (
                                     <div className="text-center text-gray-500 text-xs py-4 border border-dashed border-gray-700 rounded-lg">لا توجد فئات مضافة</div>
