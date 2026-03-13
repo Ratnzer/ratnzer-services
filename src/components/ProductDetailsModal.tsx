@@ -408,50 +408,74 @@ const renderDetails = () => (
                 </div>
             </div>
 
-            {/* Region Selection */}
-            {product.regions && product.regions.length > 0 && (
-                <div className="mb-4">
-                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">نوع المنتج</h3>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                        {product.regions.map((region) => (
-                            <button
-                                key={region.id}
-                                onClick={() => setSelectedRegion(region.id)}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative ${
-                                    selectedRegion === region.id 
-                                    ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
-                                    : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
-                                }`}
-                            >
-                                {/* <span className="text-lg leading-none pt-0.5">{region.flag}</span> */}
-                                <span className="text-xs font-bold leading-none">{region.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
+	            {/* Region Selection */}
+	            {product.regions && product.regions.length > 0 && (
+	                <div className="mb-4">
+	                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">نوع المنتج</h3>
+	                    <div className="relative">
+	                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
+	                            {product.regions.map((region) => (
+	                                <button
+	                                    key={region.id}
+	                                    onClick={() => setSelectedRegion(region.id)}
+	                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative snap-center ${
+	                                        selectedRegion === region.id 
+	                                        ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
+	                                        : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
+	                                    }`}
+	                                >
+	                                    {/* <span className="text-lg leading-none pt-0.5">{region.flag}</span> */}
+	                                    <span className="text-xs font-bold leading-none">{region.name}</span>
+	                                </button>
+	                            ))}
+	                        </div>
+	                        {/* Triple Arrow Scroll Hint for Regions */}
+	                        {product.regions.length > 3 && (
+	                            <div className="absolute -left-1 top-0 bottom-1 w-8 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/90 to-transparent rounded-l-xl overflow-hidden">
+	                                <div className="flex flex-col items-center justify-center -space-y-3">
+	                                    <ChevronRight size={24} className="text-yellow-400/90 animate-[wave_1.2s_infinite] [animation-delay:0s]" />
+	                                    <ChevronRight size={24} className="text-yellow-400/60 animate-[wave_1.2s_infinite] [animation-delay:0.2s]" />
+	                                    <ChevronRight size={24} className="text-yellow-400/30 animate-[wave_1.2s_infinite] [animation-delay:0.4s]" />
+	                                </div>
+	                            </div>
+	                        )}
+	                    </div>
+	                </div>
+	            )}
 
-            {/* Execution Method Selection */}
-            {regionObj?.executionMethods && regionObj.executionMethods.length > 0 && (
-                <div className="mb-4 animate-fadeIn">
-                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">طريقة التنفيذ</h3>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                        {regionObj.executionMethods.map((method) => (
-                            <button
-                                key={method.id}
-                                onClick={() => setSelectedExecutionMethodId(method.id)}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative ${
-                                    selectedExecutionMethodId === method.id 
-                                    ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
-                                    : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
-                                }`}
-                            >
-		                                <span className="text-xs font-bold leading-none">{method.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
+	            {/* Execution Method Selection */}
+	            {regionObj?.executionMethods && regionObj.executionMethods.length > 0 && (
+	                <div className="mb-4 animate-fadeIn">
+	                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">طريقة التنفيذ</h3>
+	                    <div className="relative">
+	                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
+	                            {regionObj.executionMethods.map((method) => (
+	                                <button
+	                                    key={method.id}
+	                                    onClick={() => setSelectedExecutionMethodId(method.id)}
+	                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative snap-center ${
+	                                        selectedExecutionMethodId === method.id 
+	                                        ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
+	                                        : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
+	                                    }`}
+	                                >
+			                                <span className="text-xs font-bold leading-none">{method.name}</span>
+	                                </button>
+	                            ))}
+	                        </div>
+	                        {/* Triple Arrow Scroll Hint for Execution Methods */}
+	                        {regionObj.executionMethods.length > 3 && (
+	                            <div className="absolute -left-1 top-0 bottom-1 w-8 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/90 to-transparent rounded-l-xl overflow-hidden">
+	                                <div className="flex flex-col items-center justify-center -space-y-3">
+	                                    <ChevronRight size={24} className="text-yellow-400/90 animate-[wave_1.2s_infinite] [animation-delay:0s]" />
+	                                    <ChevronRight size={24} className="text-yellow-400/60 animate-[wave_1.2s_infinite] [animation-delay:0.2s]" />
+	                                    <ChevronRight size={24} className="text-yellow-400/30 animate-[wave_1.2s_infinite] [animation-delay:0.4s]" />
+	                                </div>
+	                            </div>
+	                        )}
+	                    </div>
+	                </div>
+	            )}
 
             {/* Denomination Selection */}
             {effectiveDenoms && effectiveDenoms.length > 0 && (
