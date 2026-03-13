@@ -2192,6 +2192,8 @@ useEffect(() => {
                   quantityLabel: activeCheckoutItem.selectedDenomination?.label || (activeCheckoutItem.selectedDenomination as any)?.name || (activeCheckoutItem.selectedDenomination as any)?.value || String(activeCheckoutItem.quantity),
                   denominationId: activeCheckoutItem.selectedDenomination?.id,
                   regionId: activeCheckoutItem.selectedRegion?.id,
+                  executionMethodId: activeCheckoutItem.selectedExecutionMethod?.id,
+                  executionMethodName: activeCheckoutItem.selectedExecutionMethod?.name,
                   customInputValue: activeCheckoutItem.customInputValue,
                 }
               });
@@ -2289,6 +2291,8 @@ useEffect(() => {
             fulfillmentType: activeCheckoutItem.apiConfig?.type || 'manual',
             regionName: activeCheckoutItem.selectedRegion?.name,
             regionId: activeCheckoutItem.selectedRegion?.id,
+            executionMethodId: activeCheckoutItem.selectedExecutionMethod?.id,
+            executionMethodName: activeCheckoutItem.selectedExecutionMethod?.name,
             denominationId: activeCheckoutItem.selectedDenomination?.id,
             quantityLabel: activeCheckoutItem.selectedDenomination?.label || (activeCheckoutItem.selectedDenomination as any)?.name || (activeCheckoutItem.selectedDenomination as any)?.value || String(activeCheckoutItem.quantity),
             customInputValue: activeCheckoutItem.customInputValue,
