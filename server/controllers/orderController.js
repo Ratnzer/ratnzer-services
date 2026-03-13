@@ -223,26 +223,41 @@ const createOrder = asyncHandler(async (req, res) => {
   const selectedExecutionMethod = executionMethods.find(em => String(em.id) === String(executionMethodId));
 
   const baseApiConfig = parseApiConfig(product?.apiConfig);
-  const regionApiConfig = selectedRegion?.apiConfig; // Some regions might have direct apiConfig
+  const regionApiConfig = selectedRegion?.apiConfig; 
   const methodApiConfig = selectedExecutionMethod?.apiConfig;
 
-  // Final effective config
-  const apiConfig = methodApiConfig || regionApiConfig || baseApiConfig;
+  // --- 💎 💎 💎 REFINED INHERITANCE & MERGE LOGIC 💎 💎 💎 ---
+  
+  // 1. Determine Effective Type (API vs Manual)
+  // If ANY level says 'api', we consider it an API order. 
+  // Priority: Method > Region > Product
+  const effectiveType = 
+    methodApiConfig?.type || 
+    regionApiConfig?.type || 
+    baseApiConfig?.type || 
+    'manual';
 
-  // --- 💎 💎 💎 NEW REFINED INHERITANCE LOGIC 💎 💎 💎 ---
-  // We need to merge properties correctly to ensure Service ID and Provider Name are inherited if missing in lower levels
+  // 2. Merge Provider Name (Priority: Method > Region > Product)
   const effectiveProviderName = 
-    selectedExecutionMethod?.apiConfig?.providerName || 
+    methodApiConfig?.providerName || 
     selectedRegion?.apiProviderName || 
-    selectedRegion?.apiConfig?.providerName || 
-    product?.apiConfig?.providerName || 
+    regionApiConfig?.providerName || 
+    baseApiConfig?.providerName || 
     'KD1S';
 
+  // 3. Merge Service ID (Priority: Method > Region > Product)
   const effectiveServiceId = 
-    selectedExecutionMethod?.apiConfig?.serviceId || 
+    methodApiConfig?.serviceId || 
     selectedRegion?.apiServiceId || 
-    selectedRegion?.apiConfig?.serviceId || 
-    product?.apiConfig?.serviceId;
+    regionApiConfig?.serviceId || 
+    baseApiConfig?.serviceId;
+
+  // Final consolidated config object for easy reference
+  const apiConfig = {
+    type: effectiveType,
+    providerName: effectiveProviderName,
+    serviceId: effectiveServiceId
+  };
 
   // --- ✨ API Config Logic End ---
 
@@ -280,7 +295,7 @@ const createOrder = asyncHandler(async (req, res) => {
     // --- AUTO-DELIVERY LOGIC (INSIDE TRANSACTION TO PREVENT RACE CONDITIONS) ---
     let deliveredCode = null;
     let status = 'pending';
-    let fulfillmentType = apiConfig?.type || 'manual';
+    let fulfillmentType = apiConfig.type || 'manual';
     let stockItemToUpdate = null;
 
     if (product && product.autoDeliverStock) {
@@ -335,7 +350,7 @@ const createOrder = asyncHandler(async (req, res) => {
       status,
       fulfillmentType,
       deliveredCode,
-      providerName: effectiveProviderName,
+      providerName: apiConfig.providerName,
     };
 
     let order;
@@ -373,14 +388,14 @@ const createOrder = asyncHandler(async (req, res) => {
   });
 
   const shouldUseProvider =
-    apiConfig?.type === 'api' && effectiveServiceId && result.status !== 'completed';
+    apiConfig.type === 'api' && apiConfig.serviceId && result.status !== 'completed';
 
   if (shouldUseProvider) {
     try {
-      const provider = getProvider(effectiveProviderName);
+      const provider = getProvider(apiConfig.providerName);
 
       const providerOrder = await provider.placeOrder({
-        serviceId: effectiveServiceId,
+        serviceId: apiConfig.serviceId,
         link: trimmedCustomInputValue || regionName || productName,
         quantity: normalizedQuantity,
       });
@@ -426,7 +441,7 @@ const createOrder = asyncHandler(async (req, res) => {
           where: { id: result.id },
           data: {
             status: 'cancelled',
-            rejectionReason: `${effectiveProviderName}: ${err?.message || err}`,
+            rejectionReason: `${apiConfig.providerName}: ${err?.message || err}`,
           },
         });
       });
