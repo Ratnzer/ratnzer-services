@@ -1583,18 +1583,15 @@ try {
   };
 
   // --- Currency Logic ---
+  const [currencyInputValues, setCurrencyInputValues] = useState<Record<string, string>>({});
+
   const handleUpdateRate = (code: string, newRate: string) => {
-      // Allow empty string during input (for deletion)
-      if (newRate === '') {
-          setCurrencies(prev => prev.map(c => 
-              c.code === code ? { ...c, rate: 0 } : c
-          ));
-          return;
-      }
+      // Update the raw string value for the input field to allow "0." or "0.0"
+      setCurrencyInputValues(prev => ({ ...prev, [code]: newRate }));
       
+      // If it's a valid number, update the actual currency rate in the state
       const rate = parseFloat(newRate);
-      // Only update if it's a valid positive number
-      if (!isNaN(rate) && rate > 0) {
+      if (!isNaN(rate) && rate >= 0) {
           setCurrencies(prev => prev.map(c => 
               c.code === code ? { ...c, rate: rate } : c
           ));
@@ -2783,15 +2780,26 @@ try {
                                         <span className="text-gray-500 text-[10px] font-bold">1 USD =</span>
                                     </div>
                                     <input 
-                                        type="number" 
+                                        type="text" 
+                                        inputMode="decimal"
                                         className="flex-1 bg-transparent text-white text-lg font-black focus:outline-none text-center dir-ltr"
-                                        value={currency.rate || ''}
-                                        onChange={(e) => handleUpdateRate(currency.code, e.target.value)}
-                                        step="0.01"
-                                        min="0"
+                                        value={currencyInputValues[currency.code] !== undefined ? currencyInputValues[currency.code] : (currency.rate || '')}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // Allow only numbers and one decimal point
+                                            if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                                                handleUpdateRate(currency.code, val);
+                                            }
+                                        }}
                                         placeholder="0.00"
                                         onBlur={(e) => {
-                                            if (e.target.value === '') handleUpdateRate(currency.code, '0');
+                                            if (e.target.value === '' || isNaN(parseFloat(e.target.value))) {
+                                                handleUpdateRate(currency.code, '0');
+                                            } else {
+                                                // Clean up the input value on blur (e.g., "0." -> "0")
+                                                const finalVal = parseFloat(e.target.value).toString();
+                                                setCurrencyInputValues(prev => ({ ...prev, [currency.code]: finalVal }));
+                                            }
                                         }}
                                     />
                                     <div className="flex-shrink-0 px-2 text-gray-500 text-[10px] font-bold border-r border-gray-700">
