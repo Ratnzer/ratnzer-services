@@ -4,6 +4,7 @@ export interface ExecutionMethod {
   id: string;
   name: string;
   isAvailable: boolean;
+  autoSyncAvailability?: boolean; // NEW: Auto-sync availability for this execution method
   apiConfig?: ApiConfig;
   denominations?: Denomination[]; // Denominations specific to this execution method
   customInput?: CustomInputConfig; // Custom input field specific to this execution method
