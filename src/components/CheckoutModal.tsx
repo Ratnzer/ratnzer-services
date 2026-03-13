@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Wallet, CreditCard, ArrowLeft, Calendar, User, Lock, CheckCircle, Wifi } from 'lucide-react';
+import { X, Wallet, CreditCard, ArrowLeft, Calendar, User, Lock, CheckCircle, Wifi, Truck } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -12,9 +12,15 @@ interface Props {
   formatPrice: (price: number) => string;
   onRequireLogin?: () => void; // Optional fallback
   title?: string; // ✅ New optional title prop
+  selectedRegion?: any;
+  selectedExecutionMethod?: any;
+  selectedDenomination?: any;
 }
 
-const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice, title }) => {
+const CheckoutModal: React.FC<Props> = ({ 
+  isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice, title,
+  selectedRegion, selectedExecutionMethod, selectedDenomination
+}) => {
   const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | 'pi' | null>(isPiUser ? 'pi' : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -153,7 +159,27 @@ const CheckoutModal: React.FC<Props> = ({ isOpen, onClose, itemName, price, user
               <div className="text-center mb-1">
                  <p className="text-gray-400 text-[11px] mb-0.5">أنت على وشك شراء</p>
                  <h3 className="text-white font-bold text-base dir-rtl leading-tight">{itemName}</h3>
-                 <p className="text-yellow-400 font-black text-xl mt-1 dir-ltr font-mono">{formatPrice(price)}</p>
+                 
+                 {/* Badges like Cart */}
+                 <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                    {selectedRegion && (
+                        <span className="text-[10px] bg-[#13141f] text-gray-400 px-2 py-0.5 rounded border border-gray-800">
+                            {selectedRegion.name}
+                        </span>
+                    )}
+                    {selectedDenomination && (
+                        <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
+                            {selectedDenomination.label || selectedDenomination.name}
+                        </span>
+                    )}
+                    {selectedExecutionMethod && (
+                        <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+                            <Truck size={10} /> {selectedExecutionMethod.name}
+                        </span>
+                    )}
+                 </div>
+
+                 <p className="text-yellow-400 font-black text-xl mt-2 dir-ltr font-mono">{formatPrice(price)}</p>
               </div>
 
               {/* Payment Methods - Reduced Spacing */}

@@ -2659,17 +2659,20 @@ useEffect(() => {
              )}
 
              {/* Checkout Modal for Cart & Home */}
-             <CheckoutModal 
-                isOpen={!!activeCheckoutItem || isBulkCheckout}
-                onClose={() => { setActiveCheckoutItem(null); setIsBulkCheckout(false); }}
-                title={isBulkCheckout ? "إتمام الطلب" : "شراء سريع"}
-                itemName={isBulkCheckout ? `شراء الكل (${cartCount} منتجات)` : activeCheckoutItem?.name || ''}
-                price={isBulkCheckout ? cartTotal : activeCheckoutItem?.price || 0}
-                userBalance={balanceUSD}
-                onSuccess={handleCheckoutSuccess}
-                formatPrice={formatPrice}
-                onRequireLogin={() => setShowLoginModal(true)}
-             />
+	             <CheckoutModal 
+	                isOpen={!!activeCheckoutItem || isBulkCheckout}
+	                onClose={() => { setActiveCheckoutItem(null); setIsBulkCheckout(false); }}
+	                title={isBulkCheckout ? "إتمام الطلب" : "شراء سريع"}
+	                itemName={isBulkCheckout ? `شراء الكل (${cartCount} منتجات)` : activeCheckoutItem?.name || ''}
+	                price={isBulkCheckout ? cartTotal : activeCheckoutItem?.price || 0}
+	                userBalance={balanceUSD}
+	                onSuccess={handleCheckoutSuccess}
+	                formatPrice={formatPrice}
+	                onRequireLogin={() => setShowLoginModal(true)}
+	                selectedRegion={activeCheckoutItem?.selectedRegion}
+	                selectedExecutionMethod={activeCheckoutItem?.selectedExecutionMethod}
+	                selectedDenomination={activeCheckoutItem?.selectedDenomination}
+	             />
           </div>
         );
       case View.ORDERS:
