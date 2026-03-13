@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
+import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, ArrowRight, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
 
@@ -480,9 +480,9 @@ const renderDetails = () => (
                         {/* Triple Arrow Scroll Hint */}
                         {effectiveDenoms.length > 3 && (
                             <div className="absolute -left-1 top-0 bottom-1 w-6 pointer-events-none flex flex-col items-center justify-center gap-0.5 bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/80 to-transparent rounded-l-xl">
-                                <ArrowLeft size={16} className="text-yellow-400/80 animate-[bounce_1.5s_infinite] [animation-delay:-0.4s]" />
-                                <ArrowLeft size={16} className="text-yellow-400/60 animate-[bounce_1.5s_infinite] [animation-delay:-0.2s]" />
-                                <ArrowLeft size={16} className="text-yellow-400/40 animate-[bounce_1.5s_infinite]" />
+                                <ArrowRight size={16} className="text-yellow-400/80 animate-[bounce_1.5s_infinite] [animation-delay:-0.4s]" />
+                                <ArrowRight size={16} className="text-yellow-400/60 animate-[bounce_1.5s_infinite] [animation-delay:-0.2s]" />
+                                <ArrowRight size={16} className="text-yellow-400/40 animate-[bounce_1.5s_infinite]" />
                             </div>
                         )}
                     </div>
