@@ -3714,33 +3714,38 @@ try {
                                                         <div className="space-y-3">
                                                             {(r.executionMethods || []).map((em, emIdx) => (
                                                                 <div key={em.id} className="bg-[#242636] p-2 rounded-lg border border-gray-600 space-y-2">
-                                                                    <div className="flex justify-between items-center">
-                                                                        <input 
-                                                                            className="bg-transparent text-white text-[10px] font-bold border-b border-gray-600 focus:border-yellow-400 outline-none w-1/2"
-                                                                            value={em.name}
-                                                                            onChange={e => {
-                                                                                const val = e.target.value;
-                                                                                setProdForm(prev => ({
-                                                                                    ...prev,
-                                                                                    regions: (prev.regions || []).map(reg => 
-                                                                                        reg.id === r.id 
-                                                                                        ? { 
-                                                                                            ...reg, 
-                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                meth.id === em.id ? { ...meth, name: val } : meth
-                                                                                            )
-                                                                                        } 
-                                                                                        : reg
-                                                                                    )
-                                                                                }));
-                                                                            }}
-                                                                        />
+                                                                    <div className="flex justify-between items-start gap-2">
+                                                                        <div className="flex-1 space-y-1">
+                                                                            <label className="text-[8px] text-yellow-500 font-bold">اسم طريقة التنفيذ (مثلاً: شحن مباشر)</label>
+                                                                            <input 
+                                                                                className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[10px] font-bold focus:border-yellow-400 outline-none"
+                                                                                placeholder="اكتب اسم الطريقة هنا..."
+                                                                                value={em.name}
+                                                                                onChange={e => {
+                                                                                    const val = e.target.value;
+                                                                                    setProdForm(prev => ({
+                                                                                        ...prev,
+                                                                                        regions: (prev.regions || []).map(reg => 
+                                                                                            reg.id === r.id 
+                                                                                            ? { 
+                                                                                                ...reg, 
+                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                    meth.id === em.id ? { ...meth, name: val } : meth
+                                                                                                )
+                                                                                            } 
+                                                                                            : reg
+                                                                                        )
+                                                                                    }));
+                                                                                }}
+                                                                            />
+                                                                        </div>
                                                                         <button 
                                                                             onClick={() => {
                                                                                 const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
                                                                                 updateRegionConfig(r.id, { executionMethods: updatedMethods });
                                                                             }}
-                                                                            className="text-red-400 hover:text-red-500"
+                                                                            className="mt-5 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
+                                                                            title="حذف هذه الطريقة"
                                                                         ><X size={12} /></button>
                                                                     </div>
                                                                     
