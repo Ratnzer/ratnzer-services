@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle } from 'lucide-react';
+import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
 
@@ -34,6 +34,7 @@ interface Props {
 const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, formatPrice, addToCart, userBalance = 0, onPurchase, isLoggedIn = true, onRequireAuth, title }) => {
   const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
+  const [selectedExecutionMethodId, setSelectedExecutionMethodId] = useState<string>('');
   const [selectedDenomId, setSelectedDenomId] = useState<string>('');
   
   // Custom Input State
@@ -128,21 +129,43 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         const initialRegionId = (product.regions && product.regions.length > 0) ? product.regions[0].id : '';
         setSelectedRegion(initialRegionId);
 
-        // Auto-select first Denomination (supports per-region denominations)
+        // Auto-select first Execution Method if available
         const initialRegionObj = initialRegionId ? product.regions?.find(r => r.id === initialRegionId) : undefined;
-        const initialDenoms = (initialRegionObj?.denominations && initialRegionObj.denominations.length > 0)
-          ? initialRegionObj.denominations
-          : (product.denominations || []);
+        const initialMethods = initialRegionObj?.executionMethods || [];
+        const initialMethodId = initialMethods.length > 0 ? initialMethods[0].id : '';
+        setSelectedExecutionMethodId(initialMethodId);
+
+        // Auto-select first Denomination
+        const initialMethodObj = initialMethodId ? initialMethods.find(m => m.id === initialMethodId) : undefined;
+        const initialDenoms = (initialMethodObj?.denominations && initialMethodObj.denominations.length > 0)
+          ? initialMethodObj.denominations
+          : (initialRegionObj?.denominations && initialRegionObj.denominations.length > 0)
+            ? initialRegionObj.denominations
+            : (product.denominations || []);
         setSelectedDenomId(initialDenoms.length > 0 ? initialDenoms[0].id : '');
     }
   }, [isOpen, product]);
 
-  // Keep selected denomination valid when region changes (supports per-region denominations)
+  // Keep selected execution method and denomination valid when region changes
   useEffect(() => {
     const regionObj = product.regions?.find(r => r.id === selectedRegion);
-    const denoms = (regionObj?.denominations && regionObj.denominations.length > 0)
-      ? regionObj.denominations
-      : (product.denominations || []);
+    const methods = regionObj?.executionMethods || [];
+    
+    if (methods.length > 0) {
+      const exists = methods.some(m => m.id === selectedExecutionMethodId);
+      if (!exists) {
+        setSelectedExecutionMethodId(methods[0].id);
+      }
+    } else {
+      setSelectedExecutionMethodId('');
+    }
+
+    const methodObj = methods.find(m => m.id === selectedExecutionMethodId);
+    const denoms = (methodObj?.denominations && methodObj.denominations.length > 0)
+      ? methodObj.denominations
+      : (regionObj?.denominations && regionObj.denominations.length > 0)
+        ? regionObj.denominations
+        : (product.denominations || []);
 
     if (denoms.length === 0) {
       if (selectedDenomId) setSelectedDenomId('');
@@ -153,15 +176,18 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     if (!exists) {
       setSelectedDenomId(denoms[0].id);
     }
-  }, [selectedRegion, product, selectedDenomId]);
+  }, [selectedRegion, selectedExecutionMethodId, product, selectedDenomId]);
 
   if (!isOpen) return null;
 
   // Helpers to get full objects
   const regionObj = product.regions?.find(r => r.id === selectedRegion);
-  const effectiveDenoms = (regionObj?.denominations && regionObj.denominations.length > 0)
-    ? regionObj.denominations
-    : product.denominations;
+  const executionMethodObj = regionObj?.executionMethods?.find(m => m.id === selectedExecutionMethodId);
+  const effectiveDenoms = (executionMethodObj?.denominations && executionMethodObj.denominations.length > 0)
+    ? executionMethodObj.denominations
+    : (regionObj?.denominations && regionObj.denominations.length > 0)
+      ? regionObj.denominations
+      : product.denominations;
   const denomObj = effectiveDenoms?.find(d => d.id === selectedDenomId);
   
   // Global Availability Check: Product must be available, and if region/denom is selected, they must also be available.
@@ -274,15 +300,15 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                 onPurchase(
                     product.name, 
                     currentPrice, 
-                    product.apiConfig?.type || 'manual',
+                    executionMethodObj?.apiConfig?.type || regionObj?.apiConfig?.type || product.apiConfig?.type || 'manual',
                     regionObj?.name,
-                    denomObj?.label,
+                    `${executionMethodObj?.name ? executionMethodObj.name + ' - ' : ''}${denomObj?.label}`,
                     product.category,
                     product.id,
                     selectedRegion,
                     selectedDenomId,
                     customInputValue.trim(),
-                    activeCustomInput?.label, // Use active label
+                    activeCustomInput?.label,
                     'wallet',
                     regionObj,
                     denomObj
@@ -391,6 +417,34 @@ const renderDetails = () => (
                             >
                                 {/* <span className="text-lg leading-none pt-0.5">{region.flag}</span> */}
                                 <span className="text-xs font-bold leading-none">{region.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Execution Method Selection */}
+            {regionObj?.executionMethods && regionObj.executionMethods.length > 0 && (
+                <div className="mb-4 animate-fadeIn">
+                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">طريقة التنفيذ</h3>
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                        {regionObj.executionMethods.map((method) => (
+                            <button
+                                key={method.id}
+                                onClick={() => setSelectedExecutionMethodId(method.id)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[100px] h-[42px] justify-center relative ${
+                                    selectedExecutionMethodId === method.id 
+                                    ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
+                                    : 'bg-[#242636] border-transparent text-gray-400 hover:border-gray-600'
+                                }`}
+                            >
+                                <Zap size={12} className={selectedExecutionMethodId === method.id ? 'text-black' : 'text-yellow-400'} />
+                                <span className="text-xs font-bold leading-none">{method.name}</span>
+                                {selectedExecutionMethodId === method.id && (
+                                    <div className="absolute -top-1 -left-1 bg-black text-yellow-400 rounded-full p-0.5 border border-yellow-400">
+                                        <CheckCircle size={10} />
+                                    </div>
+                                )}
                             </button>
                         ))}
                     </div>

@@ -3695,6 +3695,80 @@ try {
                                                         </div>
                                                     </div>
 
+                                                    {/* NEW: Execution Methods for this Region */}
+                                                    <div className="bg-[#13141f] p-3 rounded-xl border border-gray-700 space-y-3">
+                                                        <div className="flex justify-between items-center border-b border-gray-700 pb-2">
+                                                            <h5 className="text-[10px] font-bold text-yellow-400 flex items-center gap-1.5">
+                                                                <Zap size={12} /> طرق التنفيذ لهذا النوع
+                                                            </h5>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const currentMethods = r.executionMethods || [];
+                                                                    const newMethod = { id: generateShortId(), name: 'طريقة جديدة', isAvailable: true };
+                                                                    updateRegionConfig(r.id, { executionMethods: [...currentMethods, newMethod] });
+                                                                }}
+                                                                className="text-[9px] bg-yellow-400 text-black px-2 py-1 rounded font-bold"
+                                                            >+ إضافة طريقة</button>
+                                                        </div>
+                                                        
+                                                        <div className="space-y-3">
+                                                            {(r.executionMethods || []).map((em, emIdx) => (
+                                                                <div key={em.id} className="bg-[#242636] p-2 rounded-lg border border-gray-600 space-y-2">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <input 
+                                                                            className="bg-transparent text-white text-[10px] font-bold border-b border-gray-600 focus:border-yellow-400 outline-none w-1/2"
+                                                                            value={em.name}
+                                                                            onChange={e => {
+                                                                                const updatedMethods = [...(r.executionMethods || [])];
+                                                                                updatedMethods[emIdx] = { ...em, name: e.target.value };
+                                                                                updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                            }}
+                                                                        />
+                                                                        <button 
+                                                                            onClick={() => {
+                                                                                const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
+                                                                                updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                            }}
+                                                                            className="text-red-400 hover:text-red-500"
+                                                                        ><X size={12} /></button>
+                                                                    </div>
+                                                                    
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        <div className="space-y-1">
+                                                                            <label className="text-[8px] text-gray-500">ID الخدمة (API)</label>
+                                                                            <input 
+                                                                                className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
+                                                                                placeholder="Service ID"
+                                                                                value={em.apiConfig?.serviceId || ''}
+                                                                                onChange={e => {
+                                                                                    const updatedMethods = [...(r.executionMethods || [])];
+                                                                                    updatedMethods[emIdx] = { ...em, apiConfig: { ...(em.apiConfig || { type: 'manual' }), serviceId: e.target.value, type: e.target.value ? 'api' : 'manual' } };
+                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                                }}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="space-y-1">
+                                                                            <label className="text-[8px] text-gray-500">اسم المزود</label>
+                                                                            <input 
+                                                                                className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[9px]"
+                                                                                placeholder="Provider Name"
+                                                                                value={em.apiConfig?.providerName || ''}
+                                                                                onChange={e => {
+                                                                                    const updatedMethods = [...(r.executionMethods || [])];
+                                                                                    updatedMethods[emIdx] = { ...em, apiConfig: { ...(em.apiConfig || { type: 'manual' }), providerName: e.target.value } };
+                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                                }}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            {(r.executionMethods || []).length === 0 && (
+                                                                <p className="text-[9px] text-gray-500 italic text-center">لا توجد طرق تنفيذ مخصصة لهذا النوع.</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
                                                     <div className="flex justify-between items-center">
                                                         <label className="text-[10px] text-gray-400 font-bold">تفعيل الحقل المخصص لهذا النوع</label>
                                                         <button 

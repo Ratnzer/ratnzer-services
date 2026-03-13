@@ -1,5 +1,13 @@
 
 
+export interface ExecutionMethod {
+  id: string;
+  name: string;
+  isAvailable: boolean;
+  apiConfig?: ApiConfig;
+  denominations?: Denomination[];
+}
+
 export interface Region {
   id: string;
   name: string;
@@ -9,6 +17,7 @@ export interface Region {
   autoSyncAvailability?: boolean; // NEW: Auto-sync availability for this region
   customInput?: CustomInputConfig; // NEW: Allow custom input override per region
   denominations?: Denomination[]; // NEW: Allow custom quantities/prices per product type
+  executionMethods?: ExecutionMethod[]; // NEW: Execution methods for this region
   isAvailable?: boolean; // NEW: Availability status for this region
 }
 
@@ -76,6 +85,7 @@ export interface CartItem {
   imageUrl?: string;
   imageColor: string;
   selectedRegion?: Region;
+  selectedExecutionMethod?: ExecutionMethod;
   selectedDenomination?: Denomination;
   quantity: number;
   apiConfig?: ApiConfig;
@@ -96,6 +106,7 @@ export interface Order {
   fulfillmentType: 'manual' | 'api' | 'stock'; // Added 'stock' type
   rejectionReason?: string; // Message sent by admin when cancelling
   regionName?: string;
+  executionMethodName?: string;
   quantityLabel?: string;
   customInputValue?: string; // NEW: User provided info (ID, Link, etc.)
   customInputLabel?: string; // NEW: What was requested
