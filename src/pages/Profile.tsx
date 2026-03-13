@@ -101,6 +101,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   });
   const [showPasswords, setShowPasswords] = useState({ old: false, new: false, confirm: false });
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const [isAdLoading, setIsAdLoading] = useState(false);
 
   const defaultAvatar =
     'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236b7280"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
@@ -127,7 +128,9 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   }, [user?.avatar, socialPhoto]);
 
   const menuItems = [
-    { icon: PlayCircle, label: 'شاهد واربح', action: async () => { 
+    { icon: PlayCircle, label: isAdLoading ? 'جاري تحميل الإعلان...' : 'شاهد واربح', action: async () => { 
+        if (isAdLoading) return;
+
         if (!user || !user.id) {
             alert('يرجى تسجيل الدخول أولاً للحصول على المكافأة');
             return;
@@ -139,6 +142,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
             return;
         }
 
+        setIsAdLoading(true);
         try {
             const result = await showRewardedAd(user.id); 
             if (result.success) { 
@@ -150,6 +154,8 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
             }
         } catch (err: any) {
             alert(err?.message || 'حدث خطأ أثناء عرض الإعلان');
+        } finally {
+            setIsAdLoading(false);
         }
     } },
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },

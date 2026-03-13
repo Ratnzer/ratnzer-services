@@ -30,6 +30,9 @@ declare global {
   }
 }
 
+// متغير لمنع استدعاء الإعلانات بشكل متكرر في نفس الوقت
+let isAdShowing = false;
+
 /**
  * تهيئة Pi SDK
  * يجب استدعاء هذه الدالة عند تحميل التطبيق
@@ -125,6 +128,12 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     return { success: false, error: 'إعلانات Pi غير متاحة حالياً. يرجى فتح التطبيق من داخل Pi Browser.' };
   }
 
+  if (isAdShowing) {
+    return { success: false, error: 'هناك إعلان قيد العرض بالفعل، يرجى الانتظار.' };
+  }
+
+  isAdShowing = true;
+
   try {
     console.log("Checking if Ad is ready...");
     // 1. التحقق مما إذا كان الإعلان جاهزاً
@@ -138,12 +147,17 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
       console.log("Request ad response:", requestAdResponse);
 
       if (requestAdResponse.result === "ADS_NOT_SUPPORTED") {
+        isAdShowing = false;
         return { success: false, error: 'إعلانات Pi غير مدعومة في هذا الإصدار من المتصفح. يرجى تحديث متصفح Pi.' };
       }
 
       if (requestAdResponse.result !== "AD_LOADED") {
+        isAdShowing = false;
         return { success: false, error: 'عذراً، لا تتوفر إعلانات حالياً من Pi Ads. يرجى المحاولة مرة أخرى لاحقاً.' };
       }
+      
+      // ننتظر ثانية واحدة لضمان استقرار SDK بعد التحميل
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     console.log("Showing Ad now...");
@@ -151,10 +165,13 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
     const showAdResponse = await window.Pi.Ads.showAd("rewarded");
     console.log("Show ad response:", showAdResponse);
 
+    // تحرير القفل فور الحصول على النتيجة
+    isAdShowing = false;
+
     // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
     switch (showAdResponse.result) {
       case "AD_REWARDED":
-        // 4. إضافة الرصيد للمستخدم (1 دولار) عبر السيرفر
+        // 4. إضافة الرصيد للمستخدم (0.01 دولار) عبر السيرفر
         try {
           // نرسل adId للسيرفر للتحقق منه ومنع التكرار
           await api.post('/wallet/deposit', {
@@ -194,6 +211,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
         return { success: false, error: 'لم يتم إكمال مشاهدة الإعلان للحصول على المكافأة.' };
     }
   } catch (err: any) {
+    isAdShowing = false;
     console.error('❌ خطأ في عرض إعلان Pi:', err);
     return { success: false, error: err?.message || 'حدث خطأ غير متوقع أثناء عرض الإعلان' };
   }
