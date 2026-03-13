@@ -86,38 +86,41 @@ const depositFunds = asyncHandler(async (req, res) => {
     }
 
     // 3. التحقق من صحة adId عبر Pi Ads API
-    if (PI_API_KEY) {
-      try {
+    // ملاحظة: جعلنا التحقق أكثر مرونة لضمان إضافة الرصيد حتى لو تأخر رد شبكة Pi
+    try {
+      // التحقق من عدم تكرار استخدام نفس الـ adId (إجراء أمني أساسي)
+      const existingAdTx = await prisma.transaction.findFirst({
+        where: { paymentId: adId }
+      });
+      if (existingAdTx) {
+        res.status(400);
+        throw new Error('لقد حصلت بالفعل على مكافأة مقابل هذا الإعلان');
+      }
+
+      if (PI_API_KEY) {
         const adResponse = await axios.get(`${PI_API_URL}/v2/ads_network/status/${adId}`, {
           headers: {
             'Authorization': `Key ${PI_API_KEY}`,
             'Content-Type': 'application/json'
           },
-          timeout: 10000
+          timeout: 5000
+        }).catch(err => {
+          console.warn('⚠️ Pi API verification failed or timed out, proceeding with caution:', err.message);
+          return null;
         });
 
-        // التحقق من أن حالة الإعلان "granted"
-        if (adResponse.data.mediator_ack_status !== 'granted') {
+        // إذا نجح التحقق وكان الإعلان غير صالح، نرفض العملية
+        if (adResponse && adResponse.data && adResponse.data.mediator_ack_status !== 'granted') {
           res.status(400);
           throw new Error('لم يتم تأكيد مشاهدة الإعلان بنجاح من Pi Network');
         }
-
-        // 4. التحقق من عدم تكرار استخدام نفس الـ adId (إجراء أمني إضافي)
-        const existingAdTx = await prisma.transaction.findFirst({
-          where: { paymentId: adId }
-        });
-        if (existingAdTx) {
-          res.status(400);
-          throw new Error('لقد حصلت بالفعل على مكافأة مقابل هذا الإعلان');
-        }
-      } catch (error) {
-        console.error('❌ فشل التحقق من إعلان Pi في السيرفر:', error.response?.data || error.message);
-        res.status(error.response?.status || 400);
-        throw new Error(error.response?.data?.message || 'فشل التحقق من صحة الإعلان');
+      } else {
+        console.warn('⚠️ تنبيه أمني: لم يتم التحقق من adId لأن PI_API_KEY غير مضبوط');
       }
-    } else {
-      console.warn('⚠️ تنبيه أمني: لم يتم التحقق من adId لأن PI_API_KEY غير مضبوط');
-      // في حالة عدم وجود المفتاح، نكتفي بالحد الأقصى للمبلغ (1.0) كحماية أساسية
+    } catch (error) {
+      if (error.status === 400) throw error;
+      console.error('❌ فشل التحقق من إعلان Pi في السيرفر:', error.message);
+      // في حال فشل الاتصال بشبكة Pi، نسمح بالعملية كإجراء استثنائي لضمان تجربة المستخدم
     }
   }
 
