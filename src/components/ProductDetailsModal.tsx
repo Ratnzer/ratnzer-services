@@ -744,7 +744,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
 		        {/* Action Buttons (Only on Details Step) */}
 		        {currentStep === 'details' && (
-		            <div className="p-3 pt-1 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
+		            <div className="px-5 pb-4 pt-1 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
 		                {isAvailableGlobally && (
 		                    <div className="flex justify-between items-center mb-2 px-1">
 	                        <span className="text-gray-300 text-xs font-bold">المجموع الكلي</span>
