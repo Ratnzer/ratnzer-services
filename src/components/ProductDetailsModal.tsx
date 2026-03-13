@@ -136,6 +136,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         setSelectedExecutionMethodId(initialMethodId);
 
         // Auto-select first Denomination
+        // Priority: Execution Method > Region > Product
         const initialMethodObj = initialMethodId ? initialMethods.find(m => m.id === initialMethodId) : undefined;
         const initialDenoms = (initialMethodObj?.denominations && initialMethodObj.denominations.length > 0)
           ? initialMethodObj.denominations
@@ -193,10 +194,13 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   // Global Availability Check: Product must be available, and if region/denom is selected, they must also be available.
   const isAvailableGlobally = product.isAvailable !== false && regionObj?.isAvailable !== false && denomObj?.isAvailable !== false;
 
-  // Determine price to showm Input Configuration
-  const activeCustomInput = regionObj?.customInput?.enabled !== undefined 
-    ? regionObj.customInput 
-    : product.customInput;
+  // Determine price to show and Input Configuration
+  // Priority: Execution Method > Region > Product
+  const activeCustomInput = executionMethodObj?.customInput?.enabled !== undefined 
+    ? executionMethodObj.customInput 
+    : (regionObj?.customInput?.enabled !== undefined 
+        ? regionObj.customInput 
+        : product.customInput);
 
   // Determine price to show
   // Price can be stored under different keys depending on the API/data source.
@@ -477,7 +481,7 @@ const renderDetails = () => (
                 </div>
             )}
             
-            {/* Custom Input Field (Shows Global OR Region Specific) */}
+            {/* Custom Input Field (Shows Execution Method > Region > Product) */}
             {activeCustomInput && activeCustomInput.enabled && (
                 <div className="mb-2 animate-fadeIn">
 	                    <h3 className="text-right text-gray-300 text-[13px] font-bold mb-2 flex items-center gap-1">

@@ -5,7 +5,8 @@ export interface ExecutionMethod {
   name: string;
   isAvailable: boolean;
   apiConfig?: ApiConfig;
-  denominations?: Denomination[];
+  denominations?: Denomination[]; // Denominations specific to this execution method
+  customInput?: CustomInputConfig; // Custom input field specific to this execution method
 }
 
 export interface Region {
