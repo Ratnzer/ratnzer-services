@@ -4024,56 +4024,58 @@ try {
                                                                                         <p className="text-[8px] text-gray-500 italic text-center py-1">لا توجد كميات</p>
                                                                                     )}
                                                                                 </div>
-	                                                                                <div className="flex gap-1 pt-1">
-	                                                                                    <input 
-	                                                                                        className="flex-[2] bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-	                                                                                        placeholder="الاسم" 
-	                                                                                        value={tempRegionDenomLabel}
-	                                                                                        onChange={e => setTempRegionDenomLabel(e.target.value)}
-	                                                                                    />
-	                                                                                    <input 
-	                                                                                        className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-	                                                                                        type="number" 
-	                                                                                        step="0.01" 
-	                                                                                        placeholder="السعر" 
-	                                                                                        value={tempRegionDenomPrice}
-	                                                                                        onChange={e => setTempRegionDenomPrice(e.target.value)}
-	                                                                                    />
-	                                                                                    <input 
-	                                                                                        className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
-	                                                                                        placeholder="ID" 
-	                                                                                        value={tempRegionDenomServiceId}
-	                                                                                        onChange={e => setTempRegionDenomServiceId(e.target.value)}
-	                                                                                    />
-	                                                                                    <button 
-	                                                                                        onClick={() => {
-	                                                                                            if (!tempRegionDenomLabel || !tempRegionDenomPrice) return;
-	                                                                                            const newDenom: Denomination = {
-	                                                                                                id: generateShortId(),
-	                                                                                                label: tempRegionDenomLabel,
-	                                                                                                price: parseFloat(tempRegionDenomPrice),
-	                                                                                                serviceId: tempRegionDenomServiceId || undefined
-	                                                                                            };
-	                                                                                            setProdForm(prev => ({
-	                                                                                                ...prev,
-	                                                                                                regions: (prev.regions || []).map(reg => 
-	                                                                                                    reg.id === r.id 
-	                                                                                                    ? { 
-	                                                                                                        ...reg, 
-	                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
-	                                                                                                            meth.id === em.id ? { ...meth, denominations: [...(meth.denominations || []), newDenom] } : meth
-	                                                                                                        )
-	                                                                                                    } 
-	                                                                                                    : reg
-	                                                                                                )
-	                                                                                            }));
-	                                                                                            setTempRegionDenomLabel('');
-	                                                                                            setTempRegionDenomPrice('');
-	                                                                                            setTempRegionDenomServiceId('');
-	                                                                                        }}
-	                                                                                        className="bg-yellow-400 text-black px-2 py-1 rounded text-[8px] font-bold hover:bg-yellow-500"
-	                                                                                    >إضافة</button>
-	                                                                                </div>
+		                                                                                <div className="flex flex-col gap-1 pt-1">
+		                                                                                    <input 
+		                                                                                        className="w-full bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+		                                                                                        placeholder="الاسم" 
+		                                                                                        value={tempRegionDenomLabel}
+		                                                                                        onChange={e => setTempRegionDenomLabel(e.target.value)}
+		                                                                                    />
+		                                                                                    <div className="flex gap-1 w-full">
+		                                                                                        <input 
+		                                                                                            className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+		                                                                                            type="number" 
+		                                                                                            step="0.01" 
+		                                                                                            placeholder="السعر" 
+		                                                                                            value={tempRegionDenomPrice}
+		                                                                                            onChange={e => setTempRegionDenomPrice(e.target.value)}
+		                                                                                        />
+		                                                                                        <input 
+		                                                                                            className="flex-1 bg-[#1f212e] p-1 rounded border border-gray-600 text-white text-[8px]" 
+		                                                                                            placeholder="ID" 
+		                                                                                            value={tempRegionDenomServiceId}
+		                                                                                            onChange={e => setTempRegionDenomServiceId(e.target.value)}
+		                                                                                        />
+		                                                                                        <button 
+		                                                                                            onClick={() => {
+		                                                                                                if (!tempRegionDenomLabel || !tempRegionDenomPrice) return;
+		                                                                                                const newDenom: Denomination = {
+		                                                                                                    id: generateShortId(),
+		                                                                                                    label: tempRegionDenomLabel,
+		                                                                                                    price: parseFloat(tempRegionDenomPrice),
+		                                                                                                    serviceId: tempRegionDenomServiceId || undefined
+		                                                                                                };
+		                                                                                                setProdForm(prev => ({
+		                                                                                                    ...prev,
+		                                                                                                    regions: (prev.regions || []).map(reg => 
+		                                                                                                        reg.id === r.id 
+		                                                                                                        ? { 
+		                                                                                                            ...reg, 
+		                                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+		                                                                                                                meth.id === em.id ? { ...meth, denominations: [...(meth.denominations || []), newDenom] } : meth
+		                                                                                                            )
+		                                                                                                        } 
+		                                                                                                        : reg
+		                                                                                                    )
+		                                                                                                }));
+		                                                                                                setTempRegionDenomLabel('');
+		                                                                                                setTempRegionDenomPrice('');
+		                                                                                                setTempRegionDenomServiceId('');
+		                                                                                            }}
+		                                                                                            className="bg-yellow-400 text-black px-2 py-1 rounded text-[8px] font-bold hover:bg-yellow-500 min-w-[40px]"
+		                                                                                        >إضافة</button>
+		                                                                                    </div>
+		                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     )}
@@ -4183,11 +4185,13 @@ try {
                                                             )}
                                                         </div>
 
-	                                                        <div className="flex gap-2">
+	                                                        <div className="flex flex-col sm:flex-row gap-2">
 	                                                            <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 60 UC)" value={tempRegionDenomLabel} onChange={e => setTempRegionDenomLabel(e.target.value)} />
-	                                                            <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempRegionDenomPrice} onChange={e => setTempRegionDenomPrice(e.target.value)} />
-	                                                            <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="Service ID" value={tempRegionDenomServiceId} onChange={e => setTempRegionDenomServiceId(e.target.value)} />
-	                                                            <button onClick={() => addRegionDenomination(r.id)} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-[11px] hover:bg-yellow-500 transition-colors">إضافة</button>
+	                                                            <div className="flex gap-2 flex-1">
+	                                                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempRegionDenomPrice} onChange={e => setTempRegionDenomPrice(e.target.value)} />
+	                                                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="Service ID" value={tempRegionDenomServiceId} onChange={e => setTempRegionDenomServiceId(e.target.value)} />
+	                                                            </div>
+	                                                            <button onClick={() => addRegionDenomination(r.id)} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-[11px] hover:bg-yellow-500 transition-colors sm:w-16">إضافة</button>
 	                                                        </div>
                                                     </div>
                                                 </div>
@@ -4242,13 +4246,15 @@ try {
                                 )}
                             </div>
 
-	                            {/* Add Denom Inputs */}
-	                            <div className="flex gap-2">
-	                                <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 100 جوهرة)" value={tempDenomLabel} onChange={e => setTempDenomLabel(e.target.value)} />
-	                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempDenomPrice} onChange={e => setTempDenomPrice(e.target.value)} />
-	                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="Service ID" value={tempDenomServiceId} onChange={e => setTempDenomServiceId(e.target.value)} />
-	                                <button onClick={addDenomination} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-xs hover:bg-yellow-500 transition-colors">إضافة</button>
-	                            </div>
+		                            {/* Add Denom Inputs */}
+		                            <div className="flex flex-col sm:flex-row gap-2">
+		                                <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 100 جوهرة)" value={tempDenomLabel} onChange={e => setTempDenomLabel(e.target.value)} />
+		                                <div className="flex gap-2 flex-1">
+		                                    <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempDenomPrice} onChange={e => setTempDenomPrice(e.target.value)} />
+		                                    <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="Service ID" value={tempDenomServiceId} onChange={e => setTempDenomServiceId(e.target.value)} />
+		                                </div>
+		                                <button onClick={addDenomination} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-xs hover:bg-yellow-500 transition-colors sm:w-20">إضافة</button>
+		                            </div>
                         </div>
                      </div>
                  )}
