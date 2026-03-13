@@ -3955,11 +3955,13 @@ try {
                                                                                             <div key={d.id} className={`p-1.5 rounded border text-[8px] ${d.isAvailable !== false ? 'bg-[#1f212e] border-gray-600' : 'bg-red-900/30 border-red-700/50'}`}>
                                                                                                 {editingRegionDenomId?.denomId === d.id && editingRegionDenomId?.methodId === em.id ? (
                                                                                                     <div className="space-y-1">
-		                                                                                                        <div className="flex gap-1">
-		                                                                                                            <input className="flex-[2] bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="الاسم" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
-		                                                                                                            <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" type="number" step="0.01" placeholder="السعر" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
-		                                                                                                            <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="ID" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
-		                                                                                                        </div>
+			                                                                                <div className="flex flex-col gap-1">
+			                                                                                    <input className="w-full bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="الاسم" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
+			                                                                                    <div className="flex gap-1 w-full">
+			                                                                                        <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" type="number" step="0.01" placeholder="السعر" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
+			                                                                                        <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" placeholder="ID" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
+			                                                                                    </div>
+			                                                                                </div>
                                                                                                         <div className="flex gap-1">
                                                                                                             <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-0.5 rounded text-[8px] font-bold">حفظ</button>
                                                                                                             <button onClick={() => setEditingRegionDenomId(null)} className="flex-1 bg-gray-600 text-white py-0.5 rounded text-[8px] font-bold">إلغاء</button>
@@ -4146,10 +4148,12 @@ try {
 	                                                                    <div key={d.id} className={`p-2.5 rounded-lg border ${d.isAvailable !== false ? 'bg-[#13141f] border-gray-700' : 'bg-red-900/20 border-red-700/50'}`}>
 	                                                                        {editingRegionDenomId?.denomId === d.id ? (
 	                                                                            <div className="space-y-2">
-		                                                                                <div className="flex gap-2">
+		                                                                                <div className="flex flex-col sm:flex-row gap-2">
 		                                                                                    <input className="flex-[2] bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" placeholder="الاسم" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
-		                                                                                    <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" type="number" step="0.01" placeholder="السعر" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
-		                                                                                    <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" placeholder="Service ID" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
+		                                                                                    <div className="flex gap-2 flex-1">
+		                                                                                        <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" type="number" step="0.01" placeholder="السعر" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
+		                                                                                        <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" placeholder="Service ID" value={editRegionDenomServiceId} onChange={e => setEditRegionDenomServiceId(e.target.value)} />
+		                                                                                    </div>
 		                                                                                </div>
 	                                                                                <div className="flex gap-2">
 	                                                                                    <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-1 rounded text-[10px] font-bold">حفظ</button>
@@ -4214,11 +4218,13 @@ try {
 	                                        <div key={denom.id} className="bg-[#13141f] p-3 rounded-lg border border-gray-700">
 	                                            {editingDenomId === denom.id ? (
 	                                                <div className="space-y-3">
-		                                                    <div className="flex gap-2">
-		                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="الاسم" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
-		                                                        <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" placeholder="السعر" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
-		                                                        <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="Service ID" value={editDenomServiceId} onChange={e => setEditDenomServiceId(e.target.value)} />
-		                                                    </div>
+			                                                    <div className="flex flex-col sm:flex-row gap-2">
+			                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="الاسم" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
+			                                                        <div className="flex gap-2 flex-1">
+			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" placeholder="السعر" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
+			                                                            <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" placeholder="Service ID" value={editDenomServiceId} onChange={e => setEditDenomServiceId(e.target.value)} />
+			                                                        </div>
+			                                                    </div>
 	                                                    <div className="flex gap-2">
 	                                                        <button onClick={saveEditDenomination} className="flex-1 bg-green-600 text-white py-2 rounded-lg text-xs font-bold">حفظ التعديل</button>
 	                                                        <button onClick={() => setEditingDenomId(null)} className="flex-1 bg-gray-600 text-white py-2 rounded-lg text-xs font-bold">إلغاء</button>
