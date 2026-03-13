@@ -453,7 +453,7 @@ const getOrderDate = (o: any) => {
   const [editDenomLabel, setEditDenomLabel] = useState('');
   const [editDenomPrice, setEditDenomPrice] = useState('');
 
-  const [editingRegionDenomId, setEditingRegionDenomId] = useState<{regionId: string, denomId: string} | null>(null);
+  const [editingRegionDenomId, setEditingRegionDenomId] = useState<{regionId: string, methodId?: string, denomId: string} | null>(null);
   const [editRegionDenomLabel, setEditRegionDenomLabel] = useState('');
   const [editRegionDenomPrice, setEditRegionDenomPrice] = useState('');
 
@@ -1042,24 +1042,40 @@ try {
       setEditingDenomId(null);
   };
 
-  const startEditRegionDenomination = (regionId: string, denom: Denomination) => {
-      setEditingRegionDenomId({ regionId, denomId: denom.id });
+  const startEditRegionDenomination = (regionId: string, denom: Denomination, methodId?: string) => {
+      setEditingRegionDenomId({ regionId, methodId, denomId: denom.id });
       setEditRegionDenomLabel(denom.label);
       setEditRegionDenomPrice(denom.price.toString());
   };
 
   const saveEditRegionDenomination = () => {
       if (!editingRegionDenomId || !editRegionDenomLabel || !editRegionDenomPrice) return;
-      const { regionId, denomId } = editingRegionDenomId;
+      const { regionId, methodId, denomId } = editingRegionDenomId;
       setProdForm(prev => ({
           ...prev,
           regions: (prev.regions || []).map(r => 
               r.id === regionId 
                 ? { 
                     ...r, 
-                    denominations: (r.denominations || []).map(d => 
-                        d.id === denomId ? { ...d, label: editRegionDenomLabel, price: parseFloat(editRegionDenomPrice) } : d
-                    )
+                    // If methodId is present, we are editing a denomination inside an execution method
+                    executionMethods: methodId 
+                      ? (r.executionMethods || []).map(m => 
+                          m.id === methodId 
+                            ? { 
+                                ...m, 
+                                denominations: (m.denominations || []).map(d => 
+                                  d.id === denomId ? { ...d, label: editRegionDenomLabel, price: parseFloat(editRegionDenomPrice) } : d
+                                )
+                              } 
+                            : m
+                        )
+                      : r.executionMethods,
+                    // If no methodId, we are editing a region-level denomination
+                    denominations: !methodId 
+                      ? (r.denominations || []).map(d => 
+                          d.id === denomId ? { ...d, label: editRegionDenomLabel, price: parseFloat(editRegionDenomPrice) } : d
+                        )
+                      : r.denominations
                   } 
                 : r
           )
@@ -3908,52 +3924,68 @@ try {
                                                                         <div className="space-y-1 max-h-24 overflow-y-auto">
                                                                             {(em.denominations && em.denominations.length > 0) ? (
                                                                                 em.denominations.map(d => (
-                                                                                    <div key={d.id} className={`flex justify-between items-center p-1.5 rounded border text-[8px] ${d.isAvailable !== false ? 'bg-[#1f212e] border-gray-600' : 'bg-red-900/30 border-red-700/50'}`}>
-                                                                                        <div className="flex-1 min-w-0">
-                                                                                            <span className={`font-bold block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
-                                                                                            <span className={`font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
-                                                                                        </div>
-                                                                                        <div className="flex gap-0.5 items-center ml-1">
-                                                                                            <button 
-                                                                                                onClick={() => {
-                                                                                                    setProdForm(prev => ({
-                                                                                                        ...prev,
-                                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                                            reg.id === r.id 
-                                                                                                            ? { 
-                                                                                                                ...reg, 
-                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                                    meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).map(dd => dd.id === d.id ? { ...dd, isAvailable: dd.isAvailable !== false ? false : true } : dd) } : meth
+                                                                                    <div key={d.id} className={`p-1.5 rounded border text-[8px] ${d.isAvailable !== false ? 'bg-[#1f212e] border-gray-600' : 'bg-red-900/30 border-red-700/50'}`}>
+                                                                                        {editingRegionDenomId?.denomId === d.id && editingRegionDenomId?.methodId === em.id ? (
+                                                                                            <div className="space-y-1">
+                                                                                                <div className="flex gap-1">
+                                                                                                    <input className="flex-[2] bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
+                                                                                                    <input className="flex-1 bg-[#13141f] p-1 rounded border border-gray-600 text-white text-[8px] outline-none" type="number" step="0.01" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
+                                                                                                </div>
+                                                                                                <div className="flex gap-1">
+                                                                                                    <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-0.5 rounded text-[8px] font-bold">حفظ</button>
+                                                                                                    <button onClick={() => setEditingRegionDenomId(null)} className="flex-1 bg-gray-600 text-white py-0.5 rounded text-[8px] font-bold">إلغاء</button>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            <div className="flex justify-between items-center">
+                                                                                                <div className="flex-1 min-w-0">
+                                                                                                    <span className={`font-bold block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
+                                                                                                    <span className={`font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
+                                                                                                </div>
+                                                                                                <div className="flex gap-0.5 items-center ml-1">
+                                                                                                    <button onClick={() => startEditRegionDenomination(r.id, d, em.id)} className="p-0.5 text-blue-400 hover:bg-blue-500/20 rounded"><Edit2 size={10} /></button>
+                                                                                                    <button 
+                                                                                                        onClick={() => {
+                                                                                                            setProdForm(prev => ({
+                                                                                                                ...prev,
+                                                                                                                regions: (prev.regions || []).map(reg => 
+                                                                                                                    reg.id === r.id 
+                                                                                                                    ? { 
+                                                                                                                        ...reg, 
+                                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                            meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).map(dd => dd.id === d.id ? { ...dd, isAvailable: dd.isAvailable !== false ? false : true } : dd) } : meth
+                                                                                                                        )
+                                                                                                                    } 
+                                                                                                                    : reg
                                                                                                                 )
-                                                                                                            } 
-                                                                                                            : reg
-                                                                                                        )
-                                                                                                    }));
-                                                                                                }}
-                                                                                                className={`p-0.5 rounded text-[7px] ${d.isAvailable !== false ? 'text-green-500 hover:bg-green-500/20' : 'text-red-500 hover:bg-red-500/20'}`}
-                                                                                                title={d.isAvailable !== false ? 'تعطيل' : 'تفعيل'}
-                                                                                            >
-                                                                                                {d.isAvailable !== false ? <CheckSquare size={10} /> : <XCircle size={10} />}
-                                                                                            </button>
-                                                                                            <button 
-                                                                                                onClick={() => {
-                                                                                                    setProdForm(prev => ({
-                                                                                                        ...prev,
-                                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                                            reg.id === r.id 
-                                                                                                            ? { 
-                                                                                                                ...reg, 
-                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                                    meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).filter(dd => dd.id !== d.id) } : meth
+                                                                                                            }));
+                                                                                                        }}
+                                                                                                        className={`p-0.5 rounded text-[7px] ${d.isAvailable !== false ? 'text-green-500 hover:bg-green-500/20' : 'text-red-500 hover:bg-red-500/20'}`}
+                                                                                                        title={d.isAvailable !== false ? 'تعطيل' : 'تفعيل'}
+                                                                                                    >
+                                                                                                        {d.isAvailable !== false ? <CheckSquare size={10} /> : <XCircle size={10} />}
+                                                                                                    </button>
+                                                                                                    <button 
+                                                                                                        onClick={() => {
+                                                                                                            setProdForm(prev => ({
+                                                                                                                ...prev,
+                                                                                                                regions: (prev.regions || []).map(reg => 
+                                                                                                                    reg.id === r.id 
+                                                                                                                    ? { 
+                                                                                                                        ...reg, 
+                                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                            meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).filter(dd => dd.id !== d.id) } : meth
+                                                                                                                        )
+                                                                                                                    } 
+                                                                                                                    : reg
                                                                                                                 )
-                                                                                                            } 
-                                                                                                            : reg
-                                                                                                        )
-                                                                                                    }));
-                                                                                                }}
-                                                                                                className="text-red-500 hover:text-red-400 p-0.5"
-                                                                                            ><X size={10} /></button>
-                                                                                        </div>
+                                                                                                            }));
+                                                                                                        }}
+                                                                                                        className="text-red-500 hover:text-red-400 p-0.5"
+                                                                                                    ><X size={10} /></button>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
                                                                                 ))
                                                                             ) : (
