@@ -426,18 +426,18 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
             {/* Custom Input Field (Shows Global OR Region Specific) */}
             {activeCustomInput && activeCustomInput.enabled && (
                 <div className="mb-4 animate-fadeIn">
-                    <h3 className="text-right text-gray-300 text-[10px] font-bold mb-2 flex items-center gap-1">
-                        {activeCustomInput.label}
-                        {activeCustomInput.required && <span className="text-red-500">*</span>}
-                    </h3>
-                    <div className="relative">
-                        <input 
-                            type="text" 
-                            className="w-full bg-[#242636] border border-gray-700 rounded-lg py-2 px-3 text-sm text-white focus:border-yellow-400 outline-none transition-colors text-right"
-                            placeholder={activeCustomInput.placeholder || '...'}
-                            value={customInputValue}
-                            onChange={(e) => setCustomInputValue(e.target.value)}
-                        />
+	                    <h3 className="text-right text-gray-300 text-[13px] font-bold mb-2 flex items-center gap-1">
+	                        {activeCustomInput.label}
+	                        {activeCustomInput.required && <span className="text-red-500">*</span>}
+	                    </h3>
+	                    <div className="relative">
+	                        <input 
+	                            type="text" 
+	                            className="w-full bg-[#242636] border border-gray-700 rounded-xl py-3 px-4 text-base text-white focus:border-yellow-400 outline-none transition-colors text-right shadow-inner"
+	                            placeholder={activeCustomInput.placeholder || '...'}
+	                            value={customInputValue}
+	                            onChange={(e) => setCustomInputValue(e.target.value)}
+	                        />
                         {/* Optional Icon indicator */}
                         <div className="absolute top-2.5 left-3 text-gray-500 pointer-events-none">
                             <User size={14} />
@@ -750,10 +750,10 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         {currentStep === 'details' && (
             <div className="p-4 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
                 {isAvailableGlobally && (
-                    <div className="flex justify-between items-center mb-4 px-1">
-                        <span className="text-gray-400 text-xs font-bold">المجموع الكلي</span>
-                        <span className="text-yellow-400 font-black text-lg dir-ltr">{formatPrice(currentPrice)}</span>
-                    </div>
+	                    <div className="flex justify-between items-center mb-4 px-1">
+	                        <span className="text-gray-300 text-sm font-bold">المجموع الكلي</span>
+	                        <span className="text-yellow-400 font-black text-2xl dir-ltr drop-shadow-sm">{formatPrice(currentPrice)}</span>
+	                    </div>
                 )}
                 
                 <div className="flex gap-3 pb-4">
