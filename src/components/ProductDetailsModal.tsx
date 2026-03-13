@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, ArrowRight, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
+import { X, Star, ShoppingCart, CheckCircle, ArrowLeft, ArrowRight, ChevronRight, CreditCard, Wallet, Calendar, User, Lock, Wifi, AlertTriangle, Zap } from 'lucide-react';
 import { Product, CartItem } from '../types';
 import { generateShortId } from '../utils/id';
 
@@ -477,12 +477,20 @@ const renderDetails = () => (
                                 </button>
                             ))}
                         </div>
-                        {/* Triple Arrow Scroll Hint */}
+                        {/* Triple Arrow Scroll Hint with Wave Animation */}
                         {effectiveDenoms.length > 3 && (
-                            <div className="absolute -left-1 top-0 bottom-1 w-6 pointer-events-none flex flex-col items-center justify-center gap-0.5 bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/80 to-transparent rounded-l-xl">
-                                <ArrowRight size={16} className="text-yellow-400/80 animate-[bounce_1.5s_infinite] [animation-delay:-0.4s]" />
-                                <ArrowRight size={16} className="text-yellow-400/60 animate-[bounce_1.5s_infinite] [animation-delay:-0.2s]" />
-                                <ArrowRight size={16} className="text-yellow-400/40 animate-[bounce_1.5s_infinite]" />
+                            <div className="absolute -left-1 top-0 bottom-1 w-8 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/90 to-transparent rounded-l-xl overflow-hidden">
+                                <div className="flex flex-col items-center justify-center -space-y-3">
+                                    <ChevronRight size={24} className="text-yellow-400/90 animate-[wave_1.2s_infinite] [animation-delay:0s]" />
+                                    <ChevronRight size={24} className="text-yellow-400/60 animate-[wave_1.2s_infinite] [animation-delay:0.2s]" />
+                                    <ChevronRight size={24} className="text-yellow-400/30 animate-[wave_1.2s_infinite] [animation-delay:0.4s]" />
+                                </div>
+                                <style>{`
+                                    @keyframes wave {
+                                        0%, 100% { transform: translateX(0) scale(1); opacity: 0.3; }
+                                        50% { transform: translateX(-4px) scale(1.1); opacity: 1; }
+                                    }
+                                `}</style>
                             </div>
                         )}
                     </div>
