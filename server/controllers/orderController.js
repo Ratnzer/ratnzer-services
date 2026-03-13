@@ -212,7 +212,23 @@ const createOrder = asyncHandler(async (req, res) => {
   const normalizedQuantityLabel =
     quantityLabel || (quantity ? String(normalizedQuantity) : undefined);
 
-  const apiConfig = parseApiConfig(product?.apiConfig);
+  // --- ✨ API Config Logic Start ---
+  // Identify the active apiConfig by checking Execution Method > Region > Product
+  const regions = parseJsonField(product?.regions, []);
+  const selectedRegion = Array.isArray(regions) 
+    ? regions.find(r => String(r.id) === String(regionIdNorm))
+    : null;
+  
+  const executionMethods = selectedRegion?.executionMethods || [];
+  const selectedExecutionMethod = executionMethods.find(em => String(em.id) === String(executionMethodId));
+
+  const baseApiConfig = parseApiConfig(product?.apiConfig);
+  const regionApiConfig = selectedRegion?.apiConfig; // Some regions might have direct apiConfig
+  const methodApiConfig = selectedExecutionMethod?.apiConfig;
+
+  // Final effective config
+  const apiConfig = methodApiConfig || regionApiConfig || baseApiConfig;
+  // --- ✨ API Config Logic End ---
 
   // 4. Transaction
   let result = await prisma.$transaction(async (tx) => {
@@ -229,11 +245,6 @@ const createOrder = asyncHandler(async (req, res) => {
         customInputValue: trimmedCustomInputValue,
       },
     });
-
-    // Note: In bulk checkout, the frontend sends multiple requests. 
-    // If the user buys 2 identical items, they will have the same productId and amount.
-    // To allow this, we only block if the time is extremely short (e.g. < 1s) or if we're sure it's a double-click.
-    // For now, let's keep it simple.
 
     // Re-fetch user inside transaction to get latest balance
     const currentUser = await tx.user.findUnique({ where: { id: userId } });
@@ -344,11 +355,8 @@ const createOrder = asyncHandler(async (req, res) => {
     });
     return order;
   });
-  const regions = parseJsonField(product?.regions, []);
-  const selectedRegion = Array.isArray(regions) 
-    ? regions.find(r => String(r.id) === String(regionIdNorm))
-    : null;
-  
+
+  // Identify provider details from the effective apiConfig
   const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
   const effectiveProviderName = selectedRegion?.apiProviderName || apiConfig?.providerName || 'KD1S';
 
