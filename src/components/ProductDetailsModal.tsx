@@ -376,7 +376,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
             {/* Region Selection */}
             {product.regions && product.regions.length > 0 && (
-                <div className="mb-6">
+                <div className="mb-4">
                     <h3 className="text-right text-gray-300 text-xs font-bold mb-3">نوع المنتج</h3>
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                         {product.regions.map((region) => (
@@ -399,7 +399,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
             {/* Denomination Selection */}
             {effectiveDenoms && effectiveDenoms.length > 0 && (
-                <div className="mb-6">
+                <div className="mb-4">
                     <div className="flex justify-between items-center mb-3">
                         <h3 className="text-gray-300 text-xs font-bold">اختيار كمية المنتج</h3>
                     </div>
@@ -425,7 +425,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
             
             {/* Custom Input Field (Shows Global OR Region Specific) */}
             {activeCustomInput && activeCustomInput.enabled && (
-                <div className="mb-4 animate-fadeIn">
+                <div className="mb-2 animate-fadeIn">
 	                    <h3 className="text-right text-gray-300 text-[13px] font-bold mb-2 flex items-center gap-1">
 	                        {activeCustomInput.label}
 	                        {activeCustomInput.required && <span className="text-red-500">*</span>}
@@ -439,15 +439,15 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                            onChange={(e) => setCustomInputValue(e.target.value)}
 	                        />
 	                    </div>
-	                    {activeCustomInput.required && !customInputValue && (
-	                        <p className="text-[11px] text-red-400 mt-1.5 mr-1 flex items-center gap-1 font-bold">
-	                            <AlertTriangle size={12} /> هذا الحقل مطلوب
-	                        </p>
-	                    )}
-                </div>
-            )}
-      </div>
-  );
+		                    {activeCustomInput.required && !customInputValue && (
+		                        <p className="text-[11px] text-red-400 mt-1 mr-1 flex items-center gap-1 font-bold">
+		                            <AlertTriangle size={12} /> هذا الحقل مطلوب
+		                        </p>
+		                    )}
+	                </div>
+	            )}
+	      </div>
+	  );
 
 	  const renderPaymentSelect = () => (
 	      <div className="flex-1 p-4 pt-1 animate-fadeIn flex flex-col h-full relative">
@@ -742,11 +742,11 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         {currentStep === 'payment_select' && renderPaymentSelect()}
         {currentStep === 'card_form' && renderCardForm()}
 
-	        {/* Action Buttons (Only on Details Step) */}
-	        {currentStep === 'details' && (
-	            <div className="p-3 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
-	                {isAvailableGlobally && (
-	                    <div className="flex justify-between items-center mb-3 px-1">
+		        {/* Action Buttons (Only on Details Step) */}
+		        {currentStep === 'details' && (
+		            <div className="p-3 pt-1 bg-[#1f212e] border-t border-gray-800 z-[110] sticky bottom-0">
+		                {isAvailableGlobally && (
+		                    <div className="flex justify-between items-center mb-2 px-1">
 	                        <span className="text-gray-300 text-xs font-bold">المجموع الكلي</span>
 	                        <span className="text-yellow-400 font-black text-xl dir-ltr drop-shadow-sm">{formatPrice(currentPrice)}</span>
 	                    </div>
