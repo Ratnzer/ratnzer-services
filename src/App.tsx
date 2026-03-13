@@ -15,7 +15,7 @@ import InvoiceModal from './components/InvoiceModal'; // Import InvoiceModal
 import LoginModal from './components/LoginModal'; // Import LoginModal
 import ExitConfirmModal from './components/ExitConfirmModal'; // Import ExitConfirmModal
 import SupportModal from './components/SupportModal'; // Import SupportModal
-import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut, Sparkles, Zap, Music, Video, ShoppingBasket, MonitorSmartphone, Wifi, Laptop, Tablet, Mouse, Keyboard, Cpu, Router, Server, Coffee, Pizza, Shirt, Watch, Briefcase, Plane, Megaphone, Ticket, Film, Clapperboard, Palette, Brush, Dumbbell, Bike, Bed, Home as HomeIcon, Building, GraduationCap, School, BookOpen, Library, Code, Terminal, Database, Cloud, Bitcoin, DollarSign, Key, Wrench, Hammer, Settings, Flame, Sun, Moon, CloudRain, Truck, Anchor, Crown, Diamond, Medal, Trophy } from 'lucide-react';
+import { ShoppingBag, ShoppingCart, Trash2, ArrowLeft, CheckCircle, Clock, X, CheckSquare, AlertTriangle, Receipt, Copy, ChevronDown, ChevronUp, ShieldAlert, Lock, Flag, Tags, User, CreditCard, Facebook, Instagram, Gamepad2, Smartphone, Gift, Globe, Tag, Box, Monitor, MessageCircle, Heart, Star, Coins, LogOut, Sparkles, Zap, Music, Video, ShoppingBasket, MonitorSmartphone, Wifi, Laptop, Tablet, Mouse, Keyboard, Cpu, Router, Server, Coffee, Pizza, Shirt, Watch, Briefcase, Plane, Megaphone, Ticket, Film, Clapperboard, Palette, Brush, Dumbbell, Bike, Bed, Home as HomeIcon, Building, GraduationCap, School, BookOpen, Library, Code, Terminal, Database, Cloud, Bitcoin, DollarSign, Key, Wrench, Hammer, Settings, Flame, Sun, Moon, CloudRain, Truck, Anchor, Crown, Diamond, Medal, Trophy, Twitter, Linkedin, Youtube, Twitch, Mic, Car, Book, Wallet } from 'lucide-react';
 import { INITIAL_CURRENCIES, PRODUCTS as INITIAL_PRODUCTS, CATEGORIES as INITIAL_CATEGORIES, INITIAL_TERMS, INITIAL_PRIVACY, INITIAL_BANNERS, MOCK_USERS, MOCK_ORDERS, MOCK_INVENTORY, TRANSACTIONS as INITIAL_TRANSACTIONS } from './constants';
 import api, { productService, orderService, contentService, userService, walletService, inventoryService, authService, cartService, paymentService, pushService, settingsService, piPaymentService } from './services/api';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -141,6 +141,16 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
   diamond: Diamond,
   medal: Medal,
   trophy: Trophy,
+  twitter: Twitter,
+  linkedin: Linkedin,
+  youtube: Youtube,
+  twitch: Twitch,
+  mic: Mic,
+  car: Car,
+  book: Book,
+  wallet: Wallet,
+  phone: Smartphone,
+  grad: GraduationCap,
 };
 
 
