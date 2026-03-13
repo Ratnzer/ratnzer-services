@@ -30,6 +30,8 @@ import { handleRedirectResult, signOutFromFirebase } from './services/firebase';
 // ============================================================
 // ✅ Simple localStorage cache helpers (offline-first boot)
 // ============================================================
+const CACHE_VERSION = 'v1.1'; // Update this to clear stale cache
+
 const safeJsonParse = <T,>(raw: string | null, fallback: T): T => {
   if (!raw) return fallback;
   try {
@@ -39,11 +41,17 @@ const safeJsonParse = <T,>(raw: string | null, fallback: T): T => {
   }
 };
 
-const loadCache = <T,>(key: string, fallback: T): T =>
-  safeJsonParse<T>(localStorage.getItem(key), fallback);
+const loadCache = <T,>(key: string, fallback: T): T => {
+  const version = localStorage.getItem('cache_version');
+  if (version !== CACHE_VERSION) {
+    return fallback;
+  }
+  return safeJsonParse<T>(localStorage.getItem(key), fallback);
+};
 
 const saveCache = (key: string, value: any) => {
   try {
+    localStorage.setItem('cache_version', CACHE_VERSION);
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // ignore (quota / private mode)
@@ -682,9 +690,16 @@ useEffect(() => {
 
   // --- Initial Data Load from API ---
   useEffect(() => {
-	    const fetchInitialData = async () => {
-	      // ✅ Only fetch essential public data on boot to speed up initial load
-	      const essentialTasks = [
+  const fetchInitialData = async () => {
+      // ✅ Clear stale cache if version mismatch
+      if (localStorage.getItem('cache_version') !== CACHE_VERSION) {
+        console.log('🧹 Clearing stale cache...');
+        localStorage.clear(); // Clear all to be safe
+        localStorage.setItem('cache_version', CACHE_VERSION);
+      }
+
+      // ✅ Only fetch essential public data on boot to speed up initial load
+      const essentialTasks = [
 	        productService.getAll().then(res => res?.data && setProducts(res.data)).catch(() => {}),
 	        contentService.getBanners().then(res => res?.data && setBanners(res.data)).catch(() => {}),
         contentService.getCategories().then(res => {
