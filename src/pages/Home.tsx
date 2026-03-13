@@ -97,11 +97,15 @@ const Home: React.FC<Props> = ({
   const [cachedCategories, setCachedCategories] = useState<Category[]>(() => {
     const raw = readCache<Category[]>(HOME_CACHE_CATEGORIES_KEY, []);
     return raw.map((c: any) => {
-      if (c.icon && typeof c.icon === 'string') {
-        const iconKey = c.icon.toLowerCase().trim();
-        return { ...c, icon: CATEGORY_ICON_MAP[iconKey] || Sparkles };
+      let IconComp = Sparkles;
+      // Use iconName if available (from our new fix), or fallback to icon if it's still a string
+      const iconKey = (c.iconName || (typeof c.icon === 'string' ? c.icon : '')).toLowerCase().trim();
+      if (iconKey) {
+        IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
+      } else if (c.icon && typeof c.icon !== 'string') {
+        IconComp = c.icon;
       }
-      return c;
+      return { ...c, icon: IconComp, iconName: iconKey || undefined };
     });
   });
   const [cachedBanners, setCachedBanners] = useState<Banner[]>(() => readCache<Banner[]>(HOME_CACHE_BANNERS_KEY, []));

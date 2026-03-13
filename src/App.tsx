@@ -617,13 +617,14 @@ useEffect(() => {
     const cached = loadCache<Category[]>('cache_categories_v1', INITIAL_CATEGORIES);
     return cached.map((c: any) => {
       let IconComp = Sparkles;
-      if (c.icon && typeof c.icon === 'string') {
-        const iconKey = c.icon.toLowerCase().trim();
+      // Use iconName if available (from our new fix), or fallback to icon if it's still a string
+      const iconKey = (c.iconName || (typeof c.icon === 'string' ? c.icon : '')).toLowerCase().trim();
+      if (iconKey) {
         IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
-      } else if (c.icon) {
+      } else if (c.icon && typeof c.icon !== 'string') {
         IconComp = c.icon;
       }
-      return { ...c, icon: IconComp };
+      return { ...c, icon: IconComp, iconName: iconKey || undefined };
     });
   });
   const [terms, setTerms] = useState<AppTerms>(() => loadCache<AppTerms>('cache_terms_v1', INITIAL_TERMS)); // Updated type
@@ -714,20 +715,20 @@ useEffect(() => {
       const essentialTasks = [
 	        productService.getAll().then(res => res?.data && setProducts(res.data)).catch(() => {}),
 	        contentService.getBanners().then(res => res?.data && setBanners(res.data)).catch(() => {}),
-        contentService.getCategories().then(res => {
-		          if (res?.data) {
-		            setCategories(res.data.map((c: any) => {
-		              let IconComp = Sparkles;
-		              if (c.icon && typeof c.icon === 'string') {
-		                const iconKey = c.icon.toLowerCase().trim();
-		                IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
-		              } else if (c.icon) {
-		                IconComp = c.icon;
-		              }
-		              return { ...c, icon: IconComp };
-		            }));
-		          }
-		        }).catch(() => {}),
+	        contentService.getCategories().then(res => {
+			          if (res?.data) {
+			            setCategories(res.data.map((c: any) => {
+			              let IconComp = Sparkles;
+			              const iconKey = typeof c.icon === 'string' ? c.icon.toLowerCase().trim() : '';
+			              if (iconKey) {
+			                IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
+			              } else if (c.icon) {
+			                IconComp = c.icon;
+			              }
+			              return { ...c, icon: IconComp, iconName: iconKey || undefined };
+			            }));
+			          }
+			        }).catch(() => {}),
 		        settingsService.get('rateAppLink').then(res => {
 		          if (typeof res?.data === 'string') {
 		            setRateAppLink(res.data);
@@ -1054,20 +1055,20 @@ useEffect(() => {
       await Promise.all([
         productService.getAll().then(res => res?.data && setProducts(res.data)),
         contentService.getBanners().then(res => res?.data && setBanners(res.data)),
-        contentService.getCategories().then(res => {
-	          if (res?.data) {
-	            setCategories(res.data.map((c: any) => {
-	              let IconComp = Sparkles;
-	              if (c.icon && typeof c.icon === 'string') {
-	                const iconKey = c.icon.toLowerCase().trim();
-	                IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
-	              } else if (c.icon) {
-	                IconComp = c.icon;
-	              }
-	              return { ...c, icon: IconComp };
-	            }));
-	          }
-	        }),
+		        contentService.getCategories().then(res => {
+		          if (res?.data) {
+		            setCategories(res.data.map((c: any) => {
+		              let IconComp = Sparkles;
+		              const iconKey = typeof c.icon === 'string' ? c.icon.toLowerCase().trim() : '';
+		              if (iconKey) {
+		                IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
+		              } else if (c.icon) {
+		                IconComp = c.icon;
+		              }
+		              return { ...c, icon: IconComp, iconName: iconKey || undefined };
+		            }));
+		          }
+		        }),
         contentService.getTerms().then(res => res?.data && setTerms(res.data)),
         contentService.getPrivacy().then(res => res?.data && setPrivacy(res.data)),
         refreshAnnouncementsFromServer('silent'), // ✅ Added to ensure announcements update on Home
