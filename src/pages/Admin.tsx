@@ -3929,7 +3929,7 @@ try {
 	                                                                            {/* Custom Input for this Execution Method */}
 	                                                                            <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
 	                                                                                <div className="flex justify-between items-center">
-	                                                                                    <label className="text-[9px] text-blue-400 font-bold">تفعيل حقل مخصص لهذه الطريقة</label>
+	                                                                                    <label className="text-[9px] text-blue-400 font-bold">تفعيل حقل مخصص لهذا النوع من الطلب</label>
 	                                                                                    <button 
 	                                                                                        type="button"
 	                                                                                        onClick={() => {
@@ -4023,7 +4023,7 @@ try {
 
                                                                             {/* Denominations for this Execution Method */}
                                                                             <div className="bg-[#13141f] p-2 rounded-lg border border-gray-700 space-y-2">
-                                                                                <h6 className="text-[9px] text-yellow-400 font-bold">الكميات/الفئات لهذه الطريقة</h6>
+                                                                                <h6 className="text-[9px] text-yellow-400 font-bold">الكميات/الفئات لهذا النوع من الطلب</h6>
                                                                                 <div className="space-y-1 max-h-24 overflow-y-auto">
                                                                                     {(em.denominations && em.denominations.length > 0) ? (
                                                                                         em.denominations.map(d => (
