@@ -2763,7 +2763,7 @@ useEffect(() => {
                                                 )}
                                                 {order.quantityLabel && (
                                                     <span className="text-[9px] bg-yellow-400/5 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-400/20 flex items-center gap-1">
-                                                        <Tags size={8} /> {order.quantityLabel}
+                                                        {order.quantityLabel}
                                                     </span>
                                                 )}
                                             </div>
