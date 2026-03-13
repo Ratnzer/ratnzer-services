@@ -2586,12 +2586,17 @@ useEffect(() => {
 		                                                    {item.selectedRegion.name}
 		                                                </span>
 		                                            )}
-		                                            {item.selectedDenomination && (
-		                                                <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
-		                                                    {item.selectedDenomination.label}
-		                                                </span>
-		                                            )}
-		                                        </div>
+			                                            {item.selectedDenomination && (
+			                                                <span className="text-[10px] bg-yellow-400/5 text-yellow-400/80 px-2 py-0.5 rounded border border-yellow-400/20">
+			                                                    {item.selectedDenomination.label}
+			                                                </span>
+			                                            )}
+			                                            {item.selectedExecutionMethod && (
+			                                                <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+			                                                    <Truck size={10} /> {item.selectedExecutionMethod.name}
+			                                                </span>
+			                                            )}
+			                                        </div>
 		
                                         <p className="text-base font-black text-yellow-400 dir-ltr font-mono leading-none">{formatPrice(item.price)}</p>
                                         
