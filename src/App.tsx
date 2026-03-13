@@ -77,7 +77,7 @@ const removeCache = (key: string) => {
 // ============================================================
 // Category Icon Mapping (API returns icon as string id)
 // ============================================================
-const CATEGORY_ICON_MAP: Record<string, any> = {
+export const CATEGORY_ICON_MAP: Record<string, any> = {
   // Common/legacy ids
   gamepad: Gamepad2,
   gamepad2: Gamepad2,

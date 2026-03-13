@@ -3,6 +3,7 @@ import ProductCard from '../components/ProductCard';
 // ProductDetailsModal import removed
 import { View, Product, Category, Banner, Announcement, CartItem } from '../types';
 import { Megaphone, Sparkles } from 'lucide-react';
+import { CATEGORY_ICON_MAP } from '../App';
 
 // ============================================================
 // Simple local cache (for instant render on app reopen)
@@ -93,7 +94,16 @@ const Home: React.FC<Props> = ({
 
   // Cached data (used when props are temporarily empty after app reopen)
   const [cachedProducts, setCachedProducts] = useState<Product[]>(() => readCache<Product[]>(HOME_CACHE_PRODUCTS_KEY, []));
-  const [cachedCategories, setCachedCategories] = useState<Category[]>(() => readCache<Category[]>(HOME_CACHE_CATEGORIES_KEY, []));
+  const [cachedCategories, setCachedCategories] = useState<Category[]>(() => {
+    const raw = readCache<Category[]>(HOME_CACHE_CATEGORIES_KEY, []);
+    return raw.map((c: any) => {
+      if (c.icon && typeof c.icon === 'string') {
+        const iconKey = c.icon.toLowerCase().trim();
+        return { ...c, icon: CATEGORY_ICON_MAP[iconKey] || Sparkles };
+      }
+      return c;
+    });
+  });
   const [cachedBanners, setCachedBanners] = useState<Banner[]>(() => readCache<Banner[]>(HOME_CACHE_BANNERS_KEY, []));
   const [cachedAnnouncements, setCachedAnnouncements] = useState<Announcement[]>(() => readCache<Announcement[]>(HOME_CACHE_ANNOUNCEMENTS_KEY, []));
 
