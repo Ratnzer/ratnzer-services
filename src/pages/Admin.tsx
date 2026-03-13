@@ -2727,71 +2727,75 @@ try {
         {activeTab === 'currencies' && (
             <div className="space-y-5 animate-fadeIn">
                 {/* Header Section */}
-                <div className="bg-gradient-to-r from-[#242636] to-[#2f3245] rounded-2xl border border-gray-700 p-6 shadow-lg">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white mb-1">أسعار الصرف</h2>
-                            <p className="text-gray-400 text-sm">إدارة وتحديث أسعار صرف العملات مقابل 1 USD</p>
+                <div className="bg-gradient-to-r from-[#242636] to-[#2f3245] rounded-2xl border border-gray-700 p-5 shadow-lg">
+                    <div className="flex flex-col gap-4">
+                        <div className="text-center sm:text-right">
+                            <h2 className="text-xl font-bold text-white mb-1">إدارة أسعار الصرف</h2>
+                            <p className="text-gray-400 text-xs">تحديث قيمة العملات مقابل 1 دولار أمريكي (USD)</p>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
-                            <button onClick={loadCurrenciesFromServer} className="px-4 py-2 rounded-lg bg-[#13141f] border border-gray-600 text-gray-300 hover:border-blue-400 hover:text-blue-400 hover:bg-blue-400/5 transition-all active:scale-95 font-medium text-sm">↻ تحديث</button>
-                            <button onClick={saveCurrenciesToServer} className="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/30 hover:border-yellow-500/60 transition-all active:scale-95 font-bold text-sm">💾 حفظ</button>
-                            <button onClick={handleResetCurrencies} className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-all active:scale-95 font-medium text-sm">↺ استعادة</button>
+                        <div className="grid grid-cols-3 gap-2">
+                            <button onClick={loadCurrenciesFromServer} className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-[#13141f] border border-gray-600 text-gray-300 hover:border-blue-400 transition-all active:scale-95">
+                                <RefreshCw size={16} />
+                                <span className="text-[10px] font-bold">تحديث</span>
+                            </button>
+                            <button onClick={saveCurrenciesToServer} className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 transition-all active:scale-95">
+                                <Save size={16} />
+                                <span className="text-[10px] font-bold">حفظ</span>
+                            </button>
+                            <button onClick={handleResetCurrencies} className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-red-500/5 border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-all active:scale-95">
+                                <RefreshCw size={16} className="rotate-180" />
+                                <span className="text-[10px] font-bold">استعادة</span>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Currencies Grid */}
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-4">
                     {currencies.map((currency) => (
-                        <div key={currency.code} className="bg-[#242636] rounded-xl border border-gray-700 p-5 hover:border-gray-600 hover:shadow-lg hover:shadow-yellow-400/5 transition-all duration-200">
-                            <div className="flex items-center justify-between gap-4">
-                                {/* Left: Currency Info */}
-                                <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    <div className="flex-shrink-0">
-                                        {currency.code === 'PI' ? (
-                                            <div className="transition-transform hover:scale-110">
-                                                <PiIcon size={40} />
-                                            </div>
-                                        ) : (
-                                            <span className="text-4xl block transition-transform hover:scale-110">
-                                                {currency.flag}
-                                            </span>
-                                        )}
+                        <div key={currency.code} className="bg-[#242636] rounded-2xl border border-gray-700 p-4 hover:border-yellow-400/30 transition-all duration-300">
+                            <div className="flex flex-col gap-4">
+                                {/* Top Row: Icon and Name */}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-xl bg-[#13141f] flex items-center justify-center border border-gray-700 shadow-inner">
+                                            {currency.code === 'PI' ? (
+                                                <PiIcon size={28} />
+                                            ) : (
+                                                <span className="text-2xl">{currency.flag}</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-black text-white">{currency.name}</h3>
+                                            <span className="text-[10px] font-mono text-gray-500 bg-[#13141f] px-1.5 py-0.5 rounded border border-gray-800 mt-1 inline-block">{currency.code}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-base font-bold text-white truncate">{currency.name}</p>
-                                        <p className="text-xs text-gray-500 dir-ltr font-mono mt-1">{currency.code}</p>
+                                    <div className="text-left">
+                                        <span className={`text-xl font-black ${currency.code === 'PI' ? 'text-[#9b59b6]' : 'text-yellow-400'}`}>
+                                            {currency.symbol}
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Right: Exchange Rate Input */}
-                                <div className="flex items-center gap-3 flex-shrink-0">
-                                    <div className="flex items-center bg-[#13141f] rounded-lg border border-gray-600 hover:border-gray-500 focus-within:border-yellow-400 focus-within:shadow-lg focus-within:shadow-yellow-400/10 transition-all">
-                                        <input 
-                                            type="number" 
-                                            className="w-24 bg-transparent text-center text-white text-base font-bold focus:outline-none px-3 py-2.5 placeholder-gray-600"
-                                            value={currency.rate || ''}
-                                            onChange={(e) => handleUpdateRate(currency.code, e.target.value)}
-                                            step="0.01"
-                                            min="0"
-                                            placeholder="0.00"
-                                            onBlur={(e) => {
-                                                // Set to 0 if empty when losing focus
-                                                if (e.target.value === '') {
-                                                    handleUpdateRate(currency.code, '0');
-                                                }
-                                            }}
-                                        />
-                                        <div className="flex items-center gap-2 px-3 py-2.5 bg-[#1f212e] border-l border-gray-700">
-                                            <span className="text-gray-500 text-xs font-bold">=</span>
-                                        </div>
+                                {/* Bottom Row: Exchange Rate Input */}
+                                <div className="flex items-center gap-3 bg-[#13141f] p-3 rounded-xl border border-gray-700 focus-within:border-yellow-400 transition-colors">
+                                    <div className="flex items-center gap-2 flex-shrink-0 px-2 border-l border-gray-700">
+                                        <span className="text-gray-500 text-[10px] font-bold">1 USD =</span>
                                     </div>
-                                    <div className="flex items-center gap-1 min-w-fit">
-                                        <span className={`text-lg font-bold ${currency.code === 'PI' ? 'text-[#9b59b6]' : 'text-yellow-400'}`}>
-                                            {currency.symbol}
-                                        </span>
-                                        <span className="text-xs text-gray-500 font-mono">USD</span>
+                                    <input 
+                                        type="number" 
+                                        className="flex-1 bg-transparent text-white text-lg font-black focus:outline-none text-center dir-ltr"
+                                        value={currency.rate || ''}
+                                        onChange={(e) => handleUpdateRate(currency.code, e.target.value)}
+                                        step="0.01"
+                                        min="0"
+                                        placeholder="0.00"
+                                        onBlur={(e) => {
+                                            if (e.target.value === '') handleUpdateRate(currency.code, '0');
+                                        }}
+                                    />
+                                    <div className="flex-shrink-0 px-2 text-gray-500 text-[10px] font-bold border-r border-gray-700">
+                                        {currency.code}
                                     </div>
                                 </div>
                             </div>
