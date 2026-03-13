@@ -222,6 +222,10 @@ const createOrder = asyncHandler(async (req, res) => {
   const executionMethods = selectedRegion?.executionMethods || [];
   const selectedExecutionMethod = executionMethods.find(em => String(em.id) === String(executionMethodId));
 
+  // Identify selected denomination to check for its specific Service ID
+  const productDenominations = Array.isArray(product?.denominations) ? product.denominations : [];
+  const selectedDenomination = productDenominations.find(d => String(d.id) === String(denominationIdNorm));
+
   const baseApiConfig = parseApiConfig(product?.apiConfig);
   const regionApiConfig = selectedRegion?.apiConfig; 
   const methodApiConfig = selectedExecutionMethod?.apiConfig;
@@ -245,8 +249,10 @@ const createOrder = asyncHandler(async (req, res) => {
     baseApiConfig?.providerName || 
     'KD1S';
 
-  // 3. Merge Service ID (Priority: Method > Region > Product)
+  // 3. Merge Service ID (Priority: Denomination > Method > Region > Product)
+  // This is the CRITICAL part for providers that use different IDs per quantity
   const effectiveServiceId = 
+    selectedDenomination?.serviceId ||    // 🚀 NEW: Check denomination first (highest priority)
     methodApiConfig?.serviceId || 
     selectedRegion?.apiServiceId || 
     regionApiConfig?.serviceId || 
