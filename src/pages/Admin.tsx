@@ -174,6 +174,12 @@ const Admin: React.FC<Props> = ({
   // ============================================================
   const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'inventory' | 'products' | 'reorder' | 'categories' | 'terms' | 'privacy' | 'users' | 'banners' | 'announcements' | 'currencies' | 'settings' | 'wallet_topup_requests' | 'about_us'>('dashboard');
   const [settingsUpdateCounter, setSettingsUpdateCounter] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setInitialLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
 // ✅ Always provide a safe date string for orders coming from API (Prisma returns createdAt)
 const getOrderDate = (o: any) => {
@@ -560,7 +566,8 @@ const getOrderDate = (o: any) => {
   };
 
   // --- Order Management Logic ---
-  const filteredOrders = orders.filter(o => {
+  const filteredOrders = (orders || []).filter(o => {
+      if (!o) return false;
       // 1. Status Filter
       const matchesStatus = orderFilter === 'all' || o.status === orderFilter;
 
@@ -1693,6 +1700,12 @@ try {
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
             <div className="space-y-6">
+                {initialLoading && (
+                    <div className="flex items-center gap-2 bg-blue-500/10 text-blue-400 p-3 rounded-xl border border-blue-500/20 text-xs font-bold animate-pulse mb-4">
+                        <RefreshCw size={14} className="animate-spin" />
+                        جاري تحديث البيانات...
+                    </div>
+                )}
                 {/* 1. KPI Cards Row */}
                 <div className="grid grid-cols-2 gap-3">
                     {/* Revenue */}
@@ -2131,12 +2144,14 @@ try {
                   <button onClick={() => setOrderFilter('cancelled')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${orderFilter === 'cancelled' ? 'bg-yellow-400 text-black' : 'text-gray-400'}`}>ملغي</button>
               </div>
 
-              <div className="space-y-3">
-                  {ordersRefreshing ? (
-                      <div className="text-center py-12 text-gray-500">
-                          جاري تحميل الطلبات...
-                      </div>
-                  ) : filteredOrders.length === 0 ? (
+	              <div className="space-y-3">
+	                  {ordersRefreshing || initialLoading ? (
+	                      <div className="space-y-3">
+	                          {[1, 2, 3].map((i) => (
+	                              <div key={i} className="bg-[#242636] p-4 rounded-xl border border-gray-800 animate-pulse h-24"></div>
+	                          ))}
+	                      </div>
+	                  ) : filteredOrders.length === 0 ? (
                       <div className="text-center py-12 text-gray-500">
                           {orderSearchQuery ? 'لا توجد طلبات تطابق بحثك' : 'لا توجد طلبات'}
                       </div>
@@ -2604,7 +2619,7 @@ try {
 
         {/* BANNERS TAB */}
         {activeTab === 'banners' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <button 
                   onClick={() => { 
                       setEditingBanner(null); 
