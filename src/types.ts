@@ -29,6 +29,7 @@ export interface Denomination {
   // Some endpoints return quantity/price under `amount`, so keep it for compatibility
   amount?: number;
   isAvailable?: boolean; // NEW: Availability status for this denomination
+  serviceId?: string; // NEW: Specific API service ID for this denomination
 }
 
 export interface ApiConfig {
