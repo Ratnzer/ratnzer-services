@@ -1653,7 +1653,8 @@ useEffect(() => {
       customInputLabel?: string,
       paymentMethod: 'wallet' | 'card' | 'pi' = 'wallet',
       selectedRegionObj?: any,
-      selectedDenominationObj?: any
+      selectedDenominationObj?: any,
+      selectedExecutionMethodObj?: any
   ) => {
       if (!currentUser) {
           setShowLoginModal(true);
@@ -1674,11 +1675,14 @@ useEffect(() => {
           price: price,
           fulfillmentType,
           regionName,
-          regionId,
-          denominationId,
-          selectedRegion: selectedRegionObj,
-          selectedDenomination: selectedDenominationObj,
-          quantityLabel,
+	          regionId,
+	          denominationId,
+	          selectedRegion: selectedRegionObj,
+	          selectedExecutionMethod: selectedExecutionMethodObj,
+	          executionMethodId: selectedExecutionMethodObj?.id,
+	          executionMethodName: selectedExecutionMethodObj?.name,
+	          selectedDenomination: selectedDenominationObj,
+	          quantityLabel,
           customInputValue,
           customInputLabel,
           paymentMethod,

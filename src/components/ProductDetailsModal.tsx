@@ -313,10 +313,11 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                     selectedRegion,
                     selectedDenomId,
                     customInputValue.trim(),
-                    activeCustomInput?.label,
+                    customInputLabel,
                     'wallet',
                     regionObj,
-                    denomObj
+                    denomObj,
+                    executionMethodObj
                 );
                 onClose();
             } else {
@@ -339,10 +340,11 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
                     selectedRegion,
                     selectedDenomId,
                     customInputValue.trim(),
-                    activeCustomInput?.label,
+                           customInputLabel,
                     paymentMethod, // ✅ Pass 'card' or 'pi' correctly
                     regionObj,
-                    denomObj
+                    denomObj,
+                    executionMethodObj
                 );
                 onClose();
           } else {
