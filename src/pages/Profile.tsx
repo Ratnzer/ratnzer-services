@@ -840,8 +840,11 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
          <div className="fixed inset-0 z-[60] flex items-end justify-center">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={() => setShowCurrencyModal(false)}></div>
 	            <div 
-	              className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-28 relative z-10 border-t border-gray-700 max-h-[85vh] flex flex-col transform transition-all duration-300 ease-out ${isCurrencyDragging ? 'duration-0 transition-none' : ''}`}
-	              style={{ transform: `translate3d(0, ${currencyTranslateY}px, 0)` }}
+	              className={`bg-[#1f212e] w-full max-w-md sm:rounded-3xl rounded-t-3xl relative z-10 flex flex-col shadow-2xl border-t border-gray-700 max-h-[85vh] mb-0 sm:mb-0 pb-safe transform transition-all duration-300 cubic-bezier(0.2, 0.8, 0.2, 1) ${isCurrencyDragging ? 'duration-0 transition-none' : ''}`}
+	              style={{ 
+	                transform: `translate3d(0, ${currencyTranslateY}px, 0)`,
+	                willChange: 'transform, opacity'
+	              }}
 	              onTouchStart={(e) => {
 	                setIsCurrencyDragging(true);
 	                (e.currentTarget as any)._startY = e.targetTouches[0].clientY;
@@ -862,24 +865,25 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
 	              }}
 	            >
 	               {/* Handle Bar & Close Button */}
-	               <div className="relative mb-6">
+	               <div className="relative mb-4">
 	                  <div 
 	                    className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
 	                  >
-                    <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
-                  </div>
-                  
-                  <button 
-                    onClick={() => setShowCurrencyModal(false)}
-                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-yellow-400 hover:text-yellow-300 border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
-                    aria-label="Close"
-                  >
-                    <X size={20} strokeWidth={2.5} />
-                  </button>
-               </div>
+	                    <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
+	                  </div>
+	                  
+	                  <button 
+	                    onClick={() => setShowCurrencyModal(false)}
+	                    className="absolute top-0 left-0 p-2 bg-[#242636]/80 hover:bg-[#2f3245] rounded-full text-yellow-400 hover:text-yellow-300 border border-gray-700/50 backdrop-blur-md transition-all active:scale-95"
+	                    aria-label="Close"
+	                  >
+	                    <X size={20} strokeWidth={2.5} />
+	                  </button>
+	               </div>
 
-               <h2 className="text-xl font-bold mb-6 text-center text-white">العملة</h2>
-	               <div className="overflow-y-auto no-scrollbar space-y-2 mb-4 flex-1">
+	               <div className="p-6 pt-0">
+	                 <h2 className="text-xl font-bold mb-6 text-center text-white">العملة</h2>
+		               <div className="overflow-y-auto no-scrollbar space-y-2 mb-6 flex-1">
 	                 {currencies
 	                   .filter(c => !isPiUser || c.code === 'PI')
 	                   .map((currency) => (
@@ -888,9 +892,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
                         {currentCurrency === currency.code && <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"><Check size={14} className="text-black" strokeWidth={3} /></div>}
                     </button>
                  ))}
-               </div>
-               <button onClick={() => setShowCurrencyModal(false)} className="w-full bg-gray-700 text-white font-bold py-3.5 rounded-xl">إغلاق</button>
-            </div>
+	               </div>
+	               <button onClick={() => setShowCurrencyModal(false)} className="w-full bg-gray-700 text-white font-bold py-3.5 rounded-xl active:scale-95 transition-transform">إغلاق</button>
+	               </div>
+	            </div>
          </div>
        )}
 
