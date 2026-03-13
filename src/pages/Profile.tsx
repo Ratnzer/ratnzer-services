@@ -127,8 +127,10 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
     setAvatarFailed(false);
   }, [user?.avatar, socialPhoto]);
 
+  const isPiUser = user?.email?.endsWith('@pi.network');
+
   const menuItems = [
-    { icon: PlayCircle, label: isAdLoading ? 'جاري تحميل الإعلان...' : 'شاهد واربح', action: async () => { 
+    ...(isPiUser ? [{ icon: PlayCircle, label: isAdLoading ? 'جاري تحميل الإعلان...' : 'شاهد واربح', action: async () => { 
         if (isAdLoading) return;
 
         if (!user || !user.id) {
@@ -171,7 +173,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
         } finally {
             setIsAdLoading(false);
         }
-    } },
+    } }] : []),
     { icon: CircleDollarSign, label: 'العملة', action: () => setShowCurrencyModal(true) },
     { icon: Lock, label: 'أمان الحساب', action: () => { setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' }); setShowPasswordModal(true); } },
     { icon: Bell, label: 'الإشعارات', action: () => setView(View.NOTIFICATIONS) },
