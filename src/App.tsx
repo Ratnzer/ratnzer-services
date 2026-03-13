@@ -165,34 +165,37 @@ class ErrorBoundary extends React.Component<
     console.error('UI crashed:', error, info);
   }
 
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
-          <div className="text-2xl font-bold text-white mb-2">حدث خطأ مؤقت</div>
-          <div className="text-gray-400 mb-6">
-            حاولت فتح الصفحة بسرعة قبل اكتمال تحميل البيانات. اضغط رجوع أو أعد المحاولة.
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => {
-                this.setState({ hasError: false, error: null });
-                this.props.onReset?.();
-              }}
-              className="px-4 py-2 rounded-lg bg-emerald-600 text-white active:scale-95 transition-all"
-            >
-              العودة للرئيسية
-            </button>
-            <button
-              onClick={() => this.setState({ hasError: false, error: null })}
-              className="px-4 py-2 rounded-lg bg-gray-700 text-white active:scale-95 transition-all"
-            >
-              إعادة المحاولة
-            </button>
-          </div>
-        </div>
-      );
-    }
+	  render() {
+	    if (this.state.hasError) {
+	      return (
+	        <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center animate-fadeIn">
+	          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
+	            <AlertTriangle size={40} className="text-red-500" />
+	          </div>
+	          <div className="text-2xl font-bold text-white mb-2">حدث خطأ مؤقت</div>
+	          <div className="text-gray-400 mb-8 text-sm leading-relaxed max-w-xs">
+	            يبدو أن هناك مشكلة في تحميل البيانات حالياً. قد يكون ذلك بسبب ضعف الاتصال أو خطأ غير متوقع.
+	          </div>
+	          <div className="flex flex-col w-full gap-3 max-w-xs">
+	            <button
+	              onClick={() => {
+	                this.setState({ hasError: false, error: null });
+	                this.props.onReset?.();
+	              }}
+	              className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+	            >
+	              العودة للرئيسية
+	            </button>
+	            <button
+	              onClick={() => window.location.reload()}
+	              className="w-full py-4 rounded-2xl bg-[#242636] text-gray-300 font-bold border border-gray-700 active:scale-95 transition-all"
+	            >
+	              تحديث التطبيق
+	            </button>
+	          </div>
+	        </div>
+	      );
+	    }
 
     return this.props.children as any;
   }

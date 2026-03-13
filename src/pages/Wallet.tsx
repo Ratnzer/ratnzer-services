@@ -226,7 +226,8 @@ const Wallet: React.FC<Props> = ({
     { id: 'pi', label: 'شبكة Pi' }
   ];
 
-  const filteredTransactions = transactions.filter((tx) => {
+  const filteredTransactions = (transactions || []).filter((tx) => {
+    if (!tx) return false;
     if (activeFilter === 'All') return true;
     
     // Convert everything to lowercase for comparison
@@ -494,7 +495,7 @@ const Wallet: React.FC<Props> = ({
 	        border: 'border-[#593B8B]/30',
 	        desc: 'طريقة الدفع هذه متوفرة فقط داخل Pi Browser' 
 	      },
-  ].filter(method => activeMethods.includes(method.id));
+	  ].filter(method => (activeMethods || []).includes(method.id));
 
   const handleMethodSelect = (method: typeof paymentMethods[0]) => {
       if (method.id === 'card') {
