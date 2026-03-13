@@ -3719,9 +3719,20 @@ try {
                                                                             className="bg-transparent text-white text-[10px] font-bold border-b border-gray-600 focus:border-yellow-400 outline-none w-1/2"
                                                                             value={em.name}
                                                                             onChange={e => {
-                                                                                const updatedMethods = [...(r.executionMethods || [])];
-                                                                                updatedMethods[emIdx] = { ...em, name: e.target.value };
-                                                                                updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                                const val = e.target.value;
+                                                                                setProdForm(prev => ({
+                                                                                    ...prev,
+                                                                                    regions: (prev.regions || []).map(reg => 
+                                                                                        reg.id === r.id 
+                                                                                        ? { 
+                                                                                            ...reg, 
+                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                meth.id === em.id ? { ...meth, name: val } : meth
+                                                                                            )
+                                                                                        } 
+                                                                                        : reg
+                                                                                    )
+                                                                                }));
                                                                             }}
                                                                         />
                                                                         <button 
@@ -3741,9 +3752,20 @@ try {
                                                                                 placeholder="Service ID"
                                                                                 value={em.apiConfig?.serviceId || ''}
                                                                                 onChange={e => {
-                                                                                    const updatedMethods = [...(r.executionMethods || [])];
-                                                                                    updatedMethods[emIdx] = { ...em, apiConfig: { ...(em.apiConfig || { type: 'manual' }), serviceId: e.target.value, type: e.target.value ? 'api' : 'manual' } };
-                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                                    const val = e.target.value;
+                                                                                    setProdForm(prev => ({
+                                                                                        ...prev,
+                                                                                        regions: (prev.regions || []).map(reg => 
+                                                                                            reg.id === r.id 
+                                                                                            ? { 
+                                                                                                ...reg, 
+                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                    meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), serviceId: val, type: val ? 'api' : 'manual' } } : meth
+                                                                                                )
+                                                                                            } 
+                                                                                            : reg
+                                                                                        )
+                                                                                    }));
                                                                                 }}
                                                                             />
                                                                         </div>
@@ -3754,9 +3776,20 @@ try {
                                                                                 placeholder="Provider Name"
                                                                                 value={em.apiConfig?.providerName || ''}
                                                                                 onChange={e => {
-                                                                                    const updatedMethods = [...(r.executionMethods || [])];
-                                                                                    updatedMethods[emIdx] = { ...em, apiConfig: { ...(em.apiConfig || { type: 'manual' }), providerName: e.target.value } };
-                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+                                                                                    const val = e.target.value;
+                                                                                    setProdForm(prev => ({
+                                                                                        ...prev,
+                                                                                        regions: (prev.regions || []).map(reg => 
+                                                                                            reg.id === r.id 
+                                                                                            ? { 
+                                                                                                ...reg, 
+                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                    meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), providerName: val } } : meth
+                                                                                                )
+                                                                                            } 
+                                                                                            : reg
+                                                                                        )
+                                                                                    }));
                                                                                 }}
                                                                             />
                                                                         </div>
