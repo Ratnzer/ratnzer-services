@@ -3838,7 +3838,7 @@ try {
                                                                         <div className="p-3 pt-0 space-y-3 border-t border-gray-700/50 animate-fadeIn">
                                                                             {/* Method Name Edit */}
                                                                             <div className="space-y-1 pt-3">
-                                                                                <label className="text-[8px] text-yellow-500 font-bold">اسم طريقة التنفيذ (مثلاً: شحن مباشر)</label>
+                                                                                <label className="text-[8px] text-yellow-500 font-bold">اسم نوع الطلب (مثلاً: شحن مباشر)</label>
                                                                                 <input 
                                                                                     className="w-full bg-[#13141f] p-1.5 rounded border border-gray-600 text-white text-[10px] font-bold focus:border-yellow-400 outline-none"
                                                                                     placeholder="اكتب اسم الطريقة هنا..."
@@ -4270,7 +4270,7 @@ try {
                         {/* Denominations Section - Product Level */}
                         <div className="bg-[#242636] p-4 rounded-xl border border-gray-700">
                             <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 pb-2 border-b border-gray-700"><Tags size={14} className="text-yellow-400"/> الكميات / الفئات (المستوى العام للمنتج)</h3>
-                            <p className="text-[11px] text-gray-400 mb-3">هذه الكميات ستكون بمثابة قيم افتراضية. إذا أضفت كميات في نوع المنتج أو طريقة التنفيذ، فستتم الأولوية لها.</p>
+                            <p className="text-[11px] text-gray-400 mb-3">هذه الكميات ستكون بمثابة قيم افتراضية. إذا أضفت كميات في نوع المنتج أو نوع الطلب، فستتم الأولوية لها.</p>
                             
                             {/* List */}
                             <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 custom-scrollbar">

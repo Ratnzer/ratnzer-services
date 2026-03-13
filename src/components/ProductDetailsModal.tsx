@@ -455,7 +455,7 @@ const renderDetails = () => (
 	            {/* Execution Method Selection */}
 	            {regionObj?.executionMethods && regionObj.executionMethods.length > 0 && (
 	                <div className="mb-4 animate-fadeIn">
-	                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">طريقة التنفيذ</h3>
+	                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">نوع الطلب</h3>
 	                    <div className="relative">
 	                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
 	                            {regionObj.executionMethods.map((method) => (
