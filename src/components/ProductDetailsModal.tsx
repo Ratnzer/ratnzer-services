@@ -477,11 +477,12 @@ const renderDetails = () => (
                                 </button>
                             ))}
                         </div>
-                        {/* Scroll Hint Icon */}
+                        {/* Triple Arrow Scroll Hint */}
                         {effectiveDenoms.length > 3 && (
-                            <div className="absolute -left-1 top-1/2 -translate-y-1/2 pointer-events-none animate-pulse flex flex-col items-center">
-                                <ArrowLeft size={14} className="text-yellow-400/70" />
-                                <div className="w-1 h-1 bg-yellow-400/50 rounded-full mt-0.5"></div>
+                            <div className="absolute -left-1 top-0 bottom-1 w-6 pointer-events-none flex flex-col items-center justify-center gap-0.5 bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/80 to-transparent rounded-l-xl">
+                                <ArrowLeft size={16} className="text-yellow-400/80 animate-[bounce_1.5s_infinite] [animation-delay:-0.4s]" />
+                                <ArrowLeft size={16} className="text-yellow-400/60 animate-[bounce_1.5s_infinite] [animation-delay:-0.2s]" />
+                                <ArrowLeft size={16} className="text-yellow-400/40 animate-[bounce_1.5s_infinite]" />
                             </div>
                         )}
                     </div>
