@@ -991,19 +991,38 @@ try {
   };
 
   // Denomination Availability Helper (Region Specific)
-  const updateRegionDenominationAvailability = (regionId: string, denomId: string, isAvailable: boolean) => {
-    setProdForm(prev => ({
-        ...prev,
-        regions: prev.regions?.map(r => 
-            r.id === regionId ? { 
-                ...r, 
-                denominations: r.denominations?.map(d => 
-                    d.id === denomId ? { ...d, isAvailable: isAvailable } : d
-                )
-            } : r
-        )
-    }));
-  };
+	  const updateRegionDenominationAvailability = (regionId: string, denomId: string, isAvailable: boolean) => {
+	    setProdForm(prev => ({
+	        ...prev,
+	        regions: prev.regions?.map(r => 
+	            r.id === regionId ? { 
+	                ...r, 
+	                denominations: r.denominations?.map(d => 
+	                    d.id === denomId ? { ...d, isAvailable: isAvailable } : d
+	                )
+	            } : r
+	        )
+	    }));
+	  };
+	
+	  const updateExecutionMethodDenominationAvailability = (regionId: string, methodId: string, denomId: string, isAvailable: boolean) => {
+	    setProdForm(prev => ({
+	        ...prev,
+	        regions: prev.regions?.map(r => 
+	            r.id === regionId ? { 
+	                ...r, 
+	                executionMethods: r.executionMethods?.map(m => 
+	                    m.id === methodId ? {
+	                        ...m,
+	                        denominations: m.denominations?.map(d => 
+	                            d.id === denomId ? { ...d, isAvailable: isAvailable } : d
+	                        )
+	                    } : m
+	                )
+	            } : r
+	        )
+	    }));
+	  };
 
   const removeRegionDenomination = (regionId: string, denomId: string) => {
       setProdForm(prev => ({
@@ -3978,27 +3997,13 @@ try {
 		                                                                                                        </div>
                                                                                                         <div className="flex gap-0.5 items-center ml-1">
                                                                                                             <button onClick={() => startEditRegionDenomination(r.id, d, em.id)} className="p-0.5 text-blue-400 hover:bg-blue-500/20 rounded"><Edit2 size={10} /></button>
-                                                                                                            <button 
-                                                                                                                onClick={() => {
-                                                                                                                    setProdForm(prev => ({
-                                                                                                                        ...prev,
-                                                                                                                        regions: (prev.regions || []).map(reg => 
-                                                                                                                            reg.id === r.id 
-                                                                                                                            ? { 
-                                                                                                                                ...reg, 
-                                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
-                                                                                                                                    meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).map(dd => dd.id === d.id ? { ...dd, isAvailable: dd.isAvailable !== false ? false : true } : dd) } : meth
-                                                                                                                                )
-                                                                                                                            } 
-                                                                                                                            : reg
-                                                                                                                        )
-                                                                                                                    }));
-                                                                                                                }}
-                                                                                                                className={`p-0.5 rounded text-[7px] ${d.isAvailable !== false ? 'text-green-500 hover:bg-green-500/20' : 'text-red-500 hover:bg-red-500/20'}`}
-                                                                                                                title={d.isAvailable !== false ? 'تعطيل' : 'تفعيل'}
-                                                                                                            >
-                                                                                                                {d.isAvailable !== false ? <CheckSquare size={10} /> : <XCircle size={10} />}
-                                                                                                            </button>
+	                                                                                                            <button 
+	                                                                                                                onClick={() => updateExecutionMethodDenominationAvailability(r.id, em.id, d.id, d.isAvailable === false)} 
+	                                                                                                                className={`p-0.5 rounded ${d.isAvailable === false ? 'text-green-400 hover:bg-green-500/20' : 'text-yellow-400 hover:bg-yellow-500/20'}`}
+	                                                                                                                title={d.isAvailable === false ? "تفعيل" : "إيقاف"}
+	                                                                                                            >
+	                                                                                                                {d.isAvailable === false ? <Check size={10} /> : <EyeOff size={10} />}
+	                                                                                                            </button>
                                                                                                             <button 
                                                                                                                 onClick={() => {
                                                                                                                     setProdForm(prev => ({
@@ -4171,13 +4176,13 @@ try {
 		                                                                                </div>
 	                                                                                <div className="flex gap-2 items-center">
 	                                                                                    <button onClick={() => startEditRegionDenomination(r.id, d)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
-	                                                                                    <button 
-	                                                                                        onClick={() => updateRegionDenominationAvailability(r.id, d.id, d.isAvailable !== false ? false : true)}
-	                                                                                        className={`p-1.5 rounded-lg transition-colors border ${d.isAvailable !== false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
-	                                                                                        title={d.isAvailable !== false ? 'تعطيل توفر هذه الكمية' : 'تفعيل توفر هذه الكمية'}
-	                                                                                    >
-	                                                                                        {d.isAvailable !== false ? <CheckSquare size={14} /> : <XCircle size={14} />}
-	                                                                                    </button>
+		                                                                                    <button 
+		                                                                                        onClick={() => updateRegionDenominationAvailability(r.id, d.id, d.isAvailable === false)}
+		                                                                                        className={`p-1.5 rounded-lg transition-colors border ${d.isAvailable === false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'}`}
+		                                                                                        title={d.isAvailable === false ? 'تفعيل' : 'إيقاف'}
+		                                                                                    >
+		                                                                                        {d.isAvailable === false ? <Check size={14} /> : <EyeOff size={14} />}
+		                                                                                    </button>
 	                                                                                    <button onClick={() => removeRegionDenomination(r.id, d.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14} /></button>
 	                                                                                </div>
 	                                                                            </div>
