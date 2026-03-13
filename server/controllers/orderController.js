@@ -228,6 +228,22 @@ const createOrder = asyncHandler(async (req, res) => {
 
   // Final effective config
   const apiConfig = methodApiConfig || regionApiConfig || baseApiConfig;
+
+  // --- 💎 💎 💎 NEW REFINED INHERITANCE LOGIC 💎 💎 💎 ---
+  // We need to merge properties correctly to ensure Service ID and Provider Name are inherited if missing in lower levels
+  const effectiveProviderName = 
+    selectedExecutionMethod?.apiConfig?.providerName || 
+    selectedRegion?.apiProviderName || 
+    selectedRegion?.apiConfig?.providerName || 
+    product?.apiConfig?.providerName || 
+    'KD1S';
+
+  const effectiveServiceId = 
+    selectedExecutionMethod?.apiConfig?.serviceId || 
+    selectedRegion?.apiServiceId || 
+    selectedRegion?.apiConfig?.serviceId || 
+    product?.apiConfig?.serviceId;
+
   // --- ✨ API Config Logic End ---
 
   // 4. Transaction
@@ -319,7 +335,7 @@ const createOrder = asyncHandler(async (req, res) => {
       status,
       fulfillmentType,
       deliveredCode,
-      providerName: apiConfig?.providerName,
+      providerName: effectiveProviderName,
     };
 
     let order;
@@ -355,10 +371,6 @@ const createOrder = asyncHandler(async (req, res) => {
     });
     return order;
   });
-
-  // Identify provider details from the effective apiConfig
-  const effectiveServiceId = selectedRegion?.apiServiceId || apiConfig?.serviceId;
-  const effectiveProviderName = selectedRegion?.apiProviderName || apiConfig?.providerName || 'KD1S';
 
   const shouldUseProvider =
     apiConfig?.type === 'api' && effectiveServiceId && result.status !== 'completed';
@@ -414,7 +426,7 @@ const createOrder = asyncHandler(async (req, res) => {
           where: { id: result.id },
           data: {
             status: 'cancelled',
-            rejectionReason: `KD1S: ${err?.message || err}`,
+            rejectionReason: `${effectiveProviderName}: ${err?.message || err}`,
           },
         });
       });
