@@ -839,33 +839,33 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {showCurrencyModal && (
          <div className="fixed inset-0 z-[60] flex items-end justify-center">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={() => setShowCurrencyModal(false)}></div>
-            <div 
-              className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-28 relative z-10 border-t border-gray-700 max-h-[85vh] flex flex-col transform transition-all duration-300 ease-out ${isCurrencyDragging ? 'duration-0 transition-none' : ''}`}
-              style={{ transform: `translate3d(0, ${currencyTranslateY}px, 0)` }}
-            >
-               {/* Handle Bar & Close Button */}
-               <div className="relative mb-6">
-                  <div 
-                    className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
-                    onTouchStart={(e) => {
-                      setIsCurrencyDragging(true);
-                      (e.currentTarget as any)._startY = e.targetTouches[0].clientY;
-                    }}
-                    onTouchMove={(e) => {
-                      const startY = (e.currentTarget as any)._startY;
-                      if (!startY) return;
-                      const diff = e.targetTouches[0].clientY - startY;
-                      if (diff > 0) setCurrencyTranslateY(diff);
-                    }}
-                    onTouchEnd={(e) => {
-                      setIsCurrencyDragging(false);
-                      if (currencyTranslateY > 100) {
-                        setShowCurrencyModal(false);
-                      }
-                      setCurrencyTranslateY(0);
-                      (e.currentTarget as any)._startY = null;
-                    }}
-                  >
+	            <div 
+	              className={`bg-[#1f212e] w-full max-w-md rounded-t-3xl p-6 pb-28 relative z-10 border-t border-gray-700 max-h-[85vh] flex flex-col transform transition-all duration-300 ease-out ${isCurrencyDragging ? 'duration-0 transition-none' : ''}`}
+	              style={{ transform: `translate3d(0, ${currencyTranslateY}px, 0)` }}
+	              onTouchStart={(e) => {
+	                setIsCurrencyDragging(true);
+	                (e.currentTarget as any)._startY = e.targetTouches[0].clientY;
+	              }}
+	              onTouchMove={(e) => {
+	                const startY = (e.currentTarget as any)._startY;
+	                if (!startY) return;
+	                const diff = e.targetTouches[0].clientY - startY;
+	                if (diff > 0) setCurrencyTranslateY(diff);
+	              }}
+	              onTouchEnd={(e) => {
+	                setIsCurrencyDragging(false);
+	                if (currencyTranslateY > 160) {
+	                  setShowCurrencyModal(false);
+	                }
+	                setCurrencyTranslateY(0);
+	                (e.currentTarget as any)._startY = null;
+	              }}
+	            >
+	               {/* Handle Bar & Close Button */}
+	               <div className="relative mb-6">
+	                  <div 
+	                    className="w-full flex justify-center pt-2 pb-4 cursor-grab active:cursor-grabbing"
+	                  >
                     <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
                   </div>
                   
