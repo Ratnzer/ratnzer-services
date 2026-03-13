@@ -431,22 +431,12 @@ const App: React.FC = () => {
     if ((window as any).Pi) {
       try {
         (window as any).Pi.init({ version: "2.0", sandbox: false });
-        console.log("Pi SDK initialized in App");
+        console.log("Pi SDK initialized in App (Silent Mode)");
         
-        const onIncompletePaymentFound = (payment: any) => {
-          console.log("Incomplete payment found in App:", payment);
-        };
+        // We no longer call Pi.authenticate() here automatically.
+        // Authentication will be triggered only when needed (Login, Payment, or Ads).
+        // This prevents the annoying permission popup on every page load.
         
-        (window as any).Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
-          .then((auth: any) => {
-            console.log("Pi Authenticated in App", auth);
-            setPiAuthenticated(true);
-          })
-          .catch((err: any) => {
-            console.error("Pi Auth error in App:", err);
-            setPiAuthenticated(false);
-          });
-          
       } catch (e) {
         console.error("Error initializing Pi SDK in App:", e);
       }
@@ -811,13 +801,11 @@ useEffect(() => {
 		            ['card', 'superkey', 'zaincash', 'asiacell_transfer'].forEach(id => {
 		              localStorage.setItem(`payment_method_${id}_enabled`, 'false');
 		            });
-		            localStorage.setItem('payment_method_pi_enabled', 'true');
-
-		            // ✅ Ensure Pi SDK is authenticated for Ads
-		            if ((window as any).Pi) {
-		              (window as any).Pi.authenticate(['username']).catch((e: any) => console.warn('Pi Auth failed on boot', e));
-		            }
-		          }
+			            localStorage.setItem('payment_method_pi_enabled', 'true');
+			            
+			            // We no longer call Pi.authenticate() here on boot.
+			            // It will be called when the user actually clicks "Watch and Earn" or tries to pay.
+			          }
 
 	          if ((userData as any)?.preferredCurrency) {
 	            const pc = (userData as any).preferredCurrency;

@@ -101,19 +101,8 @@ const Wallet: React.FC<Props> = ({
   }, [banTimeLeft]);
 
   useEffect(() => {
-    // Re-authenticate Pi SDK when Pi modal opens to ensure scope
-    if (modalStep === 'pi' && window.Pi) {
-      const onIncompletePaymentFound = (payment: any) => console.log("Incomplete payment found in Wallet:", payment);
-      window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound)
-        .then(() => {
-          console.log("Pi Authenticated in Wallet Modal");
-          setPiAuthenticated(true);
-        })
-        .catch(err => {
-          console.error("Pi Auth error in Wallet Modal:", err);
-          setPiAuthenticated(false);
-        });
-    }
+    // We no longer call Pi.authenticate() automatically when the modal opens.
+    // It will be called inside handleAddBalanceSubmit only when the user clicks "Confirm".
 
     if (modalStep === 'asiacell') {
       const banUntil = localStorage.getItem('asiacell_ban_until');
