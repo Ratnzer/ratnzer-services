@@ -145,7 +145,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
       console.log("Ad is ready, showing now...");
       const showAdResponse = await window.Pi.Ads.showAd("rewarded");
       isAdShowing = false;
-      return handleAdResponse(showAdResponse);
+      return await handleAdResponse(showAdResponse);
     }
 
     // 3. إذا لم يكن جاهزاً، نطلبه مرة واحدة فقط
@@ -164,7 +164,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
       console.log("Ad loaded, showing now...");
       const showAdResponse = await window.Pi.Ads.showAd("rewarded");
       isAdShowing = false;
-      return handleAdResponse(showAdResponse);
+      return await handleAdResponse(showAdResponse);
     }
 
     isAdShowing = false;
@@ -179,7 +179,7 @@ export const showRewardedAd = async (userId?: string): Promise<{ success: boolea
 /**
  * دالة مساعدة لمعالجة استجابة الإعلان بشكل موحد
  */
-const handleAdResponse = (showAdResponse: any): { success: boolean; adId?: string; error?: string } => {
+const handleAdResponse = async (showAdResponse: any): Promise<{ success: boolean; adId?: string; error?: string }> => {
   // معالجة حالات الاستجابة المختلفة بناءً على توثيق Pi SDK
   switch (showAdResponse.result) {
     case "AD_REWARDED":
