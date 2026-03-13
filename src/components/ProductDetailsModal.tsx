@@ -180,9 +180,18 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     }
   }, [selectedRegion, selectedExecutionMethodId, product, selectedDenomId]);
 
-  if (!isOpen) return null;
+	  if (!isOpen) return null;
 
-  // Helpers to get full objects
+	  const waveAnimationStyle = (
+	    <style>{`
+	        @keyframes wave {
+	            0%, 100% { transform: translateX(0) scale(1); opacity: 0.3; }
+	            50% { transform: translateX(-4px) scale(1.1); opacity: 1; }
+	        }
+	    `}</style>
+	  );
+
+	  // Helpers to get full objects
   const regionObj = product.regions?.find(r => r.id === selectedRegion);
   const executionMethodObj = regionObj?.executionMethods?.find(m => m.id === selectedExecutionMethodId);
   const effectiveDenoms = (executionMethodObj?.denominations && executionMethodObj.denominations.length > 0)
@@ -501,22 +510,16 @@ const renderDetails = () => (
                                 </button>
                             ))}
                         </div>
-                        {/* Triple Arrow Scroll Hint with Wave Animation */}
-                        {effectiveDenoms.length > 3 && (
-                            <div className="absolute -left-1 top-0 bottom-1 w-8 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/90 to-transparent rounded-l-xl overflow-hidden">
-                                <div className="flex flex-col items-center justify-center -space-y-3">
-                                    <ChevronRight size={24} className="text-yellow-400/90 animate-[wave_1.2s_infinite] [animation-delay:0s]" />
-                                    <ChevronRight size={24} className="text-yellow-400/60 animate-[wave_1.2s_infinite] [animation-delay:0.2s]" />
-                                    <ChevronRight size={24} className="text-yellow-400/30 animate-[wave_1.2s_infinite] [animation-delay:0.4s]" />
-                                </div>
-                                <style>{`
-                                    @keyframes wave {
-                                        0%, 100% { transform: translateX(0) scale(1); opacity: 0.3; }
-                                        50% { transform: translateX(-4px) scale(1.1); opacity: 1; }
-                                    }
-                                `}</style>
-                            </div>
-                        )}
+	                        {/* Triple Arrow Scroll Hint with Wave Animation */}
+	                        {effectiveDenoms.length > 3 && (
+	                            <div className="absolute -left-1 top-0 bottom-1 w-8 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/90 to-transparent rounded-l-xl overflow-hidden">
+	                                <div className="flex flex-col items-center justify-center -space-y-3">
+	                                    <ChevronRight size={24} className="text-yellow-400/90 animate-[wave_1.2s_infinite] [animation-delay:0s]" />
+	                                    <ChevronRight size={24} className="text-yellow-400/60 animate-[wave_1.2s_infinite] [animation-delay:0.2s]" />
+	                                    <ChevronRight size={24} className="text-yellow-400/30 animate-[wave_1.2s_infinite] [animation-delay:0.4s]" />
+	                                </div>
+	                            </div>
+	                        )}
                     </div>
                 </div>
             )}
@@ -815,7 +818,8 @@ const renderDetails = () => (
 
 	  return (
 	    <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center">
-      {/* Backdrop */}
+	      {waveAnimationStyle}
+	      {/* Backdrop */}
       <div 
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
