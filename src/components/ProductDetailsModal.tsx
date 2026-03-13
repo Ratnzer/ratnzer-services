@@ -710,15 +710,15 @@ const renderDetails = () => (
             transform: translateY > 0 ? `translate3d(0, ${translateY}px, 0)` : 'translate3d(0, 0, 0)',
             willChange: 'transform, opacity'
         }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
         
-	        {/* Handle Bar */}
-	        <div 
-	          className="w-full flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing"
-	          onTouchStart={onTouchStart}
-	          onTouchMove={onTouchMove}
-	          onTouchEnd={onTouchEnd}
-	        >
+		        {/* Handle Bar */}
+		        <div 
+		          className="w-full flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing"
+		        >
 	          <div className="w-12 h-1.5 bg-gray-600 rounded-full opacity-50"></div>
 	        </div>
 	
