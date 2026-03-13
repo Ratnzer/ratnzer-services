@@ -613,7 +613,19 @@ useEffect(() => {
   
   // --- Global App State (Lifted for Admin Control) ---
   const [products, setProducts] = useState<Product[]>(() => loadCache<Product[]>('cache_products_v1', INITIAL_PRODUCTS));
-  const [categories, setCategories] = useState<Category[]>(() => loadCache<Category[]>('cache_categories_v1', INITIAL_CATEGORIES));
+  const [categories, setCategories] = useState<Category[]>(() => {
+    const cached = loadCache<Category[]>('cache_categories_v1', INITIAL_CATEGORIES);
+    return cached.map((c: any) => {
+      let IconComp = Sparkles;
+      if (c.icon && typeof c.icon === 'string') {
+        const iconKey = c.icon.toLowerCase().trim();
+        IconComp = CATEGORY_ICON_MAP[iconKey] || Sparkles;
+      } else if (c.icon) {
+        IconComp = c.icon;
+      }
+      return { ...c, icon: IconComp };
+    });
+  });
   const [terms, setTerms] = useState<AppTerms>(() => loadCache<AppTerms>('cache_terms_v1', INITIAL_TERMS)); // Updated type
   const [privacy, setPrivacy] = useState<AppPrivacy>(() => loadCache<AppPrivacy>('cache_privacy_v1', INITIAL_PRIVACY));
   const [banners, setBanners] = useState<Banner[]>(() => loadCache<Banner[]>('cache_banners_v1', INITIAL_BANNERS));
