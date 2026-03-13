@@ -59,7 +59,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   const [isDragging, setIsDragging] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  const minSwipeDistance = 180;
+  const minSwipeDistance = 160;
 
   // Handle entry animation when isOpen changes
   useEffect(() => {
