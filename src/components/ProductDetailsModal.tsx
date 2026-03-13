@@ -322,8 +322,8 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
   // --- RENDER CONTENT BASED ON STEP ---
   
-  const renderDetails = () => (
-      <div className="flex-1 overflow-y-auto no-scrollbar p-5 pb-4">
+const renderDetails = () => (
+	      <div className="flex-1 overflow-y-auto no-scrollbar p-5 pb-1">
             {/* Header Section */}
             <div className="flex gap-5 items-start mb-6">
                  {/* Product Card Graphic */}
