@@ -43,6 +43,13 @@ const Wallet: React.FC<Props> = ({
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Simulate initial loading to match other pages' behavior
+    const timer = setTimeout(() => setInitialLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Modal Step State
   const [modalStep, setModalStep] = useState<'select' | 'card' | 'support' | 'asiacell' | 'pi'>('select');
@@ -572,7 +579,21 @@ const Wallet: React.FC<Props> = ({
           </div>
 
           <div className="space-y-3">
-            {filteredTransactions.length > 0 ? (
+            {initialLoading ? (
+              // Loading Shimmer Effect
+              [1, 2, 3].map((i) => (
+                <div key={i} className="bg-[#1e1f2b] p-4 rounded-xl flex items-center justify-between border border-gray-800 animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-800"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 w-24 bg-gray-800 rounded"></div>
+                      <div className="h-2 w-16 bg-gray-800 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-4 w-12 bg-gray-800 rounded"></div>
+                </div>
+              ))
+            ) : filteredTransactions.length > 0 ? (
               filteredTransactions.map((tx: Transaction) => {
                 const IconComponent = tx.icon || CreditCard;
                 return (
