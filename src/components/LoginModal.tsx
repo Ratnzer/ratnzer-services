@@ -25,6 +25,46 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
+  // Drag to dismiss state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [translateY, setTranslateY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const minSwipeDistance = 160;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const currentTouch = e.targetTouches[0].clientY;
+    const diff = currentTouch - touchStart;
+    if (diff > 0) {
+      setTranslateY(diff);
+      setTouchEnd(currentTouch);
+    }
+  };
+
+  const onTouchEnd = () => {
+    setIsDragging(false);
+    if (!touchStart || !touchEnd) {
+      setTranslateY(0);
+      return;
+    }
+    const distance = touchEnd - touchStart;
+    if (distance > minSwipeDistance) {
+      onClose();
+      setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
+    } else {
+      setTranslateY(0);
+    }
+  };
+
   const allowedDomains = ['gmail.com', 'hotmail.com'];
   const allowedDomainPattern = allowedDomains.map((domain) => domain.replace(/\./g, '\\.')).join('|');
 
@@ -250,7 +290,16 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose}></div>
             
             {/* UPDATED: Changed max-h logic to use dvh (Dynamic Viewport Height) and min-height to prevent collapse */}
-            <div className="bg-[#1f212e] w-full max-w-sm rounded-[2rem] relative z-10 animate-slide-up border border-gray-700/50 shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85dvh] sm:max-h-[90vh] min-h-[400px]">
+            <div 
+                className={`bg-[#1f212e] w-full max-w-sm rounded-[2rem] relative z-10 animate-slide-up border border-gray-700/50 shadow-2xl overflow-hidden flex flex-col h-auto max-h-[85dvh] sm:max-h-[90vh] min-h-[400px] transition-all duration-300 ${isDragging ? 'duration-0 transition-none' : ''}`}
+                style={{ 
+                    transform: translateY > 0 ? `translate3d(0, ${translateY}px, 0)` : 'translate3d(0, 0, 0)',
+                    willChange: 'transform, opacity'
+                }}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+            >
                 
                 {/* Header Decoration */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400"></div>
