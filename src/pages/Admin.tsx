@@ -4006,9 +4006,106 @@ try {
                                                         </div>
                                                     </div>
 
-                                                    {/* Note: Custom input is now managed per Execution Method only */}
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="text-[10px] text-gray-400 font-bold">تفعيل الحقل المخصص لهذا النوع</label>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => updateRegionCustomInput(r.id, {
+                                                                enabled: !(r.customInput?.enabled),
+                                                                label: r.customInput?.label || '',
+                                                                placeholder: r.customInput?.placeholder || '',
+                                                                required: r.customInput?.required || false
+                                                            })}
+                                                            className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${r.customInput?.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+                                                        >
+                                                            <span className={`inline-block h-2.5 w-2.5 transform rounded-full bg-white transition-transform ${r.customInput?.enabled ? 'translate-x-1' : 'translate-x-4.5'}`} />
+                                                        </button>
+                                                    </div>
 
-                                                    {/* Note: Denominations are now managed per Execution Method only */}
+                                                    {r.customInput?.enabled && (
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <div>
+                                                                <input 
+                                                                    className="w-full bg-[#13141f] p-2 rounded-lg border border-gray-600 text-white text-[10px]" 
+                                                                    placeholder="العنوان (مثال: Player ID)" 
+                                                                    value={r.customInput.label}
+                                                                    onChange={e => updateRegionCustomInput(r.id, { ...r.customInput!, label: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <input 
+                                                                    className="w-full bg-[#13141f] p-2 rounded-lg border border-gray-600 text-white text-[10px]" 
+                                                                    placeholder="توضيح (Placeholder)" 
+                                                                    value={r.customInput.placeholder}
+                                                                    onChange={e => updateRegionCustomInput(r.id, { ...r.customInput!, placeholder: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div className="col-span-2 flex items-center gap-2 mt-1">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    className="w-3.5 h-3.5 rounded bg-[#13141f] border-gray-600 text-blue-500"
+                                                                    checked={r.customInput.required}
+                                                                    onChange={e => updateRegionCustomInput(r.id, { ...r.customInput!, required: e.target.checked })}
+                                                                />
+                                                                <label className="text-[10px] text-gray-300">مطلوب (إجباري)</label>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Region-specific Denominations */}
+                                                    <div className="pt-3 border-t border-gray-700/60 space-y-2">
+                                                        <div className="flex justify-between items-center">
+                                                            <h5 className="text-[10px] text-gray-400 font-bold">الكميات / الفئات لهذا النوع</h5>
+                                                            <span className="text-[9px] text-gray-500">(إذا أضيفت هنا سيتم استخدامها عند اختيار هذا النوع في التطبيق)</span>
+                                                        </div>
+
+                                                        <div className="space-y-2 max-h-28 overflow-y-auto pr-1 custom-scrollbar">
+                                                            {(r.denominations && r.denominations.length > 0) ? (
+	                                                                r.denominations.map(d => (
+	                                                                    <div key={d.id} className={`p-2.5 rounded-lg border ${d.isAvailable !== false ? 'bg-[#13141f] border-gray-700' : 'bg-red-900/20 border-red-700/50'}`}>
+	                                                                        {editingRegionDenomId?.denomId === d.id ? (
+	                                                                            <div className="space-y-2">
+	                                                                                <div className="flex gap-2">
+	                                                                                    <input className="flex-[2] bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" value={editRegionDenomLabel} onChange={e => setEditRegionDenomLabel(e.target.value)} />
+	                                                                                    <input className="flex-1 bg-[#1f212e] p-1.5 rounded border border-gray-600 text-white text-[10px] outline-none" type="number" step="0.01" value={editRegionDenomPrice} onChange={e => setEditRegionDenomPrice(e.target.value)} />
+	                                                                                </div>
+	                                                                                <div className="flex gap-2">
+	                                                                                    <button onClick={saveEditRegionDenomination} className="flex-1 bg-green-600 text-white py-1 rounded text-[10px] font-bold">حفظ</button>
+	                                                                                    <button onClick={() => setEditingRegionDenomId(null)} className="flex-1 bg-gray-600 text-white py-1 rounded text-[10px] font-bold">إلغاء</button>
+	                                                                                </div>
+	                                                                            </div>
+	                                                                        ) : (
+	                                                                            <div className="flex justify-between items-center">
+	                                                                                <div className="min-w-0">
+	                                                                                    <span className={`font-bold text-[11px] block truncate ${d.isAvailable !== false ? 'text-white' : 'text-red-400'}`}>{d.label}</span>
+	                                                                                    <span className={`text-[10px] font-mono dir-ltr ${d.isAvailable !== false ? 'text-yellow-400' : 'text-red-400'}`}>${d.price}</span>
+	                                                                                </div>
+	                                                                                <div className="flex gap-2 items-center">
+	                                                                                    <button onClick={() => startEditRegionDenomination(r.id, d)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
+	                                                                                    <button 
+	                                                                                        onClick={() => updateRegionDenominationAvailability(r.id, d.id, d.isAvailable !== false ? false : true)}
+	                                                                                        className={`p-1.5 rounded-lg transition-colors border ${d.isAvailable !== false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
+	                                                                                        title={d.isAvailable !== false ? 'تعطيل توفر هذه الكمية' : 'تفعيل توفر هذه الكمية'}
+	                                                                                    >
+	                                                                                        {d.isAvailable !== false ? <CheckSquare size={14} /> : <XCircle size={14} />}
+	                                                                                    </button>
+	                                                                                    <button onClick={() => removeRegionDenomination(r.id, d.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14} /></button>
+	                                                                                </div>
+	                                                                            </div>
+	                                                                        )}
+	                                                                    </div>
+	                                                                ))
+                                                            ) : (
+                                                                <div className="text-center text-gray-500 text-[10px] py-3 border border-dashed border-gray-700 rounded-lg">لا توجد فئات لهذا النوع</div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex gap-2">
+                                                            <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 60 UC)" value={tempRegionDenomLabel} onChange={e => setTempRegionDenomLabel(e.target.value)} />
+                                                            <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-[11px] outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempRegionDenomPrice} onChange={e => setTempRegionDenomPrice(e.target.value)} />
+                                                            <button onClick={() => addRegionDenomination(r.id)} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-[11px] hover:bg-yellow-500 transition-colors">إضافة</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -4017,9 +4114,52 @@ try {
                             )}
                         </div>
 
-                        {/* Note: Denominations are now managed per Execution Method only */}
-                        <div className="bg-blue-900/20 border border-blue-700/50 p-4 rounded-xl">
-                            <p className="text-[12px] text-blue-300 flex items-center gap-2"><Info size={14} /> الكميات والفئات يتم إدارتها الآن بشكل حصري داخل كل "طريقة تنفيذ" في قسم الخيارات أعلاه</p>
+                        {/* Denominations Section - Product Level */}
+                        <div className="bg-[#242636] p-4 rounded-xl border border-gray-700">
+                            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 pb-2 border-b border-gray-700"><Tags size={14} className="text-yellow-400"/> الكميات / الفئات (المستوى العام للمنتج)</h3>
+                            <p className="text-[11px] text-gray-400 mb-3">هذه الكميات ستكون بمثابة قيم افتراضية. إذا أضفت كميات في نوع المنتج أو طريقة التنفيذ، فستتم الأولوية لها.</p>
+                            
+                            {/* List */}
+                            <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+	                                {prodForm.denominations && prodForm.denominations.length > 0 ? (
+	                                    prodForm.denominations.map(denom => (
+	                                        <div key={denom.id} className="bg-[#13141f] p-3 rounded-lg border border-gray-700">
+	                                            {editingDenomId === denom.id ? (
+	                                                <div className="space-y-3">
+	                                                    <div className="flex gap-2">
+	                                                        <input className="flex-[2] bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" value={editDenomLabel} onChange={e => setEditDenomLabel(e.target.value)} />
+	                                                        <input className="flex-1 bg-[#1f212e] p-2 rounded-lg border border-gray-600 text-white text-xs outline-none" type="number" step="0.01" value={editDenomPrice} onChange={e => setEditDenomPrice(e.target.value)} />
+	                                                    </div>
+	                                                    <div className="flex gap-2">
+	                                                        <button onClick={saveEditDenomination} className="flex-1 bg-green-600 text-white py-2 rounded-lg text-xs font-bold">حفظ التعديل</button>
+	                                                        <button onClick={() => setEditingDenomId(null)} className="flex-1 bg-gray-600 text-white py-2 rounded-lg text-xs font-bold">إلغاء</button>
+	                                                    </div>
+	                                                </div>
+	                                            ) : (
+	                                                <div className="flex justify-between items-center">
+	                                                    <div>
+	                                                        <span className="text-white font-bold text-sm block">{denom.label}</span>
+	                                                        <span className="text-yellow-400 text-xs font-mono">${denom.price}</span>
+	                                                    </div>
+	                                                    <div className="flex gap-2">
+	                                                        <button onClick={() => startEditDenomination(denom)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20"><Edit2 size={14} /></button>
+	                                                        <button onClick={() => removeDenomination(denom.id)} className="text-red-500 bg-red-500/10 p-1.5 rounded hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"><X size={14}/></button>
+	                                                    </div>
+	                                                </div>
+	                                            )}
+	                                        </div>
+	                                    ))
+	                                ) : (
+                                    <div className="text-center text-gray-500 text-xs py-4 border border-dashed border-gray-700 rounded-lg">لا توجد فئات مضافة</div>
+                                )}
+                            </div>
+
+                            {/* Add Denom Inputs */}
+                            <div className="flex gap-2">
+                                <input className="flex-[2] bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" placeholder="الاسم (مثال: 100 جوهرة)" value={tempDenomLabel} onChange={e => setTempDenomLabel(e.target.value)} />
+                                <input className="flex-1 bg-[#13141f] p-2.5 rounded-xl border border-gray-700 text-white text-xs outline-none focus:border-yellow-400 transition-colors" type="number" step="0.01" placeholder="السعر" value={tempDenomPrice} onChange={e => setTempDenomPrice(e.target.value)} />
+                                <button onClick={addDenomination} className="bg-yellow-400 text-black p-2.5 rounded-xl font-bold text-xs hover:bg-yellow-500 transition-colors">إضافة</button>
+                            </div>
                         </div>
                      </div>
                  )}
