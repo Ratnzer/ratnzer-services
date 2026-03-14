@@ -130,13 +130,13 @@ button:active {
   animation-play-state: paused;
 }
 
-/* Shimmer Skeleton Animation (Professional Loading Effect) - Soft Faded Wide Beam */
+/* Shimmer Skeleton Animation (Professional Loading Effect) - Ultra-Wide Cinematic Beam */
 @keyframes shimmer-pro {
   0% {
-    transform: translateX(-150%) skewX(-20deg);
+    transform: translateX(-180%) skewX(-15deg);
   }
   100% {
-    transform: translateX(150%) skewX(-20deg);
+    transform: translateX(180%) skewX(-15deg);
   }
 }
 
@@ -153,18 +153,18 @@ button:active {
   left: 0;
   width: 100%;
   height: 100%;
-  /* تدرج لوني أعرض وأكثر نعومة وتلاشياً عند الأطراف */
+  /* تدرج لوني واسع جداً مع تلاشي دقيق وممتد عند الأطراف */
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0) 20%,
-    rgba(255, 255, 255, 0.02) 35%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.02) 65%,
-    rgba(255, 255, 255, 0) 80%,
+    rgba(255, 255, 255, 0) 10%,
+    rgba(255, 255, 255, 0.01) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.01) 75%,
+    rgba(255, 255, 255, 0) 90%,
     transparent 100%
   );
-  /* استخدام skewX بميل أخف قليلاً لزيادة النعومة */
-  transform: translateX(-150%) skewX(-20deg);
-  animation: shimmer-pro 2.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  /* استخدام skewX بميل خفيف جداً (15 درجة) لزيادة اتساع الشعاع ونعومته */
+  transform: translateX(-180%) skewX(-15deg);
+  animation: shimmer-pro 3.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
 }
