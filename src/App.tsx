@@ -2596,7 +2596,7 @@ useEffect(() => {
 		                            <div key={item.id} className="bg-[#242636] p-3 rounded-xl border border-gray-700 shadow-sm relative overflow-hidden group">
 		                                <div className="flex items-center gap-4">
 		                                    {/* Image - Slightly Larger */}
-		                                    <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${item.imageColor} flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) && item.imageUrl ? 'animate-shimmer' : ''}`}>
+		                                    <div className={`w-16 h-16 rounded-lg bg-[#1e1f2b] flex-shrink-0 relative overflow-hidden flex items-center justify-center ${!loadedCartImageIndices.has(item.id) ? 'animate-shimmer' : ''}`}>
 		                                        {item.imageUrl ? (
 		                                             <img 
 		                                               src={item.imageUrl} 
