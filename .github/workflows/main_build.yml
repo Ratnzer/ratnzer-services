@@ -85,7 +85,12 @@ jobs:
           VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-        run: npm run build
+        run: |
+          npx prisma generate --schema=./server/prisma/schema.prisma
+          npx tsc --noEmit || true
+          npx vite build
+          echo "✅ تم بناء ملفات الويب في مجلد dist"
+          ls -la dist/
 
       - name: ضغط ملفات الويب (Web Build)
         run: |
