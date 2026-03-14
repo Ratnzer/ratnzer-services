@@ -495,7 +495,7 @@ const Home: React.FC<Props> = ({
         </div>
 
         {/* Grid Layout - 3 Columns */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 long-list-container">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product: any) => (
               <ProductCard

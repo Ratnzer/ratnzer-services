@@ -8,7 +8,8 @@ interface Props {
   onClick?: () => void;
 }
 
-const ProductCard: React.FC<Props> = ({ product, onClick }) => {
+// ✅ Use React.memo to prevent unnecessary re-renders of product cards in long lists
+const ProductCard: React.FC<Props> = React.memo(({ product, onClick }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
@@ -61,6 +62,12 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Only re-render if product data or onClick reference changes
+  return prevProps.product.id === nextProps.product.id && 
+         prevProps.product.name === nextProps.product.name &&
+         prevProps.product.imageUrl === nextProps.product.imageUrl &&
+         prevProps.onClick === nextProps.onClick;
+});
 
 export default ProductCard;

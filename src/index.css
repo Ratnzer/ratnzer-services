@@ -172,3 +172,22 @@ button:active {
   transform: translateX(-200%) skewX(-20deg);
   animation: shimmer-pro 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ✅ Performance optimization for long lists (Home/Search) */
+.long-list-container {
+  content-visibility: auto;
+  contain-intrinsic-size: 500px; /* Estimated height for off-screen items */
+}
+
+/* ✅ Optimize tap highlights for mobile apps */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ✅ Improve scrolling performance on mobile */
+.scroll-smooth-mobile {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  will-change: transform;
+}
