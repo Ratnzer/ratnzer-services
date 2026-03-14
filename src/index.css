@@ -130,25 +130,37 @@ button:active {
   animation-play-state: paused;
 }
 
-/* Shimmer Skeleton Animation (Professional Loading Effect) - RTL Direction */
-@keyframes shimmer {
+/* Shimmer Skeleton Animation (Professional Loading Effect) - Left to Right */
+@keyframes shimmer-pro {
   0% {
-    background-position: 1000px 0;
+    transform: translateX(-100%);
   }
   100% {
-    background-position: -1000px 0;
+    transform: translateX(100%);
   }
 }
 
 .animate-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #1e1f2b;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
     90deg,
-    #242636 0%,
-    #2d2e42 25%,
-    #242636 50%,
-    #2d2e42 75%,
-    #242636 100%
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.05) 70%,
+    transparent 100%
   );
-  background-size: 1000px 100%;
-  animation: shimmer 0.15s infinite;
+  transform: translateX(-100%);
+  animation: shimmer-pro 1.8s infinite ease-in-out;
 }
