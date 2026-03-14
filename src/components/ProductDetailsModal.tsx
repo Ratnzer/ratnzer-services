@@ -25,7 +25,7 @@ interface Props {
     paymentMethod?: 'wallet' | 'card' | 'pi',
     selectedRegionObj?: any,
     selectedDenominationObj?: any,
-    selectedExecutionMethodObj?: any
+    selectedOrderTypeObj?: any
   ) => void;
   isLoggedIn?: boolean; // New prop
   onRequireAuth?: () => void; // New prop
@@ -35,7 +35,7 @@ interface Props {
 const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, formatPrice, addToCart, userBalance = 0, onPurchase, isLoggedIn = true, onRequireAuth, title }) => {
   const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
-  const [selectedExecutionMethodId, setSelectedExecutionMethodId] = useState<string>('');
+  const [selectedOrderTypeId, setSelectedOrderTypeId] = useState<string>('');
   const [selectedDenomId, setSelectedDenomId] = useState<string>('');
   
   // Custom Input State
@@ -132,9 +132,9 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
         // Auto-select first Execution Method if available
         const initialRegionObj = initialRegionId ? product.regions?.find(r => r.id === initialRegionId) : undefined;
-        const initialMethods = initialRegionObj?.executionMethods || [];
+        const initialMethods = initialRegionObj?.orderTypes || [];
         const initialMethodId = initialMethods.length > 0 ? initialMethods[0].id : '';
-        setSelectedExecutionMethodId(initialMethodId);
+        setSelectedOrderTypeId(initialMethodId);
 
         // Auto-select first Denomination
         // Priority: Execution Method > Region > Product
@@ -151,18 +151,18 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   // Keep selected execution method and denomination valid when region changes
   useEffect(() => {
     const regionObj = product.regions?.find(r => r.id === selectedRegion);
-    const methods = regionObj?.executionMethods || [];
+    const methods = regionObj?.orderTypes || [];
     
     if (methods.length > 0) {
-      const exists = methods.some(m => m.id === selectedExecutionMethodId);
+      const exists = methods.some(m => m.id === selectedOrderTypeId);
       if (!exists) {
-        setSelectedExecutionMethodId(methods[0].id);
+        setSelectedOrderTypeId(methods[0].id);
       }
     } else {
-      setSelectedExecutionMethodId('');
+      setSelectedOrderTypeId('');
     }
 
-    const methodObj = methods.find(m => m.id === selectedExecutionMethodId);
+    const methodObj = methods.find(m => m.id === selectedOrderTypeId);
     const denoms = (methodObj?.denominations && methodObj.denominations.length > 0)
       ? methodObj.denominations
       : (regionObj?.denominations && regionObj.denominations.length > 0)
@@ -178,7 +178,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
     if (!exists) {
       setSelectedDenomId(denoms[0].id);
     }
-  }, [selectedRegion, selectedExecutionMethodId, product, selectedDenomId]);
+  }, [selectedRegion, selectedOrderTypeId, product, selectedDenomId]);
 
 	  if (!isOpen) return null;
 
@@ -193,9 +193,9 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
 	  // Helpers to get full objects
   const regionObj = product.regions?.find(r => r.id === selectedRegion);
-  const executionMethodObj = regionObj?.executionMethods?.find(m => m.id === selectedExecutionMethodId);
-  const effectiveDenoms = (executionMethodObj?.denominations && executionMethodObj.denominations.length > 0)
-    ? executionMethodObj.denominations
+  const orderTypeObj = regionObj?.orderTypes?.find(m => m.id === selectedOrderTypeId);
+  const effectiveDenoms = (orderTypeObj?.denominations && orderTypeObj.denominations.length > 0)
+    ? orderTypeObj.denominations
     : (regionObj?.denominations && regionObj.denominations.length > 0)
       ? regionObj.denominations
       : product.denominations;
@@ -206,8 +206,8 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
   // Determine price to show and Input Configuration
   // Priority: Execution Method > Region > Product
-  const activeCustomInput = executionMethodObj?.customInput?.enabled !== undefined 
-    ? executionMethodObj.customInput 
+  const activeCustomInput = orderTypeObj?.customInput?.enabled !== undefined 
+    ? orderTypeObj.customInput 
     : (regionObj?.customInput?.enabled !== undefined 
         ? regionObj.customInput 
         : product.customInput);
@@ -263,7 +263,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
         imageUrl: product.imageUrl,
         imageColor: product.imageColor,
         selectedRegion: regionObj,
-        selectedExecutionMethod: executionMethodObj,
+        selectedOrderType: orderTypeObj,
         selectedDenomination: denomObj,
         quantity: 1,
         apiConfig: product.apiConfig,
@@ -315,7 +315,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                onPurchase(
 	                    product.name, 
 	                    currentPrice, 
-	                    executionMethodObj?.apiConfig?.type || (regionObj as any)?.apiConfig?.type || product.apiConfig?.type || 'manual',
+	                    orderTypeObj?.apiConfig?.type || (regionObj as any)?.apiConfig?.type || product.apiConfig?.type || 'manual',
 	                    regionObj?.name,
 	                    denomObj?.label || (denomObj as any)?.name || '',
 	                    product.category,
@@ -327,7 +327,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                    'wallet',
 	                    regionObj,
 	                    denomObj,
-	                    executionMethodObj
+	                    orderTypeObj
 	                );
                 onClose();
             } else {
@@ -354,7 +354,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 	                    paymentMethod, // ✅ Pass 'card' or 'pi' correctly
 	                    regionObj,
 	                    denomObj,
-	                    executionMethodObj
+	                    orderTypeObj
 	                );
                 onClose();
           } else {
@@ -453,17 +453,17 @@ const renderDetails = () => (
 	            )}
 
 	            {/* Execution Method Selection */}
-	            {regionObj?.executionMethods && regionObj.executionMethods.length > 0 && (
+	            {regionObj?.orderTypes && regionObj.orderTypes.length > 0 && (
 	                <div className="mb-4 animate-fadeIn">
 	                    <h3 className="text-right text-gray-300 text-xs font-bold mb-3">نوع الطلب</h3>
 	                    <div className="relative">
 	                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
-	                            {regionObj.executionMethods.map((method) => (
+	                            {regionObj.orderTypes.map((method) => (
 	                                <button
 	                                    key={method.id}
-	                                    onClick={() => setSelectedExecutionMethodId(method.id)}
+	                                    onClick={() => setSelectedOrderTypeId(method.id)}
 	                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all min-w-[85px] h-[42px] justify-center relative snap-center ${
-	                                        selectedExecutionMethodId === method.id 
+	                                        selectedOrderTypeId === method.id 
 	                                        ? 'bg-yellow-400 border-yellow-400 text-black shadow-lg shadow-yellow-400/20' 
 	                                        : 'bg-[#2a2d3e] border-gray-700/50 text-gray-300 hover:border-gray-500'
 	                                    }`}
@@ -473,7 +473,7 @@ const renderDetails = () => (
 	                            ))}
 	                        </div>
 	                        {/* Triple Arrow Scroll Hint for Execution Methods */}
-	                        {regionObj.executionMethods.length > 3 && (
+	                        {regionObj.orderTypes.length > 3 && (
 	                            <div className="absolute -left-1 top-0 bottom-1 w-8 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-r from-[#1c1e2d] via-[#1c1e2d]/90 to-transparent rounded-l-xl overflow-hidden">
 	                                <div className="flex flex-col items-center justify-center -space-y-3">
 	                                    <ChevronRight size={24} className="text-yellow-400/90 animate-[wave_1.2s_infinite] [animation-delay:0s]" />
@@ -582,9 +582,9 @@ const renderDetails = () => (
                             {denomObj.label || (denomObj as any).name}
                         </span>
                     )}
-	                {executionMethodObj && (
+	                {orderTypeObj && (
 	                    <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-	                        {executionMethodObj.name}
+	                        {orderTypeObj.name}
 	                    </span>
 	                )}
 	             </div>

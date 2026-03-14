@@ -327,10 +327,10 @@ const InvoiceModal: React.FC<Props> = ({ order, isOpen, onClose, formatPrice, ca
                         </div>
                     )}
 
-                    {order.executionMethodName && (
+                    {order.orderTypeName && (
                         <div className="flex justify-between items-center py-1 border-b border-gray-800/30">
                             <span className="text-gray-500 text-[9px] font-bold flex items-center gap-1">نوع الطلب</span>
-                            <span className="text-white text-[9px] text-left">{order.executionMethodName}</span>
+                            <span className="text-white text-[9px] text-left">{order.orderTypeName}</span>
                         </div>
                     )}
 

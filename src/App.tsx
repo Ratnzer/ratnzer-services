@@ -1692,7 +1692,7 @@ useEffect(() => {
       paymentMethod: 'wallet' | 'card' | 'pi' = 'wallet',
       selectedRegionObj?: any,
       selectedDenominationObj?: any,
-      selectedExecutionMethodObj?: any
+      selectedOrderTypeObj?: any
   ) => {
       if (!currentUser) {
           setShowLoginModal(true);
@@ -1716,9 +1716,9 @@ useEffect(() => {
 	          regionId,
 	          denominationId,
 	          selectedRegion: selectedRegionObj,
-	          selectedExecutionMethod: selectedExecutionMethodObj,
-	          executionMethodId: selectedExecutionMethodObj?.id,
-	          executionMethodName: selectedExecutionMethodObj?.name,
+	          selectedOrderType: selectedOrderTypeObj,
+	          orderTypeId: selectedOrderTypeObj?.id,
+	          orderTypeName: selectedOrderTypeObj?.name,
 	          selectedDenomination: selectedDenominationObj,
 	          quantityLabel,
           customInputValue,
@@ -1970,11 +1970,11 @@ useEffect(() => {
         quantity: item.quantity || 1,
         apiConfig: item.apiConfig,
         selectedRegion: item.selectedRegion,
-        selectedExecutionMethod: item.selectedExecutionMethod,
+        selectedOrderType: item.selectedOrderType,
         selectedDenomination: item.selectedDenomination,
         denominationId: item.selectedDenomination?.id,
         regionId: item.selectedRegion?.id,
-        executionMethodId: item.selectedExecutionMethod?.id,
+        orderTypeId: item.selectedOrderType?.id,
         customInputValue: item.customInputValue,
         customInputLabel: item.customInputLabel,
       };
@@ -2048,8 +2048,8 @@ useEffect(() => {
             fulfillmentType: item.apiConfig?.type || 'manual',
             regionName: item.selectedRegion?.name,
             regionId: item.selectedRegion?.id,
-            executionMethodId: item.selectedExecutionMethod?.id,
-            executionMethodName: item.selectedExecutionMethod?.name,
+            orderTypeId: item.selectedOrderType?.id,
+            orderTypeName: item.selectedOrderType?.name,
             denominationId: item.selectedDenomination?.id,
             quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
             customInputValue: item.customInputValue,
@@ -2064,8 +2064,8 @@ useEffect(() => {
           fulfillmentType: activeCheckoutItem?.apiConfig?.type || 'manual',
           regionName: activeCheckoutItem?.selectedRegion?.name,
           regionId: activeCheckoutItem?.selectedRegion?.id,
-          executionMethodId: activeCheckoutItem?.selectedExecutionMethod?.id,
-          executionMethodName: activeCheckoutItem?.selectedExecutionMethod?.name,
+          orderTypeId: activeCheckoutItem?.selectedOrderType?.id,
+          orderTypeName: activeCheckoutItem?.selectedOrderType?.name,
           denominationId: activeCheckoutItem?.selectedDenomination?.id,
           quantityLabel: activeCheckoutItem?.selectedDenomination?.label || (activeCheckoutItem?.selectedDenomination as any)?.name || (activeCheckoutItem?.selectedDenomination as any)?.value || String(activeCheckoutItem?.quantity),
           customInputValue: activeCheckoutItem?.customInputValue,
@@ -2145,8 +2145,8 @@ useEffect(() => {
                       fulfillmentType: item.apiConfig?.type || 'manual',
                       regionName: item.selectedRegion?.name,
                       regionId: item.selectedRegion?.id,
-                      executionMethodId: item.selectedExecutionMethod?.id,
-                      executionMethodName: item.selectedExecutionMethod?.name,
+                      orderTypeId: item.selectedOrderType?.id,
+                      orderTypeName: item.selectedOrderType?.name,
                       denominationId: item.selectedDenomination?.id,
                       quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
                       customInputValue: item.customInputValue,
@@ -2210,8 +2210,8 @@ useEffect(() => {
                   fulfillmentType: item.apiConfig?.type || 'manual',
                   regionName: item.selectedRegion?.name,
                   regionId: item.selectedRegion?.id,
-                  executionMethodId: item.selectedExecutionMethod?.id,
-                  executionMethodName: item.selectedExecutionMethod?.name,
+                  orderTypeId: item.selectedOrderType?.id,
+                  orderTypeName: item.selectedOrderType?.name,
                   denominationId: item.selectedDenomination?.id,
                   quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
                   customInputValue: item.customInputValue,
@@ -2234,8 +2234,8 @@ useEffect(() => {
                   quantityLabel: activeCheckoutItem.selectedDenomination?.label || (activeCheckoutItem.selectedDenomination as any)?.name || (activeCheckoutItem.selectedDenomination as any)?.value || String(activeCheckoutItem.quantity),
                   denominationId: activeCheckoutItem.selectedDenomination?.id,
                   regionId: activeCheckoutItem.selectedRegion?.id,
-                  executionMethodId: activeCheckoutItem.selectedExecutionMethod?.id,
-                  executionMethodName: activeCheckoutItem.selectedExecutionMethod?.name,
+                  orderTypeId: activeCheckoutItem.selectedOrderType?.id,
+                  orderTypeName: activeCheckoutItem.selectedOrderType?.name,
                   customInputValue: activeCheckoutItem.customInputValue,
                 }
               });
@@ -2269,8 +2269,8 @@ useEffect(() => {
               fulfillmentType: item.apiConfig?.type || 'manual',
               regionName: item.selectedRegion?.name,
               regionId: item.selectedRegion?.id,
-              executionMethodId: item.selectedExecutionMethod?.id,
-              executionMethodName: item.selectedExecutionMethod?.name,
+              orderTypeId: item.selectedOrderType?.id,
+              orderTypeName: item.selectedOrderType?.name,
               denominationId: item.selectedDenomination?.id,
               quantityLabel: item.selectedDenomination?.label || (item.selectedDenomination as any)?.name || (item.selectedDenomination as any)?.value || String(item.quantity),
               customInputValue: item.customInputValue,
@@ -2333,8 +2333,8 @@ useEffect(() => {
             fulfillmentType: activeCheckoutItem.apiConfig?.type || 'manual',
             regionName: activeCheckoutItem.selectedRegion?.name,
             regionId: activeCheckoutItem.selectedRegion?.id,
-            executionMethodId: activeCheckoutItem.selectedExecutionMethod?.id,
-            executionMethodName: activeCheckoutItem.selectedExecutionMethod?.name,
+            orderTypeId: activeCheckoutItem.selectedOrderType?.id,
+            orderTypeName: activeCheckoutItem.selectedOrderType?.name,
             denominationId: activeCheckoutItem.selectedDenomination?.id,
             quantityLabel: activeCheckoutItem.selectedDenomination?.label || (activeCheckoutItem.selectedDenomination as any)?.name || (activeCheckoutItem.selectedDenomination as any)?.value || String(activeCheckoutItem.quantity),
             customInputValue: activeCheckoutItem.customInputValue,
@@ -2639,9 +2639,9 @@ useEffect(() => {
 			                                                    {item.selectedDenomination.label}
 			                                                </span>
 			                                            )}
-			                                            {item.selectedExecutionMethod && (
+			                                            {item.selectedOrderType && (
 			                                                <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-			                                                    {item.selectedExecutionMethod.name}
+			                                                    {item.selectedOrderType.name}
 			                                                </span>
 			                                            )}
 			                                        </div>
@@ -2712,7 +2712,7 @@ useEffect(() => {
 	                formatPrice={formatPrice}
 	                onRequireLogin={() => setShowLoginModal(true)}
 	                selectedRegion={activeCheckoutItem?.selectedRegion}
-	                selectedExecutionMethod={activeCheckoutItem?.selectedExecutionMethod}
+	                selectedOrderType={activeCheckoutItem?.selectedOrderType}
 	                selectedDenomination={activeCheckoutItem?.selectedDenomination}
 	             />
           </div>
@@ -2794,9 +2794,9 @@ useEffect(() => {
 	                                                        {order.regionName}
 	                                                    </span>
                                                 )}
-                                                {order.executionMethodName && (
+                                                {order.orderTypeName && (
                                                     <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                                                        {order.executionMethodName}
+                                                        {order.orderTypeName}
                                                     </span>
                                                 )}
                                                 {order.quantityLabel && (

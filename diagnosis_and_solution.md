@@ -12,9 +12,9 @@
 
 ### تدفق البيانات الخاطئ
 
-1.  **الواجهة الأمامية (`ProductDetailsModal.tsx` و `App.tsx`):** تقوم الواجهة الأمامية بجمع `executionMethodId` بشكل صحيح وإرساله ضمن بيانات الطلب (`payload`) إلى الخادم.
+1.  **الواجهة الأمامية (`ProductDetailsModal.tsx` و `App.tsx`):** تقوم الواجهة الأمامية بجمع `orderTypeId` بشكل صحيح وإرساله ضمن بيانات الطلب (`payload`) إلى الخادم.
 2.  **الواجهة الخلفية (`orderController.js`):**
-    *   يستقبل المتحكم `executionMethodId` ولكنه **لا يستخدمه** لجلب إعدادات الـ API الصحيحة.
+    *   يستقبل المتحكم `orderTypeId` ولكنه **لا يستخدمه** لجلب إعدادات الـ API الصحيحة.
     *   بدلاً من ذلك، يقوم بقراءة `apiConfig` من كائن المنتج الرئيسي مباشرةً: `const apiConfig = parseApiConfig(product?.apiConfig);`.
     *   بما أن `apiConfig` على مستوى المنتج الرئيسي غالبًا ما يكون غير معرفًا أو معينًا على `manual`، فإن الشرط الذي يتحقق من ضرورة استدعاء المزود الخارجي (`shouldUseProvider`) لا يتحقق أبدًا.
 
@@ -32,7 +32,7 @@
 ### خطوات التعديل:
 
 1.  **تحديد `apiConfig` الفعال:**
-    يجب تعديل الكود في `orderController.js` لتحديد `apiConfig` الصحيح بناءً على `executionMethodId` المستلم.
+    يجب تعديل الكود في `orderController.js` لتحديد `apiConfig` الصحيح بناءً على `orderTypeId` المستلم.
 
 2.  **تعديل منطق `shouldUseProvider`:**
     يجب استخدام `apiConfig` الفعال لتحديد ما إذا كان يجب استدعاء المزود الخارجي.
@@ -50,13 +50,13 @@ const selectedRegion = Array.isArray(regions)
   ? regions.find(r => String(r.id) === String(regionIdNorm))
   : null;
 
-const executionMethods = selectedRegion?.executionMethods || [];
-const selectedExecutionMethod = executionMethods.find(em => String(em.id) === String(executionMethodId));
+const orderTypes = selectedRegion?.orderTypes || [];
+const selectedOrderType = orderTypes.find(em => String(em.id) === String(orderTypeId));
 
 // --- ✨ بداية التعديل المقترح ---
 
 // تحديد إعدادات الـ API الفعالة بالأولوية الصحيحة
-const effectiveApiConfig = selectedExecutionMethod?.apiConfig || selectedRegion?.apiConfig || apiConfig;
+const effectiveApiConfig = selectedOrderType?.apiConfig || selectedRegion?.apiConfig || apiConfig;
 
 const effectiveServiceId = effectiveApiConfig?.serviceId;
 const effectiveProviderName = effectiveApiConfig?.providerName || 'KD1S';

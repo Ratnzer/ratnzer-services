@@ -83,7 +83,7 @@ const getMyCart = asyncHandler(async (req, res) => {
       quantity: true,
       apiConfig: true,
       selectedRegion: true,
-      selectedExecutionMethod: true,
+      selectedOrderType: true,
       selectedDenomination: true,
       customInputValue: true,
       customInputLabel: true,
@@ -117,11 +117,11 @@ const addToCart = asyncHandler(async (req, res) => {
     customInputLabel,
     apiConfig,
     selectedRegion,
-    selectedExecutionMethod,
+    selectedOrderType,
     selectedDenomination,
     denominationId,
     regionId,
-    executionMethodId,
+    orderTypeId,
   } = req.body || {};
 
   if (!productId) {
@@ -168,7 +168,7 @@ const addToCart = asyncHandler(async (req, res) => {
       // snapshots (JSON)
       apiConfig: apiConfig ?? product.apiConfig ?? null,
       selectedRegion: regionObj ?? null,
-      selectedExecutionMethod: selectedExecutionMethod ?? null,
+      selectedOrderType: selectedOrderType ?? null,
       selectedDenomination: denomObj ?? null,
       customInputValue: customInputValue ?? null,
       customInputLabel: customInputLabel ?? null,
@@ -184,7 +184,7 @@ const addToCart = asyncHandler(async (req, res) => {
       quantity: true,
       apiConfig: true,
       selectedRegion: true,
-      selectedExecutionMethod: true,
+      selectedOrderType: true,
       selectedDenomination: true,
       customInputValue: true,
       customInputLabel: true,

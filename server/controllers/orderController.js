@@ -132,8 +132,8 @@ const createOrder = asyncHandler(async (req, res) => {
     quantity,
     regionId,
     regionName,
-    executionMethodId,
-    executionMethodName,
+    orderTypeId,
+    orderTypeName,
     denominationId,
     quantityLabel,
     customInputValue,
@@ -219,8 +219,8 @@ const createOrder = asyncHandler(async (req, res) => {
     ? regions.find(r => String(r.id) === String(regionIdNorm))
     : null;
   
-  const executionMethods = selectedRegion?.executionMethods || [];
-  const selectedExecutionMethod = executionMethods.find(em => String(em.id) === String(executionMethodId));
+  const orderTypes = selectedRegion?.orderTypes || [];
+  const selectedOrderType = orderTypes.find(em => String(em.id) === String(orderTypeId));
 
   // Identify selected denomination to check for its specific Service ID
   const productDenominations = Array.isArray(product?.denominations) ? product.denominations : [];
@@ -228,7 +228,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
   const baseApiConfig = parseApiConfig(product?.apiConfig);
   const regionApiConfig = selectedRegion?.apiConfig; 
-  const methodApiConfig = selectedExecutionMethod?.apiConfig;
+  const methodApiConfig = selectedOrderType?.apiConfig;
 
   // --- 💎 💎 💎 REFINED INHERITANCE & MERGE LOGIC 💎 💎 💎 ---
   
@@ -346,8 +346,8 @@ const createOrder = asyncHandler(async (req, res) => {
       productCategory,
       regionName,
       regionId: regionIdNorm,
-      executionMethodId: executionMethodId || undefined,
-      executionMethodName: executionMethodName || undefined,
+      orderTypeId: orderTypeId || undefined,
+      orderTypeName: orderTypeName || undefined,
       quantityLabel: normalizedQuantityLabel,
       denominationId: denominationIdNorm,
       customInputValue: trimmedCustomInputValue,

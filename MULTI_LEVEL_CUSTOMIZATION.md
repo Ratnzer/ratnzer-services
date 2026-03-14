@@ -244,10 +244,10 @@
 
 ```javascript
 // الحصول على البيانات بناءً على الأولويات
-const getCustomInput = (product, region, executionMethod) => {
+const getCustomInput = (product, region, orderType) => {
   // الأولوية 1: نوع الطلب
-  if (executionMethod?.customInput?.enabled) {
-    return executionMethod.customInput;
+  if (orderType?.customInput?.enabled) {
+    return orderType.customInput;
   }
   
   // الأولوية 2: النوع
@@ -259,10 +259,10 @@ const getCustomInput = (product, region, executionMethod) => {
   return null; // لا يوجد حقل مخصص
 };
 
-const getDenominations = (product, region, executionMethod) => {
+const getDenominations = (product, region, orderType) => {
   // الأولوية 1: نوع الطلب
-  if (executionMethod?.denominations?.length > 0) {
-    return executionMethod.denominations;
+  if (orderType?.denominations?.length > 0) {
+    return orderType.denominations;
   }
   
   // الأولوية 2: النوع

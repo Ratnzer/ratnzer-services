@@ -117,8 +117,8 @@ model Order {
   // تفاصيل الاختيارات
   regionName       String?
   regionId         String?
-  executionMethodName String?
-  executionMethodId   String?
+  orderTypeName       String?
+  orderTypeId         String?
   quantityLabel    String?
   denominationId   String?
 
@@ -284,7 +284,7 @@ model CartItem {
 
   apiConfig            Json?
   selectedRegion       Json?
-  selectedExecutionMethod Json?
+  selectedOrderType Json?
   selectedDenomination Json?
   customInputValue     String?
   customInputLabel     String?

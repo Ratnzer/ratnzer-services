@@ -467,7 +467,7 @@ const getOrderDate = (o: any) => {
 
   // State for configuring region-specific custom input
   const [editingRegionCustomInput, setEditingRegionCustomInput] = useState<string | null>(null);
-  const [expandedExecutionMethodId, setExpandedExecutionMethodId] = useState<string | null>(null);
+  const [expandedOrderTypeId, setExpandedOrderTypeId] = useState<string | null>(null);
 
   // Category Modal State
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -1005,13 +1005,13 @@ try {
 	    }));
 	  };
 	
-	  const updateExecutionMethodDenominationAvailability = (regionId: string, methodId: string, denomId: string, isAvailable: boolean) => {
+	  const updateOrderTypeDenominationAvailability = (regionId: string, methodId: string, denomId: string, isAvailable: boolean) => {
 	    setProdForm(prev => ({
 	        ...prev,
 	        regions: prev.regions?.map(r => 
 	            r.id === regionId ? { 
 	                ...r, 
-	                executionMethods: r.executionMethods?.map(m => 
+	                orderTypes: r.orderTypes?.map(m => 
 	                    m.id === methodId ? {
 	                        ...m,
 	                        denominations: m.denominations?.map(d => 
@@ -1062,13 +1062,13 @@ try {
     }));
   };
 
-  const updateExecutionMethodAvailability = (regionId: string, methodId: string, isAvailable: boolean) => {
+  const updateOrderTypeAvailability = (regionId: string, methodId: string, isAvailable: boolean) => {
     setProdForm(prev => ({
         ...prev,
         regions: prev.regions?.map(r => 
             r.id === regionId ? { 
                 ...r, 
-                executionMethods: r.executionMethods?.map(m => 
+                orderTypes: r.orderTypes?.map(m => 
                     m.id === methodId ? { ...m, isAvailable: isAvailable } : m
                 )
             } : r
@@ -1076,13 +1076,13 @@ try {
     }));
   };
 
-  const updateExecutionMethodSyncAvailability = (regionId: string, methodId: string, autoSync: boolean) => {
+  const updateOrderTypeSyncAvailability = (regionId: string, methodId: string, autoSync: boolean) => {
     setProdForm(prev => ({
         ...prev,
         regions: prev.regions?.map(r => 
             r.id === regionId ? { 
                 ...r, 
-                executionMethods: r.executionMethods?.map(m => 
+                orderTypes: r.orderTypes?.map(m => 
                     m.id === methodId ? { ...m, autoSyncAvailability: autoSync } : m
                 )
             } : r
@@ -1126,8 +1126,8 @@ try {
                 ? { 
                     ...r, 
                     // If methodId is present, we are editing a denomination inside an execution method
-                    executionMethods: methodId 
-                      ? (r.executionMethods || []).map(m => 
+                    orderTypes: methodId 
+                      ? (r.orderTypes || []).map(m => 
                           m.id === methodId 
                             ? { 
                                 ...m, 
@@ -1137,7 +1137,7 @@ try {
                               } 
                             : m
                         )
-                      : r.executionMethods,
+                      : r.orderTypes,
                     // If no methodId, we are editing a region-level denomination
                     denominations: !methodId 
                       ? (r.denominations || []).map(d => 
@@ -2256,9 +2256,9 @@ try {
                                                       <Flag size={8} /> {order.regionName}
                                                   </span>
                                               )}
-                                              {order.executionMethodName && (
+                                              {order.orderTypeName && (
                                                   <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                                                      {order.executionMethodName}
+                                                      {order.orderTypeName}
                                                   </span>
                                               )}
                                               {order.quantityLabel && (
@@ -3793,39 +3793,39 @@ try {
                                                             </h5>
                                                             <button 
                                                                 onClick={() => {
-                                                                    const currentMethods = r.executionMethods || [];
+                                                                    const currentMethods = r.orderTypes || [];
                                                                     const newMethod = { id: generateShortId(), name: 'نوع طلب جديد', isAvailable: true };
-                                                                    updateRegionConfig(r.id, { executionMethods: [...currentMethods, newMethod] });
+                                                                    updateRegionConfig(r.id, { orderTypes: [...currentMethods, newMethod] });
                                                                 }}
                                                                 className="text-[9px] bg-yellow-400 text-black px-2 py-1 rounded font-bold"
                                                             >+ إضافة نوع طلب</button>
                                                         </div>
                                                         
                                                         <div className="space-y-3">
-                                                            {(r.executionMethods || []).map((em, emIdx) => (
+                                                            {(r.orderTypes || []).map((em, emIdx) => (
                                                                 <div key={em.id} className="bg-[#242636] rounded-lg border border-gray-600 overflow-hidden">
                                                                     {/* Method Header - Click to Toggle */}
                                                                     <div className="flex justify-between items-center p-3">
                                                                         <span className="text-[10px] font-bold text-white">{em.name || 'نوع طلب بدون اسم'}</span>
 	                                                                        <div className="flex items-center gap-2">
 	                                                                            <button 
-	                                                                                onClick={() => updateExecutionMethodAvailability(r.id, em.id, em.isAvailable !== false ? false : true)}
+	                                                                                onClick={() => updateOrderTypeAvailability(r.id, em.id, em.isAvailable !== false ? false : true)}
 	                                                                                className={`p-1.5 rounded-lg transition-colors border ${em.isAvailable !== false ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
 	                                                                                title={em.isAvailable !== false ? 'تعطيل هذا القسم' : 'تفعيل هذا القسم'}
 	                                                                            >
 	                                                                                {em.isAvailable !== false ? <CheckSquare size={12} /> : <XCircle size={12} />}
 	                                                                            </button>
 	                                                                            <button
-	                                                                                onClick={() => setExpandedExecutionMethodId(expandedExecutionMethodId === em.id ? null : em.id)}
-	                                                                                className={`p-1.5 rounded-lg transition-colors border ${expandedExecutionMethodId === em.id ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-[#242636] text-gray-400 border-gray-600 hover:text-white'}`}
-	                                                                                title={expandedExecutionMethodId === em.id ? 'طي الإعدادات' : 'فتح الإعدادات'}
+	                                                                                onClick={() => setExpandedOrderTypeId(expandedOrderTypeId === em.id ? null : em.id)}
+	                                                                                className={`p-1.5 rounded-lg transition-colors border ${expandedOrderTypeId === em.id ? 'bg-yellow-400 text-black border-yellow-400' : 'bg-[#242636] text-gray-400 border-gray-600 hover:text-white'}`}
+	                                                                                title={expandedOrderTypeId === em.id ? 'طي الإعدادات' : 'فتح الإعدادات'}
 	                                                                            >
 	                                                                                <Settings2 size={12} />
 	                                                                            </button>
 	                                                                            <button 
 	                                                                                onClick={() => {
-	                                                                                    const updatedMethods = (r.executionMethods || []).filter(m => m.id !== em.id);
-	                                                                                    updateRegionConfig(r.id, { executionMethods: updatedMethods });
+	                                                                                    const updatedMethods = (r.orderTypes || []).filter(m => m.id !== em.id);
+	                                                                                    updateRegionConfig(r.id, { orderTypes: updatedMethods });
 	                                                                                }}
 	                                                                                className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
 	                                                                                title="حذف هذه الطريقة"
@@ -3834,7 +3834,7 @@ try {
                                                                     </div>
 
                                                                     {/* Method Details - Collapsible */}
-                                                                    {expandedExecutionMethodId === em.id && (
+                                                                    {expandedOrderTypeId === em.id && (
                                                                         <div className="p-3 pt-0 space-y-3 border-t border-gray-700/50 animate-fadeIn">
                                                                             {/* Method Name Edit */}
                                                                             <div className="space-y-1 pt-3">
@@ -3851,7 +3851,7 @@ try {
                                                                                                 reg.id === r.id 
                                                                                                 ? { 
                                                                                                     ...reg, 
-                                                                                                    executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                    orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                         meth.id === em.id ? { ...meth, name: val } : meth
                                                                                                     )
                                                                                                 } 
@@ -3878,7 +3878,7 @@ try {
                                                                                                     reg.id === r.id 
                                                                                                     ? { 
                                                                                                         ...reg, 
-                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                        orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                             meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), serviceId: val, type: val ? 'api' : 'manual' } } : meth
                                                                                                         )
                                                                                                     } 
@@ -3902,7 +3902,7 @@ try {
                                                                                                     reg.id === r.id 
                                                                                                     ? { 
                                                                                                         ...reg, 
-                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                        orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                             meth.id === em.id ? { ...meth, apiConfig: { ...(meth.apiConfig || { type: 'manual' }), providerName: val } } : meth
                                                                                                         )
                                                                                                     } 
@@ -3919,7 +3919,7 @@ try {
 	                                                                                <label className="text-[9px] text-purple-400 font-bold">مزامنة التوفر التلقائية</label>
 	                                                                                <button 
 	                                                                                    type="button"
-	                                                                                    onClick={() => updateExecutionMethodSyncAvailability(r.id, em.id, !em.autoSyncAvailability)}
+	                                                                                    onClick={() => updateOrderTypeSyncAvailability(r.id, em.id, !em.autoSyncAvailability)}
 	                                                                                    className={`relative inline-flex h-3 w-6 items-center rounded-full transition-colors ${em.autoSyncAvailability ? 'bg-purple-500' : 'bg-gray-600'}`}
 	                                                                                >
 	                                                                                    <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${em.autoSyncAvailability ? 'translate-x-0.5' : 'translate-x-3.5'}`} />
@@ -3939,7 +3939,7 @@ try {
 	                                                                                                    reg.id === r.id 
 	                                                                                                    ? { 
 	                                                                                                        ...reg, 
-	                                                                                                        executionMethods: (reg.executionMethods || []).map(meth => 
+	                                                                                                        orderTypes: (reg.orderTypes || []).map(meth => 
 	                                                                                                            meth.id === em.id ? { ...meth, customInput: { enabled: !(meth.customInput?.enabled), label: meth.customInput?.label || '', placeholder: meth.customInput?.placeholder || '', required: meth.customInput?.required || false } } : meth
 	                                                                                                        )
 	                                                                                                    } 
@@ -3965,7 +3965,7 @@ try {
                                                                                                         reg.id === r.id 
                                                                                                         ? { 
                                                                                                             ...reg, 
-                                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                            orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                                 meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, label: e.target.value } } : meth
                                                                                                             )
                                                                                                         } 
@@ -3985,7 +3985,7 @@ try {
                                                                                                         reg.id === r.id 
                                                                                                         ? { 
                                                                                                             ...reg, 
-                                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                            orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                                 meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, placeholder: e.target.value } } : meth
                                                                                                             )
                                                                                                         } 
@@ -4006,7 +4006,7 @@ try {
                                                                                                             reg.id === r.id 
                                                                                                             ? { 
                                                                                                                 ...reg, 
-                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                                     meth.id === em.id ? { ...meth, customInput: { ...meth.customInput!, required: e.target.checked } } : meth
                                                                                                                 )
                                                                                                             } 
@@ -4054,7 +4054,7 @@ try {
                                                                                                         <div className="flex gap-0.5 items-center ml-1">
                                                                                                             <button onClick={() => startEditRegionDenomination(r.id, d, em.id)} className="p-0.5 text-blue-400 hover:bg-blue-500/20 rounded"><Edit2 size={10} /></button>
 	                                                                                                            <button 
-	                                                                                                                onClick={() => updateExecutionMethodDenominationAvailability(r.id, em.id, d.id, d.isAvailable === false)} 
+	                                                                                                                onClick={() => updateOrderTypeDenominationAvailability(r.id, em.id, d.id, d.isAvailable === false)} 
 	                                                                                                                className={`p-0.5 rounded ${d.isAvailable === false ? 'text-green-400 hover:bg-green-500/20' : 'text-yellow-400 hover:bg-yellow-500/20'}`}
 	                                                                                                                title={d.isAvailable === false ? "تفعيل" : "إيقاف"}
 	                                                                                                            >
@@ -4068,7 +4068,7 @@ try {
                                                                                                                             reg.id === r.id 
                                                                                                                             ? { 
                                                                                                                                 ...reg, 
-                                                                                                                                executionMethods: (reg.executionMethods || []).map(meth => 
+                                                                                                                                orderTypes: (reg.orderTypes || []).map(meth => 
                                                                                                                                     meth.id === em.id ? { ...meth, denominations: (meth.denominations || []).filter(dd => dd.id !== d.id) } : meth
                                                                                                                                 )
                                                                                                                             } 
@@ -4124,7 +4124,7 @@ try {
 		                                                                                                        reg.id === r.id 
 		                                                                                                        ? { 
 		                                                                                                            ...reg, 
-		                                                                                                            executionMethods: (reg.executionMethods || []).map(meth => 
+		                                                                                                            orderTypes: (reg.orderTypes || []).map(meth => 
 		                                                                                                                meth.id === em.id ? { ...meth, denominations: [...(meth.denominations || []), newDenom] } : meth
 		                                                                                                            )
 		                                                                                                        } 
@@ -4144,7 +4144,7 @@ try {
                                                                     )}
                                                                 </div>
                                                             ))}
-                                                            {(r.executionMethods || []).length === 0 && (
+                                                            {(r.orderTypes || []).length === 0 && (
                                                                 <p className="text-[9px] text-gray-500 italic text-center">لا توجد طرق تنفيذ مخصصة لهذا النوع.</p>
                                                             )}
                                                         </div>

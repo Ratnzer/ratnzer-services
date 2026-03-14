@@ -13,13 +13,13 @@ interface Props {
   onRequireLogin?: () => void; // Optional fallback
   title?: string; // ✅ New optional title prop
   selectedRegion?: any;
-  selectedExecutionMethod?: any;
+  selectedOrderType?: any;
   selectedDenomination?: any;
 }
 
 const CheckoutModal: React.FC<Props> = ({ 
   isOpen, onClose, itemName, price, userBalance, onSuccess, formatPrice, title,
-  selectedRegion, selectedExecutionMethod, selectedDenomination
+  selectedRegion, selectedOrderType, selectedDenomination
 }) => {
   const isPiUser = localStorage.getItem('user_email')?.endsWith('@pi.network');
   const [selectedMethod, setSelectedMethod] = useState<'wallet' | 'card' | 'pi' | null>(isPiUser ? 'pi' : null);
@@ -172,9 +172,9 @@ const CheckoutModal: React.FC<Props> = ({
                             {selectedDenomination.label || selectedDenomination.name}
                         </span>
                     )}
-                    {selectedExecutionMethod && (
+                    {selectedOrderType && (
                         <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
-                            {selectedExecutionMethod.name}
+                            {selectedOrderType.name}
                         </span>
                     )}
                  </div>

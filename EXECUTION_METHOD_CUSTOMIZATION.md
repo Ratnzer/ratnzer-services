@@ -7,10 +7,10 @@
 
 ### 1. تحديث واجهة البيانات (`src/types.ts`)
 
-تم إضافة حقلين جديدين إلى واجهة `ExecutionMethod`:
+تم إضافة حقلين جديدين إلى واجهة `OrderType`:
 
 ```typescript
-export interface ExecutionMethod {
+export interface OrderType {
   id: string;
   name: string;
   isAvailable: boolean;
@@ -94,7 +94,7 @@ export interface ExecutionMethod {
 ## الملفات المعدلة
 
 1. **src/types.ts**
-   - إضافة `customInput` و `denominations` إلى `ExecutionMethod`
+   - إضافة `customInput` و `denominations` إلى `OrderType`
 
 2. **src/pages/Admin.tsx**
    - إضافة واجهات لتخصيص الحقول والكميات لكل نوع طلب
@@ -118,7 +118,7 @@ export interface ExecutionMethod {
    - إضافة الكميات/الفئات المناسبة
 
 ### للمطورين:
-- يمكن الآن الاستفادة من `executionMethodObj?.customInput` و `executionMethodObj?.denominations` في الكود
+- يمكن الآن الاستفادة من `orderTypeObj?.customInput` و `orderTypeObj?.denominations` في الكود
 - الأولوية الجديدة: Execution Method > Region > Product
 
 ## ملاحظات تقنية
