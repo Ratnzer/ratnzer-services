@@ -2617,9 +2617,9 @@ useEffect(() => {
 		                                                  target.parentElement!.appendChild(span);
 		                                               }}
 		                                             />
-		                                        ) : (
-		                                             <span className="text-white text-[10px] font-bold">{item.name.slice(0,5)}</span>
-		                                        )}
+			                                        ) : (
+			                                             <div className="absolute inset-0 animate-shimmer"></div>
+			                                        )}
 		                                    </div>
 		                                    
 		                                    {/* Info */}

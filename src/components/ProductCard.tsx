@@ -38,14 +38,8 @@ const ProductCard: React.FC<Props> = ({ product, onClick }) => {
               }`}
             />
          ) : (
-            /* Fallback Icon/Text if no image */
-            <div className="absolute inset-0 flex items-center justify-center">
-               <div className="w-12 h-12 bg-white/20 rounded-full backdrop-blur-md flex items-center justify-center shadow-inner">
-                  <span className="text-white text-lg font-bold opacity-80 uppercase">
-                    {product.name.slice(0, 2)}
-                  </span>
-               </div>
-            </div>
+            /* No image - Keep only Shimmer */
+            <div className="absolute inset-0 animate-shimmer"></div>
          )}
          
          {/* Tag (e.g., Sale, New) */}
