@@ -166,5 +166,5 @@ button:active {
   );
   /* استخدام skewX بميل خفيف جداً (15 درجة) لزيادة اتساع الشعاع ونعومته */
   transform: translateX(-180%) skewX(-15deg);
-  animation: shimmer-pro 3.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation: shimmer-pro 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
 }
