@@ -57,12 +57,12 @@ const TopHeader: React.FC<Props> = ({
 
          {/* Left: Search & Notifications (Last in RTL) */}
          <div className="flex items-center gap-2">
-             <button onClick={() => setView(View.SEARCH)} className="bg-[#242636] p-2 rounded-lg text-yellow-400 hover:text-yellow-300 hover:bg-[#2f3245] border border-transparent hover:border-gray-700 transition-all active:scale-95 shadow-sm">
-               <Search size={18} strokeWidth={2} />
+             <button onClick={() => setView(View.SEARCH)} className="bg-[#242636] p-1.5 rounded-lg text-yellow-400 hover:text-yellow-300 hover:bg-[#2f3245] border border-transparent hover:border-gray-700 transition-all active:scale-95 shadow-sm">
+               <Search size={22} strokeWidth={2} />
              </button>
 
-             <button onClick={() => setView(View.NOTIFICATIONS)} className="bg-[#242636] p-2 rounded-lg text-yellow-400 hover:text-yellow-300 hover:bg-[#2f3245] border border-transparent hover:border-gray-700 transition-all active:scale-95 relative shadow-sm">
-               <Bell size={18} strokeWidth={2} />
+             <button onClick={() => setView(View.NOTIFICATIONS)} className="bg-[#242636] p-1.5 rounded-lg text-yellow-400 hover:text-yellow-300 hover:bg-[#2f3245] border border-transparent hover:border-gray-700 transition-all active:scale-95 relative shadow-sm">
+               <Bell size={22} strokeWidth={2} />
                {hasUnreadNotifications && (
                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-[#13141f] flex items-center justify-center animate-bounce shadow-lg">
                    !
