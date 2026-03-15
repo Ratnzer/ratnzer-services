@@ -30,15 +30,15 @@ const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
               <button
                 key={item.id}
                 onClick={() => setView(item.id)}
-                className={`relative flex items-center justify-center transition-all duration-300 h-10 flex-1`}
+                className={`relative flex items-center justify-center h-10 flex-1 transition-all duration-200 active:scale-90 outline-none select-none`}
               >
                 {/* Active Background Pill - More visible and slimmer */}
                 {isActive && (
                   <div className="absolute inset-x-1 inset-y-0.5 bg-yellow-400/20 border border-yellow-400/40 rounded-xl animate-fadeIn" />
                 )}
                 
-                <div className={`relative flex flex-col items-center justify-center transition-all duration-300 ${
-                  isActive ? 'text-yellow-400 scale-105' : 'text-gray-400 hover:text-gray-200'
+                <div className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                  isActive ? 'text-yellow-400 scale-125' : 'text-gray-400 hover:text-gray-200'
                 }`}>
                   <item.icon 
                     size={20} 
