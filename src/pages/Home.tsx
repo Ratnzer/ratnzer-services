@@ -422,7 +422,7 @@ const Home: React.FC<Props> = ({
             </div>
 
             {/* Circular Dots */}
-            <div className="flex justify-center gap-2 mt-3">
+            <div className="flex justify-center gap-2 mt-[10px]">
               {viewBanners.map((_, index) => (
                 <div
                   key={index}
@@ -439,7 +439,7 @@ const Home: React.FC<Props> = ({
       </div>
 
       {/* Categories (Scrollable) */}
-      <div className="sticky top-0 z-40 px-4 bg-[#13141f] pt-[5px] pb-0">
+      <div className="sticky top-0 z-40 px-4 bg-[#13141f] pt-0 pb-0">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 pr-1 touch-pan-x touch-pan-y pointer-events-auto" style={{ touchAction: 'pan-x pan-y' }}>
           {uiCategories.map((cat: any) => (
 <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[60px] group touch-manipulation active:scale-95 transition-transform duration-150">
