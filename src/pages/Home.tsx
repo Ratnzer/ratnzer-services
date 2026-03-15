@@ -322,7 +322,7 @@ const Home: React.FC<Props> = ({
   })();
 
   return (
-    <div className="pb-24 pt-0 space-y-4 will-change-scroll">
+    <div className="pb-24 pt-0 space-y-[10px] will-change-scroll">
       {/* Announcements / Alerts */}
       {viewAnnouncements.length > 0 && (
         <div className="px-4">
