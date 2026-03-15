@@ -1,41 +1,61 @@
 import React from 'react';
 import { Home, ShoppingCart, ClipboardList, Settings } from 'lucide-react';
 import { View } from '../types';
+
 interface Props {
   currentView: View;
   setView: (view: View) => void;
   isHidden?: boolean;
 }
+
 const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
   if (isHidden) return null;
-  // Order from Right to Left as per Arabic layout
+
+  // Order from Left to Right to match the screenshot: Settings | Orders | Cart | Home
   const navItems = [
-    { id: View.HOME, icon: Home, label: 'الرئيسية' },
-    { id: View.CART, icon: ShoppingCart, label: 'السلة' }, 
-    { id: View.ORDERS, icon: ClipboardList, label: 'طلباتي' },
     { id: View.PROFILE, icon: Settings, label: 'الإعدادات' },
+    { id: View.ORDERS, icon: ClipboardList, label: 'طلباتي' },
+    { id: View.CART, icon: ShoppingCart, label: 'السلة' },
+    { id: View.HOME, icon: Home, label: 'الرئيسية' },
   ];
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#1a1b26] border-t border-gray-800 pb-safe pt-3 z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
-      <div className="flex justify-around items-center px-4 pb-4 w-full max-w-6xl mx-auto">
-        {navItems.map((item) => {
-          const isActive = currentView === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setView(item.id)}
-              className={`flex flex-col items-center justify-center w-full transition-all duration-300 group`}
-            >
-              <div className={`p-1 transition-all ${isActive ? 'text-yellow-400 scale-110' : 'text-gray-500 group-hover:text-gray-300'}`}>
-                <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
-              </div>
-              {/* Optional: Add labels if you want text under icons */}
-              {/* <span className={`text-[10px] mt-1 ${isActive ? 'text-yellow-400 font-bold' : 'text-gray-500'}`}>{item.label}</span> */}
-            </button>
-          );
-        })}
+    <div className="fixed bottom-4 left-4 right-4 z-[100]">
+      <div className="bg-[#1a1b26]/90 backdrop-blur-lg border border-gray-800/50 rounded-[32px] shadow-2xl px-2 py-2 max-w-md mx-auto">
+        <div className="flex justify-between items-center relative">
+          {navItems.map((item) => {
+            const isActive = currentView === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setView(item.id)}
+                className={`relative flex items-center justify-center transition-all duration-300 h-14 flex-1`}
+              >
+                {/* Active Background Pill */}
+                {isActive && (
+                  <div className="absolute inset-x-1 inset-y-0 bg-yellow-400/10 border border-yellow-400/20 rounded-2xl animate-fadeIn" />
+                )}
+                
+                <div className={`relative flex flex-col items-center justify-center transition-all duration-300 ${
+                  isActive ? 'text-yellow-400 scale-110' : 'text-gray-500 hover:text-gray-300'
+                }`}>
+                  <item.icon 
+                    size={24} 
+                    strokeWidth={isActive ? 2.5 : 2} 
+                    className={isActive ? 'drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]' : ''}
+                  />
+                  {/* Small dot indicator for active state like in screenshot */}
+                  {isActive && (
+                    <div className="absolute -bottom-1.5 w-1 h-1 bg-yellow-400 rounded-full shadow-[0_0_4px_rgba(250,204,21,0.8)]" />
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
+
 export default BottomNav;
