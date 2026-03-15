@@ -57,7 +57,7 @@ const AboutUs: React.FC<Props> = ({ setView }) => {
   return (
     <div className="min-h-screen pb-6 bg-[#13141f] pt-0">
       {/* Header */}
-      <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+      <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
         <div className="w-10"></div>
         <h1 className="text-xl font-bold text-white">{aboutUsData?.title || 'من نحن'}</h1>
         <button onClick={() => setView(View.PROFILE)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>

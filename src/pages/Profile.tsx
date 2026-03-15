@@ -603,7 +603,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Password Modal */}
        {showPasswordModal && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
                    <div className="w-10"></div>
                    <h1 className="text-xl font-bold text-white">أمان الحساب</h1>
                    <button onClick={() => setShowPasswordModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm">
@@ -796,7 +796,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Edit Profile Modal */}
        {showEditProfile && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
                    <div className="w-10"></div>
                    <h1 className="text-xl font-bold text-white">تعديل الملف الشخصي</h1>
                    <button onClick={() => setShowEditProfile(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm">
@@ -933,7 +933,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* FAQ Modal */}
        {showFaqModal && (
          <div className="fixed inset-0 z-[60] bg-[#13141f] animate-fadeIn flex flex-col">
-<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
 	               <div className="w-10"></div>
 	               <h2 className="text-xl font-bold text-white">الأسئلة الشائعة</h2>
 	               <button onClick={() => setShowFaqModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
@@ -988,7 +988,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Terms Modal */}
        {showTermsModal && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
 	                   <div className="w-10"></div>
 	                   <h2 className="text-xl font-bold text-white">الشروط والأحكام</h2>
 	                   <button onClick={() => setShowTermsModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
@@ -1016,7 +1016,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
        {/* Privacy Modal */}
        {showPrivacyModal && (
            <div className="fixed inset-0 z-[70] bg-[#13141f] animate-fadeIn flex flex-col">
-<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
 	                   <div className="w-10"></div>
 	                   <h2 className="text-xl font-bold text-white">سياسة الخصوصية</h2>
 	                   <button onClick={() => setShowPrivacyModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
@@ -1047,7 +1047,7 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
       {showAboutUsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-end z-50 animate-fadeIn">
           <div className="w-full bg-[#1a1a2e] rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh]">
-<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+<div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
 	              <div className="w-10"></div>
 	              <h2 className="text-xl font-bold text-white">{aboutUsData?.title || 'من نحن'}</h2>
 	              <button onClick={() => setShowAboutUsModal(false)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
