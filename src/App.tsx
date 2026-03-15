@@ -2543,21 +2543,26 @@ useEffect(() => {
             setView={handleSetView}
           />
         );
-case View.CART:
-			        return (
-				          <div className="pt-2 flex flex-col min-h-screen pb-24">
-			             {/* Header */}
-<div className="px-4 mb-4 flex items-center justify-between">
-			                <button 
-			                  onClick={() => refreshCartFromServer('replace')} 
-			                  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
-			                  disabled={cartRefreshing}
-			                >
-			                  {cartRefreshing ? "جاري التحديث..." : "تحديث"}
-			                </button>
-			                <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
-			                <button onClick={() => handleSetView(View.HOME)}><ArrowLeft className="text-white" /></button>
-			             </div>
+      case View.CART:
+				        return (
+					          <div className="flex flex-col min-h-screen pb-24 bg-[#13141f]">
+				             {/* Unified Header */}
+				             <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+				                <button 
+				                  onClick={() => refreshCartFromServer('replace')} 
+				                  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
+				                  disabled={cartRefreshing}
+				                >
+				                  {cartRefreshing ? "جاري التحديث..." : "تحديث"}
+				                </button>
+				                <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
+				                <button 
+				                  onClick={() => handleSetView(View.HOME)}
+				                  className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"
+				                >
+				                  <ArrowLeft size={22} />
+				                </button>
+				             </div>
 
 	             {cartItems.length === 0 ? (
 	                <div className="flex flex-col items-center justify-center pt-16 text-center px-6">
@@ -2718,14 +2723,25 @@ case View.CART:
           </div>
         );
       case View.ORDERS:
-        return (
-          <div className={`min-h-screen pb-24 bg-[#13141f] ${isOrdersFromProfile ? 'pt-0' : 'pt-2'}`}>
-               {/* Header */}
-               <div className={`${isOrdersFromProfile ? 'sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4' : 'px-4 mb-4 flex items-center justify-between'}`}>
-                  <button onClick={() => loadMyOrdersPage('replace')} className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" disabled={myOrdersRefreshing}>{myOrdersRefreshing ? "جاري التحديث..." : "تحديث"}</button>
-                  <h1 className="text-xl font-bold text-white">طلباتي</h1>
-                  <button onClick={() => handleSetView(isOrdersFromProfile ? View.PROFILE : View.HOME)} className={isOrdersFromProfile ? "active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm" : ""}><ArrowLeft className={isOrdersFromProfile ? "" : "text-white"} size={isOrdersFromProfile ? 22 : undefined} /></button>
-               </div>
+	        return (
+	          <div className="min-h-screen pb-24 bg-[#13141f]">
+	               {/* Unified Header */}
+	               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+	                  <button 
+	                    onClick={() => loadMyOrdersPage('replace')} 
+	                    className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
+	                    disabled={myOrdersRefreshing}
+	                  >
+	                    {myOrdersRefreshing ? "جاري التحديث..." : "تحديث"}
+	                  </button>
+	                  <h1 className="text-xl font-bold text-white">طلباتي</h1>
+	                  <button 
+	                    onClick={() => handleSetView(isOrdersFromProfile ? View.PROFILE : View.HOME)} 
+	                    className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"
+	                  >
+	                    <ArrowLeft size={22} />
+	                  </button>
+	               </div>
 
                {(myOrdersRefreshing ? false : myOrdersPage.length === 0) ? (
                   <div className="flex flex-col items-center justify-center pt-16 text-center px-6 animate-fadeIn">
