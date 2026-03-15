@@ -387,11 +387,11 @@ const renderDetails = () => (
                                target.parentElement!.appendChild(span);
                            }}
                          />
-                     ) : (
-                        <div className="w-10 h-10 bg-white/20 rounded-full backdrop-blur-sm flex items-center justify-center shadow-inner">
-                           <span className="text-white text-[8px] font-bold text-center leading-tight opacity-90">{product.name.slice(0, 2)}</span>
-                        </div>
-                     )}
+	                     ) : (
+	                        <div className="w-10 h-10 bg-white/10 rounded-full backdrop-blur-sm flex items-center justify-center shadow-inner">
+	                           {/* Initials removed as requested */}
+	                        </div>
+	                     )}
                      
                      {product.tag && (
                          <div className="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-2 py-1 rounded-bl-xl shadow-sm z-10">
