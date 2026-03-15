@@ -45,16 +45,16 @@ const Notifications: React.FC<Props> = ({
   return (
     <div className="min-h-screen pb-24 bg-[#13141f] pt-0">
       {/* Header */}
-      <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+      <div className="px-4 mb-4 flex items-center justify-between">
         <button 
           onClick={onRefresh} 
-          className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
+          className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700" 
           disabled={refreshing}
         >
           {refreshing ? "جاري التحديث..." : "تحديث"}
         </button>
         <h1 className="text-xl font-bold text-white">الإشعارات</h1>
-        <button onClick={() => setView(sourceView)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
+        <button onClick={() => setView(sourceView)}><ArrowLeft className="text-white" /></button>
       </div>
 
       <div className="p-4 space-y-3 pt-0 animate-slide-up">
