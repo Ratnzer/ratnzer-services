@@ -326,15 +326,15 @@ const Home: React.FC<Props> = ({
       {/* Announcements / Alerts */}
       {viewAnnouncements.length > 0 && (
         <div className="px-4">
-          <div className="bg-[#242636] border border-yellow-400/30 rounded-xl p-[10px] flex items-center gap-3 overflow-hidden shadow-sm">
+          <div className="bg-[#242636] border border-yellow-400/30 rounded-xl py-[7px] px-[10px] flex items-center gap-3 overflow-hidden shadow-sm">
             <Megaphone size={18} className="text-yellow-400 animate-pulse flex-shrink-0" />
             <div
               ref={announcementContainerRef}
-              className={`marquee-container flex-1 overflow-hidden relative h-[10px] flex items-center ${shouldScroll ? 'is-scrolling' : ''}`}
+              className={`marquee-container flex-1 overflow-hidden relative h-[14px] flex items-center ${shouldScroll ? 'is-scrolling' : ''}`}
             >
               <div
                 ref={announcementTextRef}
-                className="animate-marquee text-xs font-bold text-white tracking-wide"
+                className="animate-marquee text-[13px] font-bold text-white tracking-wide"
               >
                 {shouldScroll && (
                   <>
