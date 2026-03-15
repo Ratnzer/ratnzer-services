@@ -330,11 +330,11 @@ const Home: React.FC<Props> = ({
             <Megaphone size={18} className="text-yellow-400 animate-pulse flex-shrink-0" />
             <div
               ref={announcementContainerRef}
-              className={`marquee-container flex-1 overflow-hidden relative h-[14px] flex items-center ${shouldScroll ? 'is-scrolling' : ''}`}
+              className={`marquee-container flex-1 overflow-hidden relative h-3 flex items-center ${shouldScroll ? 'is-scrolling' : ''}`}
             >
               <div
                 ref={announcementTextRef}
-                className="animate-marquee text-xs font-bold text-white"
+                className="animate-marquee text-xs font-bold text-white tracking-wide"
               >
                 {shouldScroll && (
                   <>
