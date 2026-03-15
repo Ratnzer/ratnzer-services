@@ -144,10 +144,10 @@ export const WalletTopupRequestsTab: React.FC<Props> = ({
           </button>
           <button
             onClick={() => onRefresh(activeStatus)}
-            className="text-[10px] bg-[#242636] text-gray-400 px-3 py-1.5 rounded-lg border border-gray-700 hover:bg-[#2f3245] transition-colors font-bold"
+            className="text-[10px] bg-[#242636] text-gray-400 px-3 py-1.5 rounded-lg border border-gray-700 hover:bg-[#2f3245] transition-colors font-bold min-w-[85px] text-center"
             disabled={loading}
           >
-            {loading ? 'جاري التحديث...' : 'تحديث القائمة'}
+            {loading ? 'جاري...' : 'تحديث'}
           </button>
         </div>
       </div>
