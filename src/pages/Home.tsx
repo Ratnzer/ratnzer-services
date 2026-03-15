@@ -326,7 +326,7 @@ const Home: React.FC<Props> = ({
       {/* Announcements / Alerts */}
       {viewAnnouncements.length > 0 && (
         <div className="px-4">
-          <div className="bg-[#242636] border border-yellow-400/30 rounded-xl p-3 flex items-center gap-3 overflow-hidden shadow-sm">
+          <div className="bg-[#242636] border border-yellow-400/30 rounded-xl p-[10px] flex items-center gap-3 overflow-hidden shadow-sm">
             <Megaphone size={18} className="text-yellow-400 animate-pulse flex-shrink-0" />
             <div
               ref={announcementContainerRef}
