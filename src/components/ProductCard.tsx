@@ -22,8 +22,7 @@ const ProductCard: React.FC<Props> = React.memo(({ product, onClick }) => {
         w-full aspect-[4/5] rounded-[0.9rem] bg-gradient-to-br ${product.imageColor} 
         relative overflow-hidden shadow-inner ${!isImageLoaded ? 'animate-shimmer' : ''}
       `}>
-         {/* Background Pattern Overlay */}
-         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat"></div>
+	         {/* Background Pattern Overlay removed as requested */}
 
          {/* Product Image */}
          {product.imageUrl ? (
