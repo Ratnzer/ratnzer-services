@@ -21,8 +21,8 @@ const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
 
   return (
     <div className="fixed bottom-3 left-4 right-4 z-[100]">
-      {/* Improved background: slightly lighter than app background, stronger border, and better shadow */}
-      <div className="bg-[#242636]/95 backdrop-blur-xl border border-gray-700/50 rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.8)] px-2 py-1.5 max-w-md mx-auto">
+      {/* Slimmer container with much clearer background and stronger border */}
+      <div className="bg-[#2a2c3e]/95 backdrop-blur-2xl border border-gray-600/40 rounded-[20px] shadow-[0_12px_40px_rgba(0,0,0,0.9)] px-1.5 py-1 max-w-md mx-auto">
         <div className="flex justify-between items-center relative">
           {navItems.map((item) => {
             const isActive = currentView === item.id;
@@ -30,24 +30,24 @@ const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
               <button
                 key={item.id}
                 onClick={() => setView(item.id)}
-                className={`relative flex items-center justify-center transition-all duration-300 h-11 flex-1`}
+                className={`relative flex items-center justify-center transition-all duration-300 h-10 flex-1`}
               >
-                {/* Active Background Pill - More visible when active */}
+                {/* Active Background Pill - More visible and slimmer */}
                 {isActive && (
-                  <div className="absolute inset-x-1 inset-y-0.5 bg-yellow-400/15 border border-yellow-400/30 rounded-xl animate-fadeIn" />
+                  <div className="absolute inset-x-1 inset-y-0.5 bg-yellow-400/20 border border-yellow-400/40 rounded-xl animate-fadeIn" />
                 )}
                 
                 <div className={`relative flex flex-col items-center justify-center transition-all duration-300 ${
                   isActive ? 'text-yellow-400 scale-105' : 'text-gray-400 hover:text-gray-200'
                 }`}>
                   <item.icon 
-                    size={22} 
+                    size={20} 
                     strokeWidth={isActive ? 2.5 : 2} 
-                    className={isActive ? 'drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : ''}
+                    className={isActive ? 'drop-shadow-[0_0_12px_rgba(250,204,21,0.6)]' : ''}
                   />
                   {/* Small dot indicator for active state */}
                   {isActive && (
-                    <div className="absolute -bottom-1 w-1 h-1 bg-yellow-400 rounded-full shadow-[0_0_6px_rgba(250,204,21,1)]" />
+                    <div className="absolute -bottom-1 w-1 h-1 bg-yellow-400 rounded-full shadow-[0_0_8px_rgba(250,204,21,1)]" />
                   )}
                 </div>
               </button>
