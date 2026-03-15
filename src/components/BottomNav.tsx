@@ -22,8 +22,9 @@ const BottomNav: React.FC<Props> = ({ currentView, setView, isHidden }) => {
     <div className="fixed bottom-0 left-0 right-0 z-[100] flex justify-center px-4 pb-2 pointer-events-none">
       {/* Slim glass card */}
       <div
-        className="pointer-events-auto w-full max-w-sm flex items-center justify-between rounded-[18px] px-1 py-1.5 overflow-hidden"
+        className="pointer-events-auto w-full flex items-center justify-between rounded-[18px] px-1 py-1.5 overflow-hidden"
         style={{
+          maxWidth: '360px',
           background:
             'linear-gradient(135deg, rgba(30,32,50,0.95) 0%, rgba(20,22,36,0.98) 100%)',
           border: '1px solid rgba(250,204,21,0.10)',
