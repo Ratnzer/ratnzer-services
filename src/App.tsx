@@ -2578,8 +2578,8 @@ useEffect(() => {
 ) : (
 				                <div className="flex-1 no-scrollbar animate-slide-up">
 		                    
-			                    {/* Summary (Sticky Top) - Extra Compact Version */}
-			                    <div className="sticky top-0 z-20 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-2 mb-1 shadow-xl">
+							    {/* Summary (Sticky Below Header) - Extra Compact Version */}
+							    <div className="sticky z-40 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-2 shadow-xl" style={{top: '56px'}}>
 		                        <div className="bg-[#242636] p-2.5 rounded-xl border border-gray-700/50 flex justify-between items-center">
 			                            <div className="flex flex-col">
 			                                <span className="text-gray-300 text-[10px] uppercase font-black tracking-tight mb-1">الإجمالي ({cartCount})</span>
