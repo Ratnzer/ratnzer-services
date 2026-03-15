@@ -442,9 +442,9 @@ const Home: React.FC<Props> = ({
       <div className="sticky top-0 z-40 px-4 bg-[#13141f] py-1">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 pr-1 touch-pan-x touch-pan-y pointer-events-auto" style={{ touchAction: 'pan-x pan-y' }}>
           {uiCategories.map((cat: any) => (
-<button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[55px] group touch-manipulation active:scale-95 transition-transform duration-150">
+<button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[60px] group touch-manipulation active:scale-95 transition-transform duration-150">
 	              <div
-	                className={`w-11 h-11 rounded-xl flex items-center justify-center mb-1.5 transition-all duration-300 border shadow-sm ${
+	                className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1.5 transition-all duration-300 border shadow-sm ${
 	                  effectiveCategory === cat.id
 	                    ? 'bg-yellow-400 text-black border-yellow-400'
 	                    : 'bg-[#242636] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
@@ -454,13 +454,13 @@ const Home: React.FC<Props> = ({
 	                  const IconComp: any = (cat as any).icon || Sparkles;
 	                  // If it's a component (function/object), render it; otherwise fallback
 	                  if (typeof IconComp === 'function' || (typeof IconComp === 'object' && IconComp.$$typeof)) {
-	                    return <IconComp size={18} />;
+	                    return <IconComp size={20} />;
 	                  }
-	                  return <Sparkles size={18} />;
+	                  return <Sparkles size={20} />;
 	                })()}
 	              </div>
 	              <span
-	                className={`text-[9px] font-bold whitespace-nowrap transition-colors ${
+	                className={`text-[10px] font-bold whitespace-nowrap transition-colors ${
 	                  effectiveCategory === cat.id ? 'text-yellow-400' : 'text-gray-400'
 	                }`}
 	              >
