@@ -509,7 +509,7 @@ const Wallet: React.FC<Props> = ({
 
   return (
     <div className="min-h-screen pb-36 pt-0 relative will-change-scroll">
-      <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+      <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
         {onRefreshTransactions ? (
           <button onClick={handleRefresh} className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" disabled={refreshing}>
             {refreshing ? "جاري التحديث..." : "تحديث"}

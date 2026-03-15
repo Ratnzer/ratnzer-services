@@ -2547,7 +2547,7 @@ useEffect(() => {
 				        return (
 					          <div className="flex flex-col min-h-screen pb-24 bg-[#13141f]">
 				             {/* Unified Header */}
-				             <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+				             <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
 				                <button 
 				                  onClick={() => refreshCartFromServer('replace')} 
 				                  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
@@ -2726,7 +2726,7 @@ useEffect(() => {
 	        return (
 	          <div className="min-h-screen pb-24 bg-[#13141f]">
 	               {/* Unified Header */}
-	               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
+	               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
 	                  <button 
 	                    onClick={() => loadMyOrdersPage('replace')} 
 	                    className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
