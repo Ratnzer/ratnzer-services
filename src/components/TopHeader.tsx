@@ -25,15 +25,15 @@ const TopHeader: React.FC<Props> = ({
          {isLoggedIn ? (
              <button 
                onClick={() => setView(View.WALLET)} 
-               className="group relative flex items-center gap-2 bg-[#1a1c24] pl-2.5 pr-1 py-1 rounded-full border border-gray-700/50 shadow-lg shadow-black/20 overflow-hidden transition-all active:scale-95 hover:border-green-500/30"
+               className="group relative flex items-center gap-2 bg-[#1a1c24] pl-3 pr-1.5 py-1.5 rounded-full border border-gray-700/50 shadow-lg shadow-black/20 overflow-hidden transition-all active:scale-95 hover:border-green-500/30 h-[38px]"
              >
                 <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-colors duration-300"></div>
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-inner text-white z-10 ring-2 ring-[#13141f]">
-                     <Wallet size={12} strokeWidth={2.5} />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-inner text-white z-10 ring-2 ring-[#13141f]">
+                     <Wallet size={16} strokeWidth={2.5} />
                 </div>
                 <div className="flex flex-col items-start justify-center z-10 h-full pl-1">
-                     <span className="text-[8px] text-gray-400 font-bold leading-none mb-0.5">الرصيد الحالي</span>
-                     <span className="text-white font-black text-[10px] dir-ltr leading-none tracking-wide font-mono drop-shadow-sm group-hover:text-green-400 transition-colors">
+                     <span className="text-[9px] text-gray-400 font-bold leading-none mb-0.5">الرصيد الحالي</span>
+                     <span className="text-white font-black text-[11px] dir-ltr leading-none tracking-wide font-mono drop-shadow-sm group-hover:text-green-400 transition-colors">
                         {formattedBalance}
                      </span>
                 </div>
