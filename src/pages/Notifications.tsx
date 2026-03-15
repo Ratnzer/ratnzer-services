@@ -46,17 +46,13 @@ const Notifications: React.FC<Props> = ({
     <div className="min-h-screen pb-24 bg-[#13141f] pt-0">
       {/* Unified Header - Exactly matching Wallet/Orders style */}
       <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
-        {onRefresh ? (
-          <button 
-            onClick={onRefresh} 
-            className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
-            disabled={refreshing}
-          >
-            {refreshing ? "جاري التحديث..." : "تحديث"}
-          </button>
-        ) : (
-          <div className="w-10"></div>
-        )}
+        <button 
+          onClick={onRefresh} 
+          className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform min-w-[70px] text-center" 
+          disabled={refreshing || !onRefresh}
+        >
+          {refreshing ? "جاري..." : "تحديث"}
+        </button>
         <h1 className="text-xl font-bold text-white">الإشعارات</h1>
         <button 
           onClick={() => setView(sourceView)}

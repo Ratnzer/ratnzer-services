@@ -2548,13 +2548,13 @@ useEffect(() => {
 					          <div className="flex flex-col min-h-screen pb-24 bg-[#13141f]">
 				             {/* Unified Header */}
 				             <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
-				                <button 
-				                  onClick={() => refreshCartFromServer('replace')} 
-				                  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
-				                  disabled={cartRefreshing}
-				                >
-				                  {cartRefreshing ? "جاري التحديث..." : "تحديث"}
-				                </button>
+							<button 
+						  onClick={() => refreshCartFromServer('replace')} 
+						  className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform min-w-[70px] text-center" 
+						  disabled={cartRefreshing}
+						>
+						  {cartRefreshing ? "جاري..." : "تحديث"}
+						</button>
 				                <h1 className="text-xl font-bold text-white">سلة المشتريات</h1>
 				                <button 
 				                  onClick={() => handleSetView(View.HOME)}
@@ -2727,13 +2727,13 @@ useEffect(() => {
 	          <div className="min-h-screen pb-24 bg-[#13141f]">
 	               {/* Unified Header */}
 	               <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
-	                  <button 
-	                    onClick={() => loadMyOrdersPage('replace')} 
-	                    className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" 
-	                    disabled={myOrdersRefreshing}
-	                  >
-	                    {myOrdersRefreshing ? "جاري التحديث..." : "تحديث"}
-	                  </button>
+					  <button 
+					    onClick={() => loadMyOrdersPage('replace')} 
+					    className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform min-w-[70px] text-center" 
+					    disabled={myOrdersRefreshing}
+					  >
+					    {myOrdersRefreshing ? "جاري..." : "تحديث"}
+					  </button>
 	                  <h1 className="text-xl font-bold text-white">طلباتي</h1>
 	                  <button 
 	                    onClick={() => handleSetView(isOrdersFromProfile ? View.PROFILE : View.HOME)} 

@@ -510,13 +510,13 @@ const Wallet: React.FC<Props> = ({
   return (
     <div className="min-h-screen pb-36 pt-0 relative will-change-scroll">
       <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[56px] flex items-center justify-between px-4 mb-4">
-        {onRefreshTransactions ? (
-          <button onClick={handleRefresh} className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform" disabled={refreshing}>
-            {refreshing ? "جاري التحديث..." : "تحديث"}
-          </button>
-        ) : (
-          <div className="w-10"></div>
-        )}
+        <button 
+          onClick={handleRefresh} 
+          className="text-xs bg-[#242636] text-gray-200 px-3 py-2 rounded-lg border border-gray-700 active:scale-95 transition-transform min-w-[70px] text-center" 
+          disabled={refreshing || !onRefreshTransactions}
+        >
+          {refreshing ? "جاري..." : "تحديث"}
+        </button>
         <h1 className="text-xl font-bold text-white">محفظتي</h1>
         <button onClick={() => setView(sourceView)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
       </div>
