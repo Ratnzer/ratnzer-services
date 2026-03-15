@@ -43,7 +43,7 @@ const Notifications: React.FC<Props> = ({
   }, [hasMore, loadingMore, onLoadMore]);
 
   return (
-    <div className="min-h-screen pb-24 bg-[#13141f] pt-0 animate-slide-up">
+    <div className="min-h-screen pb-24 bg-[#13141f] pt-0">
       {/* Header */}
       <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
         <button 
@@ -57,7 +57,7 @@ const Notifications: React.FC<Props> = ({
         <button onClick={() => setView(sourceView)} className="active:scale-95 transition-transform p-2 bg-[#242636] rounded-xl text-yellow-400 border border-gray-700 shadow-sm"><ArrowLeft size={22} /></button>
       </div>
 
-      <div className="p-4 space-y-3 pt-0">
+      <div className="p-4 space-y-3 pt-0 animate-slide-up">
         {/* Empty state (Centered) */}
         {(refreshing ? false : visibleAnnouncements.length === 0) && !loadingMore && (
           <div className="flex items-center justify-center min-h-[70vh]">

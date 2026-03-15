@@ -2545,7 +2545,7 @@ useEffect(() => {
         );
 		      case View.CART:
 		        return (
-			          <div className="pt-2 flex flex-col h-full overflow-hidden animate-slide-up">
+			          <div className="pt-2 flex flex-col h-full overflow-hidden">
 			             {/* Header */}
 	<div className="px-4 mb-2 flex items-center justify-between">
 		                <button 
@@ -2571,7 +2571,7 @@ useEffect(() => {
                     </button>
                 </div>
 	             ) : (
-			                <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+			                <div className="flex-1 overflow-y-auto no-scrollbar pb-24 animate-slide-up">
 		                    
 			                    {/* Summary (Sticky Top) - Extra Compact Version */}
 			                    <div className="sticky top-0 z-20 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 px-4 py-2 mb-1 shadow-xl">
