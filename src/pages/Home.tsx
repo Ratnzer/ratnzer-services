@@ -444,7 +444,7 @@ const Home: React.FC<Props> = ({
           {uiCategories.map((cat: any) => (
 <button key={cat.id} onClick={() => selectCategory(cat.id)} className="flex flex-col items-center min-w-[60px] group touch-manipulation active:scale-95 transition-transform duration-150">
 	              <div
-	                className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1.5 transition-all duration-300 border shadow-sm ${
+	                className={`w-[50px] h-[50px] rounded-xl flex items-center justify-center mb-1.5 transition-all duration-300 border shadow-sm ${
 	                  effectiveCategory === cat.id
 	                    ? 'bg-yellow-400 text-black border-yellow-400'
 	                    : 'bg-[#242636] border-gray-800 text-white group-hover:bg-yellow-400 group-hover:text-black'
@@ -454,13 +454,13 @@ const Home: React.FC<Props> = ({
 	                  const IconComp: any = (cat as any).icon || Sparkles;
 	                  // If it's a component (function/object), render it; otherwise fallback
 	                  if (typeof IconComp === 'function' || (typeof IconComp === 'object' && IconComp.$$typeof)) {
-	                    return <IconComp size={20} />;
+	                    return <IconComp size={25} />;
 	                  }
-	                  return <Sparkles size={20} />;
+	                  return <Sparkles size={25} />;
 	                })()}
 	              </div>
 	              <span
-	                className={`text-[10px] font-bold whitespace-nowrap transition-colors ${
+	                className={`text-[11px] font-bold whitespace-nowrap transition-colors ${
 	                  effectiveCategory === cat.id ? 'text-yellow-400' : 'text-gray-400'
 	                }`}
 	              >
