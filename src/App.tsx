@@ -2545,7 +2545,7 @@ useEffect(() => {
         );
 		      case View.CART:
 		        return (
-			          <div className="pt-2 flex flex-col h-full overflow-hidden animate-fadeIn">
+			          <div className="pt-2 flex flex-col h-full overflow-hidden animate-slide-up">
 			             {/* Header */}
 	<div className="px-4 mb-2 flex items-center justify-between">
 		                <button 

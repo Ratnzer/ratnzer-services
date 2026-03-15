@@ -43,7 +43,7 @@ const Notifications: React.FC<Props> = ({
   }, [hasMore, loadingMore, onLoadMore]);
 
   return (
-    <div className="min-h-screen pb-24 bg-[#13141f] pt-0">
+    <div className="min-h-screen pb-24 bg-[#13141f] pt-0 animate-slide-up">
       {/* Header */}
       <div className="sticky top-0 left-0 right-0 z-50 bg-[#13141f]/95 backdrop-blur-md border-b border-gray-800/50 h-[65px] flex items-center justify-between px-4 mb-4">
         <button 
