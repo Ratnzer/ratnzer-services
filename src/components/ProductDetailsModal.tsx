@@ -370,7 +370,7 @@ const renderDetails = () => (
             {/* Header Section */}
             <div className="flex gap-5 items-start mb-6">
                  {/* Product Card Graphic */}
-                <div className={`w-24 aspect-[4/5] rounded-[0.9rem] bg-gradient-to-br ${product.imageColor} flex items-center justify-center shadow-lg relative overflow-hidden flex-shrink-0 border border-white/10 group`}>
+                <div className={`w-24 aspect-[4/5] rounded-[0.9rem] bg-gradient-to-br ${product.imageColor} flex items-center justify-center shadow-lg relative overflow-hidden flex-shrink-0 border border-white/10 group animate-shimmer`}>
                      {product.imageUrl ? (
                          <img 
                            src={product.imageUrl} 
