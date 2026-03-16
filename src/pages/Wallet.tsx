@@ -72,6 +72,7 @@ const Wallet: React.FC<Props> = ({
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSwipeAllowed, setIsSwipeAllowed] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 	  const [activeMethods, setActiveMethods] = useState<string[]>(() => {
 	    const all = ['card', 'superkey', 'zaincash', 'asiacell_transfer', 'pi'];
@@ -178,13 +179,23 @@ const Wallet: React.FC<Props> = ({
   }, [showAddBalanceModal, onAddBalanceModalToggle]);
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientY);
-    setIsDragging(true);
+    const touchY = e.targetTouches[0].clientY;
+    const modalElement = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const topQuarterHeight = modalElement.height * 0.25;
+    const touchYRelative = touchY - modalElement.top;
+    
+    if (touchYRelative <= topQuarterHeight) {
+      setTouchEnd(null);
+      setTouchStart(touchY);
+      setIsDragging(true);
+      setIsSwipeAllowed(true);
+    } else {
+      setIsSwipeAllowed(false);
+    }
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (!touchStart) return;
+    if (!touchStart || !isSwipeAllowed) return;
     const currentTouch = e.targetTouches[0].clientY;
     const diff = currentTouch - touchStart;
     if (diff > 0) {
@@ -195,8 +206,11 @@ const Wallet: React.FC<Props> = ({
 
   const onTouchEnd = () => {
     setIsDragging(false);
-    if (!touchStart || !touchEnd) {
+    setIsSwipeAllowed(false);
+    if (!touchStart || !touchEnd || !isSwipeAllowed) {
       setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
       return;
     }
     const distance = touchEnd - touchStart;
@@ -210,6 +224,8 @@ const Wallet: React.FC<Props> = ({
       }, 300);
     } else {
       setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
     }
   };
 
