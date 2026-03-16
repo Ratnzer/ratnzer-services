@@ -59,6 +59,7 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSwipeAllowed, setIsSwipeAllowed] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   const minSwipeDistance = 160;
@@ -84,11 +85,14 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
       setTouchEnd(null);
       setTouchStart(touchY);
       setIsDragging(true);
+      setIsSwipeAllowed(true);
+    } else {
+      setIsSwipeAllowed(false);
     }
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (!touchStart) return;
+    if (!touchStart || !isSwipeAllowed) return;
     const currentTouch = e.targetTouches[0].clientY;
     const diff = currentTouch - touchStart;
     
@@ -102,8 +106,11 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
 
   const onTouchEnd = () => {
     setIsDragging(false);
-    if (!touchStart || !touchEnd) {
+    setIsSwipeAllowed(false);
+    if (!touchStart || !touchEnd || !isSwipeAllowed) {
       setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
       return;
     }
     const distance = touchEnd - touchStart;
@@ -120,6 +127,8 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
       }, 300);
     } else {
       setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
     }
   };
 

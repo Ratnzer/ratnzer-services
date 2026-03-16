@@ -30,6 +30,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSwipeAllowed, setIsSwipeAllowed] = useState(false);
   const minSwipeDistance = 160;
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -42,11 +43,14 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
       setTouchEnd(null);
       setTouchStart(touchY);
       setIsDragging(true);
+      setIsSwipeAllowed(true);
+    } else {
+      setIsSwipeAllowed(false);
     }
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (!touchStart) return;
+    if (!touchStart || !isSwipeAllowed) return;
     const currentTouch = e.targetTouches[0].clientY;
     const diff = currentTouch - touchStart;
     if (diff > 0) {
@@ -57,8 +61,11 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
 
   const onTouchEnd = () => {
     setIsDragging(false);
-    if (!touchStart || !touchEnd) {
+    setIsSwipeAllowed(false);
+    if (!touchStart || !touchEnd || !isSwipeAllowed) {
       setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
       return;
     }
     const distance = touchEnd - touchStart;
@@ -69,6 +76,8 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin, terms, privacy,
       setTouchEnd(null);
     } else {
       setTranslateY(0);
+      setTouchStart(null);
+      setTouchEnd(null);
     }
   };
 
