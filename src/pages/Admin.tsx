@@ -498,6 +498,7 @@ const getOrderDate = (o: any) => {
   // Inventory State
   const [invSelectedProduct, setInvSelectedProduct] = useState<string>('');
   const [invSelectedRegion, setInvSelectedRegion] = useState<string>('');
+  const [invSelectedOrderType, setInvSelectedOrderType] = useState<string>('');
   const [invSelectedDenom, setInvSelectedDenom] = useState<string>('');
   const [invNewCodes, setInvNewCodes] = useState<string>('');
 
@@ -1164,6 +1165,7 @@ try {
           id: generateShortId(),
           productId: invSelectedProduct,
           regionId: invSelectedRegion || undefined,
+          orderTypeId: invSelectedOrderType || undefined,
           denominationId: invSelectedDenom || undefined,
           code: code.trim(),
           isUsed: false,
@@ -1176,6 +1178,7 @@ try {
               items: codesArray.map(code => ({
                   productId: invSelectedProduct,
                   regionId: invSelectedRegion || null,
+                  orderTypeId: invSelectedOrderType || null,
                   denominationId: invSelectedDenom || null,
                   code: code.trim(),
               }))
@@ -1189,6 +1192,7 @@ try {
                   id: i.id,
                   productId: i.productId,
                   regionId: i.regionId || undefined,
+                  orderTypeId: i.orderTypeId || undefined,
                   denominationId: i.denominationId || undefined,
                   code: i.code,
                   isUsed: !!i.isUsed,
@@ -1217,18 +1221,19 @@ try {
       setInventory(prev => prev.filter(i => i.id !== id));
   };
 
-  const getFilteredInventory = () => {
-      return inventory.filter(i => {
-          // MODIFIED: If no product selected, return EVERYTHING
-          if (!invSelectedProduct) return true;
+      const getFilteredInventory = () => {
+          return inventory.filter(i => {
+              // MODIFIED: If no product selected, return EVERYTHING
+              if (!invSelectedProduct) return true;
 
-          const matchProd = i.productId === invSelectedProduct;
-          // Only filter by region/denom if selected, otherwise show all for product
-          const matchRegion = !invSelectedRegion || i.regionId === invSelectedRegion;
-          const matchDenom = !invSelectedDenom || i.denominationId === invSelectedDenom;
-          return matchProd && matchRegion && matchDenom;
-      });
-  };
+              const matchProd = i.productId === invSelectedProduct;
+              // Only filter by region/orderType/denom if selected, otherwise show all for product
+              const matchRegion = !invSelectedRegion || i.regionId === invSelectedRegion;
+              const matchOrderType = !invSelectedOrderType || i.orderTypeId === invSelectedOrderType;
+              const matchDenom = !invSelectedDenom || i.denominationId === invSelectedDenom;
+              return matchProd && matchRegion && matchOrderType && matchDenom;
+          });
+      };
 
   // Helper for inventory
   const selectedProductObj = products.find(p => p.id === invSelectedProduct);

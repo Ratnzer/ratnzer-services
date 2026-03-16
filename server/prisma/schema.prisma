@@ -81,6 +81,7 @@ model Inventory {
 
   regionId       String?   // اختياري: لربط الكود بمنطقة محددة
   denominationId String?   // اختياري: لربط الكود بفئة سعرية محددة
+  orderTypeId    String?   // اختياري: لربط الكود بنوع طلب محدد
   code           String    // الكود الرقمي
 
   isUsed         Boolean   @default(false)

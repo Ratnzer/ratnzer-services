@@ -384,6 +384,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
       if (product && product.autoDeliverStock) {
         const regionIdNorm = normalizeId(it?.regionId);
         const denominationIdNorm = normalizeId(it?.denominationId);
+        const orderTypeIdNorm = normalizeId(it?.orderTypeId);
         const stockItem = await tx.inventory.findFirst({
           where: {
             productId: productIdNorm || undefined,
@@ -391,6 +392,7 @@ const finalizePayment = async ({ paymentId, tranRef, queryResult }) => {
             AND: [
               { OR: [{ regionId: regionIdNorm }, { regionId: null }] },
               { OR: [{ denominationId: denominationIdNorm }, { denominationId: null }] },
+              { OR: [{ orderTypeId: orderTypeIdNorm }, { orderTypeId: null }] },
             ],
           },
         });

@@ -159,6 +159,7 @@ const createOrder = asyncHandler(async (req, res) => {
   const productIdNorm = normalizeId(productId);
   const regionIdNorm = normalizeId(regionId);
   const denominationIdNorm = normalizeId(denominationId);
+  const orderTypeIdNorm = normalizeId(orderTypeId);
 
   // 1. Get Fresh User Data
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -313,6 +314,7 @@ const createOrder = asyncHandler(async (req, res) => {
           AND: [
             { OR: [{ regionId: regionIdNorm }, { regionId: null }] },
             { OR: [{ denominationId: denominationIdNorm }, { denominationId: null }] },
+            { OR: [{ orderTypeId: orderTypeIdNorm }, { orderTypeId: null }] },
           ],
         },
         orderBy: { createdAt: 'asc' }, // Get the oldest code first
