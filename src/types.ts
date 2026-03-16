@@ -73,6 +73,7 @@ export interface InventoryCode {
   id: string;
   productId: string;
   regionId?: string; // Optional (some products are global)
+  orderTypeId?: string; // Optional (some products have execution methods)
   denominationId?: string; // Optional (some products have fixed price)
   code: string;
   isUsed: boolean;
