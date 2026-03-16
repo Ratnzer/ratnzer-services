@@ -47,6 +47,8 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [currencyTranslateY, setCurrencyTranslateY] = useState(0);
   const [isCurrencyDragging, setIsCurrencyDragging] = useState(false);
+  const [currencySwipeAllowed, setCurrencySwipeAllowed] = useState(false);
+  const [currencyTouchStart, setCurrencyTouchStart] = useState<number | null>(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -876,24 +878,34 @@ const Profile: React.FC<Props> = ({ setView, currentCurrency, onCurrencyChange, 
 	                transform: `translate3d(0, ${currencyTranslateY}px, 0)`,
 	                willChange: 'transform, opacity'
 	              }}
-	              onTouchStart={(e) => {
-	                setIsCurrencyDragging(true);
-	                (e.currentTarget as any)._startY = e.targetTouches[0].clientY;
-	              }}
-	              onTouchMove={(e) => {
-	                const startY = (e.currentTarget as any)._startY;
-	                if (!startY) return;
-	                const diff = e.targetTouches[0].clientY - startY;
-	                if (diff > 0) setCurrencyTranslateY(diff);
-	              }}
-	              onTouchEnd={(e) => {
-	                setIsCurrencyDragging(false);
-	                if (currencyTranslateY > 160) {
-	                  setShowCurrencyModal(false);
-	                }
-	                setCurrencyTranslateY(0);
-	                (e.currentTarget as any)._startY = null;
-	              }}
+              onTouchStart={(e) => {
+							const touchY = e.targetTouches[0].clientY;
+							const modalElement = (e.currentTarget as HTMLElement).getBoundingClientRect();
+							const topQuarterHeight = modalElement.height * 0.25;
+							const touchYRelative = touchY - modalElement.top;
+							
+							if (touchYRelative <= topQuarterHeight) {
+							  setIsCurrencyDragging(true);
+							  setCurrencyTouchStart(touchY);
+							  setCurrencySwipeAllowed(true);
+							} else {
+							  setCurrencySwipeAllowed(false);
+							}
+						}}
+						onTouchMove={(e) => {
+							if (!currencyTouchStart || !currencySwipeAllowed) return;
+						const diff = e.targetTouches[0].clientY - currencyTouchStart;
+						if (diff > 0) setCurrencyTranslateY(diff);
+					}}
+					onTouchEnd={(e) => {
+						setIsCurrencyDragging(false);
+						setCurrencySwipeAllowed(false);
+						if (currencyTranslateY > 160 && currencySwipeAllowed) {
+						  setShowCurrencyModal(false);
+						}
+						setCurrencyTranslateY(0);
+						setCurrencyTouchStart(null);
+					}}
 	            >
 	               {/* Handle Bar & Close Button */}
 	               <div className="relative mb-4">
