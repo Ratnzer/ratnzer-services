@@ -75,9 +75,16 @@ const ProductDetailsModal: React.FC<Props> = ({ product, isOpen, onClose, format
   }, [isOpen]);
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientY);
-    setIsDragging(true);
+    const touchY = e.targetTouches[0].clientY;
+    const modalElement = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const topQuarterHeight = modalElement.height * 0.25;
+    const touchYRelative = touchY - modalElement.top;
+    
+    if (touchYRelative <= topQuarterHeight) {
+      setTouchEnd(null);
+      setTouchStart(touchY);
+      setIsDragging(true);
+    }
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
